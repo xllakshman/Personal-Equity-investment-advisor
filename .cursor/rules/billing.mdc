@@ -1,0 +1,46 @@
+---
+description: Thesis plans, wallet, UPI collect, quota — allowances are rows not constants
+globs: apps/web/lib/billing/**,apps/web/app/api/billing/**,apps/web/app/(desk)/billing/**,apps/web/app/admin/**,apps/analysis-api/**/billing*,supabase/migrations/*billing*,supabase/migrations/*plan*
+alwaysApply: false
+---
+
+# Billing and quota
+
+Read HANDOFF.md §3 and the mock Plans / Wallet / Admin → Plans & limits screens before changing money paths.
+
+## Schema (proposed — not applied)
+
+- `plans` — id, name, monthly_analysis_limit, allowed_model_ids, price_cents, interval, who/why copy
+- `wallets` — user_id, balance_cents (never expires)
+- `wallet_topups` / `invoices` — provider, status, amount_cents
+- `usage_events` — kind `search` / `refine` / `pdf` / `prompt_extract_attempt` / `weekly_digest` (P8-02; cost recorded, **not** counted in `monthly_analysis_limit`)
+- Admin thresholds: 60 / 80 / 90 / 100 are **rows** (`plan_notice_thresholds`), not hardcoded except as seed defaults matching the mock
+
+At 100% new **model** calls stop. Saved notes stay readable. Trial sample notes are read-only and **do not** write `usage_events` of kind `search`.
+
+**Confirm before spend (D28):** Analyse, Refine, refine **gate**, and holdings Re-check must show ticker count (when N>1), model, and searches or wallet USD **before** the provider is called. Login and `/desk` load never insert `usage_events` for search/refine/`refine_gate`/`weekly_digest`. Weekly digest enable on `/billing` names the Quick model and that it does **not** use Analyse searches (D41).
+
+**Holdings gate (D33):** `POST /analysis` / `thesis_accept_analysis` requires a `holdings` row for that ticker + `family_id`. Header search does not enqueue. Add the name on `/portfolio` first.
+
+**OpenRouter (D39):** worker `usage_events.cost_cents` prefers OpenRouter response usage when present; else `model_catalog.cost_cents_per_run`. Confirm UI still shows catalog cost **before** send.
+
+## Payment UX (from mock — locked until contradicted)
+
+## Payment UX (from mock — locked until contradicted)
+
+1. **UPI collect first** for INR — collect request to the user's UPI app; nothing charges until they approve.
+2. **Card** for non-INR settlement.
+3. Wallet top-up is pay-as-you-go at model rate with no monthly reset.
+4. Plan vs wallet: above ~eight deep analyses a month the mock says a plan is cheaper — copy only; do not auto-switch.
+
+Do not copy OptimAI Razorpay table names (`billing_customers` WCM). This product's tables are named in HANDOFF §8 after confirmation.
+
+## Enforcement
+
+Server-side only. `POST /analysis` and the worker pre-flight both call the same quota function. Client usage meter is display.
+
+## Env (server-only)
+
+Provider keys TBD (open question). Never `NEXT_PUBLIC_*`.
+
+**Tests:** quota at 99/100/101, wallet debit idempotency, sample reports excluded from usage, UPI webhook signature, refine/re-check without confirm inserts 0 `usage_events`.

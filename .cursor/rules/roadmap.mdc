@@ -1,0 +1,29 @@
+---
+description: Living ROADMAP.md is the chunk queue and progress tracker
+alwaysApply: true
+---
+
+# Roadmap (progress and context)
+
+Canonical execution file: [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md).
+
+Read it **before writing code**. `HANDOFF.md` §3 still wins on architecture. If order disagrees, **ROADMAP wins**. The user revises ROADMAP when they want; do not reorder, split, or mark chunks done without that edit or an explicit ask.
+
+## Current chunk
+
+The table **Current → Build next** in ROADMAP is the only allowed work unless the user names a different chunk id.
+
+## Rules per chunk
+
+1. Implement **only** that chunk’s Direction. No sibling screens, extra nav, or extra tables.
+2. Stop when **Success** is met. Quote the click path, table/RPC, and role in the wrap-up (see `product-language.mdc`).
+3. Do not start the next id while this one is ⬜ or 🟡.
+4. After ship: set Status ✅ + date in ROADMAP, add a sign-off row, one line in `HANDOFF.md` STATUS. Session handoff only if a user-visible route changed.
+5. Browser smoke when the chunk has a route. `npm run build` for web. `./tools/test/run_tests.sh` for Python.
+
+## Anti-patterns
+
+- Building Phase 4 (LLM) during a Phase 1 shell chunk
+- Wrapping `docs/mock-ui/*.html` as the app
+- Inventing tables without a ROADMAP chunk that names a migration
+- Softening a failed success check (“almost”)

@@ -1,0 +1,32 @@
+---
+description: Never regress working screens, buttons, or data paths when adding new work
+alwaysApply: true
+---
+
+# Do not break existing features
+
+This is a hard global rule. New work is not allowed to rewrite, hide, or change behaviour of a screen the user did not ask to change.
+
+## Before editing
+
+1. Name the route, button, table/RPC, and role the ticket needs.
+2. Open only those files. Do not "tidy" sibling pages, shared CSS, chrome, or widgets as a side effect.
+3. If a shared file must change (`globals.css`, `AppShell`, usage meter), keep every existing class and control working for pages you are not building.
+
+## Forbidden without an explicit user ask
+
+- Restyling or relaying out Home, Analyse, Report, Library, Billing, or Admin as a side effect of another ticket
+- Removing, merging, or collapsing widgets that already rendered
+- Changing default open/closed, filter commit, or URL state
+- Deleting a button, href, or RPC call because a new page exists
+- Rewriting a saved report in place (refinements **append**; original verdict stays)
+
+## After UI edits
+
+The previously working surface must still show the same widgets, filters, and click paths. If you cannot keep that, stop and ask — do not ship a new layout.
+
+## Mock lock (until product UI ships)
+
+Canonical screens are `docs/mock-ui/Thesis.dc.html` (app) and `docs/mock-ui/Home.dc.html` (marketing). Do not invent extra nav items. Screen ids: `login`, `signup`, `reset`, `home`, `build`, `portfolio`, `clarify`, `report`, `library`, `usage`, `billing`, `admin`, `arch`.
+
+Work only the ROADMAP **Build next** chunk. Filling `/analyse` is not a reason to restyle `/desk`.

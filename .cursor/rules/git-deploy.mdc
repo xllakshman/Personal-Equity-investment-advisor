@@ -1,0 +1,31 @@
+---
+description: Local commit then push to dev then prod — never push without the user naming the target
+alwaysApply: true
+---
+
+# Git promotion (local → dev → prod)
+
+Order is **local commit → push to the named dev remote/branch → promote to prod**. Cursor may **ask** whether to push. It must not push, deploy, or apply SQL to **dev** or **prod** until the user names that target in this turn.
+
+## Allowed without extra approval
+
+- Edit files, run local tests, `git status` / `git diff` / `git log`.
+- **Commit** only when the user asks to commit (existing commit protocol).
+- **Ask:** “Commit locally?” / “Push this SHA to **dev**?” / “Promote this SHA to **prod**?”
+
+## Forbidden unless the user names the environment this turn
+
+- `git push` (any remote, including `origin`, `dev`, `prod`)
+- `gh` create/merge that updates a protected remote
+- Vercel / Docker / host deploy to a named env
+- `CONFIRM_APPLY=1` or any migration runner against a named Supabase project other than the one they named
+
+“Looks good”, “ship it”, or finishing a ROADMAP chunk is **not** push approval. They must say **dev** or **prod** (or the remote/project URL).
+
+Local `.env` stays on DEV `https://cmksomahsfmsjufakryw.supabase.co`. Do not retarget `.env` to another project to “help”.
+
+## Anti-patterns
+
+- `git push -u origin HEAD` after a commit the user did not also approve as a **dev** push
+- Promoting to prod because dev is green
+- Asking once at session start and treating that as standing approval

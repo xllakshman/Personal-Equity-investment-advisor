@@ -1,0 +1,26 @@
+---
+description: Concrete product language — name routes, tables, RPCs, roles, and UI state
+alwaysApply: true
+---
+
+# Product language
+
+When explaining this product, be concrete. Do not use internal jargon unless you immediately define it with the actual table, RPC, route, button, role, and what the user sees if that step never runs.
+
+Banned unless defined in the same paragraph: live, wired, rebuilt, facts, overlay, ingest, propagate, snapshot (without the table name), outbox, packet, wave, steward, source of truth (without naming the table).
+
+Every claim about data movement must name:
+
+1. The screen or SQL the user would use (path or function).
+2. The table or view that changes.
+3. The table the dashboard actually reads.
+4. Who is allowed to do it (role + grant).
+5. What the UI does today: button exists, list-only, RPC-only, or seed-only.
+
+If a step has no button, say "no button; owner/admin must call `<rpc>` in SQL". If demo data is why a desk looks filled, name the seed file.
+
+Do not soften gaps with "intended", "almost", or "partially wired". State the click path or state that it does not exist.
+
+Example — forbidden: "Analyses are live once the worker runs."
+
+Required shape: "`POST /analysis` inserts `analysis_requests` with `status = queued`. `GET /` (Desk) counts rows in `analysis_requests` for `user_id = auth.uid()` in the current billing period. The worker is `apps/analysis-worker` and is not started by Next.js. Until the worker process runs, Desk still shows the previous count and Reports does not gain a row."

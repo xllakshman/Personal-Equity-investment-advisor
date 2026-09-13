@@ -1,0 +1,50 @@
+---
+description: Analysis API and worker conventions — HTTP vs jobs vs prompt
+globs: apps/analysis-api/**/*,apps/analysis-worker/**/*
+alwaysApply: false
+---
+
+# Analysis API and worker
+
+Read `HANDOFF.md` §3, §8, §14 and [`investment-framework.mdc`](investment-framework.mdc) before implementing.
+
+## Layout
+
+```
+apps/analysis-api/src/analysis_api/
+  api/routes/     # HTTP only
+  domain/         # risk/CAGR guard, quota, refine classifier
+  schemas/        # Pydantic DTOs
+apps/analysis-worker/src/analysis_worker/
+  jobs/           # Step 0 gather, framework run, PDF render
+```
+
+## HTTP (mock contract)
+
+```
+POST /auth/signup · /auth/login · /auth/reset     # prefer Supabase Auth; do not duplicate unless locked
+POST /portfolio/import   multipart CSV → parsed + rejected rows
+POST /analysis           422 on risk/CAGR conflict or ticker not in holdings; returns job id
+GET  /analysis/:id       status then report payload
+POST /reports/:id/refine-gate  cheap model; billed kind=refine_gate
+POST /reports/:id/refine billed; enrichment text in variable pack; classify prompt-extraction before dispatch
+GET  /reports · PATCH /reports/:id · GET /reports/:id/pdf
+GET  /usage · POST /billing/subscribe · /billing/wallet/topup
+GET  /admin/accounts · PUT /admin/plans · POST /admin/prompt-versions
+```
+
+Admin HTTP is reached only after `/admin/login` (Next middleware + `users.role`). `platform_admin` must **not** be able to `POST /analysis`. Auth for the desk is Supabase Auth + Next.js — do not implement a second password store.
+
+## Job lifecycle
+
+`queued → gathering → drafting → checking → rendering → ready | failed`
+
+A frontier run is **40–90s**. The UI may leave the page; the note appears under Reports.
+
+## Layer rules
+
+1. Routes parse/auth/enqueue only.
+2. Domain owns 422 conflict, quota, refusal classifier, immutability.
+3. Worker owns OpenRouter I/O (D39) and PDF. Worker uses `service_role` / direct Postgres; UI uses JWT + RLS. Completions go to `https://openrouter.ai/api/v1/chat/completions` with `openrouter_model_id` and `allow_fallbacks: false`. Missing `OPENROUTER_API_KEY` fails the job.
+
+Port **8091** locally (8090 reserved if this machine also runs invoice-processing validation-api).

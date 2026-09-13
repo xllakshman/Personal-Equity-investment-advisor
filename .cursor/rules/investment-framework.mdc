@@ -1,0 +1,41 @@
+---
+description: Investment framework lock — system prompt, Step 0, F1–F6, never leak prompt
+globs: apps/analysis-api/**/*,apps/analysis-worker/**/*,apps/web/components/features/report/**/*,apps/web/components/features/builder/**/*,supabase/migrations/*
+alwaysApply: false
+---
+
+# Investment framework
+
+Canonical text: [`docs/mock-ui/uploads/Investment Framework Prompt - May 2026.txt`](docs/mock-ui/uploads/Investment%20Framework%20Prompt%20-%20May%202026.txt).
+Live copy in production is `prompt_versions.body` selected by `prompt_versions.id` stamped on `reports.prompt_version_id`. The file in git is the **bootstrap draft**, not a runtime source.
+
+## Every analysis (no shortcuts)
+
+1. **Step 0 — seven searches** before opinion: live price, 90-day news, latest earnings, short/bear thesis, competitive threat searched independently, competitor behaviour, sector specialist.
+2. Dual adherence check, twice. Any NO = redo that section.
+3. Framework 1 (moat / ROIC + sector metric) then Framework 2 (seven questions with bear case between Q5 and Q6).
+4. Position sizing, profit booking, portfolio construction, dual-sleeve rules apply when the request intent needs them.
+5. Never estimate current price. Step 0 item 1 is **previous close** from Yahoo chart v8 (D40), not last tick. Never give US options advice. Never flatten a bear case.
+
+## Product behaviour that schema must support
+
+- `analysis_requests.lenses[]` maps to which rulebooks the user ticked in the builder.
+- `analysis_requests.intent`, `avg_down`, `risk_band`, `cagr_band`, `tax_basis` are first-class columns, not prompt-only.
+- Risk/CAGR conflict is a **server 422**, mirrored in the UI. See HANDOFF §3.
+- Holdings change the verdict: CSV/`holdings` rows are injected as **user context after** the static prompt prefix (prompt-cache friendly). Admins cannot read holdings unless the user grants support access.
+- Analyse is **only** for a ticker that already appears in view `holdings` for that `family_id` (D33).
+- Refine: user feedback is **enrichment** in the variable pack (their perspective). Original `reports` row is immutable; child `refinements` append. Cheap-model **materiality gate** (P4-05, [`docs/prompts/refine-materiality-gate.md`](docs/prompts/refine-materiality-gate.md)) runs first; `material: false` → “Do you want to proceed?” before the frontier refine.
+
+## Prompt protection
+
+- Never return `prompt_versions.body` (or any prefix of it) from HTTP, SSE, error payloads, or PDFs.
+- Refine-loop extraction attempts → fixed refusal string from server config, increment `usage_events.kind = prompt_extract_attempt`.
+- Three refusals in a session → admin flag. Ten → rate limit, not ban.
+
+## Anti-patterns
+
+- Shipping a generic chatbot completion without Step 0 evidence rows
+- Treating the Sunday digest as F1–F6 or inserting `reports` from P8-02
+- Writing converted INR amounts into `holdings.cost_per_share`
+- Updating `reports.verdict` on refine
+- Putting the May 2026 investor profile ($150k book, named holdings) into **product defaults** — that file is the author's personal desk, not SaaS seed data. Knobs (tranche %, LTCG months, max names, options ban, LRS) live on `investor_profiles` (P1-05), not as constants copied from that file.

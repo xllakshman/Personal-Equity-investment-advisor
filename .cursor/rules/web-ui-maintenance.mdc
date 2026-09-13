@@ -1,0 +1,48 @@
+---
+description: Web UI hygiene — screen map, doc sync, no mock-runtime in apps
+globs: apps/web/**,docs/roadmap/**,docs/mock-ui/**
+alwaysApply: false
+---
+
+# Web UI maintenance
+
+Read [`apps/web/README.md`](apps/web/README.md), `docs/mock-ui/README.md`, and the **current chunk** in [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) before/after UI work.
+After every chunk: mark Status in `ROADMAP.md`, one line in `HANDOFF.md` STATUS, and `apps/web/README.md`. Do not start the next ROADMAP id until Success is met or the user skips it in that file.
+
+## Screen map (locked by mock)
+
+| Mock `screen` | User-facing label | Planned route |
+|---------------|-------------------|---------------|
+| `login` / `signup` / `reset` | Sign in / Create account / Reset password | `/login`, `/signup`, `/reset` |
+| `home` | Desk | `/desk` (marketing `/` is unauthenticated; logged-in `/` redirects to `/desk`) |
+| `build` | Request builder | `/analyse` |
+| `portfolio` | Portfolio | `/portfolio` |
+| `clarify` | Clarifying questions | `/analyse/[requestId]/clarify` |
+| `report` | Analysis note | `/reports/[id]` |
+| `library` | Reports | `/reports` |
+| `usage` | Usage | `/usage` |
+| `billing` | Plans and wallet | `/billing` |
+| `admin` | Platform administration | **`/admin/login`** then `/admin/accounts` — **not** a desk nav item |
+| `arch` | Handoff notes (engineering) | `/admin/architecture` after admin login, or docs only |
+
+Also (not mock `screen` ids): `/settings/profile` (P1-05), `/settings/crash-letter` (P9-00), `/research/managers` (P9-01 only — extra nav allowed in that chunk), `/admin/observability` after admin login (Customer Feedback tab is P7-10; CSAT form stays on `/reports/[id]`, P5-05).
+
+Marketing: `docs/mock-ui/Home.dc.html` → `/` unauthenticated.
+
+## After every chunk
+
+1. `npm run build` in `apps/web/` must pass.
+2. Do not import `docs/mock-ui/support.js`.
+3. Auth actions stay in `app/(auth)/actions.ts`. Server-only keys never in `NEXT_PUBLIC_*`.
+4. Usage meter and 60/80/90 notices read `usage_events` aggregates via `GET /usage` — never a client-only counter.
+
+## Design lock (from mock)
+
+Print / research desk: Newsreader + IBM Plex Sans / Mono, warm paper `#f6f5f2`, ink `#1b1a17`, forest accents. Marketing home is dark glass — do not mix the two palettes on one route.
+
+## Anti-patterns
+
+- Extra sidebar items not in the mock **except** drop the mock’s Admin console from the desk (D27)
+- Editable saved verdict
+- Showing sample-report write actions on trial samples (read-only, do not consume quota)
+- Rendering arbitrary HTML/`<script>` from the model (P5-04 allowlist only)

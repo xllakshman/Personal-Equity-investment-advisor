@@ -1,0 +1,30 @@
+---
+description: SQL migration and seed conventions for Thesis
+globs: supabase/**/*,tools/**/*
+alwaysApply: false
+---
+
+# Database scripts
+
+Read `HANDOFF.md` §6, §7, §8, §9, §17, §25 before editing migrations or seeds.
+
+- New migrations: see `supabase/migrations/NEXT_MIGRATION.md`.
+- Numbered `NNN_snake_name.sql`. Next unused number is **010**.
+- **Status:** **001–009** applied on DEV `https://cmksomahsfmsjufakryw.supabase.co`. Next unused is **010**. Do not apply until the user names the file and the project.
+- One concern per file. Do not mix RLS, seed data, and storage buckets in the same migration unless they cannot compile separately.
+- Tenant / owner column on every user-owned table. Enable RLS in the same migration that creates the table. `FORCE ROW LEVEL SECURITY` on those tables.
+- Seeds live in `supabase/seed/` and are applied only via `tools/db/`. Never `INSERT` demo holdings in a schema migration.
+- UUIDs in seeds must be valid hex. Amounts store **native currency** + `native_currency` — never a display FX conversion.
+- Reports are **insert-only** after save. Refinements are a child table. No `UPDATE` of `reports.verdict` / `reports.sections`.
+- Prompt bodies live in `prompt_versions`. No `GRANT SELECT` on prompt body columns to `authenticated`.
+- `audit_log` is append-only: no `UPDATE`/`DELETE` grants.
+- Every new migration needs `tests/unit/tools/test_migration_NNN.py` that asserts table/RPC/policy names exist in the SQL file (static) plus an integration test gated on credentials.
+
+## Apply path
+
+```bash
+# After user confirmation only
+./tools/db/run_migration_001.sh
+```
+
+Never paste the database password into chat, README, or git.

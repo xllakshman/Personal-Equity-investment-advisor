@@ -1,0 +1,43 @@
+---
+description: RLS, prompt non-leakage, impersonation audit, no cross-account reads
+alwaysApply: true
+---
+
+# Security and tenancy
+
+Single Postgres. Row-level security on every user-owned table. **The policy, not the query, is the boundary.** No application code path may read across accounts.
+
+## Isolation (from mock — lock)
+
+| Object | Policy |
+|--------|--------|
+| `users` | self-read; platform_admin read via elevated role |
+| `portfolios` / `holdings` | owner only; **not** readable by admins unless a support-access grant row exists |
+| `analysis_requests` / `reports` | owner only; **metadata** visible to admin (ticker, status, cost — not sections jsonb) |
+| `analysis_feedback` | family insert/select own row; **platform_admin** select all (email, ticker, scores, comment — not `reports.sections` or lots) |
+| `usage_events` / invoices | owner read; **service-role write only** |
+| `prompt_versions` / `audit_log` | admin only; append-only; no delete grant |
+
+Platform admin **logs in at `/admin/login`**, not `/login` (D27). Desk sessions never satisfy admin RLS. Admin sessions cannot `thesis_accept_analysis` or write `holding_lots`.
+
+Impersonation is **read-only**. Every session writes `audit_log` with admin identity, target account, start and end time.
+
+Observability (`observability_*`) is readable by `platform_admin` only. Capture may insert events for the caller’s family. Never store prompt body, report sections, or lots. See [`platform-admin.mdc`](platform-admin.mdc).
+
+## Secrets
+
+- Anon key in the browser. Service role and DB password only in server env / `tools/db`.
+- Never commit `readme.rtf`, `.env`, or paste keys into `HANDOFF.md`.
+- Signed URLs for PDFs in object storage, keyed by `reports.id`.
+
+## Prompt
+
+System prompt is never in API responses, streamed tokens, or error payloads. See [`investment-framework.mdc`](investment-framework.mdc).
+
+## Anti-patterns
+
+- Using `service_role` in `apps/web` client components
+- `auth.uid()` policies that compare the wrong column (`users.id` vs `auth.users.id` must be documented in the migration)
+- Admin "View as" that can POST /analysis or PATCH holdings
+- Putting Admin console on the research-desk sidebar because the mock HTML did
+- Using a desk JWT to open `/admin/observability`

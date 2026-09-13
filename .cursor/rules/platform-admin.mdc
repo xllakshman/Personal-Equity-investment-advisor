@@ -1,0 +1,45 @@
+---
+description: Platform admin is a separate login; observability like OptimAI without MCP
+globs: apps/web/app/admin/**,apps/web/app/(admin)/**,apps/web/lib/admin/**,apps/analysis-api/**/admin*,supabase/migrations/*observability*,supabase/migrations/*prompt*
+alwaysApply: false
+---
+
+# Platform admin and observability
+
+Read [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) Phase 7 and `HANDOFF.md` **D27** before touching admin routes.
+
+## Login (locked)
+
+- Desk customers use `/login` → `/desk`.
+- Platform admin uses **`/admin/login`** → `/admin/accounts`. Same Supabase Auth project; `users.role = platform_admin`.
+- Middleware: desk JWT on `/admin/*` → `/admin/login`. Admin JWT on `/desk` or `POST` that calls `thesis_accept_analysis` → 403.
+- Do **not** put an Admin console item on the research-desk sidebar (the mock does; ignore that).
+- First admin: no button; operator runs `tools/db/promote_platform_admin.sql`.
+
+## What admin may see
+
+- `/admin/accounts` reads `users`, `families`, `plans`, `usage_events` aggregates, `reports_admin_meta` (ticker/status/cost — **not** `reports.sections`).
+- Holdings (`holding_lots` / view `holdings`) only after `support_access_grants` (P7-04).
+- Prompt **list** is `prompt_versions_meta`. Body only in a server action for `platform_admin`. Never in desk clients.
+
+## Observability (OptimAI shape, Thesis products)
+
+Tables (P7-05): `observability_events`, `observability_minute_buckets`, `observability_thresholds`, `observability_alert_events`, `observability_settings`.
+
+`/admin/observability` tabs: Overview, Watch limits, APIs, Latency, Who used which product, **Customer Feedback (P7-10)**. Red-watch email is **not** v1 (P7-09 skipped). CSAT rows live in `analysis_feedback` (P5-05), not in `observability_events`.
+
+**Never stored:** prompt body, `reports.sections`, lot qty, JWT, tokens.
+
+**Do not copy:** OptimAI Connectors/MCP tab, Profit Pulse, IOM, GST.
+
+Thesis `product_id` values: `auth`, `desk`, `analyse`, `portfolio`, `reports`, `refine`, `billing`, `worker`.
+
+v1 watches colour the admin screen and may email. They must **not** HTTP 429 the desk because a watch is red.
+
+## Anti-patterns
+
+- Promoting a desk user to admin and leaving them on `/login` as the admin entry
+- Impersonation that can Run analysis or PATCH lots
+- Returning `prompt_versions.body` in an admin list JSON
+- Storing analysis HTML/JSON in `observability_events`
+- Putting `reports.sections` or lot qty on `analysis_feedback`

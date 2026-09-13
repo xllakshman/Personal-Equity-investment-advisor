@@ -1,0 +1,58 @@
+---
+description: Monorepo folder layout and placement rules for new code
+alwaysApply: true
+---
+
+# Repository structure
+
+Read `README.md` (human overview) and `HANDOFF.md` §5 (file tree) after any reorg. Do not duplicate HANDOFF domain rules — reference §3 and §18.
+
+## Top-level layout
+
+| Path | Purpose | Reader guide |
+|------|---------|--------------|
+| *(root)* | Project overview, quick start, doc map | [`README.md`](README.md) |
+| `apps/` | Deployable services only (web, analysis-api, analysis-worker) | [`apps/README.md`](apps/README.md) |
+| `packages/` | Shared libraries imported by apps — no HTTP servers or cron entrypoints | [`packages/README.md`](packages/README.md) |
+| `infra/` | Docker, deployment config | [`infra/README.md`](infra/README.md) |
+| `supabase/` | Migrations and seeds only — never app business logic | [`supabase/README.md`](supabase/README.md) |
+| `tools/` | One-off dev/ops scripts — not imported by `apps/` at runtime | [`tools/README.md`](tools/README.md) |
+| `docs/` | Mock UI, ADRs, session handoffs, prompt **drafts** (`HANDOFF.md` remains canonical; runtime prompt is `prompt_versions`) | [`docs/README.md`](docs/README.md) |
+| `tests/` | Central unit + integration tests (not co-located in `apps/`) | [`tests/README.md`](tests/README.md) |
+
+Each subdirectory under these paths has its own `README.md` explaining local layout and conventions.
+
+## Where new code goes
+
+- **Next.js UI** → `apps/web/` (`app/` routes, `components/features/<domain>/`, `components/ui/` for primitives)
+  - Marketing / login → `app/(marketing)/`, `app/(auth)/`
+  - Desk home → `app/(desk)/`, `components/features/desk/`
+  - Request builder → `app/(desk)/analyse/`, `components/features/builder/`
+  - Report → `app/(desk)/reports/[id]/`, `components/features/report/`
+  - Portfolio CSV → `app/(desk)/portfolio/`, `lib/portfolio/`
+  - Billing / wallet → `app/(desk)/billing/`, `lib/billing/`
+  - Admin → `app/admin/` (login + accounts + observability + prompt), `lib/admin/` — `platform_admin` only; never mounted under `(desk)`
+- **Analysis HTTP API** → `apps/analysis-api/src/analysis_api/api/routes/`
+- **Pydantic / Zod DTOs** → `apps/analysis-api/src/analysis_api/schemas/` and `packages/typescript/thesis-types/`
+- **Framework / job logic** → `apps/analysis-api/src/analysis_api/domain/` and `apps/analysis-worker/src/analysis_worker/jobs/`
+- **DB, config, LLM clients** → `packages/python/thesis_platform/`
+- **Migration/seed runners** → `tools/db/`
+- **Tests** → `tests/unit/` and `tests/integration/` — see `.cursor/rules/testing.mdc`
+
+Mock HTML lives in `docs/mock-ui/` and is **not** imported by `apps/`. Rebuild screens in `apps/web/`; do not wrap `Thesis.dc.html`.
+
+## Layer rules (per service)
+
+Inside each app under `src/` (Python) or `app/`+`lib/` (Next.js):
+
+1. `api/` or `app/api/` — HTTP only; no business rules
+2. `domain/` or `lib/<domain>/` — business logic; no FastAPI/Next imports in Python domain
+3. `schemas/` or `types/` — DTOs only
+
+## Anti-patterns
+
+- Do not add Python under `tools/` for production code — use `apps/` or `packages/`
+- Do not put Next.js pages under `packages/`
+- Do not duplicate shared DB access — import from `packages/python/thesis_platform`
+- Do not create new top-level folders without updating this rule and HANDOFF §5
+- Do not copy invoice-processing GST / IOM / Profit Pulse tables into this schema

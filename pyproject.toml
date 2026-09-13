@@ -1,0 +1,48 @@
+[project]
+name = "personal-equity-advisor"
+version = "0.1.0"
+description = "Thesis — personal equity advisor monorepo"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.10.0",
+    "psycopg2-binary>=2.9.9",
+    "python-dotenv>=1.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+    "pytest-mock>=3.14.0",
+    "httpx>=0.28.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [
+    ".",
+    "apps/analysis-api/src",
+    "apps/analysis-worker/src",
+    "packages/python",
+    "tools/db",
+]
+markers = [
+    "integration: tests that call Supabase DB or LLM providers (skipped without credentials)",
+    "slow: long-running or batch tests",
+]
+addopts = "-ra --strict-markers --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["analysis_api", "analysis_worker", "thesis_platform"]
+omit = ["tests/*", "*/__init__.py", "**/main.py"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+skip_covered = false

@@ -1,0 +1,43 @@
+---
+description: Read latest session handoff before any implementation in this project
+alwaysApply: true
+---
+
+# Thesis — agent bootstrap
+
+Before writing or changing code, read the **latest session handoff** then `HANDOFF.md`.
+
+0. **Roadmap (always):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next** is the only allowed chunk. User revises that file for order/scope. Rule: [`roadmap.mdc`](roadmap.mdc).
+0. **Portfolio P2 (2026-09-13):** [`docs/handoff/SESSION-2026-09-13-p2-portfolio.md`](docs/handoff/SESSION-2026-09-13-p2-portfolio.md) — `/portfolio` CSV + grid + manual add + display FX on **port 3100**. **Build next: P1-05**.
+0. **Desk through P1-04 (2026-09-13):** [`docs/handoff/SESSION-2026-09-13-p1-02-to-p1-04-desk.md`](docs/handoff/SESSION-2026-09-13-p1-02-to-p1-04-desk.md) — `/login` → `/desk` on **port 3100**.
+0. **Foundation schema (2026-09-13):** [`docs/handoff/SESSION-2026-09-13-foundation-schema.md`](docs/handoff/SESSION-2026-09-13-foundation-schema.md) — Next.js + FastAPI locked; `family_id` tenant; migrations **001–008** applied on DEV. Apply further SQL only with `CONFIRM_APPLY=1` and a named file.
+0. **Repo bootstrap (2026-09-13):** [`docs/handoff/SESSION-2026-09-13-repo-bootstrap.md`](docs/handoff/SESSION-2026-09-13-repo-bootstrap.md) — folder layout + Cursor rules.
+
+## Required sections (`HANDOFF.md`)
+
+| Section | Why |
+|---------|-----|
+| §3 Locked decisions | Do not re-litigate architecture or product choices |
+| §3b Open questions | Blocked until the user answers |
+| §6 Database status | Migrations/seeds already applied (001–009 on DEV) |
+| §17 Gotchas | Secrets, mock vs product, prompt leakage |
+| §18 Next steps | Current build priority |
+| §25 Verification | SQL to confirm DB state if unsure |
+
+## Hard rules
+
+- **Do not break existing features.** See [`do-not-break-existing.mdc`](do-not-break-existing.mdc).
+- **Do not apply migrations** unless the user names the target project and the file, and §25 verification is the reason.
+- **Execute only the ROADMAP “Build next” chunk** unless the user names another id. See [`roadmap.mdc`](roadmap.mdc).
+- Platform admin is **D27**: `/admin/login`, not the desk. Observability follows [`platform-admin.mdc`](platform-admin.mdc).
+- Worker LLM is **OpenRouter** for v1 (D39): `OPENROUTER_API_KEY`, pinned slug, no fallbacks. Native lab keys in `.env` are placeholders until a native-path chunk.
+- **Never commit** `.env`, `*.rtf`, zip archives, service-role keys, or the advisor system prompt in API responses.
+- **Git:** local commit → push **dev** → **prod**. You may ask; never push or deploy to dev/prod unless the user names that target this turn. See [`git-deploy.mdc`](git-deploy.mdc).
+- Local `.env` points only at the project the user named. Do not create a second Supabase project without asking.
+- Claims about data movement must name the **route**, **table/RPC**, **dashboard read**, **role**, and **whether a button exists**. See [`product-language.mdc`](product-language.mdc).
+
+## When starting a new feature
+
+1. Read [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **Current** + that chunk’s Success.
+2. Read `HANDOFF.md` §3 / §18.
+3. Match conventions in touched files. Update ROADMAP status when the gate passes.

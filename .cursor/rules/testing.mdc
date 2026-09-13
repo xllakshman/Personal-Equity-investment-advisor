@@ -1,0 +1,55 @@
+---
+description: Mandatory unit and integration testing for all new code
+alwaysApply: true
+---
+
+# Testing requirements
+
+Read `tests/README.md` before shipping Python or API changes.
+
+## Non-negotiable
+
+1. **Every new module** in `apps/` or `packages/` needs **unit tests** in `tests/unit/<service>/`.
+2. **Every new HTTP route** needs **integration tests** in `tests/integration/<service>/`.
+3. **Edge cases required**: null/empty input, boundary thresholds, invalid enums, risk/CAGR conflict, quota at 100%, prompt-extraction refine, idempotent job accept, native-currency FX (display must not write back).
+4. Run `./tools/test/run_tests.sh` before considering work done; integration suite with `./tools/test/run_tests.sh --integration` when DB/API touched.
+
+## Where tests live
+
+| Code | Tests |
+|------|-------|
+| `apps/analysis-api/` | `tests/unit/analysis_api/`, `tests/integration/analysis_api/` |
+| `apps/analysis-worker/` | `tests/unit/analysis_worker/`, `tests/integration/analysis_worker/` |
+| `packages/python/thesis_platform/` | `tests/unit/thesis_platform/` |
+| `tools/db/` validators | `tests/unit/tools/` |
+| `apps/web/` domain helpers | `apps/web` Vitest only for UI units; HTTP contracts still in `tests/integration/web/` |
+
+Do **not** co-locate Python tests inside `apps/` — use central `tests/` for one CI entrypoint.
+
+## Patterns
+
+```python
+# Unit — mock I/O, no network
+@patch("thesis_platform.llm.client.complete")
+def test_refuse_prompt_extraction(...): ...
+
+# Integration — gate on credentials
+@pytest.mark.integration
+def test_rls_blocks_cross_account_holdings(settings_from_env): ...
+```
+
+## Coverage
+
+Target **≥85%** branch coverage on `analysis_api`, `analysis_worker`, `thesis_platform`. Run:
+
+```bash
+./tools/test/run_tests.sh --cov
+```
+
+## Anti-patterns
+
+- Shipping route/handler without integration test
+- Testing only happy path
+- Live LLM/DB calls in unit tests (mock or mark `@pytest.mark.integration`)
+- Skipping tests for "small" changes
+- Asserting on the system prompt text in any HTTP fixture

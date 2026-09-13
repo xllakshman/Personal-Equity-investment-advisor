@@ -1,0 +1,54 @@
+---
+description: LLM cost optimization — prompt caching, queued jobs, never Batch on live analyse
+globs: apps/analysis-api/**/*,apps/analysis-worker/**/*,packages/python/thesis_platform/**
+alwaysApply: false
+---
+
+# LLM cost optimization
+
+Read HANDOFF.md §3 (queued jobs, 40–90s runs, model picker).
+
+## Prompt caching (required)
+
+Enable prompt caching on **every** provider call with a repeating static prefix.
+
+**Cacheable (static prefix first):**
+- Live `prompt_versions.body` for that version id
+- JSON output schema / section list
+- Framework rubrics that do not change per ticker
+
+**Not cached (append after prefix):**
+- Ticker, live price, news pack, earnings pack, holdings, clarifications, refine **enrichment** text (user perspective)
+
+### OpenRouter (v1 transport — D39)
+
+One `OPENROUTER_API_KEY` for v1. `model` = `model_catalog.openrouter_model_id`. Always `provider.allow_fallbacks: false` and `provider.only` = `[openrouter_only]`. Prefer OpenRouter prompt-cache headers when the slug supports them. Native keys (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `XAI_API_KEY`, `DEEPSEEK_API_KEY`) may exist in `.env` as placeholders — do not call them until a ROADMAP chunk names that path.
+
+### OpenAI (native — not v1)
+
+- Order: system + schema → then variable research pack
+- Use API prompt caching per current docs. Only if D39 is later split.
+
+### Anthropic (native — not v1 unless cache bills force it)
+
+- Mark stable blocks with `cache_control: { "type": "ephemeral" }` on system + schema
+
+## Jobs
+
+Live Analyse is a **queued worker job**, not a request-scoped HTTP completion. HTTP `POST /analysis` inserts `analysis_requests` (`status = queued`) and returns `request_id`. Worker updates status; UI polls `GET /analysis/:id`.
+
+Quota is checked **twice**: on accept, and again immediately before the provider call (queued jobs can outlive the allowance).
+
+## Batch API
+
+**Do not** use Batch API for interactive Analyse / Refine.
+
+Defer batch to later phases: weekly holdings email (**P8-02**, Quick model only, one call per family per ISO week), historical backfill. Dedicated job under `apps/analysis-worker/`; idempotent; audit-logged. Never Batch a Frontier row.
+
+## Anti-patterns
+
+- Full framework prompt resent without a cacheable prefix
+- Calling the provider from a Next.js route handler on the user request
+- Logging prompt body to `audit_log.payload`
+- Substituting a cheaper model than `analysis_requests.model_id` (D36)
+- `openrouter/auto` or `allow_fallbacks: true` (D39)

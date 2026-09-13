@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"><style>*{box-sizing:border-box}body{margin:0;background:#f6f5f2;color:#1b1a17;font-family:"IBM Plex Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}a{color:#2f5f52;text-decoration:none}a:hover{color:#1f7a5c}button{font-family:inherit}input,select,textarea{font-family:inherit;font-size:14px}::placeholder{color:#a3a09a}@keyframes thsin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}@keyframes thpulse{0%,100%{opacity:1}50%{opacity:.45}}@keyframes thspin{to{transform:rotate(360deg)}}@keyframes thglow{0%,100%{box-shadow:0 0 0 0 rgba(31,122,92,.5),0 0 18px 2px rgba(31,122,92,.3)}50%{box-shadow:0 0 0 9px rgba(31,122,92,0),0 0 30px 7px rgba(31,122,92,.55)}}@keyframes thflo{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(5vw,-4vh,0) scale(1.15)}}@keyframes thflo2{0%,100%{transform:translate3d(0,0,0) scale(1.1)}50%{transform:translate3d(-5vw,4vh,0) scale(.95)}}</style></helmet>
+<sc-if value="{{ showAuth }}" hint-placeholder-val="{{ true }}">
+<div style="min-height:100vh;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)">
+<div style="position:relative;overflow:hidden;background:#191f30;background-image:radial-gradient(900px 600px at 10% 0%,rgba(10,132,255,.10),transparent 62%),radial-gradient(800px 560px at 100% 100%,rgba(48,209,88,.07),transparent 62%);color:#f5f5f7;padding:48px 44px;display:flex;flex-direction:column;justify-content:space-between;min-height:100vh;font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif">
+<div style="position:absolute;top:-16vh;left:-10vw;width:60vh;height:60vh;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(10,132,255,.15),rgba(10,132,255,0) 62%);filter:blur(28px);animation:thflo 26s ease-in-out infinite;pointer-events:none"></div>
+<div style="position:absolute;bottom:-20vh;right:-14vw;width:58vh;height:58vh;border-radius:50%;background:radial-gradient(circle at 55% 45%,rgba(48,209,88,.11),rgba(48,209,88,0) 62%);filter:blur(30px);animation:thflo2 32s ease-in-out infinite;pointer-events:none"></div>
+<a href="Home.dc.html" style="position:relative;display:flex;align-items:center;gap:10px;color:#f5f5f7"><div style="width:26px;height:26px;border-radius:8px;background:linear-gradient(145deg,#0a84ff,#30d158)"></div><span style="font:600 15px/1 -apple-system,'SF Pro Display',sans-serif;letter-spacing:.14em;text-transform:uppercase">Thesis</span></a>
+<div style="position:relative;max-width:480px">
+<p style="display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.07);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,.14);font-size:12px;font-weight:600;color:rgba(245,245,247,.84);margin:0 0 22px"><span style="width:6px;height:6px;border-radius:50%;background:#30d158;animation:thpulse 2.4s ease-in-out infinite"></span>Equity growth advisory, built on agentic AI</p>
+<h1 style="font-size:clamp(34px,3.4vw,50px);line-height:1.04;font-weight:700;letter-spacing:-.035em;margin:0 0 20px;text-wrap:balance">An institutional-grade AI agent built to grow your equity portfolio.</h1>
+<p style="font-size:16.5px;line-height:1.6;color:rgba(245,245,247,.66);margin:0 0 32px;max-width:44ch;text-wrap:pretty">We do not rate stocks. We underwrite them — we prove the business with real numbers, argue the case against buying, split your entry into four slices, and write your exit rule before you put money in.</p>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;gap:12px;align-items:flex-start"><div style="width:6px;height:6px;border-radius:50%;background:#0a84ff;margin-top:8px;flex:none"></div><p style="margin:0;font-size:14.5px;line-height:1.5;color:rgba(245,245,247,.82)">Sized to your capital, drawdown tolerance and CAGR target</p></div>
+<div style="display:flex;gap:12px;align-items:flex-start"><div style="width:6px;height:6px;border-radius:50%;background:#30d158;margin-top:8px;flex:none"></div><p style="margin:0;font-size:14.5px;line-height:1.5;color:rgba(245,245,247,.82)">Built to disagree with you — never a flattering answer</p></div>
+<div style="display:flex;gap:12px;align-items:flex-start"><div style="width:6px;height:6px;border-radius:50%;background:#bf5af2;margin-top:8px;flex:none"></div><p style="margin:0;font-size:14.5px;line-height:1.5;color:rgba(245,245,247,.82)">Choose your model — you only pay for what you run</p></div>
+</div>
+</div>
+<a href="Home.dc.html" style="position:relative;font-size:13px;font-weight:600;color:rgba(245,245,247,.6)">← Back to home</a>
+</div>
+<div style="background:#f6f5f2;padding:48px 44px;display:flex;align-items:center;justify-content:center;min-height:100vh">
+<div style="width:100%;max-width:420px;animation:thsin .35s ease both">
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+<h2 style="font:400 30px/1.15 Newsreader,serif;margin:0 0 8px;letter-spacing:-.01em">Welcome back</h2>
+<p style="margin:0 0 28px;font:400 14px/1.6 'IBM Plex Sans';color:#706d66">Sign in to your research desk.</p>
+<label style="display:block;font:500 11px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 7px">Email</label>
+<input type="email" value="{{ form.email }}" onChange="{{ onEmail }}" placeholder="you@domain.com" style="width:100%;padding:11px 13px;border:1px solid #d8d5cd;border-radius:8px;background:#fff;margin:0 0 18px" />
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin:0 0 7px"><label style="font:500 11px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66">Password</label><button onClick="{{ togglePw }}" style="border:0;background:transparent;cursor:pointer;font:500 11.5px/1 'IBM Plex Sans';color:#2f5f52">{{ pwLabel }} password</button></div>
+<input type="{{ pwType }}" value="{{ form.pw }}" onChange="{{ onPw }}" placeholder="••••••••••" style="width:100%;padding:11px 13px;border:1px solid #d8d5cd;border-radius:8px;background:#fff;margin:0 0 22px" />
+<button onClick="{{ doAuth }}" style="width:100%;padding:13px;border:0;border-radius:8px;background:#1b1a17;color:#f6f5f2;cursor:pointer;font:600 14px/1 'IBM Plex Sans';animation:thglow 2.6s ease-in-out infinite;transition:transform .28s cubic-bezier(.2,.7,.2,1)" style-hover="transform:translateY(-2px)">Sign in</button>
+<div style="display:flex;justify-content:space-between;margin:18px 0 0;font:400 13px/1 'IBM Plex Sans'"><button onClick="{{ goReset }}" style="border:0;background:transparent;cursor:pointer;color:#2f5f52;font:inherit;padding:0">Forgot password</button><button onClick="{{ goSignup }}" style="border:0;background:transparent;cursor:pointer;color:#57544e;font:inherit;padding:0">Create an account</button></div>
+</sc-if>
+<sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
+<h2 style="font:400 30px/1.15 Newsreader,serif;margin:0 0 8px;letter-spacing:-.01em">Open your desk</h2>
+<p style="margin:0 0 26px;font:400 14px/1.6 'IBM Plex Sans';color:#706d66">Tax residency sets how gains are modelled. You can change it later.</p>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div><label style="display:block;font:500 11px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 7px">Full name</label><input value="{{ form.name }}" onChange="{{ onName }}" placeholder="As it appears on your broker account" style="width:100%;padding:11px 13px;border:1px solid #d8d5cd;border-radius:8px;background:#fff" /></div>
+<div><label style="display:block;font:500 11px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 7px">Tax residency</label><select value="{{ form.residency }}" onChange="{{ onRes }}" style="width:100%;padding:11px 13px;border:1px solid #d8d5cd;border-radius:8px;background:#fff"><option>United States</option><option>India</option><option>United Arab Emirates</option><option>Non-resident Indian (NRI)</option></select></div>
+<div><label style="display:block;font:500 11px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 7px">Email</label><input type="email" value="{{ form.email }}" onChange="{{ onEmail }}" placeholder="you@domain.com" style="width:100%;padding:11px 13px;border:1px solid #d8d5cd;border-radius:8px;background:#fff" /></div>
+<div><label style="display:block;font:500 11px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 7px">Phone</label><div style="display:flex;gap:8px"><select value="{{ form.cc }}" onChange="{{ onCc }}" style="width:132px;padding:11px 10px;border:1px solid #d8d5cd;border-radius:8px;background:#fff"><option value="+1">🇺🇸 +1 · USA</option><option value="+91">🇮🇳 +91 · India</option><option value="+971">🇦🇪 +971 · UAE</option></select><input value="{{ form.phone }}" onChange="{{ onPhone }}" placeholder="Mobile number" style="flex:1;min-width:0;padding:11px 13px;border:1px solid #d8d5cd;border-radius:8px;background:#fff" /></div></div>
+<div><div style="display:flex;justify-content:space-between;align-items:baseline;margin:0 0 7px"><label style="font:500 11px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66">Password</label><button onClick="{{ togglePw }}" style="border:0;background:transparent;cursor:pointer;font:500 11.5px/1 'IBM Plex Sans';color:#2f5f52">{{ pwLabel }} password</button></div><input type="{{ pwType }}" value="{{ form.pw }}" onChange="{{ onPw }}" placeholder="12+ characters" style="width:100%;padding:11px 13px;border:1px solid #d8d5cd;border-radius:8px;background:#fff" /><p style="margin:7px 0 0;font:400 11.5px/1.5 'IBM Plex Sans';color:#a3a09a">Minimum 12 characters. Visibility is off by default and never persisted.</p></div>
+</div>
+<button onClick="{{ doAuth }}" style="width:100%;padding:13px;border:0;border-radius:8px;background:#1b1a17;color:#f6f5f2;cursor:pointer;font:600 14px/1 'IBM Plex Sans';margin:24px 0 0">Create account · start 14-day trial</button>
+<p style="margin:16px 0 0;font:400 13px/1 'IBM Plex Sans';color:#57544e;text-align:center">Already have a desk? <button onClick="{{ goLogin }}" style="border:0;background:transparent;cursor:pointer;color:#2f5f52;font:inherit;padding:0">Sign in</button></p>
+</sc-if>
+<sc-if value="{{ isReset }}" hint-placeholder-val="{{ false }}">
+<h2 style="font:400 30px/1.15 Newsreader,serif;margin:0 0 8px;letter-spacing:-.01em">Reset password</h2>
+<p style="margin:0 0 26px;font:400 14px/1.6 'IBM Plex Sans';color:#706d66">We send a single-use link valid for 30 minutes. Existing sessions are revoked on reset.</p>
+<label style="display:block;font:500 11px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 7px">Account email</label>
+<input type="email" value="{{ form.email }}" onChange="{{ onEmail }}" placeholder="you@domain.com" style="width:100%;padding:11px 13px;border:1px solid #d8d5cd;border-radius:8px;background:#fff;margin:0 0 22px" />
+<button onClick="{{ goLogin }}" style="width:100%;padding:13px;border:0;border-radius:8px;background:#1b1a17;color:#f6f5f2;cursor:pointer;font:600 14px/1 'IBM Plex Sans'">Send reset link</button>
+<p style="margin:16px 0 0;font:400 13px/1 'IBM Plex Sans';text-align:center"><button onClick="{{ goLogin }}" style="border:0;background:transparent;cursor:pointer;color:#57544e;font:inherit;padding:0">Back to sign in</button></p>
+</sc-if>
+</div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ showApp }}" hint-placeholder-val="{{ false }}">
+<div style="min-height:100vh;display:flex;flex-direction:column">
+<header style="position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:16px;padding:11px 20px;background:#f6f5f2;border-bottom:1px solid #e4e1da">
+<a href="Home.dc.html" style="display:flex;align-items:center;gap:9px;width:180px;flex:none;color:#1b1a17"><div style="width:22px;height:22px;border-radius:6px;background:linear-gradient(145deg,#2f5f52,#1f7a5c)"></div><span style="font:600 13px/1 'IBM Plex Sans';letter-spacing:.14em;text-transform:uppercase">Thesis</span></a>
+<div style="flex:1;min-width:0;max-width:520px;display:flex;gap:8px"><input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Search a ticker to analyse — MSFT, TSM, HDFCBANK…" style="flex:1;min-width:0;padding:9px 13px;border:1px solid #d8d5cd;border-radius:8px;background:#fff" /><button onClick="{{ runSearch }}" style="padding:9px 15px;border:0;border-radius:8px;background:#1b1a17;color:#f6f5f2;cursor:pointer;font:500 13px/1 'IBM Plex Sans';white-space:nowrap">Analyse</button></div>
+<div style="display:flex;align-items:center;gap:9px;margin-left:auto">
+<button onClick="{{ toggleCur }}" style="padding:5px 10px;border-radius:999px;border:1px solid #e4e1da;background:#fff;cursor:pointer;font:500 11.5px/1 'IBM Plex Mono';color:#1b1a17">{{ curLabel }}</button>
+<button onClick="{{ toggleExpert }}" style="{{ modeStyle }}">{{ expertLabel }} mode</button>
+<div style="display:flex;align-items:center;gap:8px;padding-left:9px;border-left:1px solid #e4e1da"><div style="text-align:right"><p style="margin:0;font:500 12.5px/1.3 'IBM Plex Sans'">{{ session.name }}</p><p style="margin:0;font:400 11px/1.3 'IBM Plex Mono';color:#706d66">{{ roleLabel }}</p></div><button onClick="{{ signOut }}" style="width:30px;height:30px;border-radius:50%;border:1px solid #d8d5cd;background:#fff;cursor:pointer;font:600 11.5px/1 'IBM Plex Sans';color:#57544e">MR</button></div>
+</div>
+</header>
+<sc-if value="{{ impOn }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:12px;padding:8px 20px;background:#1b1a17;color:#f6f5f2;font:500 12px/1 'IBM Plex Sans'"><span style="padding:3px 7px;border-radius:4px;background:#8a6410;font:600 10px/1.4 'IBM Plex Mono';letter-spacing:.08em">READ-ONLY</span><span>Viewing {{ impersonate }} as platform admin · every action is written to the audit log</span><button onClick="{{ stopImp }}" style="margin-left:auto;border:1px solid #514e48;background:transparent;color:#f6f5f2;border-radius:6px;padding:4px 10px;cursor:pointer;font:500 11.5px/1 'IBM Plex Sans'">Exit</button></div></sc-if>
+<div style="flex:1;display:grid;grid-template-columns:212px minmax(0,1fr);align-items:start">
+<nav style="position:sticky;top:56px;padding:20px 12px;display:flex;flex-direction:column;gap:3px;border-right:1px solid #e4e1da;align-self:start">
+<sc-for list="{{ nav }}" as="n" hint-placeholder-count="8">
+<button onClick="{{ n.onClick }}" style="{{ n.style }}" style-hover="background:#e9e6de;transform:translateX(2px)"><span style="font:500 13px/1.35 'IBM Plex Sans'">{{ n.label }}</span><span style="font:400 10.5px/1.3 'IBM Plex Mono';color:#a3a09a">{{ n.hint }}</span></button>
+</sc-for>
+<div style="margin:18px 0 0;padding:13px;border-radius:9px;background:#eef2f0;border:1px solid #d8e2dd">
+<p style="margin:0 0 5px;font:600 11px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#2f5f52">This cycle</p>
+<p style="margin:0 0 8px;font:500 12.5px/1.4 'IBM Plex Sans';color:#1b1a17">{{ usedS }}</p>
+<div style="height:5px;border-radius:3px;background:#d8e2dd;overflow:hidden"><div style="height:100%;width:{{ usedBar }};background:{{ usedBarCol }}"></div></div>
+<p style="margin:8px 0 0;font:400 11px/1.45 'IBM Plex Sans';color:#57544e">{{ fxNote }}</p>
+</div>
+</nav>
+<main style="padding:26px 30px 64px;min-width:0">
+<sc-if value="{{ warnOn }}" hint-placeholder-val="{{ false }}">
+<div style="{{ warnStyle }}">
+<div style="width:6px;height:6px;border-radius:50%;background:{{ usedBarCol }};margin-top:7px;flex:none"></div>
+<div style="flex:1;min-width:0"><p style="margin:0 0 3px;font:600 12.5px/1.4 'IBM Plex Sans'">Usage checkpoint · {{ usedPctS }} of allowance consumed</p><p style="margin:0;font:400 12.5px/1.6 'IBM Plex Sans';color:#57544e;text-wrap:pretty">{{ warnMsg }}</p></div>
+<div style="display:flex;gap:8px;flex:none"><button onClick="{{ goBilling }}" style="padding:7px 12px;border-radius:7px;border:0;background:#1b1a17;color:#f6f5f2;cursor:pointer;font:500 12px/1 'IBM Plex Sans'">Add funds</button></div>
+</div>
+</sc-if>
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin:0 0 22px">
+<div><p style="margin:0 0 5px;font:500 11px/1 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:#706d66">Friday, 12 September 2026</p><h1 style="font:400 33px/1.15 Newsreader,serif;margin:0;letter-spacing:-.01em">Good morning, Maya.</h1></div>
+<button onClick="{{ goBuild }}" style="padding:11px 17px;border:0;border-radius:8px;background:#1b1a17;color:#f6f5f2;cursor:pointer;font:600 13.5px/1 'IBM Plex Sans';transition:transform .28s cubic-bezier(.2,.7,.2,1),box-shadow .28s ease" style-hover="transform:translateY(-2px);box-shadow:0 12px 26px rgba(27,26,23,.28)">New analysis</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:0 0 22px">
+<div style="padding:17px 18px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><p style="margin:0 0 7px;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66">Portfolio value</p><p style="margin:0;font:500 24px/1.1 'IBM Plex Mono'">{{ portValS }}</p></div>
+<div style="padding:17px 18px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><p style="margin:0 0 7px;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66">Unrealised P&amp;L</p><p style="margin:0;font:500 24px/1.1 'IBM Plex Mono';color:#1f7a5c">{{ portPlS }}</p><p style="margin:4px 0 0;font:400 11.5px/1 'IBM Plex Mono';color:#1f7a5c">{{ portPlPctS }}</p></div>
+<div style="padding:17px 18px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><p style="margin:0 0 7px;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66">Positions</p><p style="margin:0;font:500 24px/1.1 'IBM Plex Mono'">5</p><p style="margin:4px 0 0;font:400 11.5px/1.3 'IBM Plex Sans';color:#706d66">2 above single-name ceiling</p></div>
+<div style="padding:17px 18px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><p style="margin:0 0 7px;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66">Analyses this cycle</p><p style="margin:0;font:500 24px/1.1 'IBM Plex Mono'">{{ usedPctS }}</p><p style="margin:4px 0 0;font:400 11.5px/1.3 'IBM Plex Sans';color:#706d66">{{ usedS }}</p></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px;margin:0 0 22px">
+<div style="padding:20px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 16px">Allocation</h2>
+<div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap">
+<div style="width:128px;height:128px;border-radius:50%;flex:none;background:{{ donut }};display:grid;place-items:center"><div style="width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center"><span style="font:500 11px/1.3 'IBM Plex Mono';color:#706d66;text-align:center">5<br />names</span></div></div>
+<div style="flex:1;min-width:150px;display:flex;flex-direction:column;gap:7px">
+<sc-for list="{{ holdings }}" as="h" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;gap:9px" data-key="{{ h.t }}"><span style="font:500 12px/1 'IBM Plex Mono';width:64px;flex:none">{{ h.t }}</span><div style="flex:1;height:5px;border-radius:3px;background:#eeece6;overflow:hidden"><div style="height:100%;width:{{ h.wS }};background:#2f5f52"></div></div><span style="font:400 11.5px/1 'IBM Plex Mono';color:#706d66;width:34px;text-align:right">{{ h.wS }}</span></div>
+</sc-for>
+</div>
+</div>
+</div>
+<div style="padding:20px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin:0 0 14px"><h2 style="font:400 18px/1.25 Newsreader,serif;margin:0">Recent notes</h2><button onClick="{{ goLibrary }}" style="border:0;background:transparent;cursor:pointer;font:500 12px/1 'IBM Plex Sans';color:#2f5f52">All reports</button></div>
+<div style="display:flex;flex-direction:column;gap:2px">
+<sc-for list="{{ reportRows }}" as="r" hint-placeholder-count="4">
+<button onClick="{{ r.onOpen }}" data-key="{{ r.id }}" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 11px;border:0;border-radius:8px;background:transparent;cursor:pointer" style-hover="background:#f6f5f2;"><span style="font:500 12px/1 'IBM Plex Mono';width:76px;flex:none">{{ r.ticker }}</span><span style="flex:1;min-width:0;font:400 13px/1.4 'IBM Plex Sans';overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</span><span style="font:500 11.5px/1 'IBM Plex Sans';color:{{ r.vcol }};flex:none">{{ r.verdict }}</span><span style="font:400 11px/1 'IBM Plex Mono';color:#a3a09a;flex:none">{{ r.date }}</span></button>
+</sc-for>
+</div>
+</div>
+</div>
+<div style="padding:18px 20px;border-radius:11px;background:#1b1a17;color:#f6f5f2;display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+<div style="flex:1;min-width:240px"><p style="margin:0 0 5px;font:600 13px/1.4 'IBM Plex Sans'">Your CSV drives position-aware verdicts</p><p style="margin:0;font:400 12.5px/1.6 'IBM Plex Sans';color:#b6b2a9;text-wrap:pretty">Upload ticker, company name, cost per share and total purchased, and every analysis is sized against your real book instead of a generic position.</p></div>
+<button onClick="{{ goPortfolio }}" style="padding:10px 15px;border:1px solid #514e48;border-radius:8px;background:transparent;color:#f6f5f2;cursor:pointer;font:500 12.5px/1 'IBM Plex Sans'">Upload portfolio</button>
+</div>
+</sc-if>
+<sc-if value="{{ isPortfolio }}" hint-placeholder-val="{{ false }}">
+<h1 style="font:400 30px/1.15 Newsreader,serif;margin:0 0 6px">Portfolio</h1>
+<p style="margin:0 0 22px;font:400 14px/1.65 'IBM Plex Sans';color:#706d66;max-width:62ch;text-wrap:pretty">Optional, but it changes the answers: with your holdings loaded, position sizes, extra buys and tax all use your real cost.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:0 0 22px">
+<div style="padding:20px;border-radius:11px;background:#fff;border:1px dashed #c6c2b9">
+<p style="margin:0 0 10px;font:600 12.5px/1.4 'IBM Plex Sans'">Upload CSV</p>
+<p style="margin:0 0 14px;font:400 12px/1.6 'IBM Plex Mono';color:#706d66">ticker, company_name, cost_per_share, total_purchased</p>
+<input type="file" accept=".csv" onChange="{{ onCsv }}" style="width:100%;font:400 12.5px/1.4 'IBM Plex Sans'" />
+<sc-if value="{{ hasCsv }}" hint-placeholder-val="{{ false }}"><div style="margin:14px 0 0;padding:11px 12px;border-radius:8px;background:#eef2f0;border:1px solid #d8e2dd"><p style="margin:0 0 8px;font:500 12.5px/1.4 'IBM Plex Sans'">{{ csvName }} · 5 rows parsed, 0 rejected</p><button onClick="{{ saveCsv }}" style="padding:8px 13px;border:0;border-radius:7px;background:#1b1a17;color:#f6f5f2;cursor:pointer;font:500 12px/1 'IBM Plex Sans'">Save to workspace</button></div></sc-if>
+<p style="margin:14px 0 0;font:400 11.5px/1.55 'IBM Plex Sans';color:#a3a09a">Rows we can't match are shown so you can fix them, never silently dropped. Currency is guessed from the exchange and you can change it.</p>
+</div>
+<div style="padding:20px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<p style="margin:0 0 10px;font:600 12.5px/1.4 'IBM Plex Sans'">Or enter manually</p>
+<div style="display:flex;flex-direction:column;gap:9px"><input placeholder="Ticker" style="padding:9px 11px;border:1px solid #d8d5cd;border-radius:7px" /><input placeholder="Company name" style="padding:9px 11px;border:1px solid #d8d5cd;border-radius:7px" /><div style="display:flex;gap:9px"><input placeholder="Cost / share" style="flex:1;min-width:0;padding:9px 11px;border:1px solid #d8d5cd;border-radius:7px" /><input placeholder="Total purchased" style="flex:1;min-width:0;padding:9px 11px;border:1px solid #d8d5cd;border-radius:7px" /></div><button style="padding:9px;border:1px solid #e4e1da;border-radius:7px;background:#fff;cursor:pointer;font:500 12.5px/1 'IBM Plex Sans';color:#57544e">Add position</button></div>
+</div>
+<div style="padding:20px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<p style="margin:0 0 10px;font:600 12.5px/1.4 'IBM Plex Sans'">Display currency</p>
+<p style="margin:0 0 12px;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66">We store each holding in its own currency and only convert it for display.</p>
+<button onClick="{{ toggleCur }}" style="padding:9px 14px;border:1px solid #e4e1da;border-radius:8px;background:#fff;cursor:pointer;font:500 12.5px/1 'IBM Plex Mono';margin:0 0 12px">{{ curLabel }}</button>
+<label style="display:block;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 6px">USD → INR rate (override)</label>
+<input type="number" step="0.1" value="{{ fxVal }}" onChange="{{ onFx }}" style="width:100%;padding:9px 11px;border:1px solid #d8d5cd;border-radius:7px" />
+</div>
+</div>
+<div style="border-radius:11px;background:#fff;border:1px solid #e4e1da;overflow:hidden">
+<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:640px">
+<thead><tr style="background:#f6f5f2"><th style="text-align:left;padding:11px 14px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Ticker</th><th style="text-align:left;padding:11px 14px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Company</th><th style="text-align:right;padding:11px 14px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Qty</th><th style="text-align:right;padding:11px 14px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Cost</th><th style="text-align:right;padding:11px 14px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Last</th><th style="text-align:right;padding:11px 14px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Value</th><th style="text-align:right;padding:11px 14px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">P&amp;L</th><th style="text-align:right;padding:11px 14px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Wt</th></tr></thead>
+<tbody><sc-for list="{{ holdings }}" as="h" hint-placeholder-count="5">
+<tr data-key="{{ h.t }}"><td style="padding:12px 14px;font:500 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">{{ h.t }}</td><td style="padding:12px 14px;font:400 13px/1.4 'IBM Plex Sans';border-bottom:1px solid #f0eee9">{{ h.n }}</td><td style="padding:12px 14px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">{{ h.qty }}</td><td style="padding:12px 14px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">{{ h.costS }}</td><td style="padding:12px 14px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">{{ h.ltpS }}</td><td style="padding:12px 14px;text-align:right;font:500 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">{{ h.valS }}</td><td style="padding:12px 14px;text-align:right;font:500 12.5px/1 'IBM Plex Mono';color:{{ h.col }};border-bottom:1px solid #f0eee9">{{ h.plS }} <span style="font:400 11px/1 'IBM Plex Mono'">{{ h.pctS }}</span></td><td style="padding:12px 14px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';color:#706d66;border-bottom:1px solid #f0eee9">{{ h.wS }}</td></tr>
+</sc-for></tbody>
+</table></div>
+</div>
+</sc-if>
+<sc-if value="{{ isBuild }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin:0 0 20px">
+<div><p style="margin:0 0 5px;font:500 11px/1 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:#706d66">Request builder</p><h1 style="font:400 31px/1.15 Newsreader,serif;margin:0">Analyse <span style="font-family:'IBM Plex Mono';font-size:26px;font-weight:500">{{ ticker }}</span></h1></div>
+<p style="margin:0;font:400 12.5px/1.5 'IBM Plex Sans';color:#706d66;max-width:38ch;text-wrap:pretty">Everything here is filled in from your profile and holdings. Change anything you like.</p>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:18px;align-items:start">
+<div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+<section style="padding:20px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin:0 0 4px"><h2 style="font:400 18px/1.25 Newsreader,serif;margin:0">1 · What to check</h2><span style="font:400 11.5px/1 'IBM Plex Mono';color:#a3a09a">{{ kindSummary }}</span></div>
+<p style="margin:0 0 14px;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66">Pick one kind of check, or run them all together.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:9px">
+<sc-for list="{{ kindRows }}" as="k" hint-placeholder-count="5">
+<button onClick="{{ k.onToggle }}" style="{{ k.style }}" data-key="{{ k.id }}" style-hover="transform:translateY(-2px);box-shadow:0 8px 20px rgba(27,26,23,.08);border-color:#2f5f52"><div style="{{ k.box }}"></div><div style="min-width:0"><p style="margin:0 0 2px;font:600 12.5px/1.3 'IBM Plex Sans'">{{ k.label }}</p><p style="margin:0;font:400 11.5px/1.5 'IBM Plex Sans';color:#706d66;text-wrap:pretty">{{ k.desc }}</p></div></button>
+</sc-for>
+</div>
+</section>
+<section style="padding:20px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 4px">2 · Your position</h2>
+<p style="margin:0 0 16px;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66">We work out your share of the portfolio for you.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:0 0 16px">
+<div><label style="display:block;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 6px">Currently invested in {{ ticker }}</label><input type="number" value="{{ invested }}" onChange="{{ onInvested }}" style="width:100%;padding:10px 12px;border:1px solid #d8d5cd;border-radius:7px;font-family:'IBM Plex Mono'" /><p style="margin:5px 0 0;font:400 11px/1 'IBM Plex Mono';color:#a3a09a">{{ investedS }}</p></div>
+<div><label style="display:block;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 6px">Total portfolio size</label><input type="number" value="{{ portfolio }}" onChange="{{ onPortfolio }}" style="width:100%;padding:10px 12px;border:1px solid #d8d5cd;border-radius:7px;font-family:'IBM Plex Mono'" /><p style="margin:5px 0 0;font:400 11px/1 'IBM Plex Mono';color:#a3a09a">{{ portfolioS }}</p></div>
+<div><label style="display:block;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 6px">Derived allocation</label><p style="margin:0 0 7px;font:500 21px/1.1 'IBM Plex Mono'">{{ allocS }}</p><div style="height:5px;border-radius:3px;background:#eeece6;overflow:hidden"><div style="height:100%;width:{{ allocBar }};background:#2f5f52"></div></div><p style="margin:6px 0 0;font:400 11px/1.45 'IBM Plex Sans';color:#706d66;text-wrap:pretty">{{ allocNote }}</p></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+<div><label style="display:block;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 6px">Intent</label><select value="{{ horizon }}" onChange="{{ onHorizon }}" style="width:100%;padding:10px 12px;border:1px solid #d8d5cd;border-radius:7px;background:#fff"><option>Long-term investment</option><option>Swing trade</option><option>Positional — 3 to 9 months</option><option>Undecided — advise me</option></select></div>
+<div><label style="display:block;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 6px">Willing to average down</label><select value="{{ avgDown }}" onChange="{{ onAvgDown }}" style="width:100%;padding:10px 12px;border:1px solid #d8d5cd;border-radius:7px;background:#fff"><option>Yes — in planned tranches</option><option>Yes — only on thesis-intact dips</option><option>No — single entry only</option></select></div>
+</div>
+</section>
+<section style="padding:20px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 4px">3 · Risk and return</h2>
+<p style="margin:0 0 16px;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66">These two have to match. We check before spending an analysis.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:16px">
+<div><p style="margin:0 0 8px;font:600 11.5px/1 'IBM Plex Sans'">Risk appetite · drawdown you can hold through</p><div style="display:flex;flex-direction:column;gap:7px"><sc-for list="{{ riskOpts }}" as="r" hint-placeholder-count="4"><button onClick="{{ r.onPick }}" style="{{ r.style }}" data-key="{{ r.label }}">{{ r.label }}</button></sc-for></div></div>
+<div><p style="margin:0 0 8px;font:600 11.5px/1 'IBM Plex Sans'">Return target · CAGR you are underwriting</p><div style="display:flex;flex-direction:column;gap:7px"><sc-for list="{{ cagrOpts }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onPick }}" style="{{ c.style }}" data-key="{{ c.label }}">{{ c.label }}</button></sc-for></div></div>
+</div>
+<sc-if value="{{ conflict }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:12px;margin:16px 0 0;padding:14px 15px;border-radius:9px;background:#fbf1ef;border:1px solid #e8c9c4"><div style="width:6px;height:6px;border-radius:50%;background:#b23a2f;margin-top:6px;flex:none"></div><div><p style="margin:0 0 3px;font:600 12.5px/1.4 'IBM Plex Sans';color:#b23a2f">Incompatible pair</p><p style="margin:0;font:400 12.5px/1.6 'IBM Plex Sans';color:#57544e;text-wrap:pretty">{{ conflictMsg }}</p></div></div></sc-if>
+<sc-if value="{{ slack }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:12px;margin:16px 0 0;padding:14px 15px;border-radius:9px;background:#fbf6ea;border:1px solid #e6d7b4"><div style="width:6px;height:6px;border-radius:50%;background:#8a6410;margin-top:6px;flex:none"></div><div><p style="margin:0 0 3px;font:600 12.5px/1.4 'IBM Plex Sans';color:#8a6410">Unused risk budget</p><p style="margin:0;font:400 12.5px/1.6 'IBM Plex Sans';color:#57544e;text-wrap:pretty">{{ slackMsg }}</p></div></div></sc-if>
+</section>
+<section style="padding:20px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 4px">4 · Tax treatment</h2>
+<p style="margin:0 0 16px;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66">Decides how long to hold, and when selling actually makes sense.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+<div><label style="display:block;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 6px">Residency for tax</label><select value="{{ resTax }}" onChange="{{ onResTax }}" style="width:100%;padding:10px 12px;border:1px solid #d8d5cd;border-radius:7px;background:#fff"><option>US resident</option><option>India resident</option><option>Non-resident (UAE / no local CGT)</option><option>Non-resident Indian (NRI)</option></select></div>
+<sc-if value="{{ isUS }}" hint-placeholder-val="{{ true }}"><div><label style="display:block;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 6px">Federal marginal bracket</label><select value="{{ slabUS }}" onChange="{{ onSlabUS }}" style="width:100%;padding:10px 12px;border:1px solid #d8d5cd;border-radius:7px;background:#fff"><option>10%</option><option>12%</option><option>22%</option><option>24%</option><option>32%</option><option>35%</option><option>37%</option></select><p style="margin:6px 0 0;font:400 11px/1.45 'IBM Plex Sans';color:#706d66">Short-term gains taxed at this rate; long-term at 0 / 15 / 20% past 12 months. State tax not modelled.</p></div></sc-if>
+<sc-if value="{{ isIN }}" hint-placeholder-val="{{ false }}"><div><label style="display:block;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 6px">Income slab</label><select value="{{ slabIN }}" onChange="{{ onSlabIN }}" style="width:100%;padding:10px 12px;border:1px solid #d8d5cd;border-radius:7px;background:#fff"><option>5%</option><option>10%</option><option>15%</option><option>20%</option><option>30%</option></select><p style="margin:6px 0 0;font:400 11px/1.45 'IBM Plex Sans';color:#706d66">Listed equity: STCG 20% under 12 months, LTCG 12.5% above the annual exemption. US holdings also attract slab-rate treatment plus DTAA credit.</p></div></sc-if>
+<sc-if value="{{ isNR }}" hint-placeholder-val="{{ false }}"><div style="padding:13px 14px;border-radius:9px;background:#eef2f0;border:1px solid #d8e2dd"><p style="margin:0 0 3px;font:600 12px/1.4 'IBM Plex Sans';color:#2f5f52">No local capital-gains charge modelled</p><p style="margin:0;font:400 11.5px/1.55 'IBM Plex Sans';color:#57544e;text-wrap:pretty">As a non-resident with no local CGT, gains are modelled gross. Indian-listed holdings still attract TDS at source — declare those separately.</p></div></sc-if>
+</div>
+</section>
+</div>
+<aside style="display:flex;flex-direction:column;gap:16px;position:sticky;top:70px;min-width:0">
+<section style="padding:20px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 4px">5 · Model</h2>
+<p style="margin:0 0 14px;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66">How good the analysis is depends on the agent you pick. Frontier agents come with Professional and above. $1 quick, $1.50 frontier.</p>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ modelCards }}" as="m" hint-placeholder-count="5">
+<button onClick="{{ m.onPick }}" style="{{ m.style }}" data-key="{{ m.id }}" style-hover="transform:translateY(-2px);box-shadow:0 8px 20px rgba(27,26,23,.08)">
+<div style="display:flex;justify-content:space-between;gap:9px;align-items:baseline"><span style="font:600 12.5px/1.3 'IBM Plex Sans'">{{ m.name }}</span><span style="font:500 11.5px/1 'IBM Plex Mono';color:#2f5f52">{{ m.costS }}</span></div>
+<p style="margin:0;font:400 11.5px/1.5 'IBM Plex Sans';color:#706d66;text-wrap:pretty">{{ m.note }}</p>
+<sc-if value="{{ m.locked }}" hint-placeholder-val="{{ false }}"><span style="font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.06em;text-transform:uppercase;color:#8a6410">Requires {{ m.minPlan }}</span></sc-if>
+</button>
+</sc-for>
+</div>
+<sc-if value="{{ upgradeNudge }}" hint-placeholder-val="{{ false }}"><div style="margin:14px 0 0;padding:13px 14px;border-radius:9px;background:#fbf6ea;border:1px solid #e6d7b4"><p style="margin:0 0 7px;font:400 12px/1.6 'IBM Plex Sans';color:#57544e;text-wrap:pretty">A comprehensive run on a frontier model typically adds two extra evidence layers and a quantified downside case. On this model the note will be shorter and less cross-checked.</p><button onClick="{{ goBilling }}" style="padding:7px 12px;border:0;border-radius:7px;background:#1b1a17;color:#f6f5f2;cursor:pointer;font:500 11.5px/1 'IBM Plex Sans'">Compare plans</button></div></sc-if>
+</section>
+<section style="padding:20px;border-radius:11px;background:#1b1a17;color:#f6f5f2">
+<p style="margin:0 0 12px;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:#8f8b82">Ready to run</p>
+<div style="display:flex;flex-direction:column;gap:7px;margin:0 0 16px">
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font:400 12.5px/1.4 'IBM Plex Sans';color:#b6b2a9">Ticker</span><span style="font:500 12.5px/1.4 'IBM Plex Mono'">{{ ticker }}</span></div>
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font:400 12.5px/1.4 'IBM Plex Sans';color:#b6b2a9">Checks</span><span style="font:500 12.5px/1.4 'IBM Plex Sans';text-align:right">{{ kindSummary }}</span></div>
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font:400 12.5px/1.4 'IBM Plex Sans';color:#b6b2a9">Allocation</span><span style="font:500 12.5px/1.4 'IBM Plex Mono'">{{ allocS }}</span></div>
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font:400 12.5px/1.4 'IBM Plex Sans';color:#b6b2a9">Model</span><span style="font:500 12.5px/1.4 'IBM Plex Sans'">{{ chosenName }}</span></div>
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font:400 12.5px/1.4 'IBM Plex Sans';color:#b6b2a9">Cost</span><span style="font:500 12.5px/1.4 'IBM Plex Mono'">{{ chosenCost }}</span></div>
+</div>
+<button onClick="{{ submitReq }}" disabled="{{ conflict }}" style="{{ contBtnStyle }}">Continue</button>
+<p style="margin:11px 0 0;font:400 11.5px/1.55 'IBM Plex Sans';color:#8f8b82;text-wrap:pretty">{{ runNote }}</p>
+</section>
+</aside>
+</div>
+</sc-if>
+<sc-if value="{{ isClarify }}" hint-placeholder-val="{{ false }}">
+<div style="max-width:680px;margin:0 auto">
+<p style="margin:0 0 5px;font:500 11px/1 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:#706d66">Before it runs</p>
+<h1 style="font:400 30px/1.15 Newsreader,serif;margin:0 0 8px">Three things that change the answer</h1>
+<p style="margin:0 0 24px;font:400 14px/1.65 'IBM Plex Sans';color:#706d66;text-wrap:pretty">We only ask when your answers leave something genuinely open. Skip any and the note will tell you what it assumed.</p>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="padding:19px 20px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><p style="margin:0 0 3px;font:600 13px/1.4 'IBM Plex Sans'">You already hold {{ allocS }} of your book in {{ ticker }}. Is this a conviction position or a legacy one?</p><p style="margin:0 0 11px;font:400 12px/1.55 'IBM Plex Sans';color:#706d66">Decides whether the note argues for adding or cutting back.</p><input value="{{ clarify.conviction }}" onChange="{{ onC1 }}" placeholder="e.g. conviction — I want it to be 10% eventually" style="width:100%;padding:10px 12px;border:1px solid #d8d5cd;border-radius:7px" /></div>
+<div style="padding:19px 20px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><p style="margin:0 0 3px;font:600 13px/1.4 'IBM Plex Sans'">How much fresh capital could you deploy over the next two quarters?</p><p style="margin:0 0 11px;font:400 12px/1.55 'IBM Plex Sans';color:#706d66">Needed to size the extra slices you said you are open to buying.</p><input value="{{ clarify.addFunds }}" onChange="{{ onC2 }}" placeholder="e.g. about 8,000 in two tranches" style="width:100%;padding:10px 12px;border:1px solid #d8d5cd;border-radius:7px" /></div>
+<div style="padding:19px 20px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><p style="margin:0 0 3px;font:600 13px/1.4 'IBM Plex Sans'">What would make you sell — price, thesis break, or a time limit?</p><p style="margin:0 0 11px;font:400 12px/1.55 'IBM Plex Sans';color:#706d66">Your exit rule goes into the note, so it can be checked against the tax result.</p><input value="{{ clarify.exitRule }}" onChange="{{ onC3 }}" placeholder="e.g. thesis break — if cloud growth falls below 18%" style="width:100%;padding:10px 12px;border:1px solid #d8d5cd;border-radius:7px" /></div>
+</div>
+<div style="display:flex;gap:10px;margin:24px 0 0;flex-wrap:wrap"><button onClick="{{ runAnalysis }}" style="padding:12px 20px;border:0;border-radius:8px;background:#1b1a17;color:#f6f5f2;cursor:pointer;font:600 13.5px/1 'IBM Plex Sans';transition:transform .28s cubic-bezier(.2,.7,.2,1),box-shadow .28s ease" style-hover="transform:translateY(-2px);box-shadow:0 12px 26px rgba(27,26,23,.28)">Run analysis · {{ chosenCost }}</button><button onClick="{{ goBuild }}" style="padding:12px 20px;border:1px solid #e4e1da;border-radius:8px;background:#fff;cursor:pointer;font:500 13px/1 'IBM Plex Sans';color:#57544e">Back to inputs</button></div>
+</div>
+</sc-if>
+<sc-if value="{{ isReport }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:flex-start;margin:0 0 16px">
+<div><p style="margin:0 0 5px;font:500 11px/1 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:#706d66">{{ chosenName }} · 12 Sep 2026 · {{ kindSummary }}</p><h1 style="font:400 31px/1.15 Newsreader,serif;margin:0"><span style="font-family:'IBM Plex Mono';font-size:26px;font-weight:500">{{ ticker }}</span> — — what to do</h1></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><button onClick="{{ exportPdf }}" style="padding:9px 14px;border:1px solid #e4e1da;border-radius:8px;background:#fff;cursor:pointer;font:500 12.5px/1 'IBM Plex Sans';color:#57544e">Download PDF</button><button onClick="{{ saveReport }}" style="padding:9px 14px;border:0;border-radius:8px;background:#1b1a17;color:#f6f5f2;cursor:pointer;font:600 12.5px/1 'IBM Plex Sans'">Save to library</button></div>
+</div>
+<div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:0 0 14px"><span style="font:400 11px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#a3a09a">Verdict view</span><sc-for list="{{ layoutOpts }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onPick }}" style="{{ o.style }}" data-key="{{ o.id }}">{{ o.l }}</button></sc-for></div>
+<div style="display:flex;gap:2px;border-bottom:1px solid #e4e1da;margin:0 0 20px;overflow-x:auto"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="7"><button onClick="{{ t.onPick }}" style="{{ t.style }}" data-key="{{ t.id }}">{{ t.l }}</button></sc-for></div>
+<sc-if value="{{ tabVerdict }}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{ layNote }}" hint-placeholder-val="{{ false }}">
+<article style="max-width:760px">
+<p style="margin:0 0 18px;padding:13px 15px;border-radius:9px;background:#eef2f0;border:1px solid #d8e2dd;font:500 12.5px/1.55 'IBM Plex Sans';color:#2f5f52">Accumulate · conviction 7/10 · staged entry below {{ lastS }} · base target {{ targetS }}</p>
+<h2 style="font:400 24px/1.3 Newsreader,serif;margin:0 0 10px">Summary</h2>
+<p style="margin:0 0 14px;font:400 15px/1.75 'IBM Plex Sans';text-wrap:pretty">The case for {{ ticker }} at these levels rests on cash generation rather than on the growth narrative, and that is what makes it ownable at {{ allocS }} of your book. Four consecutive years of operating margin expansion have come alongside falling capex intensity — an unusual combination, and one that does not require the AI cycle to keep compounding for the thesis to hold.</p>
+<p style="margin:0 0 24px;font:400 15px/1.75 'IBM Plex Sans';text-wrap:pretty">What argues against buying the full position today is price, not quality. At 31.4× forward earnings the name carries roughly a 30% premium to its sector median. Model a two-quarter margin miss and the drawdown maps to 22–26% — beyond the 20% ceiling you told us you can hold through. The recommendation is therefore to accumulate in three tranches rather than to buy once, which brings the stress case back inside your band without giving up the position.</p>
+<h2 style="font:400 24px/1.3 Newsreader,serif;margin:0 0 10px">Price and trend</h2>
+<svg viewBox="0 0 720 200" style="width:100%;height:auto;display:block;margin:0 0 8px"><polyline points="{{ priceLine }}" fill="none" stroke="#1b1a17" stroke-width="1.8" /><polyline points="{{ maLine }}" fill="none" stroke="#2f5f52" stroke-width="1.3" /><polyline points="{{ ma2Line }}" fill="none" stroke="#b8b3a8" stroke-width="1.3" stroke-dasharray="4 3" /></svg>
+<p style="margin:0 0 24px;font:400 12px/1.6 'IBM Plex Sans';color:#706d66">Price against the 20- and 50-period averages. Spot {{ lastS }}, 4% above the 50-day, 11% above the 200-day, with no momentum divergence.</p>
+<h2 style="font:400 24px/1.3 Newsreader,serif;margin:0 0 10px">Valuation</h2>
+<div style="display:flex;flex-direction:column;gap:11px;margin:0 0 10px"><sc-for list="{{ peers }}" as="p" hint-placeholder-count="5"><div data-key="{{ p.n }}"><div style="display:flex;justify-content:space-between;margin:0 0 5px"><span style="font:500 12px/1 'IBM Plex Mono'">{{ p.n }}</span><span style="font:400 12px/1 'IBM Plex Mono';color:#706d66">{{ p.vS }}</span></div><div style="height:8px;border-radius:4px;background:#f0eee9;overflow:hidden"><div style="height:100%;width:{{ p.wS }};background:#2f5f52"></div></div></div></sc-for></div>
+<p style="margin:0 0 24px;font:400 12px/1.6 'IBM Plex Sans';color:#706d66">Forward P/E against peers and the sector median. The premium is the entire risk in this note.</p>
+<h2 style="font:400 24px/1.3 Newsreader,serif;margin:0 0 10px">Scenarios over 24 months</h2>
+<svg viewBox="0 0 300 150" style="width:100%;max-width:420px;height:auto;display:block;margin:0 0 8px"><polyline points="{{ bullLine }}" fill="none" stroke="#1f7a5c" stroke-width="1.6" /><polyline points="{{ baseLine }}" fill="none" stroke="#1b1a17" stroke-width="2" /><polyline points="{{ bearLine }}" fill="none" stroke="#b23a2f" stroke-width="1.6" stroke-dasharray="3 3" /></svg>
+<p style="margin:0 0 24px;font:400 12px/1.6 'IBM Plex Sans';color:#706d66">Bull {{ bullS }} at 25% · base {{ targetS }} at 55% · bear {{ bearS }} at 20%.</p>
+<h2 style="font:400 24px/1.3 Newsreader,serif;margin:0 0 10px">Execution</h2>
+<p style="margin:0 0 14px;font:400 15px/1.75 'IBM Plex Sans';text-wrap:pretty">Take 40% of the intended amount now, 35% on a 6% pullback while the thesis is intact, and the final 25% only after the next print confirms the margin path. Exit in full if cloud growth prints below 18% for two consecutive quarters. Tranche timing is set so all three cross the long-term holding threshold inside one tax year — on the modelled gain, waiting is worth {{ investedS }}-scale tax relief rather than the last 4% of upside.</p>
+<p style="margin:0;font:400 12px/1.7 'IBM Plex Sans';color:#a3a09a;text-wrap:pretty">Underwritten on {{ chosenName }} against your stated position, risk band, return target and tax basis.</p>
+</article>
+</sc-if>
+<sc-if value="{{ layDash }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:0 0 16px">
+<div style="padding:17px 18px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><p style="margin:0 0 7px;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66">Verdict</p><p style="margin:0;font:500 20px/1.1 'IBM Plex Sans';color:#1f7a5c">Accumulate</p><p style="margin:4px 0 0;font:400 11.5px/1.3 'IBM Plex Mono';color:#706d66">Conviction 7/10</p></div>
+<div style="padding:17px 18px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><p style="margin:0 0 7px;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66">Spot</p><p style="margin:0;font:500 20px/1.1 'IBM Plex Mono'">{{ lastS }}</p></div>
+<div style="padding:17px 18px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><p style="margin:0 0 7px;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66">Base target</p><p style="margin:0;font:500 20px/1.1 'IBM Plex Mono'">{{ targetS }}</p><p style="margin:4px 0 0;font:400 11.5px/1.3 'IBM Plex Mono';color:#1f7a5c">+17%</p></div>
+<div style="padding:17px 18px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><p style="margin:0 0 7px;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66">Bear</p><p style="margin:0;font:500 20px/1.1 'IBM Plex Mono';color:#b23a2f">{{ bearS }}</p><p style="margin:4px 0 0;font:400 11.5px/1.3 'IBM Plex Mono';color:#706d66">20% weight</p></div>
+<div style="padding:17px 18px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><p style="margin:0 0 7px;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66">Modelled drawdown</p><p style="margin:0;font:500 20px/1.1 'IBM Plex Mono';color:#8a6410">18%</p><p style="margin:4px 0 0;font:400 11.5px/1.3 'IBM Plex Mono';color:#706d66">Ceiling 20%</p></div>
+<div style="padding:17px 18px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><p style="margin:0 0 7px;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66">Your allocation</p><p style="margin:0;font:500 20px/1.1 'IBM Plex Mono'">{{ allocS }}</p><p style="margin:4px 0 0;font:400 11.5px/1.3 'IBM Plex Mono';color:#706d66">Cap 8%</p></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;margin:0 0 16px">
+<div style="padding:20px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><h3 style="font:400 16px/1.25 Newsreader,serif;margin:0 0 12px">Scenario fan</h3><svg viewBox="0 0 300 150" style="width:100%;height:auto;display:block"><polyline points="{{ bullLine }}" fill="none" stroke="#1f7a5c" stroke-width="1.6" /><polyline points="{{ baseLine }}" fill="none" stroke="#1b1a17" stroke-width="2" /><polyline points="{{ bearLine }}" fill="none" stroke="#b23a2f" stroke-width="1.6" stroke-dasharray="3 3" /></svg></div>
+<div style="padding:20px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><h3 style="font:400 16px/1.25 Newsreader,serif;margin:0 0 12px">Drawdown vs tolerance</h3><div style="display:flex;flex-direction:column;gap:11px"><div><div style="display:flex;justify-content:space-between;margin:0 0 5px"><span style="font:400 11.5px/1 'IBM Plex Sans';color:#706d66">Your ceiling</span><span style="font:500 11.5px/1 'IBM Plex Mono'">20%</span></div><div style="height:7px;border-radius:4px;background:#eeece6;overflow:hidden"><div style="height:100%;width:40%;background:#2f5f52"></div></div></div><div><div style="display:flex;justify-content:space-between;margin:0 0 5px"><span style="font:400 11.5px/1 'IBM Plex Sans';color:#706d66">Base case</span><span style="font:500 11.5px/1 'IBM Plex Mono'">18%</span></div><div style="height:7px;border-radius:4px;background:#eeece6;overflow:hidden"><div style="height:100%;width:36%;background:#8a6410"></div></div></div><div><div style="display:flex;justify-content:space-between;margin:0 0 5px"><span style="font:400 11.5px/1 'IBM Plex Sans';color:#706d66">Stress case</span><span style="font:500 11.5px/1 'IBM Plex Mono'">26%</span></div><div style="height:7px;border-radius:4px;background:#eeece6;overflow:hidden"><div style="height:100%;width:52%;background:#b23a2f"></div></div></div></div></div>
+<div style="padding:20px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><h3 style="font:400 16px/1.25 Newsreader,serif;margin:0 0 12px">Price and averages</h3><svg viewBox="0 0 720 200" style="width:100%;height:auto;display:block"><polyline points="{{ priceLine }}" fill="none" stroke="#1b1a17" stroke-width="1.8" /><polyline points="{{ maLine }}" fill="none" stroke="#2f5f52" stroke-width="1.3" /><polyline points="{{ ma2Line }}" fill="none" stroke="#b8b3a8" stroke-width="1.3" stroke-dasharray="4 3" /></svg></div>
+</div>
+<details style="padding:18px 20px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><summary style="cursor:pointer;font:600 13px/1.4 'IBM Plex Sans'">Narrative and evidence</summary><div style="display:flex;flex-direction:column;gap:12px;margin:14px 0 0"><p style="margin:0;font:400 13.5px/1.7 'IBM Plex Sans';text-wrap:pretty"><strong style="color:#1f7a5c">Support.</strong> Operating margin has expanded four years running while capex intensity fell — cash conversion does not depend on the AI narrative holding.</p><p style="margin:0;font:400 13.5px/1.7 'IBM Plex Sans';text-wrap:pretty"><strong style="color:#b23a2f">Risk.</strong> At 31.4× forward earnings the name trades a third above the sector median; a two-quarter margin miss maps to a 22–26% drawdown, above your 20% ceiling.</p><p style="margin:0;font:400 13.5px/1.7 'IBM Plex Sans';text-wrap:pretty"><strong style="color:#8a6410">Sizing.</strong> At {{ allocS }} you are near the concentration ceiling for a medium risk appetite — hence three tranches, not one.</p></div></details>
+</sc-if>
+<sc-if value="{{ layVerdict }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start">
+<div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+<div style="padding:24px;border-radius:12px;background:#1b1a17;color:#f6f5f2">
+<div style="display:flex;gap:11px;align-items:center;margin:0 0 14px"><span style="padding:5px 11px;border-radius:999px;background:#1f7a5c;font:600 11px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase">Accumulate</span><span style="font:400 12px/1 'IBM Plex Mono';color:#8f8b82">Conviction 7/10 · horizon 3–5 years</span></div>
+<p style="margin:0 0 16px;font:300 23px/1.4 Newsreader,serif;text-wrap:pretty">Add in two tranches below {{ lastS }}, cap the position at 8% of the book, and hold past the 12-month mark — the tax saved is worth more than the last leg of upside.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:14px;padding:16px 0 0;border-top:1px solid #35322c">
+<div><p style="margin:0 0 4px;font:400 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#8f8b82">Base target</p><p style="margin:0;font:500 17px/1.1 'IBM Plex Mono'">{{ targetS }}</p></div>
+<div><p style="margin:0 0 4px;font:400 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#8f8b82">Bull</p><p style="margin:0;font:500 17px/1.1 'IBM Plex Mono';color:#5fbf9b">{{ bullS }}</p></div>
+<div><p style="margin:0 0 4px;font:400 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#8f8b82">Bear</p><p style="margin:0;font:500 17px/1.1 'IBM Plex Mono';color:#e09287">{{ bearS }}</p></div>
+<div><p style="margin:0 0 4px;font:400 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#8f8b82">Modelled drawdown</p><p style="margin:0;font:500 17px/1.1 'IBM Plex Mono'">18%</p></div>
+</div>
+</div>
+<div style="padding:20px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 14px">Why</h2>
+<div style="display:flex;flex-direction:column;gap:13px">
+<div style="display:flex;gap:12px"><span style="font:500 11px/1.5 'IBM Plex Mono';color:#1f7a5c;width:58px;flex:none">SUPPORT</span><p style="margin:0;font:400 13.5px/1.65 'IBM Plex Sans';text-wrap:pretty">Operating margin has expanded four years running while capex intensity fell — the cash conversion story is intact and does not depend on the AI narrative holding.</p></div>
+<div style="display:flex;gap:12px"><span style="font:500 11px/1.5 'IBM Plex Mono';color:#1f7a5c;width:58px;flex:none">SUPPORT</span><p style="margin:0;font:400 13.5px/1.65 'IBM Plex Sans';text-wrap:pretty">Price sits 4% above the 50-day and 11% above the 200-day average with no momentum divergence; pullbacks have been bought within 6 sessions for seven consecutive quarters.</p></div>
+<div style="display:flex;gap:12px"><span style="font:500 11px/1.5 'IBM Plex Mono';color:#b23a2f;width:58px;flex:none">RISK</span><p style="margin:0;font:400 13.5px/1.65 'IBM Plex Sans';text-wrap:pretty">At 31.4× forward earnings the name trades a third above the sector median. A two-quarter margin miss maps to a 22–26% drawdown — above your stated 20% ceiling, which is why the entry is staged rather than immediate.</p></div>
+<div style="display:flex;gap:12px"><span style="font:500 11px/1.5 'IBM Plex Mono';color:#8a6410;width:58px;flex:none">SIZING</span><p style="margin:0;font:400 13.5px/1.65 'IBM Plex Sans';text-wrap:pretty">Your {{ allocS }} allocation is already near the concentration ceiling appropriate for a medium risk appetite. Adding the full amount in one go would push single-name risk past the point your drawdown tolerance permits.</p></div>
+</div>
+</div>
+<div style="padding:22px;border-radius:11px;background:#fdf8f0;border:1px solid #e6d7b4">
+<div style="display:flex;align-items:center;gap:10px;margin:0 0 12px"><span style="padding:4px 10px;border-radius:999px;background:#8a6410;color:#fff;font:600 10px/1.4 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase">Mandatory</span><h2 style="font:400 18px/1.25 Newsreader,serif;margin:0">The strongest bear case — and the refutation</h2></div>
+<p style="margin:0 0 12px;font:500 13.5px/1.7 'IBM Plex Sans';text-wrap:pretty">"The premium is paid for a capex supercycle that is already peaking. Depreciation from the current build lands in FY27 while revenue growth decelerates, so operating margin compresses at precisely the moment the multiple has no room left. The last three names to run this playbook derated 35%."</p>
+<p style="margin:0 0 12px;font:400 13.5px/1.7 'IBM Plex Sans';color:#57544e;text-wrap:pretty"><strong style="color:#1b1a17">Refutation.</strong> The depreciation drag is real and is in the FY27 model — it costs roughly 180bps of margin. What the bear case misses is contract length: the current cohort is multi-year with contractual escalators, so revenue is already locked for the period the drag lands. Incremental return on capital is still rising, which is the opposite of the derating comparables, where it was falling before the capex peaked.</p>
+<p style="margin:0;font:400 12.5px/1.7 'IBM Plex Sans';color:#8a6410;text-wrap:pretty">Refuted with evidence, but not eliminated. It is the reason the position is staged and capped rather than taken at full size — and it is what tranche three is conditioned on.</p>
+</div>
+<div style="padding:20px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 6px">Buying plan · four slices</h2>
+<p style="margin:0 0 14px;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66">Each extra buy has to pass a health check first. A falling price alone is never the reason. Slice 4 is kept back for a really bad fall.</p>
+<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:480px">
+<thead><tr style="background:#f6f5f2"><th style="text-align:left;padding:10px 13px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Tranche</th><th style="text-align:left;padding:10px 13px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Trigger</th><th style="text-align:right;padding:10px 13px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Size</th><th style="text-align:right;padding:10px 13px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Post-trade weight</th></tr></thead>
+<tbody>
+<tr><td style="padding:11px 13px;font:500 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">1</td><td style="padding:11px 13px;font:400 13px/1.5 'IBM Plex Sans';border-bottom:1px solid #f0eee9">Immediate</td><td style="padding:11px 13px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">{{ investedS }} × 0.4</td><td style="padding:11px 13px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">9.1%</td></tr>
+<tr><td style="padding:11px 13px;font:500 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">2</td><td style="padding:11px 13px;font:400 13px/1.5 'IBM Plex Sans';border-bottom:1px solid #f0eee9">−6% from here, thesis intact</td><td style="padding:11px 13px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">{{ investedS }} × 0.35</td><td style="padding:11px 13px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">11.4%</td></tr>
+<tr><td style="padding:11px 13px;font:500 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">3</td><td style="padding:11px 13px;font:400 13px/1.5 'IBM Plex Sans';border-bottom:1px solid #f0eee9">Post-earnings, only if margin holds</td><td style="padding:11px 13px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">{{ investedS }} × 0.25</td><td style="padding:11px 13px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">13.0%</td></tr>
+<tr><td style="padding:11px 13px;font:500 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">4</td><td style="padding:11px 13px;font:400 13px/1.5 'IBM Plex Sans';border-bottom:1px solid #f0eee9">Permanent reserve — 35%+ decline only</td><td style="padding:11px 13px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">Held back</td><td style="padding:11px 13px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">—</td></tr>
+<tr><td style="padding:11px 13px;font:500 12.5px/1 'IBM Plex Mono';color:#b23a2f">Exit</td><td style="padding:11px 13px;font:400 13px/1.5 'IBM Plex Sans'">Cloud growth under 18% for two quarters — thesis break, not a price level</td><td style="padding:11px 13px;text-align:right;font:400 12.5px/1 'IBM Plex Mono'">Exit 100%</td><td style="padding:11px 13px;text-align:right;font:400 12.5px/1 'IBM Plex Mono'">0%</td></tr>
+</tbody></table></div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+<div style="padding:20px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h3 style="font:400 16px/1.25 Newsreader,serif;margin:0 0 4px">Scenario fan · 24 months</h3>
+<p style="margin:0 0 14px;font:400 11.5px/1.5 'IBM Plex Sans';color:#706d66">Probability-weighted from the factor set</p>
+<svg viewBox="0 0 300 150" style="width:100%;height:auto;display:block"><polyline points="{{ bullLine }}" fill="none" stroke="#1f7a5c" stroke-width="1.6" /><polyline points="{{ baseLine }}" fill="none" stroke="#1b1a17" stroke-width="2" /><polyline points="{{ bearLine }}" fill="none" stroke="#b23a2f" stroke-width="1.6" stroke-dasharray="3 3" /></svg>
+<div style="display:flex;gap:14px;flex-wrap:wrap;margin:12px 0 0"><span style="font:400 11px/1 'IBM Plex Mono';color:#1f7a5c">Bull 25%</span><span style="font:400 11px/1 'IBM Plex Mono';color:#1b1a17">Base 55%</span><span style="font:400 11px/1 'IBM Plex Mono';color:#b23a2f">Bear 20%</span></div>
+</div>
+<div style="padding:20px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h3 style="font:400 16px/1.25 Newsreader,serif;margin:0 0 12px">Drawdown vs your tolerance</h3>
+<div style="display:flex;flex-direction:column;gap:11px">
+<div><div style="display:flex;justify-content:space-between;margin:0 0 5px"><span style="font:400 11.5px/1 'IBM Plex Sans';color:#706d66">Your ceiling</span><span style="font:500 11.5px/1 'IBM Plex Mono'">20%</span></div><div style="height:7px;border-radius:4px;background:#eeece6;overflow:hidden"><div style="height:100%;width:40%;background:#2f5f52"></div></div></div>
+<div><div style="display:flex;justify-content:space-between;margin:0 0 5px"><span style="font:400 11.5px/1 'IBM Plex Sans';color:#706d66">Modelled base case</span><span style="font:500 11.5px/1 'IBM Plex Mono'">18%</span></div><div style="height:7px;border-radius:4px;background:#eeece6;overflow:hidden"><div style="height:100%;width:36%;background:#8a6410"></div></div></div>
+<div><div style="display:flex;justify-content:space-between;margin:0 0 5px"><span style="font:400 11.5px/1 'IBM Plex Sans';color:#706d66">Stress case</span><span style="font:500 11.5px/1 'IBM Plex Mono'">26%</span></div><div style="height:7px;border-radius:4px;background:#eeece6;overflow:hidden"><div style="height:100%;width:52%;background:#b23a2f"></div></div></div>
+</div>
+<p style="margin:14px 0 0;font:400 11.5px/1.6 'IBM Plex Sans';color:#706d66;text-wrap:pretty">The stress case breaches your ceiling by 6 points. Staged entry is what brings it back inside the band.</p>
+</div>
+<div style="padding:20px;border-radius:11px;background:#eef2f0;border:1px solid #d8e2dd">
+<h3 style="font:400 16px/1.25 Newsreader,serif;margin:0 0 10px">Assumptions used</h3>
+<div style="display:flex;flex-direction:column;gap:7px">
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font:400 12px/1.4 'IBM Plex Sans';color:#57544e">Intent</span><span style="font:500 12px/1.4 'IBM Plex Sans'">{{ horizon }}</span></div>
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font:400 12px/1.4 'IBM Plex Sans';color:#57544e">Risk band</span><span style="font:500 12px/1.4 'IBM Plex Sans'">11–20% drawdown</span></div>
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font:400 12px/1.4 'IBM Plex Sans';color:#57544e">CAGR target</span><span style="font:500 12px/1.4 'IBM Plex Sans'">18–25%</span></div>
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font:400 12px/1.4 'IBM Plex Sans';color:#57544e">Tax basis</span><span style="font:500 12px/1.4 'IBM Plex Sans'">{{ resTax }}</span></div>
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font:400 12px/1.4 'IBM Plex Sans';color:#57544e">Averaging</span><span style="font:500 12px/1.4 'IBM Plex Sans'">{{ avgDown }}</span></div>
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+</sc-if>
+<sc-if value="{{ tabTech }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da;margin:0 0 16px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;margin:0 0 16px"><h2 style="font:400 19px/1.25 Newsreader,serif;margin:0">Price, 20- and 50-period averages</h2><span style="font:500 13px/1 'IBM Plex Mono'">Last {{ lastS }}</span></div>
+<svg viewBox="0 0 720 200" style="width:100%;height:auto;display:block"><polyline points="{{ priceLine }}" fill="none" stroke="#1b1a17" stroke-width="1.8" /><polyline points="{{ maLine }}" fill="none" stroke="#2f5f52" stroke-width="1.3" /><polyline points="{{ ma2Line }}" fill="none" stroke="#b8b3a8" stroke-width="1.3" stroke-dasharray="4 3" /></svg>
+<div style="display:flex;gap:16px;flex-wrap:wrap;margin:12px 0 0"><span style="font:400 11px/1 'IBM Plex Mono'">— Price</span><span style="font:400 11px/1 'IBM Plex Mono';color:#2f5f52">— MA20</span><span style="font:400 11px/1 'IBM Plex Mono';color:#8a857c">-- MA50</span></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><h3 style="font:400 17px/1.25 Newsreader,serif;margin:0 0 12px">Relative strength</h3><svg viewBox="0 0 720 90" style="width:100%;height:auto;display:block"><line x1="0" y1="22" x2="720" y2="22" stroke="#e8c9c4" stroke-width="1" stroke-dasharray="4 4" /><line x1="0" y1="68" x2="720" y2="68" stroke="#d8e2dd" stroke-width="1" stroke-dasharray="4 4" /><polyline points="{{ rsiLine }}" fill="none" stroke="#2f5170" stroke-width="1.6" /></svg><p style="margin:12px 0 0;font:400 12.5px/1.65 'IBM Plex Sans';color:#706d66;text-wrap:pretty">RSI 58 — room before overbought. Two failed pushes above 70 in the last quarter mark the resistance shelf used for tranche 3.</p></div>
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><h3 style="font:400 17px/1.25 Newsreader,serif;margin:0 0 12px">Levels</h3><div style="display:flex;flex-direction:column;gap:10px"><div style="display:flex;justify-content:space-between;padding:0 0 9px;border-bottom:1px solid #f0eee9"><span style="font:400 12.5px/1.4 'IBM Plex Sans';color:#706d66">Resistance 2</span><span style="font:500 12.5px/1.4 'IBM Plex Mono'">{{ bullS }}</span></div><div style="display:flex;justify-content:space-between;padding:0 0 9px;border-bottom:1px solid #f0eee9"><span style="font:400 12.5px/1.4 'IBM Plex Sans';color:#706d66">Resistance 1</span><span style="font:500 12.5px/1.4 'IBM Plex Mono'">{{ targetS }}</span></div><div style="display:flex;justify-content:space-between;padding:0 0 9px;border-bottom:1px solid #f0eee9"><span style="font:500 12.5px/1.4 'IBM Plex Sans'">Spot</span><span style="font:600 12.5px/1.4 'IBM Plex Mono'">{{ lastS }}</span></div><div style="display:flex;justify-content:space-between;padding:0 0 9px;border-bottom:1px solid #f0eee9"><span style="font:400 12.5px/1.4 'IBM Plex Sans';color:#706d66">Support 1 · tranche 2</span><span style="font:500 12.5px/1.4 'IBM Plex Mono';color:#1f7a5c">{{ bearS }}</span></div><div style="display:flex;justify-content:space-between"><span style="font:400 12.5px/1.4 'IBM Plex Sans';color:#706d66">Invalidation</span><span style="font:500 12.5px/1.4 'IBM Plex Mono';color:#b23a2f">−26% from spot</span></div></div></div>
+</div>
+</sc-if>
+<sc-if value="{{ tabFund }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin:0 0 16px">
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 4px">Revenue and operating margin</h2><p style="margin:0 0 16px;font:400 11.5px/1.5 'IBM Plex Sans';color:#706d66">Reported, with consensus for the current year</p>
+<div style="display:flex;gap:16px;align-items:flex-end;height:172px">
+<sc-for list="{{ revBars }}" as="b" hint-placeholder-count="4">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px;height:100%" data-key="{{ b.q }}">
+<span style="font:500 11px/1 'IBM Plex Mono'">{{ b.mS }}</span>
+<div style="width:100%;display:flex;gap:3px;align-items:flex-end;height:{{ b.wS }}"><div style="flex:2;height:100%;background:#2f5f52;border-radius:3px 3px 0 0"></div><div style="flex:1;height:{{ b.mhS }};background:#c8d6d0;border-radius:3px 3px 0 0"></div></div>
+<span style="font:400 11px/1 'IBM Plex Mono';color:#706d66">{{ b.q }}</span>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;gap:14px;margin:14px 0 0"><span style="font:400 11px/1 'IBM Plex Mono';color:#2f5f52">■ Revenue</span><span style="font:400 11px/1 'IBM Plex Mono';color:#9fb3aa">■ Op margin</span></div>
+</div>
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 4px">Forward P/E vs peers</h2><p style="margin:0 0 18px;font:400 11.5px/1.5 'IBM Plex Sans';color:#706d66">The valuation premium is the core risk in this note</p>
+<div style="display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ peers }}" as="p" hint-placeholder-count="5">
+<div data-key="{{ p.n }}"><div style="display:flex;justify-content:space-between;margin:0 0 5px"><span style="font:500 12px/1 'IBM Plex Mono'">{{ p.n }}</span><span style="font:400 12px/1 'IBM Plex Mono';color:#706d66">{{ p.vS }}</span></div><div style="height:8px;border-radius:4px;background:#f0eee9;overflow:hidden"><div style="height:100%;width:{{ p.wS }};background:#2f5f52"></div></div></div>
+</sc-for>
+</div>
+</div>
+</div>
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 14px">Quality screen</h2>
+<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:560px">
+<thead><tr style="background:#f6f5f2"><th style="text-align:left;padding:10px 13px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Metric</th><th style="text-align:right;padding:10px 13px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Company</th><th style="text-align:right;padding:10px 13px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Sector median</th><th style="text-align:left;padding:10px 13px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Read</th></tr></thead>
+<tbody>
+<tr><td style="padding:11px 13px;font:400 13px/1.4 'IBM Plex Sans';border-bottom:1px solid #f0eee9">Return on invested capital</td><td style="padding:11px 13px;text-align:right;font:500 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">28.4%</td><td style="padding:11px 13px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';color:#706d66;border-bottom:1px solid #f0eee9">14.1%</td><td style="padding:11px 13px;font:500 12px/1.4 'IBM Plex Sans';color:#1f7a5c;border-bottom:1px solid #f0eee9">Top decile</td></tr>
+<tr><td style="padding:11px 13px;font:400 13px/1.4 'IBM Plex Sans';border-bottom:1px solid #f0eee9">Net debt / EBITDA</td><td style="padding:11px 13px;text-align:right;font:500 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">0.3×</td><td style="padding:11px 13px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';color:#706d66;border-bottom:1px solid #f0eee9">1.8×</td><td style="padding:11px 13px;font:500 12px/1.4 'IBM Plex Sans';color:#1f7a5c;border-bottom:1px solid #f0eee9">Balance sheet not a risk</td></tr>
+<tr><td style="padding:11px 13px;font:400 13px/1.4 'IBM Plex Sans';border-bottom:1px solid #f0eee9">FCF conversion</td><td style="padding:11px 13px;text-align:right;font:500 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">81%</td><td style="padding:11px 13px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';color:#706d66;border-bottom:1px solid #f0eee9">64%</td><td style="padding:11px 13px;font:500 12px/1.4 'IBM Plex Sans';color:#1f7a5c;border-bottom:1px solid #f0eee9">Strong</td></tr>
+<tr><td style="padding:11px 13px;font:400 13px/1.4 'IBM Plex Sans';border-bottom:1px solid #f0eee9">Forward P/E</td><td style="padding:11px 13px;text-align:right;font:500 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">31.4×</td><td style="padding:11px 13px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';color:#706d66;border-bottom:1px solid #f0eee9">24.2×</td><td style="padding:11px 13px;font:500 12px/1.4 'IBM Plex Sans';color:#b23a2f;border-bottom:1px solid #f0eee9">30% premium — the whole risk</td></tr>
+<tr><td style="padding:11px 13px;font:400 13px/1.4 'IBM Plex Sans'">Revenue CAGR, 3 yr</td><td style="padding:11px 13px;text-align:right;font:500 12.5px/1 'IBM Plex Mono'">15.8%</td><td style="padding:11px 13px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';color:#706d66">7.2%</td><td style="padding:11px 13px;font:500 12px/1.4 'IBM Plex Sans';color:#8a6410">Supports the premium, partly</td></tr>
+</tbody></table></div>
+</div>
+</sc-if>
+<sc-if value="{{ tabMacro }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 14px">Regime read</h2><div style="display:flex;flex-direction:column;gap:13px"><div><p style="margin:0 0 5px;font:600 12px/1.4 'IBM Plex Sans'">Rates · mildly supportive</p><p style="margin:0;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66;text-wrap:pretty">Two cuts priced over four quarters. Long-duration growth multiples expand modestly in that path; the premium survives but does not widen.</p></div><div><p style="margin:0 0 5px;font:600 12px/1.4 'IBM Plex Sans'">Currency · a real drag for you</p><p style="margin:0;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66;text-wrap:pretty">At {{ fxNote }}, rupee depreciation has added roughly 3.1% a year to USD-denominated returns. If you expect that to reverse, cut your CAGR expectation by a similar amount.</p></div><div><p style="margin:0 0 5px;font:600 12px/1.4 'IBM Plex Sans'">Sector cycle · mid-cycle</p><p style="margin:0;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66;text-wrap:pretty">Enterprise IT spend is decelerating from an unusually high base rather than contracting. Historically a mid-cycle entry with a 3-year hold has beaten waiting for the trough.</p></div></div></div>
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 14px">Sensitivity</h2><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:320px"><thead><tr style="background:#f6f5f2"><th style="text-align:left;padding:10px 12px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Driver</th><th style="text-align:right;padding:10px 12px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Shock</th><th style="text-align:right;padding:10px 12px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Fair value</th></tr></thead><tbody><tr><td style="padding:11px 12px;font:400 13px/1.4 'IBM Plex Sans';border-bottom:1px solid #f0eee9">10-yr yield</td><td style="padding:11px 12px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">+100 bps</td><td style="padding:11px 12px;text-align:right;font:500 12.5px/1 'IBM Plex Mono';color:#b23a2f;border-bottom:1px solid #f0eee9">−11%</td></tr><tr><td style="padding:11px 12px;font:400 13px/1.4 'IBM Plex Sans';border-bottom:1px solid #f0eee9">Op margin</td><td style="padding:11px 12px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">−200 bps</td><td style="padding:11px 12px;text-align:right;font:500 12.5px/1 'IBM Plex Mono';color:#b23a2f;border-bottom:1px solid #f0eee9">−16%</td></tr><tr><td style="padding:11px 12px;font:400 13px/1.4 'IBM Plex Sans';border-bottom:1px solid #f0eee9">USD/INR</td><td style="padding:11px 12px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">−5%</td><td style="padding:11px 12px;text-align:right;font:500 12.5px/1 'IBM Plex Mono';color:#8a6410">−5% in INR</td></tr><tr><td style="padding:11px 12px;font:400 13px/1.4 'IBM Plex Sans'">Cloud growth</td><td style="padding:11px 12px;text-align:right;font:400 12.5px/1 'IBM Plex Mono'">+300 bps</td><td style="padding:11px 12px;text-align:right;font:500 12.5px/1 'IBM Plex Mono';color:#1f7a5c">+14%</td></tr></tbody></table></div></div>
+</div>
+</sc-if>
+<sc-if value="{{ tabNews }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin:0 0 16px;flex-wrap:wrap;gap:10px"><h2 style="font:400 18px/1.25 Newsreader,serif;margin:0">Company and industry headlines · 90 days</h2><span style="font:400 11.5px/1 'IBM Plex Mono';color:#a3a09a">Net sentiment +0.31 · 42 items screened, 6 material</span></div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:13px;padding:0 0 14px;border-bottom:1px solid #f0eee9"><span style="font:600 10.5px/1.6 'IBM Plex Mono';color:#1f7a5c;width:66px;flex:none">POSITIVE</span><div><p style="margin:0 0 3px;font:600 13px/1.45 'IBM Plex Sans'">Multi-year enterprise renewal at above-consensus pricing</p><p style="margin:0;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66;text-wrap:pretty">Confirms pricing power is intact, which is the single assumption the base case is most sensitive to. Two independent trade sources; not company-issued.</p></div></div>
+<div style="display:flex;gap:13px;padding:0 0 14px;border-bottom:1px solid #f0eee9"><span style="font:600 10.5px/1.6 'IBM Plex Mono';color:#b23a2f;width:66px;flex:none">NEGATIVE</span><div><p style="margin:0 0 3px;font:600 13px/1.45 'IBM Plex Sans'">Antitrust review opened in a second jurisdiction</p><p style="margin:0;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66;text-wrap:pretty">Historically a 6–18 month overhang with limited earnings impact, but it widens the multiple range and is one reason the entry is staged.</p></div></div>
+<div style="display:flex;gap:13px;padding:0 0 14px;border-bottom:1px solid #f0eee9"><span style="font:600 10.5px/1.6 'IBM Plex Mono';color:#8a6410;width:66px;flex:none">WATCH</span><div><p style="margin:0 0 3px;font:600 13px/1.45 'IBM Plex Sans'">Capex guidance raised; depreciation drag from FY27</p><p style="margin:0;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66;text-wrap:pretty">Margin path beyond FY26 is the crux. If the next two prints show compression, tranche 3 should not be taken.</p></div></div>
+<div style="display:flex;gap:13px"><span style="font:600 10.5px/1.6 'IBM Plex Mono';color:#706d66;width:66px;flex:none">NOISE</span><div><p style="margin:0 0 3px;font:600 13px/1.45 'IBM Plex Sans'">39 further items judged immaterial</p><p style="margin:0;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66">Analyst target changes, conference appearances, index rebalancing. Available in the full appendix of the PDF.</p></div></div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ tabTax }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 4px">Exit maths · {{ resTax }}</h2><p style="margin:0 0 16px;font:400 11.5px/1.5 'IBM Plex Sans';color:#706d66">On the modelled gain for this position. Not tax advice.</p>
+<div style="display:flex;flex-direction:column;gap:11px">
+<sc-for list="{{ taxRows }}" as="t" hint-placeholder-count="5">
+<div style="display:flex;justify-content:space-between;gap:12px;padding:0 0 10px;border-bottom:1px solid #f0eee9" data-key="{{ t.k }}"><span style="font:400 12.5px/1.5 'IBM Plex Sans';color:#57544e">{{ t.k }}</span><span style="font:500 13px/1.5 'IBM Plex Mono';color:{{ t.c }};white-space:nowrap">{{ t.v }}</span></div>
+</sc-for>
+</div>
+</div>
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 14px">What this changes</h2>
+<p style="margin:0 0 13px;font:400 13.5px/1.7 'IBM Plex Sans';text-wrap:pretty">Your exit rule is thesis-based, not date-based, which means a break could plausibly trigger inside the short-term window. Holding to the long-term threshold is worth more than the last 4% of modelled upside — so if the thesis weakens marginally rather than breaks, trimming after the threshold dominates selling now.</p>
+<div style="padding:14px 15px;border-radius:9px;background:#f6f5f2;border:1px solid #e4e1da;margin:0 0 13px"><p style="margin:0 0 4px;font:600 12px/1.4 'IBM Plex Sans'">Holding-period milestone</p><p style="margin:0;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66">Tranche 1 crosses the long-term threshold on 12 Sep 2027. Tranche timing is set so all three cross within one tax year.</p></div>
+<p style="margin:0;font:400 11.5px/1.6 'IBM Plex Sans';color:#a3a09a;text-wrap:pretty">Rates are taken from your profile and are editable in the request builder. Cross-border cases may attract treaty relief that is not modelled here — confirm with a tax adviser before acting.</p>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ tabRefine }}" hint-placeholder-val="{{ false }}">
+<div style="max-width:780px">
+<h2 style="font:400 20px/1.25 Newsreader,serif;margin:0 0 6px">Push back on the analysis</h2>
+<p style="margin:0 0 16px;font:400 13.5px/1.65 'IBM Plex Sans';color:#706d66;text-wrap:pretty">Choose what you want looked at harder, or just say what you disagree with. Only those parts get redone, and it costs nothing.</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px"><sc-for list="{{ focusChips }}" as="c" hint-placeholder-count="6"><button onClick="{{ c.onToggle }}" style="{{ c.style }}" data-key="{{ c.label }}">{{ c.label }}</button></sc-for></div>
+<div style="display:flex;flex-direction:column;gap:12px;margin:0 0 16px"><sc-for list="{{ refineRows }}" as="m" hint-placeholder-count="0"><div style="{{ m.style }}" data-key="{{ m.id }}">{{ m.text }}</div></sc-for></div>
+<div style="display:flex;gap:9px;align-items:flex-end"><textarea value="{{ refineInput }}" onChange="{{ onRefineInput }}" rows="3" placeholder="e.g. the downside case feels light — model a two-quarter margin miss explicitly" style="flex:1;min-width:0;padding:11px 13px;border:1px solid #d8d5cd;border-radius:9px;background:#fff;resize:vertical"></textarea><button onClick="{{ sendRefine }}" style="padding:12px 17px;border:0;border-radius:8px;background:#1b1a17;color:#f6f5f2;cursor:pointer;font:600 13px/1 'IBM Plex Sans';white-space:nowrap">Refine</button></div>
+<p style="margin:12px 0 0;font:400 11.5px/1.6 'IBM Plex Sans';color:#a3a09a;text-wrap:pretty">Refinement history is attached to the saved report so you can see how the verdict evolved. Requests for the platform's internal configuration are declined.</p>
+</div>
+</sc-if>
+</sc-if>
+<sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ false }}">
+<h1 style="font:400 30px/1.15 Newsreader,serif;margin:0 0 6px">Reports</h1>
+<p style="margin:0 0 22px;font:400 14px/1.65 'IBM Plex Sans';color:#706d66;max-width:62ch;text-wrap:pretty">Every saved note is kept as a PDF with its charts and tables, and opens on any device. Renaming updates the file too.</p>
+<div style="border-radius:11px;background:#fff;border:1px solid #e4e1da;overflow:hidden">
+<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:760px">
+<thead><tr style="background:#f6f5f2"><th style="text-align:left;padding:11px 15px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Report</th><th style="text-align:left;padding:11px 15px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Ticker</th><th style="text-align:left;padding:11px 15px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Checks</th><th style="text-align:left;padding:11px 15px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Model</th><th style="text-align:left;padding:11px 15px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Verdict</th><th style="text-align:right;padding:11px 15px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Cost</th><th style="text-align:right;padding:11px 15px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Actions</th></tr></thead>
+<tbody><sc-for list="{{ reportRows }}" as="r" hint-placeholder-count="4">
+<tr data-key="{{ r.id }}"><td style="padding:13px 15px;border-bottom:1px solid #f0eee9"><button onClick="{{ r.onOpen }}" style="border:0;background:transparent;padding:0;cursor:pointer;text-align:left;font:500 13.5px/1.4 'IBM Plex Sans';color:#1b1a17">{{ r.name }}</button><p style="margin:3px 0 0;font:400 11px/1 'IBM Plex Mono';color:#a3a09a">{{ r.date }} · {{ r.pages }} pages</p></td><td style="padding:13px 15px;font:500 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">{{ r.ticker }}</td><td style="padding:13px 15px;font:400 12.5px/1.4 'IBM Plex Sans';color:#706d66;border-bottom:1px solid #f0eee9">{{ r.kinds }}</td><td style="padding:13px 15px;font:400 12.5px/1.4 'IBM Plex Sans';color:#706d66;border-bottom:1px solid #f0eee9">{{ r.model }}</td><td style="padding:13px 15px;font:500 12.5px/1.4 'IBM Plex Sans';color:{{ r.vcol }};border-bottom:1px solid #f0eee9">{{ r.verdict }}</td><td style="padding:13px 15px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';color:#706d66;border-bottom:1px solid #f0eee9">{{ r.costS }}</td><td style="padding:13px 15px;text-align:right;border-bottom:1px solid #f0eee9"><div style="display:flex;gap:7px;justify-content:flex-end"><button onClick="{{ r.onRename }}" style="padding:6px 10px;border:1px solid #e4e1da;border-radius:6px;background:#fff;cursor:pointer;font:500 11.5px/1 'IBM Plex Sans';color:#57544e">Rename</button><button onClick="{{ r.onPdf }}" style="padding:6px 10px;border:1px solid #e4e1da;border-radius:6px;background:#fff;cursor:pointer;font:500 11.5px/1 'IBM Plex Sans';color:#57544e">PDF</button></div></td></tr>
+</sc-for></tbody>
+</table></div>
+</div>
+<div style="margin:16px 0 0;padding:16px 18px;border-radius:11px;background:#eef2f0;border:1px solid #d8e2dd"><p style="margin:0 0 4px;font:600 12.5px/1.4 'IBM Plex Sans';color:#2f5f52">Free trial includes three ready-made sample analyses</p><p style="margin:0;font:400 12.5px/1.6 'IBM Plex Sans';color:#57544e;text-wrap:pretty">Real notes on well-known companies, so you can judge the quality before you pay. They are read-only and never count against your allowance.</p></div>
+</sc-if>
+<sc-if value="{{ isUsage }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin:0 0 22px"><div><h1 style="font:400 30px/1.15 Newsreader,serif;margin:0 0 6px">Usage</h1><p style="margin:0;font:400 14px/1.65 'IBM Plex Sans';color:#706d66">Updated after every analysis, so you always know where you stand.</p></div><button onClick="{{ toggleUsageMode }}" style="padding:9px 14px;border:1px solid #e4e1da;border-radius:8px;background:#fff;cursor:pointer;font:500 12.5px/1 'IBM Plex Sans';color:#57544e">{{ usageModeLabel }}</button></div>
+<div style="padding:24px;border-radius:12px;background:#fff;border:1px solid #e4e1da;margin:0 0 16px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;margin:0 0 14px"><p style="margin:0;font:500 15px/1.3 'IBM Plex Sans'">{{ usedS }}</p><p style="margin:0;font:500 26px/1 'IBM Plex Mono';color:{{ usedBarCol }}">{{ usedPctS }}</p></div>
+<div style="height:10px;border-radius:5px;background:#f0eee9;overflow:hidden;margin:0 0 10px"><div style="height:100%;width:{{ usedBar }};background:{{ usedBarCol }}"></div></div>
+<div style="display:flex;justify-content:space-between;font:400 11px/1 'IBM Plex Mono';color:#a3a09a"><span>0</span><span>60% notice</span><span>80% notice</span><span>90% notice</span><span>limit</span></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 14px">Where your money went</h2><div style="display:flex;flex-direction:column;gap:12px"><div><div style="display:flex;justify-content:space-between;margin:0 0 5px"><span style="font:400 12.5px/1 'IBM Plex Sans'">Claude Opus 5</span><span style="font:500 12px/1 'IBM Plex Mono'">12 analyses · $18.00</span></div><div style="height:7px;border-radius:4px;background:#f0eee9;overflow:hidden"><div style="height:100%;width:60%;background:#2f5f52"></div></div></div><div><div style="display:flex;justify-content:space-between;margin:0 0 5px"><span style="font:400 12.5px/1 'IBM Plex Sans'">GPT-5.6</span><span style="font:500 12px/1 'IBM Plex Mono'">6 analyses · $9.00</span></div><div style="height:7px;border-radius:4px;background:#f0eee9;overflow:hidden"><div style="height:100%;width:22%;background:#3f7f6c"></div></div></div><div><div style="display:flex;justify-content:space-between;margin:0 0 5px"><span style="font:400 12.5px/1 'IBM Plex Sans'">Claude Sonnet 4.8</span><span style="font:500 12px/1 'IBM Plex Mono'">5 analyses · $5.00</span></div><div style="height:7px;border-radius:4px;background:#f0eee9;overflow:hidden"><div style="height:100%;width:18%;background:#9fb3aa"></div></div></div></div><p style="margin:16px 0 0;font:400 12px/1.6 'IBM Plex Sans';color:#706d66;text-wrap:pretty">About 60% of your spend goes on the strongest model for single checks. Those are exactly the cases where the mid-tier model gives almost the same answer for a quarter of the price.</p></div>
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 6px">Wallet</h2><p style="margin:0 0 14px;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66">Pay as you go instead of a plan. Your balance never expires.</p><label style="display:block;font:500 10.5px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 6px">Top up amount (USD)</label><div style="display:flex;gap:9px"><input type="number" value="{{ walletAmt }}" onChange="{{ onWallet }}" style="flex:1;min-width:0;padding:10px 12px;border:1px solid #d8d5cd;border-radius:7px;font-family:'IBM Plex Mono'" /><button onClick="{{ topUp }}" style="padding:10px 15px;border:0;border-radius:7px;background:#1b1a17;color:#f6f5f2;cursor:pointer;font:500 12.5px/1 'IBM Plex Sans'">Top up</button></div><p style="margin:12px 0 0;font:400 11.5px/1.6 'IBM Plex Sans';color:#a3a09a;text-wrap:pretty">You pay the model's rate with no commitment. Above about eight deep analyses a month, a plan is cheaper.</p></div>
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 14px">Recent analyses</h2><div style="display:flex;flex-direction:column;gap:10px"><div style="display:flex;justify-content:space-between;gap:10px;padding:0 0 9px;border-bottom:1px solid #f0eee9"><div><p style="margin:0;font:500 12.5px/1.4 'IBM Plex Sans'">MSFT · comprehensive</p><p style="margin:2px 0 0;font:400 10.5px/1 'IBM Plex Mono';color:#a3a09a">12 Sep, 09:14 · Opus 5</p></div><span style="font:500 12px/1.4 'IBM Plex Mono'">$0.42</span></div><div style="display:flex;justify-content:space-between;gap:10px;padding:0 0 9px;border-bottom:1px solid #f0eee9"><div><p style="margin:0;font:500 12.5px/1.4 'IBM Plex Sans'">TSM · fundamental + macro</p><p style="margin:2px 0 0;font:400 10.5px/1 'IBM Plex Mono';color:#a3a09a">11 Sep, 17:02 · GPT-5.6</p></div><span style="font:500 12px/1.4 'IBM Plex Mono'">$0.38</span></div><div style="display:flex;justify-content:space-between;gap:10px"><div><p style="margin:0;font:500 12.5px/1.4 'IBM Plex Sans'">HDFCBANK · technical</p><p style="margin:2px 0 0;font:400 10.5px/1 'IBM Plex Mono';color:#a3a09a">11 Sep, 08:41 · Sonnet 4.8</p></div><span style="font:500 12px/1.4 'IBM Plex Mono'">$0.12</span></div></div><p style="margin:14px 0 0;font:400 11.5px/1.6 'IBM Plex Sans';color:#a3a09a">Each run costs real compute and comes out of your allowance — start one when you have a decision to make.</p></div>
+</div>
+</sc-if>
+<sc-if value="{{ isBilling }}" hint-placeholder-val="{{ false }}">
+<h1 style="font:400 30px/1.15 Newsreader,serif;margin:0 0 6px">Plans and wallet</h1>
+<p style="margin:0 0 22px;font:400 14px/1.65 'IBM Plex Sans';color:#706d66;max-width:64ch;text-wrap:pretty">Your plan decides which models you can use and how many analyses you get each month. One analysis means one full note on one stock.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:0 0 18px">
+<sc-for list="{{ plans }}" as="p" hint-placeholder-count="4">
+<div style="{{ p.style }}" data-key="{{ p.id }}" style-hover="transform:translateY(-4px);box-shadow:0 16px 34px rgba(27,26,23,.12)">
+<div><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:0 0 8px"><p style="margin:0;font:600 13.5px/1.3 'IBM Plex Sans'">{{ p.id }}</p><sc-if value="{{ p.current }}" hint-placeholder-val="{{ false }}"><span style="padding:3px 8px;border-radius:999px;background:#2f5f52;color:#fff;font:600 9.5px/1.4 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase">Current</span></sc-if></div><p style="margin:0;font:500 26px/1 'IBM Plex Mono'">{{ p.price }}</p><p style="margin:4px 0 0;font:400 11px/1 'IBM Plex Mono';color:#a3a09a">{{ p.per }}</p></div>
+<div style="display:flex;flex-direction:column;gap:11px"><p style="margin:0;font:600 12.5px/1.5 'IBM Plex Sans'">{{ p.searches }}</p><div><p style="margin:0 0 3px;font:600 10px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#a3a09a">Who it's for</p><p style="margin:0;font:400 12.5px/1.55 'IBM Plex Sans';color:#57544e;text-wrap:pretty">{{ p.who }}</p></div><div><p style="margin:0 0 3px;font:600 10px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#a3a09a">Why it's worth it</p><p style="margin:0;font:400 12.5px/1.55 'IBM Plex Sans';color:#57544e;text-wrap:pretty">{{ p.why }}</p></div></div>
+<button onClick="{{ p.onPick }}" style="margin-top:auto;padding:10px;border:1px solid #1b1a17;border-radius:8px;background:#fff;cursor:pointer;font:500 12.5px/1 'IBM Plex Sans';color:#1b1a17">Choose {{ p.id }}</button>
+</div>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+<div style="padding:22px;border-radius:11px;background:#1b1a17;color:#f6f5f2"><h2 style="font:400 19px/1.25 Newsreader,serif;margin:0 0 8px">Why upgrade is recommended</h2><p style="margin:0 0 12px;font:400 13px/1.7 'IBM Plex Sans';color:#b6b2a9;text-wrap:pretty">On your last five full analyses, the stronger models put a number on the downside and gave you a tax-aware exit. The cheap model did neither. That is where the answer actually changes.</p><p style="margin:0;font:400 12px/1.6 'IBM Plex Mono';color:#8f8b82">Based on your own history, not on what earns us more.</p></div>
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><h2 style="font:400 19px/1.25 Newsreader,serif;margin:0 0 8px">Or load a wallet</h2><p style="margin:0 0 14px;font:400 13px/1.7 'IBM Plex Sans';color:#706d66;text-wrap:pretty">Add money and pay for each analysis at the model's rate — no plan, nothing resets monthly. You can use the strongest models while your balance is positive.</p><div style="display:flex;gap:9px"><input type="number" value="{{ walletAmt }}" onChange="{{ onWallet }}" style="flex:1;min-width:0;padding:10px 12px;border:1px solid #d8d5cd;border-radius:7px;font-family:'IBM Plex Mono'" /><button onClick="{{ topUp }}" style="padding:10px 15px;border:0;border-radius:7px;background:#1b1a17;color:#f6f5f2;cursor:pointer;font:500 12.5px/1 'IBM Plex Sans'">Load via UPI</button></div></div>
+</div>
+</sc-if>
+<sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin:0 0 18px"><div><p style="margin:0 0 5px;font:500 11px/1 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:#706d66">Platform administration</p><h1 style="font:400 30px/1.15 Newsreader,serif;margin:0">Admin console</h1></div><span style="padding:5px 11px;border-radius:999px;background:#fbf1ef;border:1px solid #e8c9c4;font:600 10.5px/1.4 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#b23a2f">Elevated role</span></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px"><sc-for list="{{ adminTabs }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onPick }}" style="{{ t.style }}" data-key="{{ t.id }}">{{ t.l }}</button></sc-for></div>
+<sc-if value="{{ adTabAcc }}" hint-placeholder-val="{{ true }}">
+<div style="border-radius:11px;background:#fff;border:1px solid #e4e1da;overflow:hidden;margin:0 0 16px">
+<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:820px">
+<thead><tr style="background:#f6f5f2"><th style="text-align:left;padding:11px 15px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Account</th><th style="text-align:left;padding:11px 15px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Residency</th><th style="text-align:left;padding:11px 15px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Plan</th><th style="text-align:right;padding:11px 15px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Usage</th><th style="text-align:right;padding:11px 15px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">MTD</th><th style="text-align:right;padding:11px 15px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Last active</th><th style="text-align:right;padding:11px 15px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da"></th></tr></thead>
+<tbody><sc-for list="{{ accounts }}" as="a" hint-placeholder-count="5">
+<tr data-key="{{ a.e }}"><td style="padding:13px 15px;border-bottom:1px solid #f0eee9"><p style="margin:0;font:500 13px/1.4 'IBM Plex Sans'">{{ a.n }}</p><p style="margin:2px 0 0;font:400 11px/1 'IBM Plex Mono';color:#a3a09a">{{ a.e }}</p></td><td style="padding:13px 15px;font:400 12.5px/1.4 'IBM Plex Sans';color:#706d66;border-bottom:1px solid #f0eee9">{{ a.res }}</td><td style="padding:13px 15px;font:500 12.5px/1.4 'IBM Plex Sans';border-bottom:1px solid #f0eee9">{{ a.plan }}</td><td style="padding:13px 15px;text-align:right;font:400 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">{{ a.used }}</td><td style="padding:13px 15px;text-align:right;font:500 12.5px/1 'IBM Plex Mono';border-bottom:1px solid #f0eee9">{{ a.spend }}</td><td style="padding:13px 15px;text-align:right;font:400 11.5px/1 'IBM Plex Mono';color:#a3a09a;border-bottom:1px solid #f0eee9">{{ a.last }}</td><td style="padding:13px 15px;text-align:right;border-bottom:1px solid #f0eee9"><button onClick="{{ a.onImp }}" style="padding:6px 10px;border:1px solid #e4e1da;border-radius:6px;background:#fff;cursor:pointer;font:500 11.5px/1 'IBM Plex Sans';color:#57544e">View as</button></td></tr>
+</sc-for></tbody>
+</table></div>
+</div>
+<p style="margin:0;font:400 11.5px/1.6 'IBM Plex Sans';color:#a3a09a;max-width:76ch;text-wrap:pretty">Impersonation is read-only and every session is written to an append-only audit log with the admin identity, target account, start and end time. Admins cannot see a user's uploaded portfolio rows unless the user grants support access.</p>
+</sc-if>
+<sc-if value="{{ adTabLim }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;margin:0 0 16px">
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 4px">Monthly allowances</h2><p style="margin:0 0 16px;font:400 11.5px/1.5 'IBM Plex Sans';color:#706d66">Changes apply from the next billing cycle</p><div style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span style="font:400 12.5px/1.4 'IBM Plex Sans'">Trial sample notes</span><input type="number" value="{{ cfg.trialSearches }}" onChange="{{ onTrial }}" style="width:86px;padding:8px 10px;border:1px solid #d8d5cd;border-radius:6px;font-family:'IBM Plex Mono';text-align:right" /></div><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span style="font:400 12.5px/1.4 'IBM Plex Sans'">Extra sample notes</span><input type="number" value="{{ cfg.trialPdfs }}" onChange="{{ onTrialPdf }}" style="width:86px;padding:8px 10px;border:1px solid #d8d5cd;border-radius:6px;font-family:'IBM Plex Mono';text-align:right" /></div><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span style="font:400 12.5px/1.4 'IBM Plex Sans'">Basic — analyses / month</span><input type="number" value="{{ cfg.basic }}" onChange="{{ onBasic }}" style="width:86px;padding:8px 10px;border:1px solid #d8d5cd;border-radius:6px;font-family:'IBM Plex Mono';text-align:right" /></div><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span style="font:400 12.5px/1.4 'IBM Plex Sans'">Professional — analyses / month</span><input type="number" value="{{ cfg.pro }}" onChange="{{ onPro }}" style="width:86px;padding:8px 10px;border:1px solid #d8d5cd;border-radius:6px;font-family:'IBM Plex Mono';text-align:right" /></div><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span style="font:400 12.5px/1.4 'IBM Plex Sans'">Premium — analyses / month</span><input type="number" value="{{ cfg.proPlus }}" onChange="{{ onProPlus }}" style="width:86px;padding:8px 10px;border:1px solid #d8d5cd;border-radius:6px;font-family:'IBM Plex Mono';text-align:right" /></div></div></div>
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 4px">Usage notice thresholds</h2><p style="margin:0 0 16px;font:400 11.5px/1.5 'IBM Plex Sans';color:#706d66">How full your allowance has to be before we warn you</p><div style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span style="font:400 12.5px/1.4 'IBM Plex Sans'">First notice</span><input type="number" value="{{ cfg.warn1 }}" onChange="{{ onW1 }}" style="width:86px;padding:8px 10px;border:1px solid #d8d5cd;border-radius:6px;font-family:'IBM Plex Mono';text-align:right" /></div><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span style="font:400 12.5px/1.4 'IBM Plex Sans'">Second notice</span><input type="number" value="{{ cfg.warn2 }}" onChange="{{ onW2 }}" style="width:86px;padding:8px 10px;border:1px solid #d8d5cd;border-radius:6px;font-family:'IBM Plex Mono';text-align:right" /></div><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span style="font:400 12.5px/1.4 'IBM Plex Sans'">Final notice</span><input type="number" value="{{ cfg.warn3 }}" onChange="{{ onW3 }}" style="width:86px;padding:8px 10px;border:1px solid #d8d5cd;border-radius:6px;font-family:'IBM Plex Mono';text-align:right" /></div></div><p style="margin:16px 0 0;font:400 11.5px/1.6 'IBM Plex Sans';color:#a3a09a;text-wrap:pretty">At 100% new analyses stop, but saved notes stay readable. Nobody loses work they already paid for.</p></div>
+</div>
+<button onClick="{{ saveCfg }}" style="padding:11px 18px;border:0;border-radius:8px;background:#1b1a17;color:#f6f5f2;cursor:pointer;font:600 13px/1 'IBM Plex Sans'">Save configuration</button>
+</sc-if>
+<sc-if value="{{ adTabPr }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 4px">Advisor prompt</h2><p style="margin:0 0 16px;font:400 11.5px/1.5 'IBM Plex Sans';color:#706d66">Versioned, reviewable, never user-visible</p><div style="padding:14px 15px;border-radius:9px;background:#f6f5f2;border:1px solid #e4e1da;margin:0 0 14px"><p style="margin:0 0 3px;font:500 12.5px/1.4 'IBM Plex Mono'">{{ cfg.promptFile }}</p><p style="margin:0;font:400 11.5px/1.5 'IBM Plex Sans';color:#706d66">Live since {{ cfg.promptDate }} · {{ cfg.promptVer }}</p></div><input type="file" accept=".md,.txt" onChange="{{ onPromptFile }}" style="width:100%;font:400 12.5px/1.4 'IBM Plex Sans';margin:0 0 14px" /><p style="margin:0;font:400 11.5px/1.6 'IBM Plex Sans';color:#a3a09a;text-wrap:pretty">Uploads are staged, diffed against the live version and require a second admin's approval before promotion. Rollback is one click and keeps the prior version addressable by report, so an old note can always be explained by the prompt that produced it.</p></div>
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da"><h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 14px">Prompt protection</h2><div style="display:flex;flex-direction:column;gap:13px"><div style="display:flex;gap:11px"><div style="width:6px;height:6px;border-radius:50%;background:#1f7a5c;margin-top:7px;flex:none"></div><p style="margin:0;font:400 12.5px/1.65 'IBM Plex Sans';text-wrap:pretty">The system prompt is never returned by any API response, including error payloads and streamed tokens.</p></div><div style="display:flex;gap:11px"><div style="width:6px;height:6px;border-radius:50%;background:#1f7a5c;margin-top:7px;flex:none"></div><p style="margin:0;font:400 12.5px/1.65 'IBM Plex Sans';text-wrap:pretty">Extraction attempts in the refine loop are classified server-side and answered with a fixed refusal, then counted per account.</p></div><div style="display:flex;gap:11px"><div style="width:6px;height:6px;border-radius:50%;background:#8a6410;margin-top:7px;flex:none"></div><p style="margin:0;font:400 12.5px/1.65 'IBM Plex Sans';text-wrap:pretty">Three attempts in a session raises a flag here; ten triggers rate limiting rather than a ban.</p></div></div><div style="margin:16px 0 0;padding:13px 14px;border-radius:9px;background:#fbf6ea;border:1px solid #e6d7b4"><p style="margin:0 0 3px;font:600 12px/1.4 'IBM Plex Sans';color:#8a6410">2 flagged sessions in the last 7 days</p><p style="margin:0;font:400 11.5px/1.55 'IBM Plex Sans';color:#57544e">Both from trial accounts. Refusals delivered; no leakage detected.</p></div></div>
+</div>
+</sc-if>
+<sc-if value="{{ adTabTen }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da;max-width:860px">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 4px">Isolation model</h2>
+<p style="margin:0 0 16px;font:400 12.5px/1.65 'IBM Plex Sans';color:#706d66;text-wrap:pretty">Single database, row-level security on every user-owned table. No application code path may read across accounts; the policy, not the query, is the boundary.</p>
+<div style="display:flex;flex-direction:column;gap:11px">
+<div style="display:flex;justify-content:space-between;gap:12px;padding:0 0 10px;border-bottom:1px solid #f0eee9"><span style="font:500 12.5px/1.4 'IBM Plex Mono'">users</span><span style="font:400 12px/1.4 'IBM Plex Sans';color:#706d66">self-read only · admin read via elevated role</span></div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:0 0 10px;border-bottom:1px solid #f0eee9"><span style="font:500 12.5px/1.4 'IBM Plex Mono'">portfolios / holdings</span><span style="font:400 12px/1.4 'IBM Plex Sans';color:#706d66">owner only · not readable by admins</span></div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:0 0 10px;border-bottom:1px solid #f0eee9"><span style="font:500 12.5px/1.4 'IBM Plex Mono'">analysis_requests / reports</span><span style="font:400 12px/1.4 'IBM Plex Sans';color:#706d66">owner only · metadata visible to admin</span></div>
+<div style="display:flex;justify-content:space-between;gap:12px;padding:0 0 10px;border-bottom:1px solid #f0eee9"><span style="font:500 12.5px/1.4 'IBM Plex Mono'">usage_events / invoices</span><span style="font:400 12px/1.4 'IBM Plex Sans';color:#706d66">owner read · service-role write only</span></div>
+<div style="display:flex;justify-content:space-between;gap:12px"><span style="font:500 12.5px/1.4 'IBM Plex Mono'">prompt_versions / audit_log</span><span style="font:400 12px/1.4 'IBM Plex Sans';color:#706d66">admin only · append-only, no delete grant</span></div>
+</div>
+</div>
+</sc-if>
+</sc-if>
+<sc-if value="{{ isArch }}" hint-placeholder-val="{{ false }}">
+<div style="max-width:880px">
+<p style="margin:0 0 5px;font:500 11px/1 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:#706d66">For engineering</p>
+<h1 style="font:400 30px/1.15 Newsreader,serif;margin:0 0 8px">Handoff notes</h1>
+<p style="margin:0 0 22px;font:400 14px/1.65 'IBM Plex Sans';color:#706d66;text-wrap:pretty">What this mock implies for the build. Paste this alongside the screens when you start the architecture.</p>
+<div style="display:flex;flex-direction:column;gap:16px">
+<section style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 12px">Stack shape</h2>
+<div style="display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;gap:12px"><span style="font:500 11px/1.6 'IBM Plex Mono';color:#2f5f52;width:96px;flex:none">FRONTEND</span><p style="margin:0;font:400 13px/1.6 'IBM Plex Sans'">React + TypeScript, Vite, TanStack Query for server state, Zod schemas shared with the API. No global store — the builder form is one reducer.</p></div>
+<div style="display:flex;gap:12px"><span style="font:500 11px/1.6 'IBM Plex Mono';color:#2f5f52;width:96px;flex:none">API</span><p style="margin:0;font:400 13px/1.6 'IBM Plex Sans'">TypeScript on Node (Fastify or Hono). Analysis runs are queued jobs, not request-scoped — the UI polls or subscribes, because a frontier run takes 40–90s.</p></div>
+<div style="display:flex;gap:12px"><span style="font:500 11px/1.6 'IBM Plex Mono';color:#2f5f52;width:96px;flex:none">DATA</span><p style="margin:0;font:400 13px/1.6 'IBM Plex Sans'">Postgres with row-level security. Object storage for generated PDFs, keyed by report id, served via signed URLs.</p></div>
+<div style="display:flex;gap:12px"><span style="font:500 11px/1.6 'IBM Plex Mono';color:#2f5f52;width:96px;flex:none">LLM LAYER</span><p style="margin:0;font:400 13px/1.6 'IBM Plex Sans'">One provider-agnostic adapter. The prompt lives server-side only, loaded by version id, and the version id is stamped on every report row.</p></div>
+</div>
+</section>
+<section style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 12px">Core tables</h2>
+<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:560px">
+<thead><tr style="background:#f6f5f2"><th style="text-align:left;padding:10px 13px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Table</th><th style="text-align:left;padding:10px 13px;font:600 10.5px/1 'IBM Plex Mono';letter-spacing:.08em;text-transform:uppercase;color:#706d66;border-bottom:1px solid #e4e1da">Key columns</th></tr></thead>
+<tbody>
+<tr><td style="padding:11px 13px;font:500 12.5px/1.4 'IBM Plex Mono';border-bottom:1px solid #f0eee9">users</td><td style="padding:11px 13px;font:400 12.5px/1.6 'IBM Plex Sans';border-bottom:1px solid #f0eee9">email, name, phone_cc, phone, tax_residency, tax_slab, role, plan_id, wallet_cents</td></tr>
+<tr><td style="padding:11px 13px;font:500 12.5px/1.4 'IBM Plex Mono';border-bottom:1px solid #f0eee9">holdings</td><td style="padding:11px 13px;font:400 12.5px/1.6 'IBM Plex Sans';border-bottom:1px solid #f0eee9">user_id, ticker, exchange, company_name, cost_per_share, qty, native_currency</td></tr>
+<tr><td style="padding:11px 13px;font:500 12.5px/1.4 'IBM Plex Mono';border-bottom:1px solid #f0eee9">analysis_requests</td><td style="padding:11px 13px;font:400 12.5px/1.6 'IBM Plex Sans';border-bottom:1px solid #f0eee9">user_id, ticker, lenses[], invested_amount, portfolio_size, intent, avg_down, risk_band, cagr_band, tax_basis, model_id, clarifications jsonb, status</td></tr>
+<tr><td style="padding:11px 13px;font:500 12.5px/1.4 'IBM Plex Mono';border-bottom:1px solid #f0eee9">reports</td><td style="padding:11px 13px;font:400 12.5px/1.6 'IBM Plex Sans';border-bottom:1px solid #f0eee9">request_id, name, verdict, conviction, sections jsonb, charts jsonb, pdf_key, prompt_version, token_cost_cents</td></tr>
+<tr><td style="padding:11px 13px;font:500 12.5px/1.4 'IBM Plex Mono';border-bottom:1px solid #f0eee9">refinements</td><td style="padding:11px 13px;font:400 12.5px/1.6 'IBM Plex Sans';border-bottom:1px solid #f0eee9">report_id, user_text, focus_tags[], response, was_refused</td></tr>
+<tr><td style="padding:11px 13px;font:500 12.5px/1.4 'IBM Plex Mono';border-bottom:1px solid #f0eee9">usage_events</td><td style="padding:11px 13px;font:400 12.5px/1.6 'IBM Plex Sans';border-bottom:1px solid #f0eee9">user_id, kind (search / refine / pdf), model_id, cost_cents, billing_period</td></tr>
+<tr><td style="padding:11px 13px;font:500 12.5px/1.4 'IBM Plex Mono'">plans · prompt_versions · audit_log</td><td style="padding:11px 13px;font:400 12.5px/1.6 'IBM Plex Sans'">admin-managed; allowances and thresholds are rows, not constants</td></tr>
+</tbody></table></div>
+</section>
+<section style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 12px">Endpoints the screens need</h2>
+<div style="display:flex;flex-direction:column;gap:8px;font-family:'IBM Plex Mono'">
+<p style="margin:0;font:400 12.5px/1.6 'IBM Plex Mono'"><span style="color:#2f5f52">POST</span> /auth/signup · /auth/login · /auth/reset</p>
+<p style="margin:0;font:400 12.5px/1.6 'IBM Plex Mono'"><span style="color:#2f5f52">POST</span> /portfolio/import  — multipart CSV, returns parsed + rejected rows for review</p>
+<p style="margin:0;font:400 12.5px/1.6 'IBM Plex Mono'"><span style="color:#2f5f52">POST</span> /analysis  — validates risk/CAGR pair server-side, 422 on conflict; returns job id</p>
+<p style="margin:0;font:400 12.5px/1.6 'IBM Plex Mono'"><span style="color:#8a6410">GET</span>  /analysis/:id  — status, then report payload</p>
+<p style="margin:0;font:400 12.5px/1.6 'IBM Plex Mono'"><span style="color:#2f5f52">POST</span> /reports/:id/refine  — free, classifies prompt-extraction attempts before dispatch</p>
+<p style="margin:0;font:400 12.5px/1.6 'IBM Plex Mono'"><span style="color:#8a6410">GET</span>  /reports · <span style="color:#2f5f52">PATCH</span> /reports/:id · <span style="color:#8a6410">GET</span> /reports/:id/pdf</p>
+<p style="margin:0;font:400 12.5px/1.6 'IBM Plex Mono'"><span style="color:#8a6410">GET</span>  /usage · <span style="color:#2f5f52">POST</span> /billing/subscribe · /billing/wallet/topup</p>
+<p style="margin:0;font:400 12.5px/1.6 'IBM Plex Mono'"><span style="color:#8a6410">GET</span>  /admin/accounts · <span style="color:#2f5f52">PUT</span> /admin/plans · <span style="color:#2f5f52">POST</span> /admin/prompt-versions</p>
+</div>
+</section>
+<section style="padding:22px;border-radius:11px;background:#1b1a17;color:#f6f5f2">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 12px">Non-negotiables</h2>
+<div style="display:flex;flex-direction:column;gap:10px">
+<p style="margin:0;font:400 13px/1.65 'IBM Plex Sans';color:#d5d1c8;text-wrap:pretty"><strong style="color:#f6f5f2">Quota is enforced server-side, twice</strong> — once when the job is accepted, once before the provider call, because a queued job can outlive the allowance that authorised it.</p>
+<p style="margin:0;font:400 13px/1.65 'IBM Plex Sans';color:#d5d1c8;text-wrap:pretty"><strong style="color:#f6f5f2">The risk/CAGR conflict check is a server rule</strong>, not a UI nicety. The client mirrors it for immediacy only.</p>
+<p style="margin:0;font:400 13px/1.65 'IBM Plex Sans';color:#d5d1c8;text-wrap:pretty"><strong style="color:#f6f5f2">FX is display-only</strong> — store every amount in its native currency with the instrument, convert at render, and never round-trip a converted number back into storage.</p>
+<p style="margin:0;font:400 13px/1.65 'IBM Plex Sans';color:#d5d1c8;text-wrap:pretty"><strong style="color:#f6f5f2">The prompt never leaves the server.</strong> Refusals are a fixed server-side string, not a model behaviour you hope holds.</p>
+<p style="margin:0;font:400 13px/1.65 'IBM Plex Sans';color:#d5d1c8;text-wrap:pretty"><strong style="color:#f6f5f2">Reports are immutable once saved.</strong> Refinements append; they never rewrite the original verdict, so a user can always see what they acted on.</p>
+</div>
+</section>
+<section style="padding:22px;border-radius:11px;background:#fff;border:1px solid #e4e1da">
+<h2 style="font:400 18px/1.25 Newsreader,serif;margin:0 0 12px">Component inventory</h2>
+<p style="margin:0;font:400 13px/1.7 'IBM Plex Sans';color:#57544e;text-wrap:pretty">AppShell (topbar + sidebar + usage meter) · UsageBanner · TickerSearch · LensPicker · PositionSizer (derived allocation) · RiskReturnMatrix (with conflict guard) · TaxBasisFields (residency-conditional) · ModelPicker (plan-gated, price-labelled) · RunSummaryRail · ClarifyingQuestions · VerdictCard · EvidenceList · ExecutionPlanTable · ScenarioFan · DrawdownVsTolerance · PriceChart · RsiPanel · PeerValuationBars · RevenueMarginBars · TaxWaterfall · NewsDigest · RefineThread · ReportTable · PlanGrid · WalletCard · CheckoutModal · AdminAccountTable · LimitsForm · PromptRegistry.</p>
+</section>
+</div>
+</div>
+</sc-if>
+</main>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ payOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;z-index:60;background:rgba(27,26,23,.42);display:grid;place-items:center;padding:24px">
+<div style="width:100%;max-width:430px;background:#fff;border-radius:14px;padding:26px;box-shadow:0 24px 60px rgba(0,0,0,.24);animation:thsin .22s ease both">
+<p style="margin:0 0 4px;font:500 11px/1 'IBM Plex Mono';letter-spacing:.12em;text-transform:uppercase;color:#706d66">Checkout</p>
+<h3 style="font:400 25px/1.2 Newsreader,serif;margin:0 0 18px">{{ payPlan }}</h3>
+<div style="display:flex;gap:9px;margin:0 0 18px"><button onClick="{{ setUpi }}" style="{{ upiStyle }}">UPI</button><button onClick="{{ setCard }}" style="{{ cardStyle }}">Card</button></div>
+<div style="padding:16px;border-radius:10px;background:#f6f5f2;border:1px solid #e4e1da;margin:0 0 18px">
+<label style="display:block;font:500 11px/1 'IBM Plex Mono';letter-spacing:.1em;text-transform:uppercase;color:#706d66;margin:0 0 7px">UPI ID</label>
+<input placeholder="name@bank" style="width:100%;padding:10px 12px;border:1px solid #d8d5cd;border-radius:8px;background:#fff" />
+<p style="margin:10px 0 0;font:400 11.5px/1.55 'IBM Plex Sans';color:#706d66">A collect request is sent to your UPI app. Nothing is charged until you approve it there. Card rails are used for non-INR settlement.</p>
+</div>
+<button onClick="{{ confirmPay }}" style="width:100%;padding:12px;border:0;border-radius:8px;background:#1b1a17;color:#f6f5f2;cursor:pointer;font:600 13.5px/1 'IBM Plex Sans'">Send payment request</button>
+<button onClick="{{ closePay }}" style="width:100%;margin:10px 0 0;padding:10px;border:0;background:transparent;cursor:pointer;font:500 12.5px/1 'IBM Plex Sans';color:#706d66">Cancel</button>
+</div></div>
+</sc-if>
+<sc-if value="{{ renameOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;z-index:60;background:rgba(27,26,23,.42);display:grid;place-items:center;padding:24px">
+<div style="width:100%;max-width:430px;background:#fff;border-radius:14px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.24)">
+<h3 style="font:400 21px/1.25 Newsreader,serif;margin:0 0 6px">Rename report</h3>
+<p style="margin:0 0 16px;font:400 12.5px/1.6 'IBM Plex Sans';color:#706d66">The stored PDF filename and its database record are both updated. Version history is kept.</p>
+<input value="{{ renameVal }}" onChange="{{ onRenameVal }}" style="width:100%;padding:11px 13px;border:1px solid #d8d5cd;border-radius:8px;background:#fff;margin:0 0 18px" />
+<div style="display:flex;gap:9px"><button onClick="{{ saveRename }}" style="flex:1;padding:11px;border:0;border-radius:8px;background:#1b1a17;color:#f6f5f2;cursor:pointer;font:600 13px/1 'IBM Plex Sans'">Save</button><button onClick="{{ cancelRename }}" style="flex:1;padding:11px;border:1px solid #e4e1da;border-radius:8px;background:#fff;cursor:pointer;font:500 13px/1 'IBM Plex Sans';color:#57544e">Cancel</button></div>
+</div></div>
+</sc-if>
+<sc-if value="{{ running }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;z-index:70;background:rgba(27,26,23,.55);display:grid;place-items:center;padding:24px">
+<div style="width:100%;max-width:400px;background:#fff;border-radius:14px;padding:26px;box-shadow:0 24px 60px rgba(0,0,0,.28)">
+<div style="display:flex;align-items:center;gap:11px;margin:0 0 18px"><div style="width:15px;height:15px;border:2px solid #e4e1da;border-top-color:#1b1a17;border-radius:50%;animation:thspin .8s linear infinite"></div><p style="margin:0;font:600 13.5px/1 'IBM Plex Sans'">Running {{ chosenName }}</p></div>
+<div style="display:flex;flex-direction:column;gap:11px"><sc-for list="{{ runSteps }}" as="st" hint-placeholder-count="4"><p style="{{ st.style }}" data-key="{{ st.label }}">{{ st.label }}</p></sc-for></div>
+<p style="margin:20px 0 0;font:400 11.5px/1.55 'IBM Plex Sans';color:#a3a09a">Usually 40 to 90 seconds. You can leave this page — the note shows up under Reports when it is done.</p>
+</div></div>
+</sc-if>
+<sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:80;padding:12px 18px;border-radius:9px;background:#1b1a17;color:#f6f5f2;font:500 12.5px/1.4 'IBM Plex Sans';box-shadow:0 12px 32px rgba(0,0,0,.25);animation:thsin .2s ease both;max-width:min(92vw,520px);text-align:center">{{ toastMsg }}</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;comfortable&quot;,&quot;compact&quot;],&quot;default&quot;:&quot;comfortable&quot;,&quot;tsType&quot;:&quot;'comfortable'|'compact'&quot;},&quot;adviceStance&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Explicit call&quot;,&quot;Scenario-framed&quot;],&quot;default&quot;:&quot;Explicit call&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showDisclaimers&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;usdInrRate&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:88.4,&quot;min&quot;:60,&quot;max&quot;:120,&quot;step&quot;:0.1,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'login', pwVisible: false, expert: false, currency: 'USD', fx: 88.4,
+    form: { name: '', residency: 'United States', cc: '+1', phone: '', email: '', pw: '' },
+    session: { name: 'Maya Raghavan', email: 'maya@thesis.demo', residency: 'United States', plan: 'Professional' },
+    csvName: null, csvSaved: false,
+    ticker: 'MSFT', query: '',
+    kinds: { fundamental: true, technical: true, macro: false, news: false, comprehensive: false },
+    invested: 12000, portfolio: 150000,
+    horizon: 'Long-term investment', avgDown: 'Yes — in planned tranches',
+    risk: 1, cagr: 2, resTax: 'US resident', slabUS: '24%', slabIN: '30%',
+    stanceIdx: 0, model: 'opus5',
+    clarify: { conviction: '', addFunds: '', exitRule: '' }, clarifyDone: false,
+    running: false, runStep: 0,
+    reportTab: 'verdict', reportLayout: 'verdict',
+    refineInput: '', refineLog: [], refineFocus: {},
+    reports: [
+      { id: 'r1', name: 'MSFT — accumulate on weakness', ticker: 'MSFT', date: '2026-09-04', model: 'Claude Opus 5', verdict: 'Accumulate', kinds: 'Comprehensive', cost: 0.42, pages: 11 },
+      { id: 'r2', name: 'TSM — cycle entry note', ticker: 'TSM', date: '2026-08-27', model: 'GPT-5.6', verdict: 'Hold', kinds: 'Fundamental · Macro', cost: 0.38, pages: 8 },
+      { id: 'r3', name: 'HDFCBANK — NRI tax angle', ticker: 'HDFCBANK', date: '2026-08-12', model: 'Claude Sonnet 4.8', verdict: 'Add', kinds: 'Fundamental · Tax', cost: 0.12, pages: 9 },
+      { id: 'r4', name: 'Sample: how a Thesis note reads', ticker: 'DEMO', date: '2026-07-01', model: 'Library sample', verdict: 'Sample', kinds: 'Comprehensive', cost: 0, pages: 12 }
+    ],
+    renameId: null, renameVal: '',
+    usage: { used: 13, limit: 20, walletUsed: 12.18, walletLoaded: 25, mode: 'searches' },
+    adminTab: 'accounts',
+    cfg: { trialSearches: 3, trialPdfs: 3, basic: 5, pro: 20, proPlus: 50, ultra: 80, warn1: 60, warn2: 80, warn3: 90, fx: 88.4, promptFile: 'advisor-prompt-v4.2.1.md', promptVer: 'v4.2.1', promptDate: '2026-09-08' },
+    impersonate: null, toast: null, payOpen: false, payMethod: 'UPI', payPlan: 'Professional +', walletAmt: 50
+  };
+
+  componentDidMount() {
+    const h = (window.location.hash || '').replace('#', '');
+    if (h === 'signup' || h === 'reset') this.setState({ screen: h });
+  }
+  set = (k, v) => this.setState({ [k]: v });
+  setIn = (obj, k, v) => this.setState(s => ({ [obj]: Object.assign({}, s[obj], { [k]: v }) }));
+  go = (screen) => this.setState({ screen });
+  toast = (msg) => { this.setState({ toast: msg }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600); };
+
+  money(v, digits) {
+    const usd = this.state.currency === 'USD';
+    const x = usd ? v : v * this.state.fx;
+    const d = digits === undefined ? (usd ? 0 : 0) : digits;
+    return (usd ? '$' : '₹') + x.toLocaleString(usd ? 'en-US' : 'en-IN', { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+
+  series() {
+    if (this._ser) return this._ser;
+    const out = []; let p = 372, s = 90210;
+    for (let i = 0; i < 84; i++) { s = (s * 9301 + 49297) % 233280; const r = s / 233280 - 0.48; p = p * (1 + r * 0.028) + 0.35; out.push(p); }
+    this._ser = out; return out;
+  }
+  roll(a, n) { return a.map((_, i) => { const s = a.slice(Math.max(0, i - n + 1), i + 1); return s.reduce((x, y) => x + y, 0) / s.length; }); }
+  pts(arr, w, h, lo, hi, pad) {
+    const p = pad || 0;
+    return arr.map((v, i) => {
+      const x = (i / (arr.length - 1)) * w;
+      const y = h - p - ((v - lo) / (hi - lo)) * (h - p * 2);
+      return x.toFixed(1) + ',' + y.toFixed(1);
+    }).join(' ');
+  }
+
+  models() {
+    return [
+      { id: 'opus5', name: 'Frontier agent · Opus 5', tier: 'Frontier', cost: 1.5, note: 'Thinks the hardest. Best when you want every check in one note', minPlan: 'Professional' },
+      { id: 'gpt56', name: 'Frontier agent · GPT-5.6', tier: 'Frontier', cost: 1.5, note: 'Good at the big picture and cross-checking news', minPlan: 'Professional' },
+      { id: 'gemini35', name: 'Frontier agent · Gemini 3.5 Pro', tier: 'Frontier', cost: 1.5, note: 'Reads very long company filings end to end', minPlan: 'Professional' },
+      { id: 'sonnet48', name: 'Quick agent · Sonnet 4.8', tier: 'Balanced', cost: 1, note: 'Fast and dependable for a single check', minPlan: 'Basic' },
+      { id: 'gpt56m', name: 'Quick agent · GPT-5.6 mini', tier: 'Economy', cost: 1, note: 'Quick first looks and simple price checks', minPlan: 'Trial' }
+    ];
+  }
+  planRank(p) { return ({ 'Trial': 0, 'Basic': 1, 'Professional': 2, 'Premium': 3, 'Ultra Premium': 4, 'Unlimited': 5 })[p] || 0; }
+
+  riskLabels() { return ['Low — 0–10% drawdown', 'Medium — 11–20% drawdown', 'High — 21–35% drawdown', 'Extremely high — >35% drawdown']; }
+  cagrLabels() { return ['Low — up to 12%', 'Medium — 13–18%', 'High — 18–25%', 'Extremely high — >25%']; }
+
+  renderVals() {
+    const s = this.state, m = this.models();
+    const screen = s.screen;
+    const authScreens = ['login', 'signup', 'reset'];
+    const alloc = s.portfolio > 0 ? (s.invested / s.portfolio) * 100 : 0;
+    const chosen = m.find(x => x.id === s.model) || m[0];
+    const locked = this.planRank(chosen.minPlan) > this.planRank(s.session.plan);
+
+    const conflict = s.risk <= 1 && s.cagr >= 2;
+    const slack = s.risk >= 2 && s.cagr === 0;
+    const kindList = Object.keys(s.kinds).filter(k => s.kinds[k]);
+    const kindNames = { fundamental: 'Fundamental', technical: 'Technical', macro: 'Macro', news: 'News', comprehensive: 'Comprehensive' };
+
+    const ser = this.series();
+    const ma20 = this.roll(ser, 12), ma50 = this.roll(ser, 30);
+    const lo = Math.min.apply(null, ser) * 0.97, hi = Math.max.apply(null, ser) * 1.03;
+    const last = ser[ser.length - 1];
+
+    const rsi = ser.map((v, i) => { const d = i > 0 ? (v - ser[i - 1]) / ser[i - 1] : 0; return Math.max(12, Math.min(88, 52 + d * 900)); });
+
+    const fan = (mult) => { const out = []; for (let i = 0; i <= 24; i++) out.push(last * Math.pow(mult, i / 24)); return out; };
+    const bull = fan(1.46), base = fan(1.17), bear = fan(0.82);
+    const fanLo = last * 0.78, fanHi = last * 1.5;
+
+    const usedPct = s.usage.mode === 'searches' ? (s.usage.used / s.usage.limit) * 100 : (s.usage.walletUsed / s.usage.walletLoaded) * 100;
+    const warnLevel = usedPct >= s.cfg.warn3 ? 3 : usedPct >= s.cfg.warn2 ? 2 : usedPct >= s.cfg.warn1 ? 1 : 0;
+
+    const holdings = [
+      { t: 'MSFT', n: 'Microsoft Corp', qty: 28, cost: 402.5, ltp: 486.2, w: 34 },
+      { t: 'TSM', n: 'Taiwan Semiconductor', qty: 60, cost: 168.0, ltp: 212.4, w: 22 },
+      { t: 'UNH', n: 'UnitedHealth Group', qty: 14, cost: 512.0, ltp: 448.7, w: 16 },
+      { t: 'HDFCBANK', n: 'HDFC Bank (NSE)', qty: 120, cost: 18.4, ltp: 21.1, w: 15 },
+      { t: 'BRK.B', n: 'Berkshire Hathaway B', qty: 9, cost: 438.0, ltp: 512.9, w: 13 }
+    ].map(h => {
+      const pl = (h.ltp - h.cost) * h.qty, pct = ((h.ltp - h.cost) / h.cost) * 100;
+      return Object.assign({}, h, {
+        costS: this.money(h.cost, 2), ltpS: this.money(h.ltp, 2), valS: this.money(h.ltp * h.qty),
+        plS: (pl >= 0 ? '+' : '−') + this.money(Math.abs(pl)), pctS: (pct >= 0 ? '+' : '−') + Math.abs(pct).toFixed(1) + '%',
+        col: pl >= 0 ? '#1f7a5c' : '#b23a2f', wS: h.w + '%'
+      });
+    });
+
+    const donut = 'conic-gradient(#2f5f52 0 34%,#3f7f6c 34% 56%,#b23a2f 56% 72%,#8a6410 72% 87%,#2f5170 87% 100%)';
+
+    const peers = [{ n: 'MSFT', v: 31.4, w: 78 }, { n: 'GOOGL', v: 22.1, w: 55 }, { n: 'AMZN', v: 34.8, w: 87 }, { n: 'ORCL', v: 27.6, w: 69 }, { n: 'Sector median', v: 24.2, w: 60 }]
+      .map(p => Object.assign({}, p, { vS: p.v.toFixed(1) + '×', wS: p.w + '%' }));
+
+    const revBars = [
+      { q: 'FY23', rev: 211, w: 62, m: 42.1, mh: 68 }, { q: 'FY24', rev: 245, w: 72, m: 44.6, mh: 74 },
+      { q: 'FY25', rev: 281, w: 83, m: 45.9, mh: 78 }, { q: 'FY26e', rev: 318, w: 94, m: 47.2, mh: 82 }
+    ].map(b => Object.assign({}, b, { revS: this.money(b.rev * 1e9 / 1e9, 0) + 'B', wS: b.w + '%', mS: b.m.toFixed(1) + '%', mhS: b.mh + '%' }));
+
+    const gross = s.invested * 0.34;
+    const stRate = s.resTax === 'US resident' ? parseFloat(s.slabUS) / 100 : s.resTax === 'India resident' ? 0.20 : 0;
+    const ltRate = s.resTax === 'US resident' ? 0.15 : s.resTax === 'India resident' ? 0.125 : 0;
+    const taxRows = [
+      { k: 'Gross unrealised gain (modelled)', v: this.money(gross), c: '#1f7a5c' },
+      { k: 'If sold < holding-period threshold (STCG)', v: '− ' + this.money(gross * stRate), c: '#b23a2f' },
+      { k: 'If sold after threshold (LTCG)', v: '− ' + this.money(gross * ltRate), c: '#8a6410' },
+      { k: 'Net after LTCG treatment', v: this.money(gross * (1 - ltRate)), c: '#1b1a17' },
+      { k: 'Value of waiting for LTCG', v: this.money(gross * (stRate - ltRate)), c: '#2f5f52' }
+    ];
+
+    const adminEmails = ['lakshmaneluri@gmail.com', 'lakshmaneluri@gmail'];
+    const isAdmin = adminEmails.indexOf((s.session.email || '').trim().toLowerCase()) >= 0;
+    const nav = [
+      { id: 'home', label: 'Desk', hint: 'Overview' }, { id: 'build', label: 'New analysis', hint: 'Request builder' },
+      { id: 'portfolio', label: 'Portfolio', hint: 'Holdings & CSV' }, { id: 'library', label: 'Reports', hint: 'Saved notes' },
+      { id: 'usage', label: 'Usage', hint: 'Quota & wallet' }, { id: 'billing', label: 'Plans & wallet', hint: 'Subscription' },
+      { id: 'admin', label: 'Admin console', hint: 'Platform', adminOnly: true }, { id: 'arch', label: 'Handoff notes', hint: 'For engineering' }
+    ].filter(n => !n.adminOnly || isAdmin).map(n => Object.assign({}, n, {
+      onClick: () => this.go(n.id),
+      style: 'display:flex;flex-direction:column;gap:1px;width:100%;text-align:left;padding:9px 11px;border:0;border-radius:7px;cursor:pointer;background:' + (screen === n.id ? '#e9e6de' : 'transparent') + ';transition:background .25s ease,transform .25s ease;color:' + (screen === n.id ? '#1b1a17' : '#57544e')
+    }));
+
+    const accounts = [
+      { e: 'maya@thesis.demo', n: 'Maya Raghavan', res: 'US resident', plan: 'Professional', used: '63/100', spend: '$49.00', last: '2 h ago' },
+      { e: 'arun.k@thesis.demo', n: 'Arun Kulkarni', res: 'India resident', plan: 'Professional +', used: '211/300', spend: '$99.00', last: '5 h ago' },
+      { e: 'f.alhashmi@thesis.demo', n: 'Fatima Al Hashmi', res: 'UAE (non-resident)', plan: 'Basic', used: '19/25', spend: '$19.00', last: '1 d ago' },
+      { e: 'dan@thesis.demo', n: 'Dan Whitfield', res: 'US resident', plan: 'Trial', used: '3/3', spend: '$0.00', last: '3 d ago' },
+      { e: 'priya@thesis.demo', n: 'Priya Nair', res: 'India resident', plan: 'Basic (wallet)', used: '$31.20/$50', spend: '$50.00', last: '6 h ago' }
+    ].map(a => Object.assign({}, a, { onImp: () => { this.setState({ impersonate: a.e }); this.toast('Read-only impersonation started — action logged to audit trail'); } }));
+
+    const plans = [
+      { id: 'Trial', price: 'Free', per: 'no card needed', searches: 'Read ' + s.cfg.trialSearches + ' sample analyses', who: 'Anyone who wants to see the quality of the work first.', why: 'Three finished notes on well-known companies. Read every page, then decide.' },
+      { id: 'Basic', price: '$2.99', per: 'per month', searches: '5 analyses a month', who: 'Portfolios up to $15,000 — a few holdings, one or two decisions a month.', why: '$36 a year monthly, or $32 paid yearly. A 12% year on $15,000 is about $1,800 of profit — this costs under 2% of it, less than most brokerage.' },
+      { id: 'Professional', price: '$5.99', per: 'per month', searches: '20 analyses a month', who: 'Portfolios under $50,000 — eight to twelve holdings reviewed monthly.', why: '$72 a year monthly, or $60 paid yearly. A 12% year on $50,000 is about $6,000 — this is 1% of it, and unlocks every model.' },
+      { id: 'Premium', price: '$10', per: 'per month', searches: '50 analyses a month', who: 'Portfolios under $150,000 — a full book of up to fifteen names, worked on weekly.', why: '$120 a year monthly, or $100 paid yearly. A 12% year on $150,000 is about $18,000 — roughly half a percent of your profit.' },
+      { id: 'Ultra Premium', price: '$15', per: 'per month', searches: '80 analyses a month', who: '$150,000 to $500,000 — long-term holdings plus short-term trades.', why: '$180 a year monthly, or $150 paid yearly. A 12% year on $300,000 is about $36,000 — under half a percent of it.' },
+      { id: 'Unlimited', price: '$50', per: 'per month', searches: 'Unlimited analyses', who: '$500,000 and above, or anyone running more than one portfolio.', why: '$600 a year monthly, or $500 paid yearly. A 12% year on $1,000,000 is about $120,000 — this is 0.4% of it, and you never watch a counter.' }
+    ].map(p => Object.assign({}, p, {
+      current: p.id === s.session.plan,
+      onPick: () => this.setState({ payOpen: true, payPlan: p.id }),
+      style: 'display:flex;flex-direction:column;gap:14px;padding:20px;border-radius:12px;background:#fff;border:1px solid ' + (p.id === s.session.plan ? '#2f5f52' : '#e4e1da') + ';box-shadow:0 1px 2px rgba(0,0,0,.04);transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s ease'
+    }));
+
+    const modelCards = m.map(x => {
+      const lk = this.planRank(x.minPlan) > this.planRank(s.session.plan);
+      return Object.assign({}, x, {
+        costS: this.money(x.cost, 2) + ' / run', locked: lk, open: !lk,
+        sel: x.id === s.model,
+        onPick: () => { if (lk) { this.toast(x.name + ' needs the ' + x.minPlan + ' plan — upgrade to unlock'); this.setState({ screen: 'billing' }); } else this.setState({ model: x.id }); },
+        style: 'display:flex;flex-direction:column;gap:6px;text-align:left;padding:13px 14px;border-radius:10px;cursor:pointer;background:' + (x.id === s.model ? '#eef2f0' : '#fff') + ';border:1px solid ' + (x.id === s.model ? '#2f5f52' : '#e4e1da') + ';transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s ease;opacity:' + (lk ? '.62' : '1')
+      });
+    });
+
+    const kindRows = Object.keys(kindNames).map(k => ({
+      id: k, label: kindNames[k], on: s.kinds[k],
+      desc: ({ fundamental: 'Results, growth, profit margins, and how expensive it is next to rivals', technical: 'Price trend, averages, and the levels it keeps bouncing off', macro: 'Interest rates, currency, and where the industry is in its cycle', news: 'Company and industry headlines from the last 90 days', comprehensive: 'All four, combined into one answer (uses 1 analysis)' })[k],
+      onToggle: () => this.setState(st => {
+        const nk = Object.assign({}, st.kinds);
+        if (k === 'comprehensive') { const v = !nk.comprehensive; return { kinds: { fundamental: v, technical: v, macro: v, news: v, comprehensive: v } }; }
+        nk[k] = !nk[k]; nk.comprehensive = nk.fundamental && nk.technical && nk.macro && nk.news; return { kinds: nk };
+      }),
+      style: 'display:flex;gap:11px;align-items:flex-start;text-align:left;width:100%;padding:12px 13px;border-radius:9px;cursor:pointer;background:' + (s.kinds[k] ? '#eef2f0' : '#fff') + ';border:1px solid ' + (s.kinds[k] ? '#2f5f52' : '#e4e1da') + ';transition:transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s ease,border-color .25s ease',
+      box: 'width:16px;height:16px;border-radius:4px;flex:none;margin-top:2px;background:' + (s.kinds[k] ? '#2f5f52' : '#fff') + ';border:1.5px solid ' + (s.kinds[k] ? '#2f5f52' : '#c6c2b9')
+    }));
+
+    const riskOpts = this.riskLabels().map((l, i) => ({
+      label: l, onPick: () => this.setState({ risk: i }),
+      style: 'text-align:left;padding:10px 12px;border-radius:8px;cursor:pointer;font:500 12.5px/1.35 "IBM Plex Sans";background:' + (s.risk === i ? '#1b1a17' : '#fff') + ';color:' + (s.risk === i ? '#f6f5f2' : '#57544e') + ';border:1px solid ' + (s.risk === i ? '#1b1a17' : '#e4e1da')
+    }));
+    const cagrOpts = this.cagrLabels().map((l, i) => ({
+      label: l, onPick: () => this.setState({ cagr: i }),
+      style: 'text-align:left;padding:10px 12px;border-radius:8px;cursor:pointer;font:500 12.5px/1.35 "IBM Plex Sans";background:' + (s.cagr === i ? '#1b1a17' : '#fff') + ';color:' + (s.cagr === i ? '#f6f5f2' : '#57544e') + ';border:1px solid ' + (s.cagr === i ? '#1b1a17' : '#e4e1da')
+    }));
+
+    const tabs = [
+      { id: 'verdict', l: 'Verdict' }, { id: 'fundamental', l: 'Fundamentals' }, { id: 'technical', l: 'Technicals' },
+      { id: 'macro', l: 'Macro' }, { id: 'news', l: 'News' }, { id: 'tax', l: 'Tax' }, { id: 'refine', l: 'Refine' }
+    ].map(t => Object.assign({}, t, {
+      onPick: () => this.setState({ reportTab: t.id }),
+      style: 'padding:8px 13px;border:0;border-bottom:2px solid ' + (s.reportTab === t.id ? '#1b1a17' : 'transparent') + ';background:transparent;cursor:pointer;font:' + (s.reportTab === t.id ? '600' : '400') + ' 13px/1 "IBM Plex Sans";color:' + (s.reportTab === t.id ? '#1b1a17' : '#706d66')
+    }));
+
+    const layoutOpts = [
+      { id: 'verdict', l: 'Verdict-first' }, { id: 'note', l: 'Research note' }, { id: 'dash', l: 'Dashboard' }
+    ].map(o => Object.assign({}, o, {
+      onPick: () => this.setState({ reportLayout: o.id }),
+      style: 'padding:5px 11px;border-radius:999px;border:1px solid ' + (s.reportLayout === o.id ? '#1b1a17' : '#e4e1da') + ';background:' + (s.reportLayout === o.id ? '#1b1a17' : '#fff') + ';color:' + (s.reportLayout === o.id ? '#f6f5f2' : '#57544e') + ';cursor:pointer;font:500 11.5px/1 "IBM Plex Sans"'
+    }));
+
+    const focusChips = ['Downside case', 'Competitive moat', 'Entry zone precision', 'Tax-optimal exit', 'Macro sensitivity', 'Management quality'].map(c => ({
+      label: c, on: !!s.refineFocus[c],
+      onToggle: () => this.setState(st => ({ refineFocus: Object.assign({}, st.refineFocus, { [c]: !st.refineFocus[c] }) })),
+      style: 'padding:6px 12px;border-radius:999px;cursor:pointer;font:500 12px/1 "IBM Plex Sans";background:' + (s.refineFocus[c] ? '#1b1a17' : '#fff') + ';color:' + (s.refineFocus[c] ? '#f6f5f2' : '#57544e') + ';border:1px solid ' + (s.refineFocus[c] ? '#1b1a17' : '#e4e1da')
+    }));
+
+    const reportRows = s.reports.map(r => Object.assign({}, r, {
+      costS: r.cost > 0 ? this.money(r.cost, 2) : '—',
+      onOpen: () => this.setState({ screen: 'report', ticker: r.ticker, reportTab: 'verdict' }),
+      onRename: () => this.setState({ renameId: r.id, renameVal: r.name }),
+      onPdf: () => this.toast('Rendering ' + r.name + '.pdf — charts and tables preserved'),
+      vcol: r.verdict === 'Accumulate' || r.verdict === 'Add' ? '#1f7a5c' : r.verdict === 'Hold' ? '#8a6410' : '#706d66'
+    }));
+
+    const adminTabs = [
+      { id: 'accounts', l: 'Accounts' }, { id: 'limits', l: 'Plans & limits' }, { id: 'prompt', l: 'Prompt registry' }, { id: 'tenancy', l: 'Tenancy & RLS' }
+    ].map(t => Object.assign({}, t, {
+      onPick: () => this.setState({ adminTab: t.id }),
+      style: 'padding:7px 13px;border-radius:8px;border:1px solid ' + (s.adminTab === t.id ? '#1b1a17' : '#e4e1da') + ';background:' + (s.adminTab === t.id ? '#1b1a17' : '#fff') + ';color:' + (s.adminTab === t.id ? '#f6f5f2' : '#57544e') + ';cursor:pointer;font:500 12.5px/1 "IBM Plex Sans"'
+    }));
+
+    const runSteps = ['Reading your position and limits', 'Getting results, prices and news', 'Checking it all against your risk limit', 'Drafting the note'];
+
+    return {
+      showAuth: authScreens.indexOf(screen) >= 0, showApp: authScreens.indexOf(screen) < 0,
+      isLogin: screen === 'login', isSignup: screen === 'signup', isReset: screen === 'reset',
+      isHome: screen === 'home', isBuild: screen === 'build', isPortfolio: screen === 'portfolio',
+      isClarify: screen === 'clarify', isReport: screen === 'report', isLibrary: screen === 'library',
+      isUsage: screen === 'usage', isBilling: screen === 'billing', isAdmin: screen === 'admin', isArch: screen === 'arch',
+      goBilling: () => this.go('billing'), goBuild: () => this.go('build'), goPortfolio: () => this.go('portfolio'), goLibrary: () => this.go('library'), goUsage: () => this.go('usage'), goHome: () => this.go('home'),
+      nav, form: s.form, session: s.session, expert: s.expert, currency: s.currency,
+      pwType: s.pwVisible ? 'text' : 'password', pwLabel: s.pwVisible ? 'Hide' : 'Show',
+      togglePw: () => this.set('pwVisible', !s.pwVisible),
+      onName: e => this.setIn('form', 'name', e.target.value),
+      onEmail: e => this.setIn('form', 'email', e.target.value),
+      onPhone: e => this.setIn('form', 'phone', e.target.value),
+      onPw: e => this.setIn('form', 'pw', e.target.value),
+      onCc: e => this.setIn('form', 'cc', e.target.value),
+      onRes: e => this.setIn('form', 'residency', e.target.value),
+      goLogin: () => this.go('login'), goSignup: () => this.go('signup'), goReset: () => this.go('reset'),
+      doAuth: () => this.setState(st => {
+        const em = (st.form.email || '').trim().toLowerCase();
+        const admin = adminEmails.indexOf(em) >= 0;
+        return {
+          screen: 'home',
+          session: Object.assign({}, st.session, {
+            email: em || st.session.email,
+            name: admin ? 'Lakshman Eluri' : (st.form.name || st.session.name),
+            plan: admin ? 'Unlimited' : st.session.plan
+          })
+        };
+      }),
+      isAdmin,
+      roleLabel: isAdmin ? 'Platform admin · Unlimited' : s.session.plan,
+      toggleCur: () => this.setState(st => ({ currency: st.currency === 'USD' ? 'INR' : 'USD' })),
+      toggleExpert: () => this.setState(st => ({ expert: !st.expert })),
+      expertLabel: s.expert ? 'Expert' : 'Beginner',
+      modeStyle: 'padding:5px 10px;border-radius:999px;border:1px solid #e4e1da;background:' + (s.expert ? '#1b1a17' : '#fff') + ';color:' + (s.expert ? '#f6f5f2' : '#57544e') + ';cursor:pointer;font:500 11.5px/1 "IBM Plex Sans"',
+      curLabel: s.currency === 'USD' ? 'USD $' : 'INR ₹',
+      fxNote: '1 USD = ₹' + s.fx.toFixed(2),
+      onFx: e => this.set('fx', parseFloat(e.target.value) || 0),
+      fxVal: s.fx,
+      query: s.query, ticker: s.ticker,
+      onQuery: e => this.set('query', e.target.value),
+      runSearch: () => { const t = (s.query || s.ticker).toUpperCase().trim(); this.setState({ ticker: t || 'MSFT', screen: 'build' }); },
+      kindRows, kindCount: kindList.length,
+      kindSummary: kindList.length ? kindList.map(k => kindNames[k]).join(' · ') : 'Nothing picked yet',
+      invested: s.invested, portfolio: s.portfolio,
+      investedS: this.money(s.invested), portfolioS: this.money(s.portfolio),
+      onInvested: e => this.set('invested', parseFloat(e.target.value) || 0),
+      onPortfolio: e => this.set('portfolio', parseFloat(e.target.value) || 0),
+      allocS: alloc.toFixed(1) + '%', allocBar: Math.min(100, alloc) + '%',
+      allocNote: alloc > 25 ? 'More than one stock should usually be — the note will flag the risk' : alloc < 2 ? 'A small position — we will assume you can build it up over time' : 'A normal size for a single stock',
+      horizon: s.horizon, onHorizon: e => this.set('horizon', e.target.value),
+      avgDown: s.avgDown, onAvgDown: e => this.set('avgDown', e.target.value),
+      riskOpts, cagrOpts,
+      conflict, slack,
+      conflictMsg: 'A ' + ['low', 'medium'][s.risk] + ' risk appetite (max ' + ['10%', '20%'][s.risk] + ' drawdown) is not compatible with a ' + ['', '', 'high (18–25%)', 'extremely high (>25%)'][s.cagr] + ' CAGR target. Raise the drawdown tolerance, or lower the return target — we will not model a portfolio that cannot exist.',
+      slackMsg: 'You are carrying more drawdown tolerance than your return target needs. The note will suggest a lower-volatility route to the same CAGR.',
+      resTax: s.resTax, onResTax: e => this.set('resTax', e.target.value),
+      slabUS: s.slabUS, onSlabUS: e => this.set('slabUS', e.target.value),
+      slabIN: s.slabIN, onSlabIN: e => this.set('slabIN', e.target.value),
+      isUS: s.resTax === 'US resident', isIN: s.resTax === 'India resident', isNR: s.resTax.indexOf('Non-resident') === 0,
+      modelCards, chosenName: chosen.name, chosenCost: this.money(chosen.cost, 2), locked,
+      upgradeNudge: chosen.tier !== 'Frontier',
+      canRun: !conflict && kindList.length > 0 && !locked,
+      runNote: conflict ? 'Fix the risk and return mismatch to continue' : kindList.length === 0 ? 'Pick at least one check' : locked ? 'This model needs a higher plan' : 'Runs on ' + chosen.name + ' · uses 1 analysis, or ' + this.money(chosen.cost, 2),
+      submitReq: () => this.setState({ screen: 'clarify' }),
+      clarify: s.clarify,
+      onC1: e => this.setIn('clarify', 'conviction', e.target.value),
+      onC2: e => this.setIn('clarify', 'addFunds', e.target.value),
+      onC3: e => this.setIn('clarify', 'exitRule', e.target.value),
+      runAnalysis: () => {
+        this.setState({ running: true, runStep: 0 });
+        const tick = () => this.setState(st => {
+          if (st.runStep >= 3) { clearInterval(this._i); return { running: false, screen: 'report', reportTab: 'verdict', usage: Object.assign({}, st.usage, { used: st.usage.used + 1, walletUsed: +(st.usage.walletUsed + chosen.cost).toFixed(2) }) }; }
+          return { runStep: st.runStep + 1 };
+        });
+        this._i = setInterval(tick, 700);
+      },
+      running: s.running, runSteps: runSteps.map((l, i) => ({ label: l, done: i < s.runStep, cur: i === s.runStep, style: 'font:' + (i <= s.runStep ? '500' : '400') + ' 13px/1.5 "IBM Plex Sans";color:' + (i <= s.runStep ? '#1b1a17' : '#a3a09a') })),
+      tabs, layoutOpts, reportTab: s.reportTab,
+      layVerdict: s.reportLayout === 'verdict', layNote: s.reportLayout === 'note', layDash: s.reportLayout === 'dash',
+      contBtnStyle: 'width:100%;padding:12px;border:0;border-radius:8px;font:600 13.5px/1 "IBM Plex Sans";' + (conflict ? 'background:#3a3731;color:#8f8b82;cursor:not-allowed' : 'background:#f6f5f2;color:#1b1a17;cursor:pointer'),
+      tabVerdict: s.reportTab === 'verdict', tabFund: s.reportTab === 'fundamental', tabTech: s.reportTab === 'technical',
+      tabMacro: s.reportTab === 'macro', tabNews: s.reportTab === 'news', tabTax: s.reportTab === 'tax', tabRefine: s.reportTab === 'refine',
+      priceLine: this.pts(ser, 720, 200, lo, hi, 6), maLine: this.pts(ma20, 720, 200, lo, hi, 6), ma2Line: this.pts(ma50, 720, 200, lo, hi, 6),
+      rsiLine: this.pts(rsi, 720, 90, 0, 100, 4),
+      bullLine: this.pts(bull, 300, 150, fanLo, fanHi, 4), baseLine: this.pts(base, 300, 150, fanLo, fanHi, 4), bearLine: this.pts(bear, 300, 150, fanLo, fanHi, 4),
+      lastS: this.money(last, 2), targetS: this.money(last * 1.17, 2), bullS: this.money(last * 1.46, 2), bearS: this.money(last * 0.82, 2),
+      holdings, donut, peers, revBars, taxRows,
+      portValS: this.money(198400), portPlS: '+' + this.money(23110), portPlPctS: '+13.2%',
+      csvName: s.csvName, hasCsv: !!s.csvName, csvSaved: s.csvSaved,
+      onCsv: e => { const f = e.target.files && e.target.files[0]; if (f) this.setState({ csvName: f.name, csvSaved: false }); },
+      saveCsv: () => { this.setState({ csvSaved: true }); this.toast('Portfolio saved to your workspace'); },
+      usedS: s.usage.mode === 'searches' ? s.usage.used + ' of ' + s.usage.limit + ' analyses' : this.money(s.usage.walletUsed, 2) + ' of ' + this.money(s.usage.walletLoaded, 2),
+      usedPctS: usedPct.toFixed(0) + '%', usedBar: Math.min(100, usedPct) + '%',
+      usedBarCol: warnLevel >= 3 ? '#b23a2f' : warnLevel === 2 ? '#8a6410' : '#2f5f52',
+      warnOn: warnLevel > 0, warnLevel,
+      warnMsg: warnLevel >= 3 ? 'You have used ' + usedPct.toFixed(0) + '% of this cycle. At 100% new analyses are blocked — top up the wallet or move to Professional +.' : warnLevel === 2 ? 'You are at ' + usedPct.toFixed(0) + '% of your monthly allowance. Two heavier frontier runs would exhaust it.' : 'You have crossed ' + usedPct.toFixed(0) + '% of your allowance for this cycle.',
+      warnStyle: 'display:flex;gap:13px;align-items:flex-start;padding:13px 15px;border-radius:10px;margin:0 0 20px;border:1px solid ' + (warnLevel >= 3 ? '#e8c9c4' : warnLevel === 2 ? '#e6d7b4' : '#d8e2dd') + ';background:' + (warnLevel >= 3 ? '#fbf1ef' : warnLevel === 2 ? '#fbf6ea' : '#f0f4f2'),
+      toggleUsageMode: () => this.setState(st => ({ usage: Object.assign({}, st.usage, { mode: st.usage.mode === 'searches' ? 'wallet' : 'searches' }) })),
+      usageModeLabel: s.usage.mode === 'searches' ? 'Metering: plan allowance' : 'Metering: wallet balance',
+      plans, planName: s.session.plan,
+      payOpen: s.payOpen, payPlan: s.payPlan, payMethod: s.payMethod,
+      closePay: () => this.set('payOpen', false),
+      setUpi: () => this.set('payMethod', 'UPI'), setCard: () => this.set('payMethod', 'Card'),
+      upiStyle: 'flex:1;padding:10px;border-radius:8px;cursor:pointer;font:500 12.5px/1 "IBM Plex Sans";border:1px solid ' + (s.payMethod === 'UPI' ? '#1b1a17' : '#e4e1da') + ';background:' + (s.payMethod === 'UPI' ? '#1b1a17' : '#fff') + ';color:' + (s.payMethod === 'UPI' ? '#f6f5f2' : '#57544e'),
+      cardStyle: 'flex:1;padding:10px;border-radius:8px;cursor:pointer;font:500 12.5px/1 "IBM Plex Sans";border:1px solid ' + (s.payMethod === 'Card' ? '#1b1a17' : '#e4e1da') + ';background:' + (s.payMethod === 'Card' ? '#1b1a17' : '#fff') + ';color:' + (s.payMethod === 'Card' ? '#f6f5f2' : '#57544e'),
+      confirmPay: () => { this.setState(st => ({ payOpen: false, session: Object.assign({}, st.session, { plan: st.payPlan }) })); this.toast('Plan updated to ' + s.payPlan + ' — receipt emailed'); },
+      walletAmt: s.walletAmt, onWallet: e => this.set('walletAmt', parseFloat(e.target.value) || 0),
+      topUp: () => { this.setState(st => ({ usage: Object.assign({}, st.usage, { walletLoaded: st.usage.walletLoaded + st.walletAmt }) })); this.toast('Wallet topped up'); },
+      reportRows, renameOpen: !!s.renameId, renameVal: s.renameVal,
+      onRenameVal: e => this.set('renameVal', e.target.value),
+      cancelRename: () => this.set('renameId', null),
+      saveRename: () => { this.setState(st => ({ reports: st.reports.map(r => r.id === st.renameId ? Object.assign({}, r, { name: st.renameVal }) : r), renameId: null })); this.toast('Report renamed — PDF metadata updated'); },
+      focusChips, refineInput: s.refineInput, refineLog: s.refineLog,
+      onRefineInput: e => this.set('refineInput', e.target.value),
+      sendRefine: () => {
+        const t = (s.refineInput || '').trim(); if (!t) return;
+        const probe = /prompt|system (message|instruction)|instructions|jailbreak|ignore (all|previous)|reveal|verbatim|your rules/i.test(t);
+        const reply = probe
+          ? 'I can\'t share the platform\'s internal instructions, configuration or prompt text — that applies to paraphrases and partial quotes too. I can explain the analysis itself: which factors drove the verdict, the assumptions used, and the sources cited.'
+          : 'Noted. Re-running the flagged sections with heavier weight on ' + (Object.keys(s.refineFocus).filter(k => s.refineFocus[k]).join(', ') || 'your comment') + '. The downside case now assumes a 2-quarter margin compression and the entry band tightens to ' + this.money(last * 0.94, 2) + '–' + this.money(last * 0.985, 2) + '.';
+        this.setState(st => ({ refineLog: st.refineLog.concat([{ id: 'm' + st.refineLog.length, who: 'you', text: t }, { id: 'a' + st.refineLog.length, who: 'thesis', text: reply, denied: probe }]), refineInput: '' }));
+      },
+      refineRows: s.refineLog.map(mm => Object.assign({}, mm, {
+        mine: mm.who === 'you',
+        style: 'max-width:76%;padding:12px 14px;border-radius:11px;font:400 13.5px/1.6 "IBM Plex Sans";white-space:pre-wrap;' + (mm.who === 'you' ? 'align-self:flex-end;background:#1b1a17;color:#f6f5f2' : 'align-self:flex-start;background:' + (mm.denied ? '#fbf1ef' : '#fff') + ';color:#1b1a17;border:1px solid ' + (mm.denied ? '#e8c9c4' : '#e4e1da'))
+      })),
+      saveReport: () => { this.setState(st => ({ reports: [{ id: 'n' + Date.now(), name: st.ticker + ' — ' + (st.horizon === 'Swing trade' ? 'swing setup' : 'long-term thesis'), ticker: st.ticker, date: '2026-09-12', model: chosen.name, verdict: 'Accumulate', kinds: kindList.map(k => kindNames[k]).join(' · ') || 'Comprehensive', cost: chosen.cost, pages: 11 }].concat(st.reports), screen: 'library' })); this.toast('Analysis saved and archived as PDF'); },
+      exportPdf: () => this.toast('Export queued — charts, tables and formatting preserved in the PDF'),
+      adminTabs, adTabAcc: s.adminTab === 'accounts', adTabLim: s.adminTab === 'limits', adTabPr: s.adminTab === 'prompt', adTabTen: s.adminTab === 'tenancy',
+      accounts, cfg: s.cfg,
+      onCfg: (k) => (e) => this.setIn('cfg', k, parseFloat(e.target.value) || 0),
+      onTrial: e => this.setIn('cfg', 'trialSearches', parseFloat(e.target.value) || 0),
+      onTrialPdf: e => this.setIn('cfg', 'trialPdfs', parseFloat(e.target.value) || 0),
+      onBasic: e => this.setIn('cfg', 'basic', parseFloat(e.target.value) || 0),
+      onPro: e => this.setIn('cfg', 'pro', parseFloat(e.target.value) || 0),
+      onProPlus: e => this.setIn('cfg', 'proPlus', parseFloat(e.target.value) || 0),
+      onW1: e => this.setIn('cfg', 'warn1', parseFloat(e.target.value) || 0),
+      onW2: e => this.setIn('cfg', 'warn2', parseFloat(e.target.value) || 0),
+      onW3: e => this.setIn('cfg', 'warn3', parseFloat(e.target.value) || 0),
+      onPromptFile: e => { const f = e.target.files && e.target.files[0]; if (f) { this.setIn('cfg', 'promptFile', f.name); this.toast('Prompt uploaded — staged for review, not yet live'); } },
+      saveCfg: () => this.toast('Configuration saved — applies to the next billing cycle'),
+      impersonate: s.impersonate, impOn: !!s.impersonate,
+      stopImp: () => this.set('impersonate', null),
+      toastMsg: s.toast, toastOn: !!s.toast,
+      signOut: () => this.setState({ screen: 'login' })
+    };
+  }
+}
+</script>
+</body>
+</html>
