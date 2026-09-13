@@ -8,7 +8,9 @@ alwaysApply: true
 Before writing or changing code, read the **latest session handoff** then `HANDOFF.md`.
 
 0. **Roadmap (always):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next** is the only allowed chunk. User revises that file for order/scope. Rule: [`roadmap.mdc`](roadmap.mdc).
-0. **Portfolio P2 (2026-09-13):** [`docs/handoff/SESSION-2026-09-13-p2-portfolio.md`](docs/handoff/SESSION-2026-09-13-p2-portfolio.md) — `/portfolio` CSV + grid + manual add + display FX on **port 3100**. **Build next: P1-05**.
+0. **Phase 3 request builder (2026-09-13):** [`docs/handoff/SESSION-2026-09-13-p3-request-builder.md`](docs/handoff/SESSION-2026-09-13-p3-request-builder.md) — `/analyse` → clarify → `thesis_accept_analysis` → `/analyse/[id]` on **port 3100**. **Build next: P4-00**.
+0. **P1-05 profile (2026-09-13):** [`docs/handoff/SESSION-2026-09-13-p1-05-profile.md`](docs/handoff/SESSION-2026-09-13-p1-05-profile.md) — `/settings/profile` on **port 3100**. **010 applied.**
+0. **Portfolio P2 (2026-09-13):** [`docs/handoff/SESSION-2026-09-13-p2-portfolio.md`](docs/handoff/SESSION-2026-09-13-p2-portfolio.md) — `/portfolio` CSV + grid + manual add + display FX on **port 3100**.
 0. **Desk through P1-04 (2026-09-13):** [`docs/handoff/SESSION-2026-09-13-p1-02-to-p1-04-desk.md`](docs/handoff/SESSION-2026-09-13-p1-02-to-p1-04-desk.md) — `/login` → `/desk` on **port 3100**.
 0. **Foundation schema (2026-09-13):** [`docs/handoff/SESSION-2026-09-13-foundation-schema.md`](docs/handoff/SESSION-2026-09-13-foundation-schema.md) — Next.js + FastAPI locked; `family_id` tenant; migrations **001–008** applied on DEV. Apply further SQL only with `CONFIRM_APPLY=1` and a named file.
 0. **Repo bootstrap (2026-09-13):** [`docs/handoff/SESSION-2026-09-13-repo-bootstrap.md`](docs/handoff/SESSION-2026-09-13-repo-bootstrap.md) — folder layout + Cursor rules.
@@ -19,7 +21,7 @@ Before writing or changing code, read the **latest session handoff** then `HANDO
 |---------|-----|
 | §3 Locked decisions | Do not re-litigate architecture or product choices |
 | §3b Open questions | Blocked until the user answers |
-| §6 Database status | Migrations/seeds already applied (001–009 on DEV) |
+| §6 Database status | Migrations/seeds already applied (001–011 on DEV) |
 | §17 Gotchas | Secrets, mock vs product, prompt leakage |
 | §18 Next steps | Current build priority |
 | §25 Verification | SQL to confirm DB state if unsure |
@@ -33,7 +35,7 @@ Before writing or changing code, read the **latest session handoff** then `HANDO
 - Worker LLM is **OpenRouter** for v1 (D39): `OPENROUTER_API_KEY`, pinned slug, no fallbacks. Native lab keys in `.env` are placeholders until a native-path chunk.
 - **Never commit** `.env`, `*.rtf`, zip archives, service-role keys, or the advisor system prompt in API responses.
 - **Git:** local commit → push **dev** → **prod**. You may ask; never push or deploy to dev/prod unless the user names that target this turn. See [`git-deploy.mdc`](git-deploy.mdc).
-- Local `.env` points only at the project the user named. Do not create a second Supabase project without asking.
+- Local `.env` stays on DEV `https://cmksomahsfmsjufakryw.supabase.co`. Prod keys: gitignored `.env.prod` (from `.env.prod.example`). PROD Supabase is `https://ndgvglcrkbygovlszxze.supabase.co`. PROD Next.js is Vercel `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`. Do not retarget `.env`. Do not source `.env.prod` or `vercel` deploy unless the user names **prod**, and for SQL also the file + `CONFIRM_APPLY=1`.
 - Claims about data movement must name the **route**, **table/RPC**, **dashboard read**, **role**, and **whether a button exists**. See [`product-language.mdc`](product-language.mdc).
 
 ## When starting a new feature

@@ -4,6 +4,7 @@ import {
   lastCheckedLabel,
   type HoldingRow,
 } from "@/lib/desk/home-math";
+import { meterEventCount } from "@/lib/desk/usage-meter";
 import { createClient } from "@/lib/supabase/server";
 
 export type DeskHome = {
@@ -39,9 +40,8 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
       .order("ticker"),
     supabase
       .from("usage_events")
-      .select("id", { count: "exact", head: true })
+      .select("kind")
       .eq("family_id", familyId)
-      .eq("kind", "search")
       .eq("billing_period", period),
     supabase
       .from("reports")
@@ -93,7 +93,9 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
 
   return {
     positions: holdings.length,
-    analysesThisCycle: usageRes.count ?? 0,
+    analysesThisCycle: meterEventCount(
+      (usageRes.data ?? []).map((row) => String(row.kind ?? "")),
+    ),
     analysisLimit,
     planName,
     costBasis: costBasisNative(holdings),

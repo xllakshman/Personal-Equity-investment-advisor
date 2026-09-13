@@ -1,1 +1,1 @@
-"""Analysis worker package — not implemented yet."""
+"""Analysis worker package."""

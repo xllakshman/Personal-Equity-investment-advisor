@@ -28,6 +28,8 @@ describe("isDeskPath", () => {
   it("matches desk routes only", () => {
     assert.equal(isDeskPath("/desk"), true);
     assert.equal(isDeskPath("/analyse"), true);
+    assert.equal(isDeskPath("/analyse/00000000-0000-4000-8000-000000000000"), true);
+    assert.equal(isDeskPath("/settings/profile"), true);
     assert.equal(isDeskPath("/login"), false);
     assert.equal(isDeskPath("/admin/login"), false);
   });

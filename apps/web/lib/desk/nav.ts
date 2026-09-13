@@ -10,5 +10,8 @@ export const DESK_NAV = [
 export const DESK_PATHS = DESK_NAV.map((n) => n.href);
 
 export function isDeskPath(pathname: string): boolean {
-  return DESK_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  if (DESK_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
+    return true;
+  }
+  return pathname === "/settings" || pathname.startsWith("/settings/");
 }

@@ -27,8 +27,14 @@ export function AppShell({
         <div className="desk__right">
           <CurrencyChip currency={displayCurrency} />
           <div className="desk__who">
-            <strong>{session.fullName}</strong>
-            <span>{roleLabel(session.role)}</span>
+            <strong>
+              <Link href="/settings/profile">{session.fullName}</Link>
+            </strong>
+            <span>
+              <Link href="/settings/profile">Profile</Link>
+              {" · "}
+              {roleLabel(session.role)}
+            </span>
           </div>
           <span className="desk__avatar" aria-hidden>
             {initials(session.fullName)}

@@ -21,7 +21,8 @@ Port **3100** (not 3000). Anon `/` is the marketing home. Logged-in `/` redirect
 apps/web/
 ├── app/(marketing)/        # `/`
 ├── app/(auth)/             # `/login` `/signup` `/reset`
-├── app/(desk)/             # `/desk` `/analyse` `/portfolio` `/reports` `/usage` `/billing`
+├── app/(desk)/             # `/desk` `/analyse` `/analyse/[id]` `/portfolio` `/reports` `/usage` `/billing`
+├── components/features/builder/
 ├── app/admin/login/        # stub — P7-00 builds the form
 ├── components/features/marketing/
 ├── components/features/auth/

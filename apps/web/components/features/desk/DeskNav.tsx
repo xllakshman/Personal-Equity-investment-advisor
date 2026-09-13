@@ -13,7 +13,11 @@ export function DeskNav() {
         <Link
           key={item.href}
           href={item.href}
-          aria-current={pathname === item.href ? "page" : undefined}
+          aria-current={
+            pathname === item.href || pathname.startsWith(`${item.href}/`)
+              ? "page"
+              : undefined
+          }
         >
           <span className="desk__nav-label">{item.label}</span>
           <span className="desk__nav-hint">{item.hint}</span>

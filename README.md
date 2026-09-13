@@ -57,7 +57,7 @@ cp .env.example .env
 # Fill SUPABASE_URL, keys, DB password (never commit .env)
 ```
 
-Named DEV project: `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–009** + Maya seed applied. Do not apply more SQL until you name the file.
+Named DEV project: `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–011** + Maya seed applied. Local `.env` stays here. Prod keys: `cp .env.prod.example .env.prod` (gitignored). PROD Supabase is `https://ndgvglcrkbygovlszxze.supabase.co`. PROD Next.js is Vercel `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4` — `apps/web` only (P10-01). FastAPI/worker prod is P10-02.
 
 ### 2. Python (uv + `.venv`)
 

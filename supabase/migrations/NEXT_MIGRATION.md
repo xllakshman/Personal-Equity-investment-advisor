@@ -1,13 +1,18 @@
 -- =============================================================================
--- Next migration (010)
+-- Next migration
 -- =============================================================================
 
 ## Applied
 
-See `HANDOFF.md` §6. **001–009** on DEV `cmksomahsfmsjufakryw`. Seed `supabase/seed/001_maya_desk.sql` is not a numbered schema file.
+See `HANDOFF.md` §6.
 
-`009_model_catalog_refresh.sql` — applied 2026-09-13 (`CONFIRM_APPLY=1 ./tools/db/run_migration.sh 009`).
+- **DEV** `cmksomahsfmsjufakryw`: **001–011** + seed `supabase/seed/001_maya_desk.sql`.
+- **PROD** `ndgvglcrkbygovlszxze` (`https://ndgvglcrkbygovlszxze.supabase.co`): URL recorded 2026-09-14. **No Thesis migrations applied** from this repo until you name **prod** + the file + `CONFIRM_APPLY=1`.
 
-## Next
+`009_model_catalog_refresh.sql` — applied on DEV 2026-09-13.
+`010_investor_profiles.sql` — applied on DEV 2026-09-13.
+`011_accept_holding_check.sql` — applied on DEV 2026-09-13.
 
-`010_*.sql` — investor_profiles (P1-05) unless you name another file.
+## Next on DEV
+
+`012_worker_quotes_and_gate.sql` — drafted (eod_quotes, refine_gate usage kind, meter count). **Not applied** until you name this file and `CONFIRM_APPLY=1`.

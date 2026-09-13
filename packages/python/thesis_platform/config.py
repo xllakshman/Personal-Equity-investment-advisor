@@ -35,6 +35,11 @@ class Settings:
     supabase_db_password: str
     supabase_service_key: str = ""
     supabase_anon_key: str = ""
+    openrouter_api_key: str = ""
+    market_data_user_agent: str = (
+        "ThesisAdvisor/0.1 (research desk; previous-close only)"
+    )
+    analysis_api_port: int = 8091
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -44,12 +49,19 @@ class Settings:
             raise RuntimeError("SUPABASE_URL is required")
         if not password:
             raise RuntimeError("SUPABASE_DB_PASSWORD is required")
+        port_raw = os.environ.get("ANALYSIS_API_PORT", "8091").strip() or "8091"
         return cls(
             supabase_url=url,
             supabase_db_host=resolve_db_host(),
             supabase_db_password=password,
             supabase_service_key=os.environ.get("SUPABASE_SERVICE_KEY", "").strip(),
             supabase_anon_key=os.environ.get("SUPABASE_ANON_KEY", "").strip(),
+            openrouter_api_key=os.environ.get("OPENROUTER_API_KEY", "").strip(),
+            market_data_user_agent=os.environ.get(
+                "MARKET_DATA_USER_AGENT",
+                "ThesisAdvisor/0.1 (research desk; previous-close only)",
+            ).strip(),
+            analysis_api_port=int(port_raw),
         )
 
     @classmethod

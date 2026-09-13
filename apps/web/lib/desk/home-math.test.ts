@@ -34,8 +34,35 @@ describe("costBasisNative", () => {
     ]);
   });
 
-  it("handles empty book", () => {
+  it("handles empty book, NaN qty, and a bad last-checked timestamp", () => {
     assert.equal(costBasisNative([]), 0);
+    assert.equal(
+      costBasisNative([
+        {
+          ticker: "MSFT",
+          company_name: null,
+          qty: Number.NaN,
+          cost_per_share: 403,
+          native_currency: "USD",
+          last_checked_at: null,
+        },
+      ]),
+      0,
+    );
+    assert.deepEqual(
+      allocationWeights([
+        {
+          ticker: "CASH",
+          company_name: null,
+          qty: 0,
+          cost_per_share: 0,
+          native_currency: "USD",
+          last_checked_at: null,
+        },
+      ]),
+      [{ ticker: "CASH", pct: 0 }],
+    );
+    assert.equal(lastCheckedLabel("not-a-date"), "never");
   });
 });
 

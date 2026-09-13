@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import type { DeskHome } from "@/lib/desk/load-home";
+import { analysesThisCycleCaption } from "@/lib/desk/usage-meter";
 import { firstName } from "@/lib/desk/session";
 
 function money(amount: number, ccy: string): string {
@@ -63,8 +64,7 @@ export function DeskHomeView({
           <p className="desk__kpi-k">Analyses this cycle</p>
           <p className="desk__kpi-v">{analysesLabel}</p>
           <p className="desk__kpi-s">
-            usage_events kind search this month
-            {home.planName ? ` · ${home.planName}` : ""}
+            {analysesThisCycleCaption(home.planName)}
           </p>
         </div>
       </div>

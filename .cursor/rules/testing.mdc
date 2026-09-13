@@ -13,6 +13,17 @@ Read `tests/README.md` before shipping Python or API changes.
 2. **Every new HTTP route** needs **integration tests** in `tests/integration/<service>/`.
 3. **Edge cases required**: null/empty input, boundary thresholds, invalid enums, risk/CAGR conflict, quota at 100%, prompt-extraction refine, idempotent job accept, native-currency FX (display must not write back).
 4. Run `./tools/test/run_tests.sh` before considering work done; integration suite with `./tools/test/run_tests.sh --integration` when DB/API touched.
+5. **Three test-fix passes** per ROADMAP chunk and again when a phase wraps. A pass that finds a bug is fixed before the next pass starts. Do not mark the chunk ✅ until all three pass.
+
+## Three passes (chunk + phase)
+
+| Pass | Hunt | Typical assertions |
+|------|------|--------------------|
+| **1 — isolation and meter** | RLS UI vs API; usage vs plan | Same `family_id`. Viewer (`member_role = viewer`) can **read** what `user_can_read_family` allows and cannot call write RPCs or `POST /reports/:id/refine`. Desk `/desk` “Analyses this cycle” counts the same `usage_events.kind` set as `thesis_family_meter_count` / `thesis_assert_quota` (`search`, `refine`, `refine_gate` — **not** `prompt_extract_attempt` or `pdf`). FastAPI uses postgres (RLS bypassed) so the SQL join **must** copy those helpers, not “any active member”. |
+| **2 — empty / boundary / store-retrieve** | Form and RPC guards; column written = table the screen reads | Empty ticker, `{}` vs three clarification keys, invalid enums, quota `used >= limit`, prompt-extraction refine bills `prompt_extract_attempt` not `refine`. `holding_lots` write / view `holdings` read. Evidence row 1 close ≠ `holding_lots.cost_per_share`. FX display helpers must not write converted amounts. Sample `reports.is_library_sample` cannot refine. |
+| **3 — display and leak** | What the user sees vs DB; prompt body | Formatted money (e.g. `$12,090` not `12090`), empty book `—`, wait panel copy vs `analysis_requests.status` (`queued` / `gathering` / `ready` / `failed` — never fake ready). HTTP/SSE/`error_text` never contain a 40-char slice of `prompt_versions.body`. `/reports` lists `reports.name` only until the worker inserts that row. |
+
+Phase wrap-up repeats the three passes across every chunk in that phase (builder + wait + worker + refine), not only the last id.
 
 ## Where tests live
 
@@ -23,6 +34,7 @@ Read `tests/README.md` before shipping Python or API changes.
 | `packages/python/thesis_platform/` | `tests/unit/thesis_platform/` |
 | `tools/db/` validators | `tests/unit/tools/` |
 | `apps/web/` domain helpers | `apps/web` Vitest only for UI units; HTTP contracts still in `tests/integration/web/` |
+| SQL vs UI lock | `tests/unit/tools/test_rls_ui_api_lock.py` (static). Live RLS: `tests/integration/analysis_api/test_rls_quota_live.py` (skips without DB password). Two-JWT CI remains ROADMAP **P8-01**. |
 
 Do **not** co-locate Python tests inside `apps/` — use central `tests/` for one CI entrypoint.
 
@@ -53,3 +65,5 @@ Target **≥85%** branch coverage on `analysis_api`, `analysis_worker`, `thesis_
 - Live LLM/DB calls in unit tests (mock or mark `@pytest.mark.integration`)
 - Skipping tests for "small" changes
 - Asserting on the system prompt text in any HTTP fixture
+- Desk KPI counting `kind = search` while `thesis_assert_quota` counts refine kinds
+- API tenancy that treats `viewer` as writer because postgres bypasses RLS

@@ -6,10 +6,11 @@
 
 1. **One chunk at a time.** Do not start N+1 while N is ⬜ or 🟡.
 2. **Scope is the chunk body only.** No drive-by screens, restyles, or extra tables.
-3. **Success criteria are the gate.** Automated tests plus the listed click/SQL checks. Browser smoke when the chunk has a route.
+3. **Success criteria are the gate.** Automated tests plus the listed click/SQL checks. Browser smoke when the chunk has a route. Three test-fix passes (see process item 7) must pass before Status ✅.
 4. **You sign off** (or explicitly skip) before the next chunk. Skipping is written here as `skipped — <reason>`.
 5. **After a chunk:** set Status, date, and a one-line note. Mirror one line in `HANDOFF.md` STATUS. Write a session file only if behaviour is user-visible.
 6. **If this file and HANDOFF disagree on what to build next, this file wins for order; HANDOFF §3 wins for architecture.**
+7. **Three test-fix passes** per chunk, then again when the phase wraps. Pass 1: RLS UI vs API (viewer cannot write; FastAPI join = `user_can_read_family` / `user_can_write_family`) and usage kinds vs `thesis_family_meter_count`. Pass 2: empty/null, invalid enums, quota at 100%, store/retrieve (column written = table the screen reads), FX display must not write back. Pass 3: formatted display, wait copy vs `analysis_requests.status`, prompt leak in HTTP/`error_text`. Fix bugs before the next pass. Contract: [`.cursor/rules/testing.mdc`](../../.cursor/rules/testing.mdc).
 
 Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 
@@ -19,12 +20,14 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 
 | Field | Value |
 |-------|--------|
-| **Build next** | **P1-05** — Investor profile |
-| Last done | **P2-03** — Display currency (2026-09-13). User asked to do Phase 2 before P1-05. Next.js on **3100** |
-| Blocked on you | P1-05 needs named migration **010** to apply. P6-03 merchant later. Step 0 items 2–7 still unnamed. P8-02 email **send** needs a named provider (Resend / Postmark / SES). |
+| **Build next** | **P4-00** — Analysis worker (OpenRouter) |
+| Last done | **P3-03** — queued wait on `/analyse/[id]` (2026-09-13). Phase 3 shipped; **011** applied on DEV. Next.js on **3100** |
+| Blocked on you | Fill gitignored `.env.prod` anytime (`cp .env.prod.example .env.prod`). P6-03 merchant later. Step 0 items 2–7 still unnamed. P8-02 email **send** needs a named provider. P10-02 needs a FastAPI host name (Fly / Railway / VM). |
 | Mock | `docs/mock-ui/Thesis.dc.html` (app), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
-| DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–009** applied |
+| DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–011** applied. **012** in git, not applied |
+| PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — URL recorded 2026-09-14. **No Thesis migrations applied** until you name prod + file + `CONFIRM_APPLY=1` |
+| PROD web | Vercel `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4` · `https://v0.app/lakshman-projects/equity-investment-advisor-prod`. Next.js only. |
 
 ---
 
@@ -40,6 +43,7 @@ Every chunk names:
 | Who | Role that may do it |
 | UI today | button / list-only / RPC-only / seed-only / does not exist |
 | Success | Observable checks. If a step never runs, say what the user still sees |
+| Testing | Three test-fix passes (testing.mdc) before Status ✅. Phase wrap repeats them across every id in the phase. |
 
 ---
 
@@ -87,6 +91,20 @@ Schema and repo. No product UI.
 - **UI today:** no product login yet (P1-02).
 - **Success:** `.env` has URL, DB password, anon, service (verified present, values not logged). P1-02 uses email+password for `maya@thesis.demo`. Google button in P1-02 may show and must fail with an explicit “Google is not enabled” — do not implement a second password store.
 - **Note:** Phone in Supabase is OTP. We do not add a second password table.
+
+### P0-04 — Prod secrets file (`.env.prod`)
+
+- **Status:** ✅ 2026-09-14 — template in git. You paste keys locally; nothing deploys.
+- **Depends on:** P0-03
+- **Direction:** Gitignored **`.env.prod`** is how you give prod URL + keys. Template: [`.env.prod.example`](../../.env.prod.example). `cp .env.prod.example .env.prod` then paste from [prod API settings](https://supabase.com/dashboard/project/ndgvglcrkbygovlszxze/settings/api). Local `.env` and `apps/web/.env.local` stay on DEV `cmksomahsfmsjufakryw`. `npm run dev` on **3100** must not read `.env.prod`. Agents source `.env.prod` only when you name **prod** this turn. Never paste keys in chat. Never `NEXT_PUBLIC_` a service role.
+- **Writes:** `.env.prod` on disk (gitignored).
+- **Reads:** none in the running desk until P10-01 / P10-02.
+- **Who:** project owner.
+- **UI today:** no button.
+- **Success:**
+  1. `.env.prod.example` is in git with `SUPABASE_URL=https://ndgvglcrkbygovlszxze.supabase.co` and empty key fields.
+  2. `git check-ignore -v .env.prod` matches.
+  3. You can open `.env.prod` and paste anon, service_role, DB password, OpenRouter. Port 3100 still talks to DEV.
 
 ---
 
@@ -166,15 +184,15 @@ Visual lock: paper desk (Newsreader + IBM Plex) for authenticated routes. Market
 
 ### P1-05 — Investor profile (framework knobs, not Maya’s book)
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-13 — `/settings/profile` + **010** applied on DEV. Persist smoke (LTCG months 18) not re-run this session.
 - **Depends on:** P1-02. Needs migration **010** (`investor_profiles` on `family_id`).
-- **Direction:** `/settings/profile` (or Desk “Profile”). Defaults the worker uses when the prompt file must **not** hardcode: cannot_trade_us_options (default true for India residency), monitor_per_week, horizon_years, cash_reserve_pct_min/max, max_positions (default 15), concentration_cap_pct (default 15), trim_to_pct (default 12), tranche_t1..t4 percents (default 35/25/25/15), position_size_min/max_pct (default 3/15), ltcg_holding_months (India 24, US 12 — **user can override**), ltcg_rate_bps / stcg_rate_bps (defaults from residency table, **user can override**), outside_book jsonb (cash/gold/house/unlisted — optional). **India extras (locked 2026-09-13):** `lrs_enabled` (default true when residency is India), `lrs_annual_cap_usd` (user override; no Maya dollar amount as product default), `blackout_windows` jsonb (earnings / filing dates the owner types — empty by default). **Never** copy the May 2026 AMZN weights into defaults.
+- **Direction:** `/settings/profile` (or Desk “Profile”). Defaults the worker uses when the prompt file must **not** hardcode: cannot_trade_us_options (default true for India residency), monitor_per_week, horizon_years, cash_reserve_pct_min/max, concentration_cap_pct (default 15), trim_to_pct (default 12), tranche_t1..t4 percents (default 35/25/25/15), position_size_min/max_pct (default 3/15), ltcg_holding_months (India 24, US 12 — **user can override**), ltcg_rate_bps / stcg_rate_bps (defaults from residency table, **user can override**), outside_book jsonb (cash/gold/house/unlisted — optional). **India extras (locked 2026-09-13):** `lrs_enabled` (default true when residency is India), `lrs_annual_cap_usd` (user override; no Maya dollar amount as product default), `blackout_windows` jsonb (earnings / filing dates the owner types — empty by default). **No `max_positions`.** **Never** copy the May 2026 AMZN weights into defaults.
 - **Writes:** `investor_profiles`.
 - **Reads:** same; worker reads this row in P4-02 variable pack.
 - **Who:** family owner.
-- **UI today:** does not exist.
+- **UI today:** header **Profile** → `/settings/profile`. **Save profile** upserts `investor_profiles` after **010** is applied. No extra sidebar item.
 - **Success:**
-  1. Changing `max_positions` to 10 persists; reload shows 10.
+  1. Changing `ltcg_holding_months` to 18 persists; reload shows 18.
   2. `prompt_versions.body` in git/bootstrap has no `$150,000` as a required value.
   3. India default LTCG months = 24; US = 12; user override 18 saves.
   4. India residency shows LRS fields; US residency hides them. Saving a blackout window persists on reload.
@@ -183,12 +201,12 @@ Visual lock: paper desk (Newsreader + IBM Plex) for authenticated routes. Market
 
 - **Status:** ⬜
 - **Depends on:** P1-04, P1-05, P2-01
-- **Direction:** Desk banner list, no click required: cash reserve below profile min; any `holdings` weight > concentration cap; `count(*)` from `holdings` > `max_positions`. Copy from marketing “we tell you without being asked”. No live price required (use cost×qty weights).
+- **Direction:** Desk banner list, no click required: cash reserve below profile min; any `holdings` weight > concentration cap. Copy from marketing “we tell you without being asked”. No live price required (use cost×qty weights). No position-count cap (`max_positions` was dropped).
 - **Writes:** none.
 - **Reads:** `holdings`, `investor_profiles`.
 - **Who:** family read.
 - **UI today:** does not exist.
-- **Success:** If you SQL-insert a 6th–16th ticker for Maya with cap 15, Desk shows the over-diversified flag. Maya seed at 5 names shows no that flag.
+- **Success:** Raise Maya’s largest holding weight above `concentration_cap_pct` (SQL or a large lot) → Desk shows the concentration flag. Maya seed at 5 names under 15% each shows no that flag. No over-diversified / max-positions banner.
 
 ### P1-04 — Desk home (read)
 
@@ -267,24 +285,24 @@ RPC `thesis_accept_analysis` already exists. Conflict: `risk in (low, medium) AN
 
 ### P3-00 — Builder form
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-13 — `/analyse?ticker=` form. Continue does not call the RPC.
 - **Depends on:** P1-03, P2-01
 - **Direction:** `/analyse`. Ticker must already exist on view `holdings` for this family (D33). Prefill from lots; do not offer a free-text ticker that is not held — send to `/portfolio` add. Lenses: fundamental, technical, macro, news. **Comprehensive** = all four ticked (mock behaviour). Tax lens optional extra. Position: invested + portfolio size → derived allocation. Intent + avg-down enums. Risk/CAGR radios. **Conflict** when risk is low or medium **and** CAGR is high or extreme (disable Continue). **Slack** when risk is high/extreme **and** CAGR is low (warning, still runnable). Tax residency + slab (residency-conditional copy; rates from `investor_profiles` once P1-05 exists). **Model picker:** `model_catalog` where `is_active`, gated by `plans.allowed_model_ids`. Group **Frontier** then **Quick** (`thesis_class`); under each group show provider + `label` + `vendor_class` (Opus, Flash, Luna, …). Selected `id` is what `thesis_accept_analysis` stores. Continue disabled on conflict, zero lenses, ticker not held, or no model. Upgrade copy when a Frontier row is visible but not on the plan.
 - **Writes:** none yet (form state only).
 - **Reads:** `model_catalog`, `plans`, `holdings` (required; also prefill invested).
 - **Who:** family write.
-- **UI today:** does not exist.
+- **UI today:** button — Continue on `/analyse` (disabled on conflict / unheld ticker / zero lenses / locked model).
 - **Success:** Prefill MSFT invested from lots; Continue enabled. Open `/analyse?ticker=ZZZZ` with no lot → Continue disabled and add-to-portfolio CTA. Switching risk/cagr to low + high CAGR shows Incompatible pair and disables Continue. Switching to high risk + low CAGR shows Unused risk budget and **allows** Continue. Ticking Comprehensive checks all four lenses. Picker lists Frontier and Quick; Maya on Professional can select `opus5`; trial cannot select `gpt6a`.
 
 ### P3-01 — Server conflict and quota
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-13 — Run analysis calls `thesis_accept_analysis`; **011** adds `THS-HOLDING-001`.
 - **Depends on:** P3-00
 - **Direction:** Call `thesis_accept_analysis` from a server action. Map `THS-RISK-001`, `THS-QUOTA-001`, and **`THS-HOLDING-001`** (ticker not on `holdings` for `family_id`) to banners. Extend the RPC in a **named migration in this chunk** if 005 does not already reject missing lots. Client check is a mirror only. Each accepted run inserts `usage_events.kind = search` (counts on the plan / wallet meter).
 - **Writes:** `analysis_requests`, `usage_events` (`kind = search`).
 - **Reads:** `plans.monthly_analysis_limit`, `usage_events`, `holdings`.
 - **Who:** family write. Quota is family-scoped.
-- **UI today:** does not exist.
+- **UI today:** button — **Run analysis** / **Skip — record assumptions** on the clarify step. Server action maps `THS-RISK-001`, `THS-QUOTA-001`, `THS-HOLDING-001`.
 - **Success:**
   1. Compatible Maya MSFT run inserts one `analysis_requests` row `status = queued` and increments search count.
   2. Forcing conflict via crafted POST (bypass UI) still 422; no row.
@@ -293,24 +311,25 @@ RPC `thesis_accept_analysis` already exists. Conflict: `risk in (low, medium) AN
 
 ### P3-02 — Clarifying questions
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-13 — Request builder → Continue → clarify → Run analysis.
 - **Depends on:** P3-01
 - **Direction:** `/analyse/[requestId]/clarify` **or** a step before accept — pick one. **Default:** collect clarifications **before** `thesis_accept_analysis`, pass `p_clarifications` jsonb (conviction, addFunds, exitRule). Skip allowed; note will record assumptions.
 - **Writes:** `analysis_requests.clarifications` at insert.
 - **Reads:** none extra.
 - **Who:** family write.
-- **UI today:** does not exist.
+- **UI today:** clarify step on `/analyse` after Continue (not a separate route). Skip writes `{}`.
 - **Success:** Saved jsonb on the request row matches the three answers (or `{}` if skipped). Quota is not consumed until Continue/Run on this step if you placed accept after clarify — **default: accept after clarify**. Document the click: Request builder → Continue → clarify → Run analysis.
 
 ### P3-03 — Running wait state
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-13 — `/analyse/[id]` polls `analysis_requests.status`. Stays `queued` until the worker runs.
+
 - **Depends on:** P3-02
 - **Direction:** After accept, show the 40–90s panel (mock copy). Poll `analysis_requests.status` (SQL or route). User may leave; note appears under Reports when `ready`. **No worker yet** — status stays `queued`. Copy must say the note appears when the worker is running, not pretend it is generating.
 - **Writes:** none (poll only).
 - **Reads:** `analysis_requests.status`.
 - **Who:** family read.
-- **UI today:** does not exist.
+- **UI today:** `/analyse/[id]` wait panel. `/reports` lists `reports.name` only (no reader).
 - **Success:** Maya runs an analysis, sees queued/waiting, navigates to `/reports`, sees no new ready note. SQL: latest request `status = queued`. Do not fake `ready`.
 
 ---
@@ -694,12 +713,12 @@ Promote still: `tools/db/promote_platform_admin.sql` (no self-serve button).
 
 - **Status:** ⬜
 - **Depends on:** P1-02
-- **Direction:** `tests/integration/` with two JWTs. Cross-family holdings 0 rows. Prompt body absent from analysis-api responses. Admin JWT cannot `thesis_accept_analysis`.
+- **Direction:** `tests/integration/` with two JWTs. Cross-family holdings 0 rows. Prompt body absent from analysis-api responses. Admin JWT cannot `thesis_accept_analysis`. Per-chunk three-pass tests (RLS UI vs API, meter kinds, display) started in `.cursor/rules/testing.mdc`; this chunk is still the two-JWT CI gate.
 - **Writes:** none in product.
 - **Reads:** integration DB.
 - **Who:** CI.
 - **UI today:** n/a.
-- **Success:** `./tools/test/run_tests.sh --integration` fails if RLS is dropped; unit tests already cover SQL files.
+- **Success:** `./tools/test/run_tests.sh --integration` fails if RLS is dropped; unit tests already cover SQL files. Two distinct desk JWTs: family A sees 0 rows of family B `holdings`.
 
 ### P8-02 — Weekly holdings email (Quick model, 3 names unless Professional +)
 
@@ -767,6 +786,51 @@ Structure from the May 2026 file. **Never** seed AMZN weights, named manager let
 
 ---
 
+## Phase 10 — Production hosts (Vercel + FastAPI)
+
+Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do not start these while **Build next** is a product chunk unless you point **Build next** here.
+
+### P10-00 — Apply schema to prod Supabase
+
+- **Status:** ⬜
+- **Depends on:** P0-01 … P0-04, P1-05 (010), P3-01 (011). **012** only if P4-01 cache table is already in git and you name that file.
+- **Direction:** You name **prod** + `CONFIRM_APPLY=1` + the file list. Runner sources **`.env.prod`** (not `.env`). Apply `001` through `011` to `https://ndgvglcrkbygovlszxze.supabase.co`. Create private bucket `report-pdfs`. **Do not** run `supabase/seed/001_maya_desk.sql` unless you name that seed. Auth on prod: Email+password ON; Google/Phone off until you say otherwise.
+- **Writes:** `schema_migrations` 1–11 on prod; `report-pdfs` bucket.
+- **Reads:** HANDOFF §25 against prod (expect empty book, not Maya).
+- **Who:** operator. No button.
+- **UI today:** Vercel `/login` would fail or show empty until this apply plus P10-01 env.
+- **Success:** On prod: `select id from schema_migrations order by id` returns 1–11; `report-pdfs` exists; `select count(*) from holdings` is 0 unless you named the Maya seed.
+
+### P10-01 — Vercel Production (Next.js)
+
+- **Status:** ⬜
+- **Depends on:** P0-04, P1-01, P10-00
+- **Direction:** Vercel project **`prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`** · `https://v0.app/lakshman-projects/equity-investment-advisor-prod`. Root directory **`apps/web`**. From `.env.prod`, set **Production** env only: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Do **not** set `SUPABASE_SERVICE_KEY`, `SUPABASE_DB_PASSWORD`, or `OPENROUTER_API_KEY` on Vercel. Framework: Next.js. After env change, redeploy. Desk login uses prod Auth (`users` / `families` via `handle_new_auth_user` on prod). `/analyse` can queue on prod only after P10-00; the wait panel stays `queued` until P10-02 worker runs.
+- **Writes:** Vercel Production env (host, not git).
+- **Reads:** browser uses anon key → prod PostgREST. `/desk` reads view `holdings` and `usage_events` on **prod**.
+- **Who:** project owner. You name **prod** this turn before `vercel env` / deploy.
+- **UI today:** project exists; env may be empty or pointed at the wrong Supabase until this chunk.
+- **Success:**
+  1. Open the Vercel URL: marketing `/` loads; `/login` talks to `ndgvglcrkbygovlszxze` (Network: `*.supabase.co` host is prod, not `cmksomahsfmsjufakryw`).
+  2. Vercel env list has no service-role name.
+  3. Local **3100** still uses DEV (`.env` unchanged).
+
+### P10-02 — FastAPI analysis-api + worker host
+
+- **Status:** ⬜
+- **Depends on:** P0-04, P4-00, P10-00, P10-01. You **name the host** in this chunk (Fly.io / Railway / a VM running Docker). Not Vercel.
+- **Direction:** `infra/docker` compose: `analysis-api` (port **8091**) and `analysis-worker` (long-running). `env_file: .env.prod`. FastAPI CORS allowlist `THESIS_CORS_ORIGINS` = the Vercel URL. Worker: `OPENROUTER_API_KEY`, `thesis_consume_quota_for_provider`, Yahoo previous close, Playwright Chromium. Next.js does not start these processes. If the desk calls the API, add `NEXT_PUBLIC_ANALYSIS_API_URL` on Vercel **only** when a browser route actually `fetch`es it (refine / PDF). Until then, wait panel keeps polling `analysis_requests` via the anon client.
+- **Writes:** `analysis_requests.status`, `analysis_evidence`, `reports`, `report-pdfs` objects — on **prod** Postgres/storage.
+- **Reads:** same tables the worker already uses on DEV.
+- **Who:** operator starts compose on the named host. No desk button.
+- **UI today:** no prod API/worker. Vercel `/analyse/[id]` stays `queued` and `/reports` gains no new ready row until this process runs against prod.
+- **Success:**
+  1. `GET https://<api-host>/health` returns `{"status":"ok"}`.
+  2. A prod-queued `analysis_requests` row leaves `queued` (at least to `gathering` / `failed`) without changing DEV rows.
+  3. Host env has `SUPABASE_URL=https://ndgvglcrkbygovlszxze.supabase.co`. Vercel still has no service role.
+
+---
+
 ## Out of scope until you add a chunk
 
 - Brokerage / order routing / US options advice
@@ -788,6 +852,7 @@ Structure from the May 2026 file. **Never** seed AMZN weights, named manager let
 | P0-01 | 2026-09-13 | ✅ 001–008 on DEV |
 | P0-02 | 2026-09-13 | ✅ Maya seed |
 | P0-03 | 2026-09-13 | ✅ keys in `.env`; Email+password only |
+| P0-04 | 2026-09-14 | ✅ `.env.prod.example`; gitignored `.env.prod` for prod keys |
 | P4-00a | 2026-09-13 | ✅ 009 on DEV — OpenRouter slugs; Maya ids kept |
 | P1-00 | 2026-09-13 | ✅ `apps/web` Next.js; `/` title Thesis; anon-only env |
 | P1-01 | 2026-09-13 | ✅ `/` marketing home from `Home.dc.html`; CTAs `/login` `/signup`; waitlist no-op; port **3100** |
@@ -799,6 +864,11 @@ Structure from the May 2026 file. **Never** seed AMZN weights, named manager let
 | P2-01 | 2026-09-13 | ✅ holdings grid from view `holdings`; P&L/Last **—** |
 | P2-02 | 2026-09-13 | ✅ Add position; `?add=` prefills ticker |
 | P2-03 | 2026-09-13 | ✅ display FX on `portfolios`; lots keep native cost |
+| P1-05 | 2026-09-13 | ✅ `/settings/profile`; **010** applied on DEV |
+| P3-00 | 2026-09-13 | ✅ `/analyse` builder; Continue does not call RPC |
+| P3-01 | 2026-09-13 | ✅ `thesis_accept_analysis` + **011** `THS-HOLDING-001` |
+| P3-02 | 2026-09-13 | ✅ Continue → clarify → Run analysis |
+| P3-03 | 2026-09-13 | ✅ `/analyse/[id]` queued wait; `/reports` list-only |
 | P7-09 | 2026-09-13 | ❌ skipped — on-screen watches only; no email until a provider is named |
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.

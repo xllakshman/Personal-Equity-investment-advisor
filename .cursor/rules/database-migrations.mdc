@@ -9,8 +9,8 @@ alwaysApply: false
 Read `HANDOFF.md` §6, §7, §8, §9, §17, §25 before editing migrations or seeds.
 
 - New migrations: see `supabase/migrations/NEXT_MIGRATION.md`.
-- Numbered `NNN_snake_name.sql`. Next unused number is **010**.
-- **Status:** **001–009** applied on DEV `https://cmksomahsfmsjufakryw.supabase.co`. Next unused is **010**. Do not apply until the user names the file and the project.
+- Numbered `NNN_snake_name.sql`. **010** is drafted (`010_investor_profiles.sql`), not applied. Do not apply until the user names the file and the project.
+- **Status:** **001–011** applied on DEV `https://cmksomahsfmsjufakryw.supabase.co`. **012** is in git, not applied. PROD is `https://ndgvglcrkbygovlszxze.supabase.co`. Prod keys: `.env.prod`. Apply to prod only when the user names **prod** + file + `CONFIRM_APPLY=1` (P10-00).
 - One concern per file. Do not mix RLS, seed data, and storage buckets in the same migration unless they cannot compile separately.
 - Tenant / owner column on every user-owned table. Enable RLS in the same migration that creates the table. `FORCE ROW LEVEL SECURITY` on those tables.
 - Seeds live in `supabase/seed/` and are applied only via `tools/db/`. Never `INSERT` demo holdings in a schema migration.
@@ -23,8 +23,12 @@ Read `HANDOFF.md` §6, §7, §8, §9, §17, §25 before editing migrations or se
 ## Apply path
 
 ```bash
-# After user confirmation only
-./tools/db/run_migration_001.sh
+# After user confirmation only (DEV: .env already loaded in your shell)
+./tools/db/run_migration.sh 001
+
+# PROD: source .env.prod after the user names prod + file
+# set -a && source .env.prod && set +a
+# CONFIRM_APPLY=1 ./tools/db/run_migration.sh 001
 ```
 
 Never paste the database password into chat, README, or git.

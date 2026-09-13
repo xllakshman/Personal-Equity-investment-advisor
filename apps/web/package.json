@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start --port 3100",
     "lint": "eslint",
-    "test": "node --import tsx --test lib/supabase/*.test.ts lib/auth/*.test.ts lib/desk/*.test.ts lib/portfolio/*.test.ts"
+    "test": "node --import tsx --test lib/supabase/*.test.ts lib/auth/*.test.ts lib/desk/*.test.ts lib/portfolio/*.test.ts lib/profile/*.test.ts lib/analyse/*.test.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

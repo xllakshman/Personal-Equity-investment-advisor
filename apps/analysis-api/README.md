@@ -1,19 +1,19 @@
 # Analysis API (`apps/analysis-api`)
 
-FastAPI service that accepts analysis requests, enforces quota and the risk/CAGR rule, and returns job/report payloads (`HANDOFF.md` §14).
-
-**Not implemented yet.** Language locked only after §3b (FastAPI vs Hono).
-
-## Planned layout
+FastAPI on **http://127.0.0.1:8091**. Does not complete Analyse jobs — the worker does.
 
 ```
-src/analysis_api/
-├── main.py
-├── api/routes/
-├── domain/          # quota, conflict 422, refine refusal classifier
-└── schemas/
+uv run uvicorn analysis_api.main:app --app-dir apps/analysis-api/src --port 8091
 ```
 
-Local port **8091**. Worker, not this process, calls the LLM.
+| Method | Path | Writes |
+|--------|------|--------|
+| GET | `/health` | none |
+| GET | `/analysis/{id}` | none — `analysis_requests.status` |
+| GET | `/reports/{id}/pdf` | none — signed URL for `reports.pdf_key` |
+| POST | `/reports/{id}/refine-gate` | `usage_events.kind = refine_gate` (after confirm) |
+| POST | `/reports/{id}/refine` | `refinements` + `usage_events.kind = refine` or `prompt_extract_attempt` |
 
-See `.cursor/rules/analysis-api.mdc`.
+Desk JWT `Authorization: Bearer`. Sample reports (`is_library_sample`) cannot refine. Prompt body is never in responses.
+
+Local process loads repo-root **`.env` (DEV)**. Prod (P10-02) loads **`.env.prod`** on a non-Vercel host.

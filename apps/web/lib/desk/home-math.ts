@@ -8,7 +8,12 @@ export type HoldingRow = {
 };
 
 export function costBasisNative(rows: HoldingRow[]): number {
-  return rows.reduce((sum, r) => sum + r.qty * r.cost_per_share, 0);
+  return rows.reduce((sum, r) => {
+    const qty = Number(r.qty);
+    const cost = Number(r.cost_per_share);
+    if (!Number.isFinite(qty) || !Number.isFinite(cost)) return sum;
+    return sum + qty * cost;
+  }, 0);
 }
 
 export function allocationWeights(rows: HoldingRow[]): {

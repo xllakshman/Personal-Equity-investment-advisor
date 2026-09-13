@@ -2,6 +2,7 @@
 .cursor/mcp.json
 .env.*
 !.env.example
+!.env.prod.example
 !.env.production.example
 !.env.staging.example
 .env.prod

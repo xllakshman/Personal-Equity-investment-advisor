@@ -24,4 +24,13 @@ describe("toDisplayAmount", () => {
     assert.equal(displayFxRate(0), DEFAULT_USD_INR);
     assert.equal(displayFxRate(90), 90);
   });
+
+  it("does not write converted amounts — native stays native", () => {
+    const native = 12090;
+    const shown = toDisplayAmount(native, "USD", "INR", 88.4);
+    assert.equal(shown > native, true);
+    assert.equal(native, 12090);
+    assert.equal(toDisplayAmount(Number.NaN, "USD", "INR", 88.4), 0);
+    assert.equal(toDisplayAmount(10, "EUR", "USD", 88.4), 10);
+  });
 });

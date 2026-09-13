@@ -1,1 +1,1 @@
-"""Analysis API package — not implemented yet."""
+"""Analysis API package."""
