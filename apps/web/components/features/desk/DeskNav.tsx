@@ -5,7 +5,13 @@ import { usePathname } from "next/navigation";
 
 import { DESK_NAV } from "@/lib/desk/nav";
 
-export function DeskNav() {
+export function DeskNav({
+  meterLabel,
+  meterHint,
+}: {
+  meterLabel: string;
+  meterHint: string;
+}) {
   const pathname = usePathname();
   return (
     <nav className="desk__nav" aria-label="Desk">
@@ -25,8 +31,8 @@ export function DeskNav() {
       ))}
       <div className="desk__meter">
         <p className="desk__meter-k">This cycle</p>
-        <p className="desk__meter-v">—</p>
-        <p className="desk__kpi-s">Usage meter fills when billing is built.</p>
+        <p className="desk__meter-v">{meterLabel}</p>
+        <p className="desk__kpi-s">{meterHint}</p>
       </div>
     </nav>
   );

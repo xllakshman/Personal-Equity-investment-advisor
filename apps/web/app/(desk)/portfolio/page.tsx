@@ -10,6 +10,7 @@ import {
   loadPortfolioSettings,
   loadRecentRejected,
 } from "@/lib/portfolio/load";
+import { SupportGrantForm } from "@/components/features/portfolio/SupportGrantForm";
 import { requireDeskSession } from "@/lib/desk/session";
 
 function banner(sp: {
@@ -94,6 +95,7 @@ export default async function PortfolioPage({
       ) : null}
 
       <HoldingsTable rows={rows} displayCurrency={settings.displayCurrency} />
+      {session.memberRole === "owner" ? <SupportGrantForm /> : null}
     </div>
   );
 }

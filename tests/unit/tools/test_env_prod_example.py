@@ -13,6 +13,7 @@ def test_prod_example_points_at_prod_not_dev() -> None:
     assert "eyJ" not in EXAMPLE
     assert "NEXT_PUBLIC_SUPABASE_ANON_KEY=" in EXAMPLE
     assert "SUPABASE_SERVICE_KEY=" in EXAMPLE
+    assert "eqveste.com" in EXAMPLE
 
 
 def test_gitignore_keeps_prod_file_out_of_git() -> None:

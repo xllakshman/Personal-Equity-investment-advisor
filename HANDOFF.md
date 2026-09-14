@@ -3,8 +3,8 @@
 > **Version:** 0.1 · **Date:** 2026-09-13  
 > **Workspace:** `/Users/lakshmanyeluri/Documents/personalEquity_Advisor`  
 > **Reference layout:** `/Users/lakshmanyeluri/Documents/activePieces-docker/invoice-processing`  
-> **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P4-00**  
-> **Latest session:** [`docs/handoff/SESSION-2026-09-13-p3-request-builder.md`](docs/handoff/SESSION-2026-09-13-p3-request-builder.md)  
+> **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P10-00**  
+> **Latest session:** [`docs/handoff/SESSION-2026-09-14-p4-to-p9.md`](docs/handoff/SESSION-2026-09-14-p4-to-p9.md)  
 > **Mock UI:** [`docs/mock-ui/`](docs/mock-ui/README.md)  
 > **GitHub (empty):** `xllakshman/Personal-Equity-investment-advisor` · branch `main`
 
@@ -24,14 +24,14 @@
 | SQL 009 model catalog | ✅ **applied** 2026-09-13 — OpenRouter slugs; Maya `opus5`/`gpt56`/`gpt56m` kept |
 | Maya seed | ✅ `maya@thesis.demo` · 5 lots · 2 reports (1 sample) |
 | Storage bucket `report-pdfs` | ✅ private |
-| Analysis API / worker | ⬜ README placeholders only |
-| Next.js desk | 🟡 **P3-03** 2026-09-13 — `/analyse` builder → clarify → `thesis_accept_analysis` → `/analyse/[id]` queued wait. **010–011** applied on DEV. Desk KPI counts `usage_events` kinds search+refine+refine_gate (same as `thesis_family_meter_count`). |
-| Tests | 🟡 Three test-fix passes per chunk/phase locked in `.cursor/rules/testing.mdc` (RLS UI vs API, usage vs plan, display, store/retrieve). P8-01 two-JWT CI still open. |
-| Weekly holdings email | ⬜ **P8-02** / D41 — spec locked; no table, no cron, no send |
-| Analysis CSAT | ⬜ **P5-05** form + **P7-10** admin tab — spec locked; no table |
+| Analysis API / worker | ✅ 2026-09-14 — `apps/analysis-api` :8091, `apps/analysis-worker`; Docker compose in `infra/docker` |
+| Next.js desk | ✅ 2026-09-14 — Phases 4–9 on **3100**. Reports reader, usage, billing, admin `/admin/login`, family, crash letter, managers. **001–018** on DEV. |
+| Tests | ✅ unit + web tests for 4–9. Live two-JWT CI still skips without a second family JWT. |
+| Weekly holdings email | 🟡 **P8-02** table + opt-in + job; **send** blocked until a provider is named |
+| Analysis CSAT | ✅ **P5-05** `analysis_feedback` + **P7-10** admin tab |
 | Requirements vs mock/brief | ✅ Gap review 2026-09-13 — D27–D42 |
 
-**Build next:** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P4-00** — analysis worker. Next.js does not start `apps/analysis-worker`. Dev URL is **http://127.0.0.1:3100/**.
+**Build next:** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P10-00** — apply schema to prod when you name **prod**. Next.js does not start `apps/analysis-worker`. Dev URL is **http://127.0.0.1:3100/**.
 
 ---
 
@@ -143,7 +143,7 @@ Taken from `Thesis.dc.html` Architecture & handoff + non-negotiables. Change onl
 | D23 | Stack: **Next.js App Router** (`apps/web`) + **FastAPI** `analysis-api` / `analysis-worker`. |
 | D24 | Desk Auth v1 is **email+password only**. Phone is stored as an identifier, not a second password. Google OAuth stays off until you enable it in the dashboard. |
 | D25 | `holding_lots` is the write path. `holdings` is a `security_invoker` view (average cost per ticker/exchange/currency). |
-| D26 | DEV project is `https://cmksomahsfmsjufakryw.supabase.co`. Seed is synthetic **Maya** (`maya@thesis.demo`), never the May 2026 personal book. **PROD** Supabase is `https://ndgvglcrkbygovlszxze.supabase.co` (named 2026-09-14). **PROD Next.js** is Vercel project `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4` at `https://v0.app/lakshman-projects/equity-investment-advisor-prod` (named 2026-09-14). Local gitignored `.env` / `apps/web/.env.local` stay on **DEV**. Prod keys go in gitignored **`.env.prod`** (P0-04). Do not retarget `.env` to prod. Apply SQL to prod only when the user names **prod** (or the Supabase URL), the migration file, and `CONFIRM_APPLY=1`. Do not run the Maya seed on prod unless the user names that seed file. Vercel Production env may hold `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` for the prod Supabase project only — **never** `SUPABASE_SERVICE_KEY` or any `NEXT_PUBLIC_*` service role. analysis-api and analysis-worker are not this Vercel project. |
+| D26 | DEV project is `https://cmksomahsfmsjufakryw.supabase.co`. Seed is synthetic **Maya** (`maya@thesis.demo`), never the May 2026 personal book. **PROD** Supabase is `https://ndgvglcrkbygovlszxze.supabase.co` (named 2026-09-14). **PROD Next.js** is Vercel project `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`. Public site is **`https://eqveste.com`** (named 2026-09-14). Vercel project URL `https://v0.app/lakshman-projects/equity-investment-advisor-prod` is the host, not the customer URL. Local gitignored `.env` / `apps/web/.env.local` stay on **DEV**. Prod keys go in gitignored **`.env.prod`** (P0-04). Do not retarget `.env` to prod. Apply SQL to prod only when the user names **prod** (or the Supabase URL), the migration file, and `CONFIRM_APPLY=1`. Do not run the Maya seed on prod unless the user names that seed file. Vercel Production env may hold `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` for the prod Supabase project only — **never** `SUPABASE_SERVICE_KEY` or any `NEXT_PUBLIC_*` service role. analysis-api and analysis-worker are not this Vercel project. |
 | D27 | Platform admin is a **separate Auth user** and a **separate entry** `/admin/login`. Desk JWT must not open `/admin/*`. Admin JWT must not call `thesis_accept_analysis` or write `holding_lots`. Admin sees account metadata + observability (OptimAI-shaped tables/tabs, **no** MCP/Connectors). Holdings stay hidden unless `support_access_grants`. Promote remains `tools/db/promote_platform_admin.sql` (no button). |
 | D28 | **Every LLM adapter call is billed** to the family (plan searches **or** wallet USD). The triggering screen must show model + cost **before** send. Login / `/desk` load is not a model call. Prompt-extraction refusal (no provider call) is not billed. Mock “refine is free” is **overridden**. |
 | D29 | Report reader keeps mock **Expert / Beginner** density toggle (P5-02). |
@@ -191,7 +191,7 @@ Operator leftover: rotate or delete `readme.rtf` (password file still in the wor
 | PROD DB host (derived) | `db.ndgvglcrkbygovlszxze.supabase.co` |
 | Local `.env` / `apps/web/.env.local` | **DEV only.** |
 | Prod secrets file | gitignored `.env.prod` (copy [`.env.prod.example`](.env.prod.example)). You paste keys. Agents read it only when you name **prod**. |
-| PROD Next.js (Vercel) | Project ID `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`. App: `https://v0.app/lakshman-projects/equity-investment-advisor-prod`. **P10-01:** Production env `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` from `.env.prod`. Never service role. Root directory: `apps/web`. |
+| PROD Next.js (Vercel) | Project ID `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`. Public site: **`https://eqveste.com`**. Host: `https://v0.app/lakshman-projects/equity-investment-advisor-prod`. **P10-01:** Production env `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` from `.env.prod`. Never service role. Root directory: `apps/web`. Auth Site URL / redirect allowlist on prod Supabase: `https://eqveste.com`. |
 | analysis-api / worker prod host | **P10-02.** Not Vercel. Still unnamed (Fly / Railway / VM). Loads `.env.prod`. |
 | Anon / service keys | **Present** in gitignored `.env` for **DEV** (2026-09-13). Values never pasted in chat or HANDOFF. |
 | Local secrets file `readme.rtf` | Gitignored. **Rotate** — it was sitting in the workspace. |
@@ -227,7 +227,7 @@ Env template: [`.env.example`](.env.example).
 
 ## 6. Database status
 
-**Applied on `cmksomahsfmsjufakryw` (DEV):** migrations **001–011** and seed `supabase/seed/001_maya_desk.sql` on 2026-09-13. **009** = `model_catalog` OpenRouter slugs. **010** = `investor_profiles`. **011** = `thesis_accept_analysis` holding check (`THS-HOLDING-001`) + `char(3)` currency. Do not re-run unless §25 fails. **012** is in git, not applied on DEV.
+**Applied on `cmksomahsfmsjufakryw` (DEV):** migrations **001–018** and seed `supabase/seed/001_maya_desk.sql`. **012** worker quotes/gate. **013** `analysis_feedback`. **014** observability. **015** family invite. **016** weekly digest. **017** crash letters. **018** manager watches. Do not re-run unless §25 fails.
 
 **PROD `ndgvglcrkbygovlszxze`:** URL recorded 2026-09-14. **No Thesis migrations applied from this repo** until you name **prod** + the file + `CONFIRM_APPLY=1`. Do not copy Maya (`maya@thesis.demo`) onto prod unless you name `supabase/seed/001_maya_desk.sql`.
 
@@ -322,7 +322,7 @@ See `.cursor/rules/web-ui-maintenance.mdc`. Marketing vs desk palettes must not 
 
 ## 18. Next steps
 
-Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P4-00**. `/analyse` queues `analysis_requests` (`status = queued`) via `thesis_accept_analysis`. Next.js does not start `apps/analysis-worker`. Until that process runs, `/analyse/[id]` stays queued and `/reports` does not gain a new ready row. Dev URL is **http://127.0.0.1:3100/**.
+Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P10-00** when you name **prod**. Phases 4–9 are on DEV (`schema_migrations` 1–18). `/analyse` queues `analysis_requests` (`status = queued`) via `thesis_accept_analysis`. Next.js does not start `apps/analysis-worker`. Until that process runs, `/analyse/[id]` stays queued and `/reports` does not gain a new ready row. Dev URL is **http://127.0.0.1:3100/**.
 
 ---
 
@@ -360,7 +360,7 @@ Canonical: [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md). You revise that
 
 ```sql
 select id, name from schema_migrations order by id;
--- expect 1..9
+-- expect 1..18
 
 select id, openrouter_model_id, thesis_class, is_active from model_catalog where is_active order by sort_order;
 
@@ -379,4 +379,3 @@ Expected after Maya seed: 5 `holding_lots` rows, `holdings` view matches, 2 repo
 
 - Anon key, service role key, LLM keys, UPI merchant credentials
 - Whether `cmksomahsfmsjufakryw` already has non-default tables (needs a SQL login)
-- Custom domain in front of the v0.app URL (if any)

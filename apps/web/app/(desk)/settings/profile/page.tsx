@@ -17,7 +17,10 @@ export default async function ProfilePage({
       <p className="desk__lede" style={{ maxWidth: "62ch" }}>
         Framework knobs for this family. The worker reads{" "}
         <code>investor_profiles</code> later; this page is the owner save path.
-        Defaults are not Maya&apos;s May 2026 book.
+        Defaults are not Maya&apos;s May 2026 book.{" "}
+        <a href="/settings/family">Family</a>
+        {" · "}
+        <a href="/settings/crash-letter">Crash letter</a>
       </p>
       {ok === "1" ? (
         <p className="pf__banner">Saved. Reload still shows the values you just wrote.</p>

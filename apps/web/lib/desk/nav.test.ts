@@ -4,8 +4,8 @@ import { describe, it } from "node:test";
 import { DESK_NAV, isDeskPath } from "./nav";
 
 describe("DESK_NAV", () => {
-  it("has exactly the six mock desk items and no Admin", () => {
-    assert.equal(DESK_NAV.length, 6);
+  it("has the six desk items plus Managers, and no Admin", () => {
+    assert.equal(DESK_NAV.length, 7);
     assert.deepEqual(
       DESK_NAV.map((n) => n.label),
       [
@@ -13,6 +13,7 @@ describe("DESK_NAV", () => {
         "New analysis",
         "Portfolio",
         "Reports",
+        "Managers",
         "Usage",
         "Plans & wallet",
       ],
@@ -29,7 +30,8 @@ describe("isDeskPath", () => {
     assert.equal(isDeskPath("/desk"), true);
     assert.equal(isDeskPath("/analyse"), true);
     assert.equal(isDeskPath("/analyse/00000000-0000-4000-8000-000000000000"), true);
-    assert.equal(isDeskPath("/settings/profile"), true);
+    assert.equal(isDeskPath("/research/managers"), true);
+    assert.equal(isDeskPath("/settings/crash-letter"), true);
     assert.equal(isDeskPath("/login"), false);
     assert.equal(isDeskPath("/admin/login"), false);
   });

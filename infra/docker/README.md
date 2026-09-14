@@ -1,5 +1,7 @@
 # Docker
 
-Compose files will land here after `HANDOFF.md` §3b locks the API language.
+`docker-compose.yml` runs `analysis-api` on **8091** and `analysis-worker` as a long-running consumer. Next.js is not in this file.
 
-Planned: `docker-compose.yml` with `analysis-api` on **8091** and `analysis-worker` as a long-running consumer.
+Local laptop: keep using repo-root `.env` (DEV). Compose `env_file` is `.env.prod` for a named host.
+
+Example host: [digitalocean.md](digitalocean.md).

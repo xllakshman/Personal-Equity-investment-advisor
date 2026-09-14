@@ -59,7 +59,37 @@ class FakeCur:
             return GATE
         if "from model_catalog" in sql:
             return MODEL
+        if "from investor_profiles" in sql:
+            return {
+                "cannot_trade_us_options": True,
+                "ltcg_holding_months": 12,
+                "concentration_cap_pct": 25,
+            }
         return None
+
+    def fetchall(self):
+        sql = self.sql.lower()
+        if "from holdings" in sql:
+            return [
+                {
+                    "ticker": "MSFT",
+                    "qty": 10,
+                    "cost_per_share": 300,
+                    "native_currency": "USD",
+                    "exchange": "NASDAQ",
+                    "company_name": "Microsoft",
+                }
+            ]
+        if "from analysis_evidence" in sql:
+            return [
+                {
+                    "step0_number": 1,
+                    "query": "previous close",
+                    "excerpt": '{"close": 412.5, "currency": "USD"}',
+                    "source_url": "https://query1.finance.yahoo.com/",
+                }
+            ]
+        return []
 
     def close(self):
         return None
@@ -196,6 +226,50 @@ def test_empty_enrichment_is_400() -> None:
         )
     assert res.status_code == 400
     llm.assert_not_called()
+
+
+def test_refine_pack_loads_holdings_evidence_and_profile() -> None:
+    cur = FakeCur()
+    captured: dict[str, str] = {}
+
+    def fake_complete(*args, **kwargs):
+        captured["user"] = kwargs["user"]
+
+        class Result:
+            content = '{"verdict":"Hold"}'
+            cost_cents = 12
+
+        return Result()
+
+    with (
+        patch("analysis_api.api.routes.reports.Settings.from_env") as settings,
+        patch("analysis_api.api.routes.reports.bearer_user", return_value={"id": "user1"}),
+        patch("analysis_api.api.routes.reports.connect", return_value=FakeConn(cur)),
+        patch(
+            "analysis_api.api.routes.reports.load_promoted_body",
+            return_value=("pv1", "advisor-prefix"),
+        ),
+        patch(
+            "analysis_api.api.routes.reports.complete_openrouter",
+            side_effect=fake_complete,
+        ),
+        patch("analysis_api.api.routes.reports._insert_usage"),
+        patch("analysis_api.api.routes.reports._insert_refinement"),
+    ):
+        settings.return_value.openrouter_api_key = "sk"
+        res = client.post(
+            "/reports/rep1/refine",
+            json={"user_text": "India tax lot is 11 months", "confirm": True},
+            headers={"Authorization": "Bearer fake"},
+        )
+    assert res.status_code == 200
+    pack = captured["user"]
+    assert '"holdings"' in pack
+    assert "MSFT" in pack
+    assert "412.5" in pack
+    assert "cannot_trade_us_options" in pack
+    assert "India tax lot" in pack
+    assert pack.count('"holdings": []') == 0
 
 
 def test_refine_confirm_false_does_not_assert_quota() -> None:

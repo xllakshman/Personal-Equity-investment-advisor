@@ -31,7 +31,7 @@ Local `.env` stays on DEV `https://cmksomahsfmsjufakryw.supabase.co`. Do not ret
 
 **How you give prod keys:** `cp .env.prod.example .env.prod`, paste anon / service / DB password / OpenRouter. Do not paste them in chat. Do not copy them into `.env`.
 
-**PROD Next.js:** Vercel `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4` · `https://v0.app/lakshman-projects/equity-investment-advisor-prod`. P10-01 copies `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` from `.env.prod` into Vercel Production. Never `SUPABASE_SERVICE_KEY` on Vercel.
+**PROD Next.js:** Vercel `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`. Public site **`https://eqveste.com`**. P10-01 copies `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` from `.env.prod` into Vercel Production. Never `SUPABASE_SERVICE_KEY` on Vercel.
 
 **PROD FastAPI / worker:** P10-02. Not this Vercel project. Host loads `.env.prod` (service role + DB password + OpenRouter).
 

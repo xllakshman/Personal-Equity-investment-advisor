@@ -1,0 +1,25 @@
+# analysis-api + analysis-worker. Next.js is not in this compose.
+# env_file points at gitignored `.env.prod` for a named host (DigitalOcean example).
+# Local laptop still uses repo-root `.env` (DEV). Do not retarget that file.
+
+services:
+  analysis-api:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile.api
+    ports:
+      - "8091:8091"
+    env_file:
+      - ../../.env.prod
+    environment:
+      ANALYSIS_API_PORT: "8091"
+      THESIS_CORS_ORIGINS: "https://eqveste.com,https://www.eqveste.com"
+
+  analysis-worker:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile.worker
+    env_file:
+      - ../../.env.prod
+    depends_on:
+      - analysis-api

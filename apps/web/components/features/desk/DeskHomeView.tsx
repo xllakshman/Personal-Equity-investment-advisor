@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import type { DeskHome } from "@/lib/desk/load-home";
 import { analysesThisCycleCaption } from "@/lib/desk/usage-meter";
+import { RecheckForm } from "@/components/features/desk/RecheckForm";
 import { firstName } from "@/lib/desk/session";
 
 function money(amount: number, ccy: string): string {
@@ -137,6 +138,12 @@ export function DeskHomeView({
         </div>
         <Link href="/portfolio">Upload portfolio</Link>
       </div>
+      <RecheckForm tickers={home.holdings.map((h) => h.ticker)} />
+      <p className="desk__lede" style={{ marginTop: 18 }}>
+        <Link href="/settings/family">Family</Link>
+        {" · "}
+        <Link href="/settings/crash-letter">Crash letter</Link>
+      </p>
     </div>
   );
 }

@@ -8,7 +8,7 @@ describe("publicSupabaseEnv", () => {
     const got = publicSupabaseEnv({
       NEXT_PUBLIC_SUPABASE_URL: "https://cmksomahsfmsjufakryw.supabase.co",
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-test",
-    });
+    } as unknown as NodeJS.ProcessEnv);
     assert.equal(got.url, "https://cmksomahsfmsjufakryw.supabase.co");
     assert.equal(got.anonKey, "anon-test");
   });
@@ -18,7 +18,7 @@ describe("publicSupabaseEnv", () => {
       () =>
         publicSupabaseEnv({
           NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
-        }),
+        } as unknown as NodeJS.ProcessEnv),
       /NEXT_PUBLIC_SUPABASE_ANON_KEY/,
     );
   });
@@ -30,7 +30,7 @@ describe("publicSupabaseEnv", () => {
           NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-test",
           NEXT_PUBLIC_SUPABASE_SERVICE_KEY: "service-must-not-leak",
-        }),
+        } as unknown as NodeJS.ProcessEnv),
       /must not be set/,
     );
   });

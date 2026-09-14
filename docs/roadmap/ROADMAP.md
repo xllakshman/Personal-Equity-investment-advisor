@@ -20,14 +20,14 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 
 | Field | Value |
 |-------|--------|
-| **Build next** | **P4-00** — Analysis worker (OpenRouter) |
-| Last done | **P3-03** — queued wait on `/analyse/[id]` (2026-09-13). Phase 3 shipped; **011** applied on DEV. Next.js on **3100** |
-| Blocked on you | Fill gitignored `.env.prod` anytime (`cp .env.prod.example .env.prod`). P6-03 merchant later. Step 0 items 2–7 still unnamed. P8-02 email **send** needs a named provider. P10-02 needs a FastAPI host name (Fly / Railway / VM). |
+| **Build next** | **P10-00** — Apply schema to prod Supabase |
+| Last done | **P9-01** — Managers (2026-09-14). Phases 4–9 on DEV. **001–018** applied. P6-03 placeholder. P7-09 skipped. Next.js on **3100** |
+| Blocked on you | Name **prod** + file + `CONFIRM_APPLY=1` for P10-00. Then Vercel Production env (P10-01) and DigitalOcean droplet (P10-02). P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/Thesis.dc.html` (app), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
-| DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–011** applied. **012** in git, not applied |
+| DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–018** applied |
 | PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — URL recorded 2026-09-14. **No Thesis migrations applied** until you name prod + file + `CONFIRM_APPLY=1` |
-| PROD web | Vercel `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4` · `https://v0.app/lakshman-projects/equity-investment-advisor-prod`. Next.js only. |
+| PROD web | **`https://eqveste.com`** — Vercel `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`. Next.js only. |
 
 ---
 
@@ -351,7 +351,7 @@ Prompt body is `prompt_versions.body` selected by id. Stamp `reports.prompt_vers
 
 ### P4-00 — Worker process
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P3-03
 - **Direction:** `apps/analysis-worker` long-running loop: `select … from analysis_requests where status = 'queued' for update skip locked`. Call `thesis_consume_quota_for_provider`. Local port/docs; Docker later.
 - **Writes:** `analysis_requests.status` → `gathering` (via RPC) then later states.
@@ -362,7 +362,7 @@ Prompt body is `prompt_versions.body` selected by id. Stamp `reports.prompt_vers
 
 ### P4-01 — Step 0 evidence (previous close)
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P4-00
 - **Direction:** Seven `analysis_evidence` rows (`step0_number` 1–7). **Item 1 (locked D40):** previous regular-session close from Yahoo chart v8 — see [`docs/architecture/MARKET-DATA.md`](../architecture/MARKET-DATA.md). No API key. Cache one close per Yahoo symbol per day. Never call this on `/desk` load. **Do not estimate** a price. Empty/429/unknown exchange → job `failed`, no `reports`. Items 2–7 (news, earnings, bear, competitor, sector) still have **no vendor** — comprehensive run must fail with `error_text` listing which Step 0 numbers are missing; do not invent them from the close.
 - **Writes:** `analysis_evidence`; optional `eod_quotes` in this chunk’s migration if you add a cache table.
@@ -373,7 +373,7 @@ Prompt body is `prompt_versions.body` selected by id. Stamp `reports.prompt_vers
 
 ### P4-02 — Framework completion
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P4-01
 - **Direction:** OpenRouter adapter (D39) keyed by `analysis_requests.model_id` → `model_catalog` row. HTTP to `https://openrouter.ai/api/v1/chat/completions` with `model` = `openrouter_model_id`, `provider.allow_fallbacks: false`, `provider.only: [openrouter_only]`. Copy OpenRouter `usage` into `usage_events.cost_cents` when present. Never substitute Luna/Haiku/Flash; never `openrouter/auto`. Missing `OPENROUTER_API_KEY` or a response `model` that does not match the slug → `failed` with `error_text`, no `reports` row. Static prompt prefix from `prompt_versions` (promoted row) then **variable pack**: ticker, evidence, `holding_lots`, clarifications, **`investor_profiles`**, and on refine the user **enrichment** text. Never embed Maya’s personal book. Refuse to complete if ticker is not on `holdings`. Dual adherence check twice inside the worker; any NO redoes that section before insert. Output `sections` jsonb. **Required keys on a comprehensive run:** `step0`, `moat` (F1), `pre_buy` (F2 including `bear_case` before variant perception), `sizing` (F3), `profit_booking` (F4), `construction` (F5), `dual_sleeve` (F6 if intent is swing), `verdict`. Insert `reports` (immutable) with the **same** `model_id`. Set request `ready`. Never recommend US options if `cannot_trade_us_options`.
 - **Writes:** `reports`, `analysis_requests.status`, `analysis_requests.completed_at`.
@@ -389,7 +389,7 @@ Prompt body is `prompt_versions.body` selected by id. Stamp `reports.prompt_vers
 
 ### P4-03 — PDF
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P4-02
 - **Direction:** Render PDF with **Playwright** (D38); upload `report-pdfs` key `{family_id}/{report_id}.pdf`; set `reports.pdf_key`. Signed URL on GET. Charts/tables from allowlisted `reports.charts` must appear in the PDF.
 - **Writes:** Storage object; `reports.pdf_key` (allowed by rewrite trigger).
@@ -400,7 +400,7 @@ Prompt body is `prompt_versions.body` selected by id. Stamp `reports.prompt_vers
 
 ### P4-04 — Refine (enrichment, billed, both notes kept)
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P4-02, P4-05, P6-00
 - **Direction:** After P4-05 says proceed (or `material: true`). `POST /reports/:id/refine`. User text is **enrichment** in the variable pack (their perspective — tax lot, India vs US, horizon — not a rewrite of the advisor prompt). Frontier (or user-picked) model. **Not free:** `usage_events.kind = refine` on the same searches-or-wallet meter as Analyse (D28). Confirm model + cost **before** this call (gate cost already shown in P4-05). Classify prompt-extraction **before** the model; refusal does **not** bill refine; `was_refused`; `usage_events.kind = prompt_extract_attempt`. Insert `refinements` (`user_text`, `response` / sections, `model_id`). Original `reports.verdict` and `sections` **unchanged**. Library/reader lists original **and** each refine.
 - **Writes:** `refinements`, `usage_events`.
@@ -411,7 +411,7 @@ Prompt body is `prompt_versions.body` selected by id. Stamp `reports.prompt_vers
 
 ### P4-05 — Refine materiality gate (cheap model)
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P4-02, P6-00
 - **Direction:** `POST /reports/:id/refine-gate` **before** P4-04. Bootstrap prompt: [`docs/prompts/refine-materiality-gate.md`](../prompts/refine-materiality-gate.md). Runtime `prompt_versions` row with gate role — **not** the advisor body. Model = an active `model_catalog` row with `is_refine_gate` (default `gpt56m` → `gpt-5.6-luna` after 009). Confirm **cheap model + cost** first; insert `usage_events.kind = refine_gate` (counts on the plan meter). Output JSON `material` / `reason` / `focus_tags`. If `material` is false, banner: no material difference with their text + **Do you want to proceed?** No → stop (original note unchanged; gate row still saved). Yes → P4-04 confirm for the full refine **using the Analyse model on that report**, not the gate model. If `material` is true, still confirm full refine cost then P4-04. Never send advisor `prompt_versions.body` to this model.
 - **Writes:** `usage_events` (`refine_gate`); optional `refinements` row with gate JSON and `proceeded = false` until P4-04.
@@ -429,7 +429,7 @@ Prompt body is `prompt_versions.body` selected by id. Stamp `reports.prompt_vers
 
 ### P5-00 — Library
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P1-03
 - **Direction:** `/reports` table from mock (name, ticker, checks, model, verdict, cost, rename, PDF). Trial samples read-only. Each saved refine is listed under the original (timestamp, cost, model) — **both** kept (D4 / D34).
 - **Writes:** none except rename in P5-01.
@@ -440,7 +440,7 @@ Prompt body is `prompt_versions.body` selected by id. Stamp `reports.prompt_vers
 
 ### P5-01 — Rename
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P5-00
 - **Direction:** RPC `report_rename`. Updates `reports.name` only.
 - **Writes:** `reports.name`.
@@ -451,7 +451,7 @@ Prompt body is `prompt_versions.body` selected by id. Stamp `reports.prompt_vers
 
 ### P5-02 — Report reader
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P4-04 (can start layout on seed JSON before worker)
 - **Direction:** `/reports/[id]` tabs aligned to mock **and** framework keys: verdict, evidence (Step 0), moat/quality (F1), execution/tranches (F3), scenarios, tax, news, refine. Seed Maya note uses stub `sections` jsonb until worker fills real structure. Do not invent extra nav. **Do not render arbitrary `innerHTML` from the model in this chunk.** Header **Expert / Beginner** toggle (mock): Expert shows denser tables and extra section keys; Beginner hides them. Preference may live in `localStorage` this chunk; do not invent a table. Refine send is P4-04 (confirm + bill). Satisfaction survey is **P5-05**, not this chunk.
 - **Writes:** none (refine is P4-04 / thread UI here).
@@ -462,7 +462,7 @@ Prompt body is `prompt_versions.body` selected by id. Stamp `reports.prompt_vers
 
 ### P5-04 — Model charts (allowlist, not raw HTML)
 
-- **Status:** ⬜ **Locked 2026-09-13:** allowlisted `charts` jsonb only. Types `line | bar | table | waterfall`. Renderer in `apps/web`. Reject unknown types. Raw HTML / `<script>` from the model is **not** executed.
+- **Status:** ✅ 2026-09-14 **Locked:** allowlisted `charts` jsonb only. Types `line | bar | table | waterfall`. Renderer in `apps/web`. Reject unknown types. Raw HTML / `<script>` from the model is **not** executed.
 - **Depends on:** P5-02
 - **Direction:** Map `reports.charts` to the existing pictorial panels (price, RSI, peers, revenue/margin, tax waterfall).
 - **Writes:** none (worker already stored jsonb in P4-02).
@@ -473,7 +473,7 @@ Prompt body is `prompt_versions.body` selected by id. Stamp `reports.prompt_vers
 
 ### P5-03 — PDF download in UI
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P4-03, P5-00
 - **Direction:** PDF action on library + reader. Signed URL. Rename in P5-01 does not require rewriting the object in this chunk unless you already store filename in metadata.
 - **Writes:** none.
@@ -484,7 +484,7 @@ Prompt body is `prompt_versions.body` selected by id. Stamp `reports.prompt_vers
 
 ### P5-05 — Analysis satisfaction survey
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P5-02
 - **Direction:** After `analysis_requests.status = completed` and a `reports` row exists, `/reports/[id]` shows a **Satisfaction** panel (same page; no new desk nav). **Mandatory:** “Is the analysis provided helpful?” **Yes** or **No** (radio; Submit disabled until chosen). **Optional (1–5, blank allowed):** five dimensions below. **Optional:** open text (max 2000 characters). Submit calls RPC `thesis_submit_analysis_feedback`. One row per `reports.id` (unique). Not shown on `is_library_sample`. Failed jobs have no report → no form. Refine does **not** open a second form (no new `reports` row). Closing the tab without Submit inserts **nothing**; a banner stays on that note until they submit. They can read the note first. Copy must not claim this is billed or that it changes the verdict (`reports` stay immutable).
   **Optional dimensions (locked labels):**
@@ -514,7 +514,7 @@ Allowances are `plans` / `plan_notice_thresholds` rows. 100% blocks new **model*
 
 ### P6-00 — Usage page and meter
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P1-03
 - **Direction:** `/usage` + shell meter. Counts `usage_events` for the family, current `billing_period`, kinds **`search` + `refine` + `refine_gate`**. Mode is **searches** (plan limit) **or** **wallet USD** (`wallets` vs sum of `cost_cents`) depending on `families` billing mode. Notices at 60/80/90 from `plan_notice_thresholds` for **either** meter. Not a client-only counter.
 - **Writes:** none.
@@ -525,7 +525,7 @@ Allowances are `plans` / `plan_notice_thresholds` rows. 100% blocks new **model*
 
 ### P6-01 — Plan grid
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P6-00
 - **Direction:** `/billing` plan cards from `plans`. **Five paid/trial rows (locked):** Trial, Basic, Professional, **Professional +** (display for slug `premium`), **Ultra** (own display name, slug `ultra`). Current plan from `families.plan_id`. Choosing a plan does **not** charge until P6-03. Copy recommends upgrade when last runs used a frontier model the current plan cannot select.
 - **Writes:** none in this chunk (or a `pending_plan_id` only if you add a column — **do not** without migration).
@@ -536,7 +536,7 @@ Allowances are `plans` / `plan_notice_thresholds` rows. 100% blocks new **model*
 
 ### P6-02 — Wallet display
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P6-01
 - **Direction:** Wallet card from `wallets.balance_cents`. Top-up form UI only; no provider call.
 - **Writes:** none.
@@ -568,7 +568,7 @@ Promote still: `tools/db/promote_platform_admin.sql` (no self-serve button).
 
 ### P7-00 — Separate admin login + accounts
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P1-00, P0-03
 - **Direction:** `/admin/login` (email+password; Google optional). Success → `/admin/accounts`. Table: email, name, residency, plan, searches used / limit, MTD $ , last active. **Not** `holding_lots`. Maya’s `/login` never lands here. First admin user: promote SQL then this login.
 - **Writes:** none (read). Auth session cookie scoped; middleware `requirePlatformAdmin`.
@@ -583,7 +583,7 @@ Promote still: `tools/db/promote_platform_admin.sql` (no self-serve button).
 
 ### P7-01 — Plans and limits
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P7-00
 - **Direction:** `/admin/plans`. Edit `plans.monthly_analysis_limit`, `allowed_model_ids`, `plan_notice_thresholds` (60/80/90/100), trial sample count. Copy: next billing cycle. This is the “X is configurable on the admin account” from the brief.
 - **Writes:** `plans`, `plan_notice_thresholds`.
@@ -594,7 +594,7 @@ Promote still: `tools/db/promote_platform_admin.sql` (no self-serve button).
 
 ### P7-02 — Prompt registry
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P7-00
 - **Direction:** `/admin/prompt`. File upload staged `prompt_versions`; two-person `prompt_version_approvals`. Never send `body` to a desk client. Admin server action only.
 - **Writes:** `prompt_versions`, `prompt_version_approvals`.
@@ -605,7 +605,7 @@ Promote still: `tools/db/promote_platform_admin.sql` (no self-serve button).
 
 ### P7-03 — Read-only impersonation
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P7-00
 - **Direction:** From `/admin/accounts` View as. `impersonation_open` / `close`. Banner on a **read-only preview** of desk chrome, not a writable desk session. Block `thesis_accept_analysis`, lot writes, billing.
 - **Writes:** `audit_log` only.
@@ -616,7 +616,7 @@ Promote still: `tools/db/promote_platform_admin.sql` (no self-serve button).
 
 ### P7-04 — Support grant for holdings
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P7-03
 - **Direction:** Family owner toggle on `/portfolio` “Allow support to see holdings” → `support_access_grants`. Admin then may SELECT lots.
 - **Writes:** `support_access_grants`.
@@ -627,7 +627,7 @@ Promote still: `tools/db/promote_platform_admin.sql` (no self-serve button).
 
 ### P7-05 — Observability schema (OBS-0/1)
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P7-00. Migration **011** (after 009 catalog + 010 profiles).
 - **Direction:** Port OptimAI shape, Thesis names: `observability_events`, `observability_minute_buckets`, `observability_thresholds`, `observability_alert_events`, `observability_settings`. Products catalog: `auth`, `desk`, `analyse`, `portfolio`, `reports`, `refine`, `billing`, `worker`. **Never stored:** prompt body, `reports.sections`, ticker lots, JWT. RPCs: `observability_record_event`, admin list/upsert threshold, minute buckets. Page ping `POST /api/observability/page-view`. Worker and analysis-api record status + duration.
 - **Writes:** those tables (service role / authenticated own family for capture).
@@ -638,7 +638,7 @@ Promote still: `tools/db/promote_platform_admin.sql` (no self-serve button).
 
 ### P7-06 — Observability Overview + Watch limits
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P7-05
 - **Direction:** `/admin/observability` Overview (calls, failed, by product, slow wait) + Watch limits form. Time filters: 15m / 1h / 24h / 7d / 30d. English labels, IST display, UTC store. Seeded watches: failed %, slow Analyse (ms), sign-in failures, worker jobs stuck queued/failed, no successful analyse in 24h after yesterday’s traffic. Colours from `observability_thresholds`. v1 is **colours on this screen only** — do not HTTP 429 the desk because a watch is red; do not send email in this chunk. Customer Feedback tab is **P7-10**, not this chunk.
 - **Writes:** `observability_thresholds` via upsert RPC.
@@ -649,7 +649,7 @@ Promote still: `tools/db/promote_platform_admin.sql` (no self-serve button).
 
 ### P7-07 — Observability APIs + Latency
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P7-06
 - **Direction:** Tabs APIs (route, count, fail, last) and Latency (wait distribution) like OptimAI OBS-4/5. Details column may show `THS-*` codes **after** an English reason.
 - **Writes:** none.
@@ -660,7 +660,7 @@ Promote still: `tools/db/promote_platform_admin.sql` (no self-serve button).
 
 ### P7-08 — Who used which product
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P7-06
 - **Direction:** Tab usage: one row per person + family + product in the period. Highlight: signed up but never analysed; plan exhausted still posting (should not happen if quota RPC works — red if it did).
 - **Writes:** none.
@@ -671,7 +671,7 @@ Promote still: `tools/db/promote_platform_admin.sql` (no self-serve button).
 
 ### P7-10 — Customer Feedback (observability)
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P7-06, P5-05
 - **Direction:** `/admin/observability` tab **Customer Feedback** (after Who used which product). Table from `analysis_feedback` joined to `users.email`, `families.plan_id` / `plans.slug`, `reports_admin_meta` (ticker, model, cost — **not** `sections`). Columns: submitted at (IST, UTC store), email, plan, ticker, model, Helpful (Yes/No), five dimension scores or “—”, comment. Filters: date range (same 15m / 1h / 24h / 7d / 30d as Overview), helpful, ticker, model. Header counts: n responses, % Yes. Maya’s `/login` session cannot open this tab. Do not write comments into `observability_events`. No MCP tab.
 - **Writes:** none (read-only).
@@ -700,7 +700,7 @@ Promote still: `tools/db/promote_platform_admin.sql` (no self-serve button).
 
 ### P8-00 — Invite a family member
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P1-02
 - **Direction:** Owner invites email → `family_members` (`member` or `viewer`). Viewer cannot call `thesis_accept_analysis`. **This is the Family account you asked not to rewrite reports for.**
 - **Writes:** `family_members`.
@@ -711,7 +711,7 @@ Promote still: `tools/db/promote_platform_admin.sql` (no self-serve button).
 
 ### P8-01 — RLS and prompt leak tests
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P1-02
 - **Direction:** `tests/integration/` with two JWTs. Cross-family holdings 0 rows. Prompt body absent from analysis-api responses. Admin JWT cannot `thesis_accept_analysis`. Per-chunk three-pass tests (RLS UI vs API, meter kinds, display) started in `.cursor/rules/testing.mdc`; this chunk is still the two-JWT CI gate.
 - **Writes:** none in product.
@@ -722,7 +722,7 @@ Promote still: `tools/db/promote_platform_admin.sql` (no self-serve button).
 
 ### P8-02 — Weekly holdings email (Quick model, 3 names unless Professional +)
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P4-00, P4-02, P6-01, P1-04. Email **send** also needs a named provider in HANDOFF §3b (same blocker as P7-09). In-app card does not.
 - **Direction:** Sunday digest for families that opted in on `/billing` (toggle **Weekly email**, default **off**). Not the marketing `/` waitlist (that stays a no-op until this chunk, then copy-only). Not a full Analyse: worker job in `apps/analysis-worker`, OpenRouter Batch **allowed**. Model = active `model_catalog` row with `thesis_class = 'quick'` and `is_refine_gate = true` (009: `gpt56m`). If that row is missing or Frontier → job `failed`, **no** email, **no** `reports` insert. Prompt: [`docs/prompts/weekly-digest.md`](../prompts/weekly-digest.md) → `prompt_versions` role `weekly_digest`. One completion per `family_id` per ISO week (all N tickers in that one call).
   **Tickers:** from view `holdings` for that `family_id`. Cap = `plans.weekly_digest_ticker_limit` (seed: `trial` / `basic` / `professional` = **3**; `premium` Professional + and `ultra` = **15**). Rank by `qty * cost_per_share` converted with the same **display** FX as the header chip (P2-03); never write converted amounts. Fewer holdings → send fewer names. Copy on `/billing` Professional + card: more than 3 names requires slug `premium` or `ultra`. No recommended tickers the family does not hold (drop mock “new names worth a look”).
@@ -743,7 +743,7 @@ Promote still: `tools/db/promote_platform_admin.sql` (no self-serve button).
 
 ### P8-03 — Holdings re-check (opt-in, billed model calls)
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P4-01, P4-02, P1-05, P6-00
 - **Direction:** `/desk` shows last `analysis_evidence` age per ticker from `holdings`. Watch queries come from `investor_profiles` / `holding_watch_queries` (user-editable), **not** the MELI/BKNG strings in the May 2026 file. **Do not** enqueue LLM jobs on login or first desk load. Control: **Re-check** per ticker or **Re-check all**. Before send, a confirm names: N tickers, model from `model_catalog`, searches (or wallet USD) that will be consumed, remaining quota. Confirm calls the same accept path as Analyse (`thesis_accept_analysis` or a `thesis_accept_holding_watch` RPC that still inserts `usage_events.kind = search`). 100% quota → button disabled, same as Analyse. Market-data HTTP with **no** LLM is not a search; the moment the worker calls the adapter, a billed row must already exist.
 - **Writes:** `analysis_requests`, `usage_events`, then `analysis_evidence` / `reports` as for a normal run.
@@ -764,7 +764,7 @@ Structure from the May 2026 file. **Never** seed AMZN weights, named manager let
 
 ### P9-00 — Crash letter
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P1-05, P2-01, P5-03 (PDF if they download)
 - **Direction:** `/settings/crash-letter` (or Desk “Crash letter”). Template the owner edits: names, last cost × qty from `holdings`, written rules (do not abandon F1–F6 in a 30%+ decline). Save to `crash_letters` (new table, `family_id`, body, `pdf_key` optional). **Draft with model** is optional and uses P4-04/P8-03 billing: confirm model + cost, then `usage_events`. Desk banner if they open `/analyse` during a large drawdown: “Read your crash letter first” → this page. No live price required for v1 (use cost basis + last saved letter).
 - **Writes:** `crash_letters` (migration named in this chunk, next free after 009/010).
@@ -775,7 +775,7 @@ Structure from the May 2026 file. **Never** seed AMZN weights, named manager let
 
 ### P9-01 — Managers and 13F clone
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-14
 - **Depends on:** P1-04, P3-00
 - **Direction:** `/research/managers` (desk nav only if you add it here — **one** item: Managers). Owner picks a list (defaults empty; optional catalog of names from the framework as **suggestions**, not required). Store `manager_watches`. **Scan** (13F / letters) is a button: confirm model-or-vendor cost first. Clone rule in SQL/UI: 3+ watched managers overlapping on a ticker the family does not hold → Desk flag “F1+F2 trigger” with Analyse → `/analyse?ticker=`. 13F is labelled **idea generation only, 45 days stale, not for timing**. Do not auto-scan on login (same as P8-03).
 - **Writes:** `manager_watches`, optional `manager_holdings_snapshots`; `usage_events` when a model is used.
@@ -805,13 +805,13 @@ Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do 
 
 - **Status:** ⬜
 - **Depends on:** P0-04, P1-01, P10-00
-- **Direction:** Vercel project **`prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`** · `https://v0.app/lakshman-projects/equity-investment-advisor-prod`. Root directory **`apps/web`**. From `.env.prod`, set **Production** env only: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Do **not** set `SUPABASE_SERVICE_KEY`, `SUPABASE_DB_PASSWORD`, or `OPENROUTER_API_KEY` on Vercel. Framework: Next.js. After env change, redeploy. Desk login uses prod Auth (`users` / `families` via `handle_new_auth_user` on prod). `/analyse` can queue on prod only after P10-00; the wait panel stays `queued` until P10-02 worker runs.
+- **Direction:** Vercel project **`prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`**. Public site **`https://eqveste.com`** (also `https://www.eqveste.com` if you attach www). Host project: `https://v0.app/lakshman-projects/equity-investment-advisor-prod`. Root directory **`apps/web`**. From `.env.prod`, set **Production** env only: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Do **not** set `SUPABASE_SERVICE_KEY`, `SUPABASE_DB_PASSWORD`, or `OPENROUTER_API_KEY` on Vercel. On prod Supabase Authentication → URL configuration: Site URL `https://eqveste.com`; redirect allowlist that origin. After env change, redeploy. Desk login uses prod Auth (`users` / `families` via `handle_new_auth_user` on prod). `/analyse` can queue on prod only after P10-00; the wait panel stays `queued` until P10-02 worker runs.
 - **Writes:** Vercel Production env (host, not git).
 - **Reads:** browser uses anon key → prod PostgREST. `/desk` reads view `holdings` and `usage_events` on **prod**.
 - **Who:** project owner. You name **prod** this turn before `vercel env` / deploy.
 - **UI today:** project exists; env may be empty or pointed at the wrong Supabase until this chunk.
 - **Success:**
-  1. Open the Vercel URL: marketing `/` loads; `/login` talks to `ndgvglcrkbygovlszxze` (Network: `*.supabase.co` host is prod, not `cmksomahsfmsjufakryw`).
+  1. Open **`https://eqveste.com`**: marketing `/` loads; `/login` talks to `ndgvglcrkbygovlszxze` (Network: `*.supabase.co` host is prod, not `cmksomahsfmsjufakryw`).
   2. Vercel env list has no service-role name.
   3. Local **3100** still uses DEV (`.env` unchanged).
 
@@ -819,7 +819,7 @@ Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do 
 
 - **Status:** ⬜
 - **Depends on:** P0-04, P4-00, P10-00, P10-01. You **name the host** in this chunk (Fly.io / Railway / a VM running Docker). Not Vercel.
-- **Direction:** `infra/docker` compose: `analysis-api` (port **8091**) and `analysis-worker` (long-running). `env_file: .env.prod`. FastAPI CORS allowlist `THESIS_CORS_ORIGINS` = the Vercel URL. Worker: `OPENROUTER_API_KEY`, `thesis_consume_quota_for_provider`, Yahoo previous close, Playwright Chromium. Next.js does not start these processes. If the desk calls the API, add `NEXT_PUBLIC_ANALYSIS_API_URL` on Vercel **only** when a browser route actually `fetch`es it (refine / PDF). Until then, wait panel keeps polling `analysis_requests` via the anon client.
+- **Direction:** `infra/docker` compose: `analysis-api` (port **8091**) and `analysis-worker` (long-running). `env_file: .env.prod`. FastAPI CORS allowlist `THESIS_CORS_ORIGINS` = `https://eqveste.com` and `https://www.eqveste.com`. Worker: `OPENROUTER_API_KEY`, `thesis_consume_quota_for_provider`, Yahoo previous close, Playwright Chromium. Next.js does not start these processes. If the desk calls the API, add `NEXT_PUBLIC_ANALYSIS_API_URL` on Vercel **only** when a browser route actually `fetch`es it (refine / PDF). Until then, wait panel keeps polling `analysis_requests` via the anon client.
 - **Writes:** `analysis_requests.status`, `analysis_evidence`, `reports`, `report-pdfs` objects — on **prod** Postgres/storage.
 - **Reads:** same tables the worker already uses on DEV.
 - **Who:** operator starts compose on the named host. No desk button.
@@ -870,5 +870,40 @@ Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do 
 | P3-02 | 2026-09-13 | ✅ Continue → clarify → Run analysis |
 | P3-03 | 2026-09-13 | ✅ `/analyse/[id]` queued wait; `/reports` list-only |
 | P7-09 | 2026-09-13 | ❌ skipped — on-screen watches only; no email until a provider is named |
+| P4-00 | 2026-09-14 | ✅ worker claim loop; 012 on DEV |
+| P4-01 | 2026-09-14 | ✅ Yahoo close on gather; desk does not call Yahoo |
+| P4-02 | 2026-09-14 | ✅ OpenRouter complete → reports |
+| P4-03 | 2026-09-14 | ✅ Playwright PDF + signed GET |
+| P4-04 | 2026-09-14 | ✅ POST /reports/:id/refine; pack loads holdings |
+| P4-05 | 2026-09-14 | ✅ POST /reports/:id/refine-gate |
+| P5-00 | 2026-09-14 | ✅ /reports table from reports |
+| P5-01 | 2026-09-14 | ✅ report_rename |
+| P5-02 | 2026-09-14 | ✅ /reports/[id] reader + Expert toggle |
+| P5-04 | 2026-09-14 | ✅ allowlisted charts; html dropped |
+| P5-03 | 2026-09-14 | ✅ PDF button → analysis-api signed URL |
+| P5-05 | 2026-09-14 | ✅ 013 analysis_feedback + survey |
+| P6-00 | 2026-09-14 | ✅ /usage + shell meter = thesis_family_meter_count |
+| P6-01 | 2026-09-14 | ✅ /billing five plans; Professional + = premium |
+| P6-02 | 2026-09-14 | ✅ wallet card; top-up does not decrement |
+| P7-00 | 2026-09-14 | ✅ /admin/login → /admin/accounts; Maya rejected |
+| P7-01 | 2026-09-14 | ✅ /admin/plans |
+| P7-02 | 2026-09-14 | ✅ /admin/prompt; self-approve disabled |
+| P7-03 | 2026-09-14 | ✅ View as preview; impersonation_open/close |
+| P7-04 | 2026-09-14 | ✅ support_access_grants on /portfolio |
+| P7-05 | 2026-09-14 | ✅ 014 observability + page-view ping |
+| P7-06 | 2026-09-14 | ✅ /admin/observability Overview + watches |
+| P7-07 | 2026-09-14 | ✅ APIs + Latency tabs |
+| P7-08 | 2026-09-14 | ✅ Who used which product tab |
+| P7-10 | 2026-09-14 | ✅ Customer Feedback tab |
+| P8-00 | 2026-09-14 | ✅ /settings/family invite RPC |
+| P8-01 | 2026-09-14 | ✅ unit RLS/meter lock; live two-JWT still skips without DB |
+| P8-02 | 2026-09-14 | ✅ 016 weekly_digests; no email send |
+| P8-03 | 2026-09-14 | ✅ Desk re-check confirm → thesis_accept_analysis |
+| P9-00 | 2026-09-14 | ✅ /settings/crash-letter |
+| P9-01 | 2026-09-14 | ✅ /research/managers nav item |
+| P10-00 | 2026-09-14 | ⬜ not applied — waiting for you to name prod |
+| P10-01 | 2026-09-14 | ⬜ Vercel env/deploy waiting for you to name prod |
+| P10-02 | 2026-09-14 | ⬜ compose + DigitalOcean notes in git; no droplet |
+
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.

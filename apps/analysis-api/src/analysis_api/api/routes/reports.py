@@ -231,15 +231,7 @@ def refine(
             raise HTTPException(status_code=429, detail="THS-QUOTA-001") from exc
         _prompt_id, system = load_promoted_body(cur, "advisor")
         del _prompt_id
-        pack = build_variable_pack(
-            {
-                "ticker": report["ticker"],
-                "enrichment": body.user_text,
-                "holdings": [],
-                "evidence": [],
-                "investor_profiles": {},
-            }
-        )
+        pack = _family_pack(cur, report, body.user_text)
         result = complete_openrouter(
             settings,
             model=str(model["openrouter_model_id"]),
@@ -271,6 +263,49 @@ def refine(
         return {"was_refused": False, "billed_refine": True, "model_id": model["id"]}
     finally:
         conn.close()
+
+
+def _family_pack(cur, report: dict[str, Any], enrichment: str) -> str:
+    """Holdings, evidence, and investor_profiles for this family — not an empty pack."""
+    cur.execute(
+        """
+        select ticker, qty, cost_per_share, native_currency, exchange, company_name
+          from holdings
+         where family_id = %s
+        """,
+        (report["family_id"],),
+    )
+    holdings = [dict(r) for r in (cur.fetchall() or [])]
+    cur.execute(
+        """
+        select step0_number, query, excerpt, source_url
+          from analysis_evidence
+         where request_id = %s
+         order by step0_number
+        """,
+        (report.get("request_id"),),
+    )
+    evidence = [dict(r) for r in (cur.fetchall() or [])]
+    cur.execute(
+        """
+        select cannot_trade_us_options, ltcg_holding_months, concentration_cap_pct
+          from investor_profiles
+         where family_id = %s
+        """,
+        (report["family_id"],),
+    )
+    row = cur.fetchone()
+    profile = dict(row) if row else {}
+    return build_variable_pack(
+        {
+            "ticker": report["ticker"],
+            "enrichment": enrichment,
+            "holdings": holdings,
+            "evidence": evidence,
+            "investor_profiles": profile,
+            "cannot_trade_us_options": bool(profile.get("cannot_trade_us_options")),
+        }
+    )
 
 
 def _insert_usage(cur, report: dict[str, Any], user_id: str, kind: str, model_id: str, cents: int) -> None:
