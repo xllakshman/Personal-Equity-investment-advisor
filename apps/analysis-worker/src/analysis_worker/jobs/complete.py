@@ -1,4 +1,4 @@
-"""OpenRouter framework completion → reports insert (P4-02)."""
+"""Native-lab framework completion → reports insert (P4-02 / D39)."""
 from __future__ import annotations
 
 from typing import Any, Callable
@@ -8,8 +8,12 @@ from psycopg2.extensions import connection
 from psycopg2.extras import Json, RealDictCursor
 
 from thesis_platform.config import Settings
-from thesis_platform.http import complete_openrouter
-from thesis_platform.openrouter import ChatResult, OpenRouterError
+from thesis_platform.http import complete_chat
+from thesis_platform.native_llm import (
+    NATIVE_PROVIDERS,
+    ChatResult,
+    require_api_key,
+)
 from thesis_platform.pack import build_variable_pack
 from thesis_platform.prompt import load_promoted_body
 from thesis_platform.sections import (
@@ -34,38 +38,39 @@ def complete_request(
     complete_fn: CompleteFn | None = None,
 ) -> str:
     """Insert reports, return report id. Never returns prompt body."""
-    if not settings.openrouter_api_key and complete_fn is None:
-        raise RuntimeError("OPENROUTER_API_KEY missing")
-
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(
         """
-        select id, openrouter_model_id, openrouter_only, label
+        select id, provider, provider_model_id, label
           from model_catalog
          where id = %s and is_active = true
         """,
         (request["model_id"],),
     )
     model = cur.fetchone()
-    if not model or not model["openrouter_model_id"] or not model["openrouter_only"]:
-        raise RuntimeError("model_catalog row missing openrouter slug")
+    provider = str(model["provider"]) if model else ""
+    native_id = str(model["provider_model_id"]) if model else ""
+    if not model or provider not in NATIVE_PROVIDERS or not native_id:
+        raise RuntimeError("model_catalog row missing native provider")
+    if complete_fn is None:
+        require_api_key(settings, provider)
 
     prompt_id, system = load_promoted_body(cur, "advisor")
     pack = build_variable_pack(_context(cur, request))
 
     set_status(conn, request["id"], "drafting")
     runner = complete_fn or (
-        lambda **kw: complete_openrouter(
+        lambda **kw: complete_chat(
             settings,
+            provider=kw["provider"],
             model=kw["model"],
-            openrouter_only=kw["openrouter_only"],
             system=kw["system"],
             user=kw["user"],
         )
     )
     result = runner(
-        model=str(model["openrouter_model_id"]),
-        openrouter_only=str(model["openrouter_only"]),
+        provider=provider,
+        model=native_id,
         system=system,
         user=pack,
     )
@@ -79,8 +84,8 @@ def complete_request(
         set_status(conn, request["id"], "checking")
         redo_user = pack + "\nREDO sections with adherence NO: " + ",".join(fails)
         result = runner(
-            model=str(model["openrouter_model_id"]),
-            openrouter_only=str(model["openrouter_only"]),
+            provider=provider,
+            model=native_id,
             system=system,
             user=redo_user,
         )

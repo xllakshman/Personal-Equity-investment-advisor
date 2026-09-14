@@ -32,7 +32,7 @@ Before writing or changing code, read the **latest session handoff** then `HANDO
 - **Do not apply migrations** unless the user names the target project and the file, and §25 verification is the reason.
 - **Execute only the ROADMAP “Build next” chunk** unless the user names another id. See [`roadmap.mdc`](roadmap.mdc).
 - Platform admin is **D27**: `/admin/login`, not the desk. Observability follows [`platform-admin.mdc`](platform-admin.mdc).
-- Worker LLM is **OpenRouter** for v1 (D39): `OPENROUTER_API_KEY`, pinned slug, no fallbacks. Native lab keys in `.env` are placeholders until a native-path chunk.
+- Worker LLM is **native labs** (D39): `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `XAI_API_KEY` / `DEEPSEEK_API_KEY`, HTTP `model` = `model_catalog.provider_model_id`. No OpenRouter. Gemini/Kimi are not shown on `/analyse`.
 - **Never commit** `.env`, `*.rtf`, zip archives, service-role keys, or the advisor system prompt in API responses.
 - **Git:** local commit → push **dev** → **prod**. You may ask; never push or deploy to dev/prod unless the user names that target this turn. See [`git-deploy.mdc`](git-deploy.mdc).
 - Local `.env` stays on DEV `https://cmksomahsfmsjufakryw.supabase.co`. Prod keys: gitignored `.env.prod` (from `.env.prod.example`). PROD Supabase is `https://ndgvglcrkbygovlszxze.supabase.co`. Public site is **`https://eqveste.com`** (Vercel `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`). Do not retarget `.env`. Do not source `.env.prod` or `vercel` deploy unless the user names **prod**, and for SQL also the file + `CONFIRM_APPLY=1`.

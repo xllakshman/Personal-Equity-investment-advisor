@@ -3,7 +3,7 @@
 > **Version:** 0.1 · **Date:** 2026-09-13  
 > **Workspace:** `/Users/lakshmanyeluri/Documents/personalEquity_Advisor`  
 > **Reference layout:** `/Users/lakshmanyeluri/Documents/activePieces-docker/invoice-processing`  
-> **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P10-00**  
+> **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P10-02**  
 > **Latest session:** [`docs/handoff/SESSION-2026-09-14-p4-to-p9.md`](docs/handoff/SESSION-2026-09-14-p4-to-p9.md)  
 > **Mock UI:** [`docs/mock-ui/`](docs/mock-ui/README.md)  
 > **GitHub (empty):** `xllakshman/Personal-Equity-investment-advisor` · branch `main`
@@ -21,17 +21,20 @@
 | Auth | ✅ Email+password (v1). Google/Phone off until dashboard. Keys in `.env`. |
 | Holdings | ✅ `holding_lots` write path + `holdings` average-cost view |
 | SQL 001–008 in git | ✅ Drafted + **applied** 2026-09-13 on `cmksomahsfmsjufakryw` |
-| SQL 009 model catalog | ✅ **applied** 2026-09-13 — OpenRouter slugs; Maya `opus5`/`gpt56`/`gpt56m` kept |
+| SQL 009 model catalog | ✅ **applied** 2026-09-13 — Maya `opus5`/`gpt56`/`gpt56m` kept |
+| SQL 019 native labs | ✅ **applied** 2026-09-15 on DEV and PROD — Gemini/Kimi `is_active = false` |
 | Maya seed | ✅ `maya@thesis.demo` · 5 lots · 2 reports (1 sample) |
 | Storage bucket `report-pdfs` | ✅ private |
 | Analysis API / worker | ✅ 2026-09-14 — `apps/analysis-api` :8091, `apps/analysis-worker`; Docker compose in `infra/docker` |
-| Next.js desk | ✅ 2026-09-14 — Phases 4–9 on **3100**. Reports reader, usage, billing, admin `/admin/login`, family, crash letter, managers. **001–018** on DEV. |
+| Next.js desk | ✅ 2026-09-14 — Phases 4–9 on **3100**. Reports reader, usage, billing, admin `/admin/login`, family, crash letter, managers. **001–019** on DEV. |
+| Prod schema | ✅ 2026-09-15 — **001–019** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. |
+| Prod Vercel | 🟡 2026-09-15 — Production anon env + deploy on `equity-investment-advisor-prod.vercel.app`. `eqveste.com` DNS not pointing (404 OpenResty). |
 | Tests | ✅ unit + web tests for 4–9. Live two-JWT CI still skips without a second family JWT. |
 | Weekly holdings email | 🟡 **P8-02** table + opt-in + job; **send** blocked until a provider is named |
 | Analysis CSAT | ✅ **P5-05** `analysis_feedback` + **P7-10** admin tab |
 | Requirements vs mock/brief | ✅ Gap review 2026-09-13 — D27–D42 |
 
-**Build next:** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P10-00** — apply schema to prod when you name **prod**. Next.js does not start `apps/analysis-worker`. Dev URL is **http://127.0.0.1:3100/**.
+**Build next:** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P10-02** — FastAPI + worker on droplet `157.245.102.243`. Next.js does not start `apps/analysis-worker`. Dev URL is **http://127.0.0.1:3100/**.
 
 ---
 
@@ -156,25 +159,25 @@ Taken from `Thesis.dc.html` Architecture & handoff + non-negotiables. Change onl
 | D36 | Analyse/refine **use the selected catalog row**. Never swap to a cheaper model. Picker groups `thesis_class` **frontier** vs **quick**; `vendor_class` is the lab’s own label. Catalog: [`docs/architecture/MODEL-CATALOG.md`](docs/architecture/MODEL-CATALOG.md). **009 applied** on DEV 2026-09-13. |
 | D37 | Job wait is **poll** of `analysis_requests.status` (Next route or `GET /analysis/:id`). Do not add Supabase Realtime until a later chunk you add. |
 | D38 | PDF renderer is **Playwright** (P4-03). Charts/tables in the note must survive the PDF. |
-| D39 | Worker LLM transport is **OpenRouter** (`OPENROUTER_API_KEY`). HTTP `model` = `model_catalog.openrouter_model_id`. Every call sets `provider.allow_fallbacks: false` and `provider.only` = that row’s `openrouter_only`. Missing OpenRouter key or a response `model` that does not match the slug → job `failed`, no `reports` insert. Forbidden: `openrouter/auto`, model fallback arrays. Native keys may sit in `.env` as placeholders (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `XAI_API_KEY`, `DEEPSEEK_API_KEY`) — **do not call those APIs** until a ROADMAP chunk names a native path. |
+| D39 | Worker and FastAPI refine call **native lab APIs**. `model_catalog.provider` selects the host: `openai` → `https://api.openai.com/v1/chat/completions` (`OPENAI_API_KEY`); `anthropic` → `https://api.anthropic.com/v1/messages` (`ANTHROPIC_API_KEY`); `xai` → `https://api.x.ai/v1/chat/completions` (`XAI_API_KEY`); `deepseek` → `https://api.deepseek.com/v1/chat/completions` (`DEEPSEEK_API_KEY`). HTTP `model` = `model_catalog.provider_model_id`. Missing key for that provider or a response `model` that does not match → job `failed` / HTTP 503, no `reports` insert. Forbidden: OpenRouter, `openrouter/auto`, Google, Moonshot. `/analyse` still reads `model_catalog.label` / `thesis_class`; Gemini and Kimi are hidden (UI filter + 019 `is_active = false`). |
 | D40 | Step 0 **price** is **previous regular-session close** from Yahoo Finance chart v8 (no key). Spec: [`docs/architecture/MARKET-DATA.md`](docs/architecture/MARKET-DATA.md). Never estimate. Never fetch on `/desk` load. Items 2–7 of Step 0 are not this vendor. |
-| D41 | Weekly holdings email (**P8-02**): opt-in on `/billing`, default off. Quick model only (`gpt56m` / refine-gate row). Not a full Analyse; no `reports` insert; no new tickers. Ticker cap from `plans.weekly_digest_ticker_limit` (3 on trial/basic/professional; 15 on `premium` / `ultra`). Rank by cost basis × qty with display FX. One OpenRouter call per family per ISO week. `usage_events.kind = weekly_digest` records cost and **does not** consume monthly Analyse searches. Login / `/desk` load does not send it. Email send waits on a named provider; `/desk` still reads `weekly_digests`. |
+| D41 | Weekly holdings email (**P8-02**): opt-in on `/billing`, default off. Quick model only (`gpt56m` / refine-gate row). Not a full Analyse; no `reports` insert; no new tickers. Ticker cap from `plans.weekly_digest_ticker_limit` (3 on trial/basic/professional; 15 on `premium` / `ultra`). Rank by cost basis × qty with display FX. One native-lab completion per family per ISO week when send is implemented. `usage_events.kind = weekly_digest` records cost and **does not** consume monthly Analyse searches. Login / `/desk` load does not send it. Email send waits on a named provider; `/desk` still reads `weekly_digests`. |
 | D42 | After each completed Analyse (`reports` row, not samples, not refine), `/reports/[id]` asks CSAT (**P5-05**). Mandatory Yes/No: “Is the analysis provided helpful?” Five 1–5 dimensions + comment are optional. Table `analysis_feedback`, one row per `reports.id`. Admin reads it only on `/admin/observability` → Customer Feedback. Does not change `reports.verdict`. |
 
 ---
 
 ## 3b. Open questions (remaining)
 
-Do not re-ask until the named chunk. Defaults locked 2026-09-13: poll (D37), Playwright (D38), OpenRouter (D39), Email+password only (D24). Catalog **009** applied on DEV. Weekly digest spec **D41** (P8-02); send still needs a provider. CSAT **D42** (P5-05 / P7-10).
+Do not re-ask until the named chunk. Defaults locked 2026-09-13: poll (D37), Playwright (D38), Email+password only (D24). **D39 native labs** (2026-09-15): OpenAI / Anthropic / xAI / DeepSeek. Catalog **009** and **019** applied on DEV and PROD. Weekly digest spec **D41** (P8-02); send still needs a provider. CSAT **D42** (P5-05 / P7-10).
 
 | When | What I still need from you |
 |------|----------------------------|
 | P4-01 items 2–7 | News / earnings / bear / competitor / sector **source**. Close is Yahoo (D40). Without these, a comprehensive job must fail rather than invent text. |
 | P6-03 | UPI/card **merchant** when you want real checkout. Placeholder UI only until then. |
 | P8-02 / P7-09 | Email **provider** (Resend / Postmark / SES + from-address) before any Sunday send or red-watch mail. Digest **rows** and `/desk` card do not wait on this. |
-| P4-02 | Paste **`OPENROUTER_API_KEY`** in gitignored `.env` (required before the worker). Optional native placeholders: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `XAI_API_KEY`, `DEEPSEEK_API_KEY`. Catalog **009** is already on DEV. |
+| P4-02 | Paste the lab key for models you will run (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `XAI_API_KEY`, `DEEPSEEK_API_KEY`) in gitignored `.env` for local worker. Catalog **009** and **019** are on DEV and PROD. Prod `.env.prod` already has all four lab keys. |
 | P0-04 | Fill gitignored **`.env.prod`** anytime (`cp .env.prod.example .env.prod`). Do not paste keys here. |
-| P10-02 | **Host** for FastAPI + worker (Fly.io / Railway / a VM). Not Vercel. |
+| P10-02 | **Host named:** existing OptimAI DigitalOcean droplet `157.245.102.243` (`ssh optimai-vps`). Same box as ActivePieces/MCP/Caddy. Separate Thesis compose + `.env.prod`. Not Vercel. Not started until you name **prod**. |
 | Anytime | Push/deploy only when you name **dev** or **prod** this turn. |
 
 Operator leftover: rotate or delete `readme.rtf` (password file still in the workspace). Google/Phone Auth: turn on in Authentication → Providers when you want them.
@@ -191,8 +194,9 @@ Operator leftover: rotate or delete `readme.rtf` (password file still in the wor
 | PROD DB host (derived) | `db.ndgvglcrkbygovlszxze.supabase.co` |
 | Local `.env` / `apps/web/.env.local` | **DEV only.** |
 | Prod secrets file | gitignored `.env.prod` (copy [`.env.prod.example`](.env.prod.example)). You paste keys. Agents read it only when you name **prod**. |
-| PROD Next.js (Vercel) | Project ID `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`. Public site: **`https://eqveste.com`**. Host: `https://v0.app/lakshman-projects/equity-investment-advisor-prod`. **P10-01:** Production env `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` from `.env.prod`. Never service role. Root directory: `apps/web`. Auth Site URL / redirect allowlist on prod Supabase: `https://eqveste.com`. |
-| analysis-api / worker prod host | **P10-02.** Not Vercel. Still unnamed (Fly / Railway / VM). Loads `.env.prod`. |
+| PROD Next.js (Vercel) | Project ID `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`. Public site: **`https://eqveste.com`** (DNS A still needed). Working alias: `https://equity-investment-advisor-prod.vercel.app`. Production env: `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` only. Never service role. Root directory: `apps/web`. Auth Site URL / redirect allowlist on prod Supabase: `https://eqveste.com` (dashboard; no script). |
+| analysis-api / worker prod host | **P10-02.** Existing OptimAI droplet `157.245.102.243` (Caddy + ActivePieces + MCP). Thesis compose in `infra/docker` with gitignored `.env.prod`. Hostname **`api.eqveste.com`** (do not reuse `api.optimai.in`). Not Vercel. |
+| P10-00 apply | Default **dry-run**: `./tools/db/apply_prod.sh` compares DEV vs PROD schema (read-only). Writes: `CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`. No Maya seed. |
 | Anon / service keys | **Present** in gitignored `.env` for **DEV** (2026-09-13). Values never pasted in chat or HANDOFF. |
 | Local secrets file `readme.rtf` | Gitignored. **Rotate** — it was sitting in the workspace. |
 
@@ -227,9 +231,9 @@ Env template: [`.env.example`](.env.example).
 
 ## 6. Database status
 
-**Applied on `cmksomahsfmsjufakryw` (DEV):** migrations **001–018** and seed `supabase/seed/001_maya_desk.sql`. **012** worker quotes/gate. **013** `analysis_feedback`. **014** observability. **015** family invite. **016** weekly digest. **017** crash letters. **018** manager watches. Do not re-run unless §25 fails.
+**Applied on `cmksomahsfmsjufakryw` (DEV):** migrations **001–019** and seed `supabase/seed/001_maya_desk.sql`. **012** worker quotes/gate. **013** `analysis_feedback`. **014** observability. **015** family invite. **016** weekly digest. **017** crash letters. **018** manager watches. **019** native labs (Gemini/Kimi off). Do not re-run unless §25 fails.
 
-**PROD `ndgvglcrkbygovlszxze`:** URL recorded 2026-09-14. **No Thesis migrations applied from this repo** until you name **prod** + the file + `CONFIRM_APPLY=1`. Do not copy Maya (`maya@thesis.demo`) onto prod unless you name `supabase/seed/001_maya_desk.sql`.
+**PROD `ndgvglcrkbygovlszxze`:** **001–019 applied** (`CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`; 019 on 2026-09-15). `select count(*) from holdings` = **0**. Maya seed not run. `report-pdfs` bucket exists. Do not copy Maya (`maya@thesis.demo`) onto prod unless you name `supabase/seed/001_maya_desk.sql`.
 
 Demo desk: `maya@thesis.demo` / `ThesisMaya!2026` (Auth email+password). Google/Phone flags must still be turned on in the Supabase Auth dashboard.
 
@@ -273,7 +277,7 @@ Mock core tables (must exist in some form):
 | `usage_events` | user_id, kind (search / refine / pdf), model_id, cost_cents, billing_period |
 | `plans` · `prompt_versions` · `audit_log` | admin-managed |
 
-Proposed extras (not in the mock table list, required to implement the screens): `portfolios`, `portfolio_import_rows`, `model_catalog` (`openrouter_model_id`, D39), `plan_notice_thresholds`, `wallets`, `wallet_topups`, `support_access_grants`, `prompt_version_approvals`, `analysis_evidence` (Step 0 citations), `investor_profiles` (**010**), `observability_*` (P7-05 / **011**), `analysis_feedback` (P5-05).
+Proposed extras (not in the mock table list, required to implement the screens): `portfolios`, `portfolio_import_rows`, `model_catalog` (`provider` + `provider_model_id`, D39), `plan_notice_thresholds`, `wallets`, `wallet_topups`, `support_access_grants`, `prompt_version_approvals`, `analysis_evidence` (Step 0 citations), `investor_profiles` (**010**), `observability_*` (P7-05 / **011**), `analysis_feedback` (P5-05).
 
 ---
 
@@ -285,7 +289,7 @@ See `.cursor/rules/security-tenancy.mdc`. `authenticated` never `SELECT` prompt 
 
 ## 10. LLM & prompt
 
-Worker completions go to **OpenRouter** (D39): `OPENROUTER_API_KEY`, `model_catalog.openrouter_model_id`, `allow_fallbacks: false`. Catalog: [`docs/architecture/MODEL-CATALOG.md`](docs/architecture/MODEL-CATALOG.md).
+Worker completions go to **native lab APIs** (D39): `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `XAI_API_KEY` / `DEEPSEEK_API_KEY`, HTTP `model` = `model_catalog.provider_model_id`. Catalog: [`docs/architecture/MODEL-CATALOG.md`](docs/architecture/MODEL-CATALOG.md).
 
 Bootstrap advisor text: `docs/mock-ui/uploads/Investment Framework Prompt - May 2026.txt`.
 
@@ -322,7 +326,7 @@ See `.cursor/rules/web-ui-maintenance.mdc`. Marketing vs desk palettes must not 
 
 ## 18. Next steps
 
-Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P10-00** when you name **prod**. Phases 4–9 are on DEV (`schema_migrations` 1–18). `/analyse` queues `analysis_requests` (`status = queued`) via `thesis_accept_analysis`. Next.js does not start `apps/analysis-worker`. Until that process runs, `/analyse/[id]` stays queued and `/reports` does not gain a new ready row. Dev URL is **http://127.0.0.1:3100/**.
+Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P10-02** droplet. Worker LLM is native labs (D39). **019** applied on DEV and PROD. Paste lab keys in local `.env` for port **3100** worker (prod `.env.prod` already has all four). Never put lab keys on Vercel. `/analyse` wait panel stays `queued` on prod until the droplet worker runs. Local **3100** stays DEV.
 
 ---
 
@@ -360,9 +364,9 @@ Canonical: [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md). You revise that
 
 ```sql
 select id, name from schema_migrations order by id;
--- expect 1..18
+-- expect 1..19
 
-select id, openrouter_model_id, thesis_class, is_active from model_catalog where is_active order by sort_order;
+select id, provider, provider_model_id, thesis_class, is_active from model_catalog where is_active order by sort_order;
 
 select slug, monthly_analysis_limit from plans order by sort_order;
 select email, role from users;

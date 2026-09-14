@@ -45,6 +45,6 @@ A frontier run is **40–90s**. The UI may leave the page; the note appears unde
 
 1. Routes parse/auth/enqueue only.
 2. Domain owns 422 conflict, quota, refusal classifier, immutability.
-3. Worker owns OpenRouter I/O (D39) and PDF. Worker uses `service_role` / direct Postgres; UI uses JWT + RLS. Completions go to `https://openrouter.ai/api/v1/chat/completions` with `openrouter_model_id` and `allow_fallbacks: false`. Missing `OPENROUTER_API_KEY` fails the job.
+3. Worker owns native-lab I/O (D39) and PDF. Worker uses `service_role` / direct Postgres; UI uses JWT + RLS. Completions go to OpenAI / Anthropic / xAI / DeepSeek with `provider_model_id`. Missing key for that provider fails the job.
 
 Port **8091** locally (8090 reserved if this machine also runs invoice-processing validation-api).

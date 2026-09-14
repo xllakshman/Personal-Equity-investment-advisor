@@ -22,7 +22,7 @@ At 100% new **model** calls stop. Saved notes stay readable. Trial sample notes 
 
 **Holdings gate (D33):** `POST /analysis` / `thesis_accept_analysis` requires a `holdings` row for that ticker + `family_id`. Header search does not enqueue. Add the name on `/portfolio` first.
 
-**OpenRouter (D39):** worker `usage_events.cost_cents` prefers OpenRouter response usage when present; else `model_catalog.cost_cents_per_run`. Confirm UI still shows catalog cost **before** send.
+**Native labs (D39):** worker `usage_events.cost_cents` prefers lab response usage when present; else `model_catalog.cost_cents_per_run`. Confirm UI still shows catalog cost **before** send.
 
 ## Payment UX (from mock — locked until contradicted)
 

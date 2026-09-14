@@ -20,16 +20,21 @@ Enable prompt caching on **every** provider call with a repeating static prefix.
 **Not cached (append after prefix):**
 - Ticker, live price, news pack, earnings pack, holdings, clarifications, refine **enrichment** text (user perspective)
 
-### OpenRouter (v1 transport — D39)
+### Native labs (v1 transport — D39)
 
-One `OPENROUTER_API_KEY` for v1. `model` = `model_catalog.openrouter_model_id`. Always `provider.allow_fallbacks: false` and `provider.only` = `[openrouter_only]`. Prefer OpenRouter prompt-cache headers when the slug supports them. Native keys (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `XAI_API_KEY`, `DEEPSEEK_API_KEY`) may exist in `.env` as placeholders — do not call them until a ROADMAP chunk names that path.
+`model` = `model_catalog.provider_model_id`. Provider host from `model_catalog.provider`:
 
-### OpenAI (native — not v1)
+- OpenAI / xAI / DeepSeek: OpenAI-compatible chat completions; system message first (cacheable prefix), then the variable pack.
+- Anthropic: Messages API; mark the static system block with `cache_control: { "type": "ephemeral" }`.
+
+Keys: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `XAI_API_KEY`, `DEEPSEEK_API_KEY`. Missing key for that row’s provider fails the job. Never OpenRouter, never `openrouter/auto`.
+
+### OpenAI / xAI / DeepSeek
 
 - Order: system + schema → then variable research pack
-- Use API prompt caching per current docs. Only if D39 is later split.
+- Use each lab’s prompt-cache headers per current docs when they apply
 
-### Anthropic (native — not v1 unless cache bills force it)
+### Anthropic
 
 - Mark stable blocks with `cache_control: { "type": "ephemeral" }` on system + schema
 

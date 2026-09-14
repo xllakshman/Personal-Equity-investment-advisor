@@ -20,7 +20,7 @@ Sources:
 | 2.2 | Header **search** + lenses: fundamental, technical, macro, news, **comprehensive** | Header Analyse + four ticks; comprehensive = all four | P1-03b + P3-00 | Covered |
 | 2.3 | Invested, book size, %; swing vs long-term; average down; 4 risk bands; 4 CAGR; **conflict messages** | Builder + unused-risk slack | P3-00 conflict **and** slack | Covered |
 | 2.4 | LTCG/STCG India **or** US; non-residents; slabs | Residency-conditional copy | P1-05 months/rates; builder copy | Covered once 009 exists |
-| 5 | Model picker; charge by model | Model rail | P3-00 Frontier/Quick; P4-00a + **009 applied**; worker **OpenRouter** D39 | Picker UI not built (P3-00) |
+| 5 | Model picker; charge by model | Model rail | P3-00 Frontier/Quick; P4-00a + **009 applied**; worker **native labs** D39 | `/analyse` reads `model_catalog` labels |
 | 6 | Clarify then run | Clarify screen | P3-02 | Covered |
 | 7 | Arrange **tables + graphs**; **support dynamic HTML the model returns** | Fixed report tabs + SVG | P5-02 no innerHTML; **P5-04 allowlist (locked)** | Brief HTML rejected; charts jsonb only |
 | Sub | Trial, Basic, Professional, **Professional +**; X searches **configurable in admin**; wallet USD; 60/80/90; trial sample PDFs | Plans + wallet + samples; mock also Ultra | P6 dual meter; P7-01; five rows including **Ultra** | Covered — Ultra kept as fifth tier |
@@ -118,4 +118,4 @@ Copy **shape**, not GST/IOM/Profit Pulse/MCP.
 | Crash letter / 13F / LRS | P9-00, P9-01, P1-05 |
 | Holdings re-check | Last-checked age on `/desk` only. Button + confirm (ticker count, model, searches or wallet USD) then `usage_events`. Same confirm rule for refine. Login does not spend (D28, P8-03, P4-04) |
 | Weekly holdings email | Opt-in `/billing`. Quick model. 3 names unless Professional + / Ultra. Not Analyse. Cost logged, searches not consumed (D41, P8-02) |
-| LLM transport | **OpenRouter** v1 (D39). Native Anthropic / OpenAI / xAI / DeepSeek keys may sit in `.env` unused. |
+| LLM transport | **Native labs** (D39): OpenAI / Anthropic / xAI / DeepSeek. Gemini and Kimi are not on `/analyse`. |

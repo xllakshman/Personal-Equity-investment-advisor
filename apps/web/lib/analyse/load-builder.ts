@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { normalizeTicker } from "@/lib/desk/ticker";
-import type { CatalogModel } from "./models";
+import { isNativeProvider, type CatalogModel } from "./models";
 
 export type HeldLot = {
   ticker: string;
@@ -90,6 +90,7 @@ export async function loadAnalyseBuilder(
     .order("sort_order");
 
   const models: CatalogModel[] = (catalog ?? [])
+    .filter((m) => isNativeProvider(String(m.provider)))
     .filter((m) => m.thesis_class === "frontier" || m.thesis_class === "quick")
     .map((m) => ({
       id: String(m.id),

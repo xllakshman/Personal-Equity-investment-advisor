@@ -1,0 +1,9 @@
+# Paste into the OptimAI Caddyfile on the droplet
+# (activePieces-docker invoice-processing/infra/deploy/prod/Caddyfile).
+# Keep the existing {$AP_HOST} / {$API_HOST} / {$MCP_SITE} blocks.
+# Point this hostname at analysis-api:8091 on the Thesis compose network
+# (join that container to Caddy’s Docker network, or use the container name Caddy can resolve).
+
+api.eqveste.com {
+  reverse_proxy thesis-analysis-api:8091
+}

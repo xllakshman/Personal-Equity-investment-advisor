@@ -6,7 +6,7 @@ from typing import Any, Callable
 from psycopg2.extensions import connection
 
 from thesis_platform.config import Settings
-from thesis_platform.openrouter import OpenRouterError
+from thesis_platform.native_llm import LlmError
 from thesis_platform.sections import SectionsError
 from thesis_platform.yahoo import YahooError
 
@@ -53,7 +53,7 @@ def process_one(
         cur.close()
         return {"request_id": str(rid), "report_id": str(report_id)}
     except Exception as exc:  # noqa: BLE001 — job must fail closed, not crash the loop
-        if isinstance(exc, (YahooError, OpenRouterError, SectionsError, RuntimeError)):
+        if isinstance(exc, (YahooError, LlmError, SectionsError, RuntimeError)):
             mark_failed(conn, rid, str(exc))
         else:
             mark_failed(conn, rid, "worker error")

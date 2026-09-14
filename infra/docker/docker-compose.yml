@@ -7,6 +7,7 @@ services:
     build:
       context: ../..
       dockerfile: infra/docker/Dockerfile.api
+    restart: unless-stopped
     ports:
       - "8091:8091"
     env_file:
@@ -19,6 +20,7 @@ services:
     build:
       context: ../..
       dockerfile: infra/docker/Dockerfile.worker
+    restart: unless-stopped
     env_file:
       - ../../.env.prod
     depends_on:

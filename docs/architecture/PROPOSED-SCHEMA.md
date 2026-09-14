@@ -44,7 +44,7 @@ Mirrors `auth.users.id`.
 ### `model_catalog`
 
 - `id text pk`, `label`, `provider`, `provider_model_id` (lab native), `openrouter_model_id`, `openrouter_only`, `vendor_class`, `thesis_class` (`frontier`|`quick`), `is_refine_gate`, `cost_cents_per_run`, `min_plan_slug`, `is_active`
-- Worker (D39) sends `openrouter_model_id` with `allow_fallbacks: false`. See [`MODEL-CATALOG.md`](MODEL-CATALOG.md).
+- Worker (D39) sends `provider_model_id` to the lab named in `provider` (OpenAI / Anthropic / xAI / DeepSeek). See [`MODEL-CATALOG.md`](MODEL-CATALOG.md). `openrouter_model_id` / `openrouter_only` remain from 009 unused.
 
 ### `wallets`
 

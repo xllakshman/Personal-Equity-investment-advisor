@@ -35,7 +35,10 @@ class Settings:
     supabase_db_password: str
     supabase_service_key: str = ""
     supabase_anon_key: str = ""
-    openrouter_api_key: str = ""
+    openai_api_key: str = ""
+    anthropic_api_key: str = ""
+    xai_api_key: str = ""
+    deepseek_api_key: str = ""
     market_data_user_agent: str = (
         "ThesisAdvisor/0.1 (research desk; previous-close only)"
     )
@@ -56,7 +59,10 @@ class Settings:
             supabase_db_password=password,
             supabase_service_key=os.environ.get("SUPABASE_SERVICE_KEY", "").strip(),
             supabase_anon_key=os.environ.get("SUPABASE_ANON_KEY", "").strip(),
-            openrouter_api_key=os.environ.get("OPENROUTER_API_KEY", "").strip(),
+            openai_api_key=os.environ.get("OPENAI_API_KEY", "").strip(),
+            anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY", "").strip(),
+            xai_api_key=os.environ.get("XAI_API_KEY", "").strip(),
+            deepseek_api_key=os.environ.get("DEEPSEEK_API_KEY", "").strip(),
             market_data_user_agent=os.environ.get(
                 "MARKET_DATA_USER_AGENT",
                 "ThesisAdvisor/0.1 (research desk; previous-close only)",

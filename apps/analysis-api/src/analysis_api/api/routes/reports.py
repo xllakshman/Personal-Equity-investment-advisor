@@ -14,7 +14,8 @@ from analysis_api.schemas.refine import RefineBody
 from thesis_platform.config import Settings
 from thesis_platform.db import connect
 from thesis_platform.extract import REFUSAL
-from thesis_platform.http import complete_openrouter
+from thesis_platform.http import complete_chat
+from thesis_platform.native_llm import LlmError, NATIVE_PROVIDERS, require_api_key
 from thesis_platform.pack import build_variable_pack
 from thesis_platform.prompt import load_promoted_body
 from thesis_platform.sections import parse_sections_json
@@ -85,7 +86,7 @@ def refine_gate(
             raise HTTPException(status_code=400, detail="enrichment required")
         cur.execute(
             """
-            select id, cost_cents_per_run, openrouter_model_id, openrouter_only
+            select id, cost_cents_per_run, provider, provider_model_id
               from model_catalog
              where is_refine_gate = true and is_active = true
              order by sort_order
@@ -117,8 +118,6 @@ def refine_gate(
             conn.commit()
             return {"was_refused": True, "reason": REFUSAL}
 
-        if not settings.openrouter_api_key:
-            raise HTTPException(status_code=503, detail="OPENROUTER_API_KEY missing")
         try:
             cur.execute("select thesis_assert_quota(%s)", (report["family_id"],))
         except Exception as exc:
@@ -133,13 +132,7 @@ def refine_gate(
             },
             default=str,
         )
-        result = complete_openrouter(
-            settings,
-            model=str(gate["openrouter_model_id"]),
-            openrouter_only=str(gate["openrouter_only"]),
-            system=gate_body,
-            user=user_pack,
-        )
+        result = _complete_native(settings, gate, gate_body, user_pack)
         parsed = parse_sections_json(result.content)
         material = bool(parsed.get("material"))
         reason = str(parsed.get("reason") or "")
@@ -195,7 +188,7 @@ def refine(
         if body.confirm and not (body.user_text or "").strip():
             raise HTTPException(status_code=400, detail="enrichment required")
         cur.execute(
-            "select id, cost_cents_per_run, openrouter_model_id, openrouter_only from model_catalog where id = %s",
+            "select id, cost_cents_per_run, provider, provider_model_id from model_catalog where id = %s",
             (report["model_id"],),
         )
         model = cur.fetchone()
@@ -223,8 +216,6 @@ def refine(
             conn.commit()
             return {"was_refused": True, "reason": REFUSAL, "billed_refine": False}
 
-        if not settings.openrouter_api_key:
-            raise HTTPException(status_code=503, detail="OPENROUTER_API_KEY missing")
         try:
             cur.execute("select thesis_assert_quota(%s)", (report["family_id"],))
         except Exception as exc:
@@ -232,13 +223,7 @@ def refine(
         _prompt_id, system = load_promoted_body(cur, "advisor")
         del _prompt_id
         pack = _family_pack(cur, report, body.user_text)
-        result = complete_openrouter(
-            settings,
-            model=str(model["openrouter_model_id"]),
-            openrouter_only=str(model["openrouter_only"]),
-            system=system,
-            user=pack,
-        )
+        result = _complete_native(settings, model, system, pack)
         sections = parse_sections_json(result.content)
         _insert_usage(
             cur,
@@ -263,6 +248,24 @@ def refine(
         return {"was_refused": False, "billed_refine": True, "model_id": model["id"]}
     finally:
         conn.close()
+
+
+def _complete_native(settings: Settings, row: dict[str, Any], system: str, user: str):
+    provider = str(row.get("provider") or "")
+    model = str(row.get("provider_model_id") or "")
+    if provider not in NATIVE_PROVIDERS or not model:
+        raise HTTPException(status_code=500, detail="model missing")
+    try:
+        require_api_key(settings, provider)
+    except LlmError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return complete_chat(
+        settings,
+        provider=provider,
+        model=model,
+        system=system,
+        user=user,
+    )
 
 
 def _family_pack(cur, report: dict[str, Any], enrichment: str) -> str:

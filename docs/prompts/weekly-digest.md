@@ -2,7 +2,7 @@
 
 Runtime copy lives in `prompt_versions` with role `weekly_digest` (not the advisor body). This file is the draft. **Never** return this text (or the advisor prompt) in API/SSE/errors/email.
 
-**Caller:** OpenRouter, Quick row only (`model_catalog.thesis_class = 'quick'`). Default: the active row with `is_refine_gate = true` (`gpt56m` after 009). **Never** a Frontier row. **Never** the user’s last Analyse model.
+**Caller:** Native lab APIs, Quick row only (`model_catalog.thesis_class = 'quick'`). Default: the active row with `is_refine_gate = true` (`gpt56m` after 009). **Never** a Frontier row. **Never** the user’s last Analyse model.
 
 **Not a full note.** Do not run F1–F6. Do not insert `reports`. One completion per family per ISO week.
 

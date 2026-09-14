@@ -20,13 +20,13 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 
 | Field | Value |
 |-------|--------|
-| **Build next** | **P10-00** — Apply schema to prod Supabase |
-| Last done | **P9-01** — Managers (2026-09-14). Phases 4–9 on DEV. **001–018** applied. P6-03 placeholder. P7-09 skipped. Next.js on **3100** |
-| Blocked on you | Name **prod** + file + `CONFIRM_APPLY=1` for P10-00. Then Vercel Production env (P10-01) and DigitalOcean droplet (P10-02). P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
+| **Build next** | **P10-02** — FastAPI + worker on the named droplet |
+| Last done | **019** native labs on DEV and PROD (2026-09-15). Gemini/Kimi off. |
+| Blocked on you | P10-02 droplet (`./tools/deploy/droplet_p10_02.sh` from a network that can `ssh optimai-vps`). Local DEV `.env` still has empty lab keys (prod `.env.prod` has all four). P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/Thesis.dc.html` (app), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
-| DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–018** applied |
-| PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — URL recorded 2026-09-14. **No Thesis migrations applied** until you name prod + file + `CONFIRM_APPLY=1` |
+| DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–019** applied |
+| PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — **001–019 applied 2026-09-15**. `holdings` = 0. Maya seed not run. |
 | PROD web | **`https://eqveste.com`** — Vercel `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`. Next.js only. |
 
 ---
@@ -104,7 +104,7 @@ Schema and repo. No product UI.
 - **Success:**
   1. `.env.prod.example` is in git with `SUPABASE_URL=https://ndgvglcrkbygovlszxze.supabase.co` and empty key fields.
   2. `git check-ignore -v .env.prod` matches.
-  3. You can open `.env.prod` and paste anon, service_role, DB password, OpenRouter. Port 3100 still talks to DEV.
+  3. You can open `.env.prod` and paste anon, service_role, DB password, and native lab keys. Port 3100 still talks to DEV.
 
 ---
 
@@ -385,7 +385,9 @@ Prompt body is `prompt_versions.body` selected by id. Stamp `reports.prompt_vers
   2. HTTP/SSE fixtures never contain a 40-char substring of `prompt_versions.body`.
   3. `UPDATE reports SET verdict = 'x'` in SQL as owner is blocked by `reports_forbid_rewrite`.
   4. Comprehensive fixture JSON contains `bear_case` and `moat`; worker unit test fails if `bear_case` missing.
-  5. Adapter unit test: request `model_id = opus5` POSTs OpenRouter with `anthropic/claude-opus-5` and `allow_fallbacks: false`, not Haiku and not `openrouter/auto`.
+  5. Adapter unit test: request `model_id = opus5` POSTs Anthropic with `claude-opus-5` (not an OpenRouter slug, not Haiku, not `openrouter/auto`).
+
+**Superseded 2026-09-15:** D39 is native labs (OpenAI / Anthropic / xAI / DeepSeek), not OpenRouter. Gemini / Kimi are not on `/analyse`.
 
 ### P4-03 — PDF
 
@@ -724,7 +726,7 @@ Promote still: `tools/db/promote_platform_admin.sql` (no self-serve button).
 
 - **Status:** ✅ 2026-09-14
 - **Depends on:** P4-00, P4-02, P6-01, P1-04. Email **send** also needs a named provider in HANDOFF §3b (same blocker as P7-09). In-app card does not.
-- **Direction:** Sunday digest for families that opted in on `/billing` (toggle **Weekly email**, default **off**). Not the marketing `/` waitlist (that stays a no-op until this chunk, then copy-only). Not a full Analyse: worker job in `apps/analysis-worker`, OpenRouter Batch **allowed**. Model = active `model_catalog` row with `thesis_class = 'quick'` and `is_refine_gate = true` (009: `gpt56m`). If that row is missing or Frontier → job `failed`, **no** email, **no** `reports` insert. Prompt: [`docs/prompts/weekly-digest.md`](../prompts/weekly-digest.md) → `prompt_versions` role `weekly_digest`. One completion per `family_id` per ISO week (all N tickers in that one call).
+- **Direction:** Sunday digest for families that opted in on `/billing` (toggle **Weekly email**, default **off**). Not the marketing `/` waitlist (that stays a no-op until this chunk, then copy-only). Not a full Analyse: worker job in `apps/analysis-worker`, lab Batch **allowed** later. Model = active `model_catalog` row with `thesis_class = 'quick'` and `is_refine_gate = true` (009: `gpt56m`). If that row is missing or Frontier → job `failed`, **no** email, **no** `reports` insert. Prompt: [`docs/prompts/weekly-digest.md`](../prompts/weekly-digest.md) → `prompt_versions` role `weekly_digest`. One completion per `family_id` per ISO week (all N tickers in that one call).
   **Tickers:** from view `holdings` for that `family_id`. Cap = `plans.weekly_digest_ticker_limit` (seed: `trial` / `basic` / `professional` = **3**; `premium` Professional + and `ultra` = **15**). Rank by `qty * cost_per_share` converted with the same **display** FX as the header chip (P2-03); never write converted amounts. Fewer holdings → send fewer names. Copy on `/billing` Professional + card: more than 3 names requires slug `premium` or `ultra`. No recommended tickers the family does not hold (drop mock “new names worth a look”).
   **Email body per name:** (1) What changed this week — cited Step 0 facts only; if items 2–7 have no vendor, say so and still allow Yahoo week-over-week close from D40 when P4-01 exists. (2) Impact on **your** position — qty, average cost, % of book, last `reports.verdict` if any. (3) Next steps — Hold / Watch / “open `/analyse?ticker=` for a full note”. Not a broker; do not enqueue Analyse. Unsubscribe link sets opt-in false.
   **Enable confirm (D28 analog):** turning the toggle **on** names Quick model, N-cap for this plan, “does not use your monthly Analyse searches; we still record cost.” Off = no job. Quota at 100% does **not** block the digest. Login / `/desk` load does **not** run this job.
@@ -792,24 +794,24 @@ Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do 
 
 ### P10-00 — Apply schema to prod Supabase
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-09-15
 - **Depends on:** P0-01 … P0-04, P1-05 (010), P3-01 (011). **012** only if P4-01 cache table is already in git and you name that file.
-- **Direction:** You name **prod** + `CONFIRM_APPLY=1` + the file list. Runner sources **`.env.prod`** (not `.env`). Apply `001` through `011` to `https://ndgvglcrkbygovlszxze.supabase.co`. Create private bucket `report-pdfs`. **Do not** run `supabase/seed/001_maya_desk.sql` unless you name that seed. Auth on prod: Email+password ON; Google/Phone off until you say otherwise.
-- **Writes:** `schema_migrations` 1–11 on prod; `report-pdfs` bucket.
-- **Reads:** HANDOFF §25 against prod (expect empty book, not Maya).
+- **Direction:** Default is read-only: `./tools/db/apply_prod.sh` (DEV `.env` vs PROD `.env.prod` — `schema_migrations`, public objects, `storage.buckets`, row counts). Writes only when you name **prod** + `CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`. That sources **`.env.prod`** (not `.env`) and applies **pending** git files (`001`–`018` today) to `https://ndgvglcrkbygovlszxze.supabase.co`. Create private bucket `report-pdfs`. **Do not** run `supabase/seed/001_maya_desk.sql` unless you name that seed. Auth on prod: Email+password ON; Google/Phone off until you say otherwise.
+- **Writes:** `schema_migrations` 1–18 on prod; `report-pdfs` bucket. Dry-run writes nothing.
+- **Reads:** HANDOFF §25 against prod (expect empty book, not Maya). Dry-run also reads DEV `schema_migrations` 1–18.
 - **Who:** operator. No button.
-- **UI today:** Vercel `/login` would fail or show empty until this apply plus P10-01 env.
-- **Success:** On prod: `select id from schema_migrations order by id` returns 1–11; `report-pdfs` exists; `select count(*) from holdings` is 0 unless you named the Maya seed.
+- **UI today:** Prod Postgres has Thesis tables. `https://eqveste.com` `/login` still talks to whatever Vercel env is set until **P10-01**.
+- **Success:** Dry-run lists pending files and refuses Maya seed. After `--apply`: on prod `select id from schema_migrations order by id` returns 1–18; `report-pdfs` exists; `select count(*) from holdings` is 0 unless you named the Maya seed.
 
 ### P10-01 — Vercel Production (Next.js)
 
-- **Status:** ⬜
+- **Status:** 🟡 2026-09-15 — Production env + deploy on Vercel. `eqveste.com` DNS not pointing yet.
 - **Depends on:** P0-04, P1-01, P10-00
-- **Direction:** Vercel project **`prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`**. Public site **`https://eqveste.com`** (also `https://www.eqveste.com` if you attach www). Host project: `https://v0.app/lakshman-projects/equity-investment-advisor-prod`. Root directory **`apps/web`**. From `.env.prod`, set **Production** env only: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Do **not** set `SUPABASE_SERVICE_KEY`, `SUPABASE_DB_PASSWORD`, or `OPENROUTER_API_KEY` on Vercel. On prod Supabase Authentication → URL configuration: Site URL `https://eqveste.com`; redirect allowlist that origin. After env change, redeploy. Desk login uses prod Auth (`users` / `families` via `handle_new_auth_user` on prod). `/analyse` can queue on prod only after P10-00; the wait panel stays `queued` until P10-02 worker runs.
+- **Direction:** Vercel project **`prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`**. Public site **`https://eqveste.com`** (also `https://www.eqveste.com` if you attach www). Host project: `https://v0.app/lakshman-projects/equity-investment-advisor-prod`. Root directory **`apps/web`**. From `.env.prod`, set **Production** env only: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Do **not** set `SUPABASE_SERVICE_KEY`, `SUPABASE_DB_PASSWORD`, or lab LLM keys on Vercel. On prod Supabase Authentication → URL configuration: Site URL `https://eqveste.com`; redirect allowlist that origin. After env change, redeploy. Desk login uses prod Auth (`users` / `families` via `handle_new_auth_user` on prod). `/analyse` can queue on prod only after P10-00; the wait panel stays `queued` until P10-02 worker runs.
 - **Writes:** Vercel Production env (host, not git).
 - **Reads:** browser uses anon key → prod PostgREST. `/desk` reads view `holdings` and `usage_events` on **prod**.
 - **Who:** project owner. You name **prod** this turn before `vercel env` / deploy.
-- **UI today:** project exists; env may be empty or pointed at the wrong Supabase until this chunk.
+- **UI today:** Production env is anon URL+key only. `https://eqveste.com` and `https://www.eqveste.com` return HTTPS 200 (Thesis Next.js). Prod Auth Site URL is `https://eqveste.com`; redirect allowlist includes eqveste.com, www, and the Vercel alias. Local **3100** still DEV.
 - **Success:**
   1. Open **`https://eqveste.com`**: marketing `/` loads; `/login` talks to `ndgvglcrkbygovlszxze` (Network: `*.supabase.co` host is prod, not `cmksomahsfmsjufakryw`).
   2. Vercel env list has no service-role name.
@@ -818,14 +820,14 @@ Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do 
 ### P10-02 — FastAPI analysis-api + worker host
 
 - **Status:** ⬜
-- **Depends on:** P0-04, P4-00, P10-00, P10-01. You **name the host** in this chunk (Fly.io / Railway / a VM running Docker). Not Vercel.
-- **Direction:** `infra/docker` compose: `analysis-api` (port **8091**) and `analysis-worker` (long-running). `env_file: .env.prod`. FastAPI CORS allowlist `THESIS_CORS_ORIGINS` = `https://eqveste.com` and `https://www.eqveste.com`. Worker: `OPENROUTER_API_KEY`, `thesis_consume_quota_for_provider`, Yahoo previous close, Playwright Chromium. Next.js does not start these processes. If the desk calls the API, add `NEXT_PUBLIC_ANALYSIS_API_URL` on Vercel **only** when a browser route actually `fetch`es it (refine / PDF). Until then, wait panel keeps polling `analysis_requests` via the anon client.
+- **Depends on:** P0-04, P4-00, P10-00, P10-01. **Host named (2026-09-15):** existing OptimAI DigitalOcean droplet `157.245.102.243` (`ssh optimai-vps`). Same box as ActivePieces, validation `:8090`, MCP `:3100`, Caddy on 80/443. Not Vercel. Do not create a second droplet.
+- **Direction:** `infra/docker` compose (plus `docker-compose.droplet.yml`): `analysis-api` (container **8091**) and `analysis-worker` (long-running). `env_file: .env.prod` — **not** OptimAI’s `.env`. FastAPI CORS allowlist `THESIS_CORS_ORIGINS` = `https://eqveste.com` and `https://www.eqveste.com`. Public URL **`https://api.eqveste.com`** via existing Caddy (`Caddyfile.eqveste.snippet`); do not reuse `api.optimai.in`. Worker: native lab keys (D39), `thesis_consume_quota_for_provider`, Yahoo previous close, Playwright Chromium. Thesis Postgres is prod Supabase, not ActivePieces postgres. Next.js does not start these processes. If the desk calls the API, add `NEXT_PUBLIC_ANALYSIS_API_URL` on Vercel **only** when a browser route actually `fetch`es it (refine / PDF). Until then, wait panel keeps polling `analysis_requests` via the anon client. Droplet default size is `s-2vcpu-4gb`; resize if Chromium OOMs.
 - **Writes:** `analysis_requests.status`, `analysis_evidence`, `reports`, `report-pdfs` objects — on **prod** Postgres/storage.
 - **Reads:** same tables the worker already uses on DEV.
 - **Who:** operator starts compose on the named host. No desk button.
 - **UI today:** no prod API/worker. Vercel `/analyse/[id]` stays `queued` and `/reports` gains no new ready row until this process runs against prod.
 - **Success:**
-  1. `GET https://<api-host>/health` returns `{"status":"ok"}`.
+  1. `GET https://api.eqveste.com/health` returns `{"status":"ok"}`.
   2. A prod-queued `analysis_requests` row leaves `queued` (at least to `gathering` / `failed`) without changing DEV rows.
   3. Host env has `SUPABASE_URL=https://ndgvglcrkbygovlszxze.supabase.co`. Vercel still has no service role.
 
@@ -901,8 +903,10 @@ Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do 
 | P8-03 | 2026-09-14 | ✅ Desk re-check confirm → thesis_accept_analysis |
 | P9-00 | 2026-09-14 | ✅ /settings/crash-letter |
 | P9-01 | 2026-09-14 | ✅ /research/managers nav item |
-| P10-00 | 2026-09-14 | ⬜ not applied — waiting for you to name prod |
-| P10-01 | 2026-09-14 | ⬜ Vercel env/deploy waiting for you to name prod |
+| P10-00 | 2026-09-15 | ✅ 002–018 on prod (`001` already present). `schema_migrations` 1–18. `holdings` = 0. `report-pdfs` bucket. No Maya seed. |
+| P10-01 | 2026-09-15 | 🟡 Vercel Production env (anon URL+key only) + deploy READY. `eqveste.com` HTTPS 200. |
+| 019 | 2026-09-15 | ✅ native labs catalog on DEV and PROD; Gemini/Kimi `is_active = false` |
+| P10-01 | 2026-09-15 | 🟡 Vercel Production env (anon URL+key only) + deploy READY. `eqveste.com` 404 until Porkbun A → `76.76.21.21`. |
 | P10-02 | 2026-09-14 | ⬜ compose + DigitalOcean notes in git; no droplet |
 
 

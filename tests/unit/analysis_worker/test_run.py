@@ -11,7 +11,7 @@ SETTINGS = Settings(
     supabase_url="https://example.supabase.co",
     supabase_db_host="db.example.supabase.co",
     supabase_db_password="x",
-    openrouter_api_key="sk-or-test",
+    anthropic_api_key="sk-ant-test",
 )
 
 

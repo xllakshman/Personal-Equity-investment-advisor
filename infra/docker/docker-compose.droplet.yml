@@ -1,0 +1,19 @@
+# Overlay for the existing OptimAI droplet (157.245.102.243).
+# Caddy already binds host 80/443. Do not publish 8091 on the public interface;
+# Caddy reverse-proxies api.eqveste.com → analysis-api:8091 (see Caddyfile.eqveste.snippet).
+# Needs Docker Compose 2.24+ (`!reset`). Use with:
+#   docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.droplet.yml up -d --build
+
+services:
+  analysis-api:
+    container_name: thesis-analysis-api
+    restart: unless-stopped
+    ports: !reset []
+    expose:
+      - "8091"
+
+  analysis-worker:
+    container_name: thesis-analysis-worker
+    restart: unless-stopped
+    # Worker talks to prod Supabase, not to analysis-api HTTP.
+    depends_on: !reset []

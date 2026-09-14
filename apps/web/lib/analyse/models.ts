@@ -7,6 +7,16 @@ export type CatalogModel = {
   cost_cents_per_run: number;
 };
 
+export const NATIVE_PROVIDERS = ["openai", "anthropic", "xai", "deepseek"] as const;
+
+export function isNativeProvider(provider: string): boolean {
+  return (NATIVE_PROVIDERS as readonly string[]).includes(provider);
+}
+
+export function nativeCatalogModels(models: CatalogModel[]): CatalogModel[] {
+  return models.filter((m) => isNativeProvider(m.provider));
+}
+
 export function modelAllowed(id: string, allowedIds: readonly string[]): boolean {
   return allowedIds.includes(id);
 }

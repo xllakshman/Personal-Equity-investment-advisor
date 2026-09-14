@@ -4,7 +4,7 @@ Developer and operator scripts — **not imported by production apps at runtime*
 
 | Path | Purpose |
 |------|---------|
-| [`db/`](db/) | Migration apply scripts |
+| [`db/`](db/) | Migration apply scripts. Prod: `apply_prod.sh` dry-run/parity first; `--apply` only with `CONFIRM_APPLY=1` |
 | [`test/`](test/) | `run_tests.sh` |
 | [`setup/`](setup/) | One-time Auth user setup (later) |
 

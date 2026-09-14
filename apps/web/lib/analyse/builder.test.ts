@@ -9,7 +9,13 @@ import {
 } from "./conflict";
 import { allocationPct } from "./format";
 import { isComprehensive, selectedLenses, toggleLens, type LensState } from "./lenses";
-import { canContinue, defaultModelId, groupModels, modelAllowed } from "./models";
+import {
+  canContinue,
+  defaultModelId,
+  groupModels,
+  modelAllowed,
+  nativeCatalogModels,
+} from "./models";
 
 const base: LensState = {
   fundamental: true,
@@ -89,6 +95,32 @@ describe("model picker", () => {
     const g = groupModels(models);
     assert.equal(g.frontier.length, 2);
     assert.equal(g.quick.length, 1);
+  });
+
+  it("hides Gemini and Kimi from the picker", () => {
+    const mixed = [
+      ...models,
+      {
+        id: "gemini31p",
+        label: "Gemini 3.1 Pro",
+        provider: "google",
+        vendor_class: "Pro",
+        thesis_class: "frontier" as const,
+        cost_cents_per_run: 150,
+      },
+      {
+        id: "kimik3",
+        label: "Kimi K3",
+        provider: "moonshot",
+        vendor_class: "K3",
+        thesis_class: "frontier" as const,
+        cost_cents_per_run: 150,
+      },
+    ];
+    const shown = nativeCatalogModels(mixed);
+    assert.equal(shown.some((m) => m.provider === "google"), false);
+    assert.equal(shown.some((m) => m.provider === "moonshot"), false);
+    assert.equal(shown.some((m) => m.id === "opus5"), true);
   });
 
   it("prefills invested as qty times cost (Maya MSFT 28 × 402.5)", () => {

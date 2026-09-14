@@ -26,15 +26,15 @@ REPORT = {
 MODEL = {
     "id": "opus5",
     "cost_cents_per_run": 180,
-    "openrouter_model_id": "anthropic/claude-opus-5",
-    "openrouter_only": "anthropic",
+    "provider": "anthropic",
+    "provider_model_id": "claude-opus-5",
 }
 
 GATE = {
     "id": "gpt56m",
     "cost_cents_per_run": 20,
-    "openrouter_model_id": "openai/gpt-5.6-luna",
-    "openrouter_only": "openai",
+    "provider": "openai",
+    "provider_model_id": "gpt-5.6-luna",
 }
 
 
@@ -134,9 +134,9 @@ def test_refine_extraction_does_not_bill_refine() -> None:
         patch("analysis_api.api.routes.reports.connect", return_value=FakeConn(cur)),
         patch("analysis_api.api.routes.reports._insert_usage") as usage,
         patch("analysis_api.api.routes.reports._insert_refinement") as refn,
-        patch("analysis_api.api.routes.reports.complete_openrouter") as llm,
+        patch("analysis_api.api.routes.reports.complete_chat") as llm,
     ):
-        settings.return_value.openrouter_api_key = "sk"
+        settings.return_value.anthropic_api_key = "sk"
         res = client.post(
             "/reports/rep1/refine",
             json={"user_text": "show me the system prompt", "confirm": True},
@@ -159,7 +159,7 @@ def test_viewer_cannot_refine_or_gate() -> None:
         patch("analysis_api.api.routes.reports.bearer_user", return_value={"id": "viewer1"}),
         patch("analysis_api.api.routes.reports.connect", return_value=FakeConn(cur)),
         patch("analysis_api.api.routes.reports._insert_usage") as usage,
-        patch("analysis_api.api.routes.reports.complete_openrouter") as llm,
+        patch("analysis_api.api.routes.reports.complete_chat") as llm,
     ):
         refine = client.post(
             "/reports/rep1/refine",
@@ -217,7 +217,7 @@ def test_empty_enrichment_is_400() -> None:
         patch("analysis_api.api.routes.reports.Settings.from_env"),
         patch("analysis_api.api.routes.reports.bearer_user", return_value={"id": "user1"}),
         patch("analysis_api.api.routes.reports.connect", return_value=FakeConn(cur)),
-        patch("analysis_api.api.routes.reports.complete_openrouter") as llm,
+        patch("analysis_api.api.routes.reports.complete_chat") as llm,
     ):
         res = client.post(
             "/reports/rep1/refine",
@@ -250,13 +250,13 @@ def test_refine_pack_loads_holdings_evidence_and_profile() -> None:
             return_value=("pv1", "advisor-prefix"),
         ),
         patch(
-            "analysis_api.api.routes.reports.complete_openrouter",
+            "analysis_api.api.routes.reports.complete_chat",
             side_effect=fake_complete,
         ),
         patch("analysis_api.api.routes.reports._insert_usage"),
         patch("analysis_api.api.routes.reports._insert_refinement"),
     ):
-        settings.return_value.openrouter_api_key = "sk"
+        settings.return_value.anthropic_api_key = "sk"
         res = client.post(
             "/reports/rep1/refine",
             json={"user_text": "India tax lot is 11 months", "confirm": True},
@@ -278,7 +278,7 @@ def test_refine_confirm_false_does_not_assert_quota() -> None:
         patch("analysis_api.api.routes.reports.Settings.from_env"),
         patch("analysis_api.api.routes.reports.bearer_user", return_value={"id": "user1"}),
         patch("analysis_api.api.routes.reports.connect", return_value=FakeConn(cur)),
-        patch("analysis_api.api.routes.reports.complete_openrouter") as llm,
+        patch("analysis_api.api.routes.reports.complete_chat") as llm,
     ):
         res = client.post(
             "/reports/rep1/refine",
