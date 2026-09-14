@@ -157,6 +157,12 @@
   padding: 9px 11px;
   border-radius: 7px;
   color: #57544e;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.desk__nav a:hover {
+  background: #e9e6de;
+  transform: translateX(2px);
 }
 
 .desk__nav a[aria-current="page"] {
@@ -234,12 +240,22 @@
 }
 
 .desk__btn {
+  display: inline-block;
   padding: 11px 17px;
   border: 0;
   border-radius: 8px;
   background: #1b1a17;
   color: #f6f5f2;
   font: 600 13.5px/1 var(--font-ibm-plex-sans), sans-serif;
+  cursor: pointer;
+  transition:
+    transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.28s ease;
+}
+
+.desk__btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(27, 26, 23, 0.28);
 }
 
 .desk__kpis {
@@ -677,6 +693,16 @@
   cursor: pointer;
   background: #fff;
   border: 1px solid #e4e1da;
+  transition:
+    transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.bld__kind:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(27, 26, 23, 0.08);
+  border-color: #2f5f52;
 }
 
 .bld__kind--on {
@@ -833,6 +859,14 @@
   border: 1px solid #e4e1da;
   margin: 0 0 8px;
   width: 100%;
+  transition:
+    transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.25s ease;
+}
+
+.bld__model:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(27, 26, 23, 0.08);
 }
 
 .bld__model--on {
@@ -971,6 +1005,7 @@
   border-radius: 14px;
   background: #fff;
   border: 1px solid #e4e1da;
+  animation: desk-sin 0.22s ease both;
 }
 
 .bld__spin-row {
@@ -1015,6 +1050,17 @@
 @keyframes bldspin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes desk-sin {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -1084,5 +1130,20 @@
 
   .bld__side {
     position: static;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desk__nav a:hover,
+  .desk__btn:hover,
+  .bld__kind:hover,
+  .bld__model:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .bld__spin,
+  .bld__wait-card {
+    animation: none !important;
   }
 }

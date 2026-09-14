@@ -19,7 +19,7 @@ export default async function AdminSectionLayout({
   return (
     <div className="admin">
       <header className="admin__top">
-        <strong>Thesis admin</strong>
+        <strong>eqveste admin</strong>
         <nav className="admin__nav">
           {ADMIN_NAV.map((item) => (
             <Link key={item.href} href={item.href}>

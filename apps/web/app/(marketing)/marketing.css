@@ -75,6 +75,18 @@
       0 0 30px 6px rgba(10, 132, 255, 0.6);
   }
 }
+@keyframes thesis-sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+html:has(.mkt) {
+  scroll-behavior: smooth;
+}
 
 .mkt {
   --ink: #f5f5f7;
@@ -150,6 +162,12 @@
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  transition: opacity 0.3s ease;
+}
+
+.mkt__brand:hover {
+  opacity: 0.72;
+  color: #f5f5f7 !important;
 }
 
 .mkt__mark {
@@ -171,10 +189,12 @@
   font-weight: 500;
   white-space: nowrap;
   color: rgba(245, 245, 247, 0.72) !important;
+  transition: color 0.25s ease, translate 0.25s ease;
 }
 
 .mkt__nav-links a:hover {
   color: #f5f5f7 !important;
+  translate: 0 -2px;
 }
 
 .mkt__nav-cta {
@@ -197,6 +217,10 @@
   font-weight: 600;
   border: 0;
   cursor: pointer;
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.35s ease,
+    background 0.3s ease;
 }
 
 .mkt__btn--login {
@@ -206,15 +230,34 @@
   animation: thesis-glow 2.6s ease-in-out infinite;
 }
 
+.mkt__btn--login:hover {
+  background: rgba(10, 132, 255, 0.38);
+  color: #fff !important;
+  transform: translateY(-2px);
+}
+
 .mkt__btn--solid {
   color: #05060a !important;
   background: #f5f5f7;
+}
+
+.mkt__btn--solid:hover {
+  background: #fff;
+  color: #05060a !important;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 14px 30px rgba(245, 245, 247, 0.24);
 }
 
 .mkt__btn--ghost {
   color: #f5f5f7 !important;
   background: rgba(255, 255, 255, 0.07);
   border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.mkt__btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #f5f5f7 !important;
+  transform: translateY(-3px);
 }
 
 .mkt__section {
@@ -231,7 +274,27 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
   gap: 44px;
   align-items: center;
+}
+
+.mkt__rise {
   animation: thesis-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.mkt__rise--late {
+  animation-duration: 1.05s;
+}
+
+.mkt__reveal {
+  opacity: 0;
+  translate: 0 28px;
+  transition:
+    opacity 0.85s cubic-bezier(0.2, 0.7, 0.2, 1),
+    translate 0.85s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.mkt__reveal--in {
+  opacity: 1;
+  translate: none;
 }
 
 .mkt__kicker {
@@ -305,6 +368,48 @@
   border: 1px solid var(--line);
 }
 
+.mkt__card--lift {
+  transition:
+    opacity 0.85s cubic-bezier(0.2, 0.7, 0.2, 1),
+    translate 0.85s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1),
+    background 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
+.mkt__card--lift:hover {
+  transform: translateY(-7px);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.26);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 38px 82px rgba(0, 0, 0, 0.5);
+}
+
+.mkt__card--rec:hover {
+  background: linear-gradient(
+    160deg,
+    rgba(10, 132, 255, 0.22),
+    rgba(255, 255, 255, 0.05) 60%
+  );
+  transform: translateY(-8px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.24) inset,
+    0 44px 92px rgba(0, 0, 0, 0.55);
+}
+
+.mkt__tile {
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+    background 0.35s ease;
+}
+
+.mkt__tile:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .mkt__card h3 {
   margin: 0 0 9px;
   font-size: 19px;
@@ -340,10 +445,42 @@
 }
 
 .mkt__example {
+  position: relative;
+  overflow: hidden;
   padding: 26px;
   border-radius: 30px;
   background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(40px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 40px 90px rgba(0, 0, 0, 0.55);
+  transition:
+    transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.5s ease;
+}
+
+.mkt__example:hover {
+  transform: translateY(-8px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.24) inset,
+    0 56px 110px rgba(0, 0, 0, 0.62);
+}
+
+.mkt__sweep {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0)
+  );
+  animation: thesis-sweep 7s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .mkt__ticker {
@@ -386,6 +523,11 @@
 .mkt__footer a {
   font-size: 13px;
   color: rgba(245, 245, 247, 0.64) !important;
+  transition: color 0.25s ease;
+}
+
+.mkt__footer a:hover {
+  color: #f5f5f7 !important;
 }
 
 .mkt__input {
@@ -424,6 +566,14 @@
   color: rgba(245, 245, 247, 0.62);
 }
 
+.mkt tbody tr {
+  transition: background 0.3s ease;
+}
+
+.mkt tbody tr:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
 @media (max-width: 720px) {
   .mkt__nav-links {
     display: none;
@@ -432,5 +582,41 @@
   .mkt__nav-cta .mkt__btn {
     padding: 10px 14px;
     font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:has(.mkt) {
+    scroll-behavior: auto;
+  }
+
+  .mkt__blob,
+  .mkt__btn--login,
+  .mkt__h1-grad,
+  .mkt__dot,
+  .mkt__ticker-track,
+  .mkt__sweep,
+  .mkt__rise,
+  .mkt__rise--late {
+    animation: none !important;
+  }
+
+  .mkt__reveal {
+    opacity: 1;
+    translate: none;
+  }
+
+  .mkt__card--lift:hover,
+  .mkt__card--rec:hover,
+  .mkt__example:hover,
+  .mkt__btn:hover,
+  .mkt__btn--login:hover,
+  .mkt__btn--solid:hover,
+  .mkt__btn--ghost:hover,
+  .mkt__tile:hover,
+  .mkt__nav-links a:hover {
+    transform: none;
+    translate: none;
+    box-shadow: none;
   }
 }

@@ -27,7 +27,7 @@ export function AppShell({
       <header className="desk__top">
         <Link href="/desk" className="desk__brand">
           <span className="desk__mark" />
-          <span className="desk__word">Thesis</span>
+          <span className="desk__word">eqveste</span>
         </Link>
         <TickerSearch />
         <div className="desk__right">

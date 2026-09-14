@@ -4,7 +4,7 @@ import "./marketing.css";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Thesis",
+    absolute: "eqveste",
   },
   description:
     "An institutional-grade AI agent that underwrites a stock for one investor’s book.",

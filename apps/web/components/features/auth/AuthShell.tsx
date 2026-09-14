@@ -12,7 +12,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
     <div className="auth">
       <div className="auth__brand-col">
         <div
-          className="auth__blob"
+          className="auth__blob auth__blob--a"
           style={{
             top: "-16vh",
             left: "-10vw",
@@ -23,9 +23,21 @@ export function AuthShell({ children }: { children: ReactNode }) {
           }}
           aria-hidden
         />
+        <div
+          className="auth__blob auth__blob--b"
+          style={{
+            bottom: "-20vh",
+            right: "-14vw",
+            width: "58vh",
+            height: "58vh",
+            background:
+              "radial-gradient(circle at 55% 45%, rgba(48,209,88,.11), rgba(48,209,88,0) 62%)",
+          }}
+          aria-hidden
+        />
         <Link href="/" className="auth__wordmark">
           <span className="auth__mark" />
-          Thesis
+          eqveste
         </Link>
         <div style={{ position: "relative", maxWidth: 480 }}>
           <p className="auth__pill">

@@ -33,6 +33,8 @@ class Settings:
     supabase_url: str
     supabase_db_host: str
     supabase_db_password: str
+    supabase_db_user: str = "postgres"
+    supabase_db_port: int = 5432
     supabase_service_key: str = ""
     supabase_anon_key: str = ""
     openai_api_key: str = ""
@@ -53,10 +55,14 @@ class Settings:
         if not password:
             raise RuntimeError("SUPABASE_DB_PASSWORD is required")
         port_raw = os.environ.get("ANALYSIS_API_PORT", "8091").strip() or "8091"
+        db_port_raw = os.environ.get("SUPABASE_DB_PORT", "5432").strip() or "5432"
+        db_user = os.environ.get("SUPABASE_DB_USER", "postgres").strip() or "postgres"
         return cls(
             supabase_url=url,
             supabase_db_host=resolve_db_host(),
             supabase_db_password=password,
+            supabase_db_user=db_user,
+            supabase_db_port=int(db_port_raw),
             supabase_service_key=os.environ.get("SUPABASE_SERVICE_KEY", "").strip(),
             supabase_anon_key=os.environ.get("SUPABASE_ANON_KEY", "").strip(),
             openai_api_key=os.environ.get("OPENAI_API_KEY", "").strip(),

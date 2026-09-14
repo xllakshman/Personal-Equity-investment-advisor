@@ -25,11 +25,11 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Thesis",
-    template: "%s · Thesis",
+    default: "eqveste",
+    template: "%s · eqveste",
   },
   description: "Personal equity advisor — research desk for one investor’s book",
-  applicationName: "Thesis",
+  applicationName: "eqveste",
 };
 
 export default function RootLayout({

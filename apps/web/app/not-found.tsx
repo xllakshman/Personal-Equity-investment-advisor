@@ -23,7 +23,7 @@ export default function NotFound() {
             fontSize: 13,
           }}
         >
-          Thesis
+          eqveste
         </p>
         <h1
           style={{

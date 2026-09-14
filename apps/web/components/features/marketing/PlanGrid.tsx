@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import { Reveal } from "./Reveal";
+
 const MONTHLY = {
   basic: "$2.99",
   pro: "$5.99",
@@ -64,6 +66,7 @@ export function PlanGrid() {
           who="See the work before you pay"
           href="/signup"
           cta="Read the samples"
+          delay={0}
         />
         <PlanCard
           name="Basic"
@@ -73,6 +76,7 @@ export function PlanGrid() {
           who="Up to $15K"
           href="/signup"
           cta="Choose Basic"
+          delay={60}
         />
         <PlanCard
           name="Professional"
@@ -83,6 +87,7 @@ export function PlanGrid() {
           href="/signup"
           cta="Choose Professional"
           recommended
+          delay={120}
         />
         <PlanCard
           name="Professional +"
@@ -92,6 +97,7 @@ export function PlanGrid() {
           who="Under $150K"
           href="/signup"
           cta="Choose Professional +"
+          delay={180}
         />
         <PlanCard
           name="Ultra"
@@ -101,6 +107,7 @@ export function PlanGrid() {
           who="$150K to $500K"
           href="/signup"
           cta="Choose Ultra"
+          delay={240}
         />
         <PlanCard
           name="Pay per use"
@@ -110,6 +117,7 @@ export function PlanGrid() {
           who="A couple of decisions a year"
           href="/signup"
           cta="Choose wallet"
+          delay={300}
         />
       </div>
     </>
@@ -125,6 +133,7 @@ function PlanCard({
   href,
   cta,
   recommended,
+  delay,
 }: {
   name: string;
   price: string;
@@ -134,10 +143,16 @@ function PlanCard({
   href: string;
   cta: string;
   recommended?: boolean;
+  delay: number;
 }) {
   return (
-    <div
-      className="mkt__card"
+    <Reveal
+      delay={delay}
+      className={
+        recommended
+          ? "mkt__card mkt__card--lift mkt__card--rec"
+          : "mkt__card mkt__card--lift"
+      }
       style={
         recommended
           ? {
@@ -189,6 +204,6 @@ function PlanCard({
       >
         {cta}
       </Link>
-    </div>
+    </Reveal>
   );
 }

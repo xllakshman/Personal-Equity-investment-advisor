@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { PlanGrid } from "./PlanGrid";
+import { Reveal } from "./Reveal";
 import { WaitlistForm } from "./WaitlistForm";
 
 const DECISIONS = [
@@ -179,6 +180,18 @@ export function HomePage() {
         <div
           className="mkt__blob"
           style={{
+            top: "58vh",
+            left: "36vw",
+            width: "40vw",
+            height: "40vw",
+            background:
+              "radial-gradient(circle at 50% 50%, rgba(255,159,10,.08), rgba(255,159,10,0) 62%)",
+            animation: "thesis-flo2 29s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="mkt__blob"
+          style={{
             bottom: "-18vh",
             left: "18vw",
             width: "48vw",
@@ -194,7 +207,7 @@ export function HomePage() {
           <nav className="mkt__nav" aria-label="Marketing">
             <a href="#top" className="mkt__brand">
               <span className="mkt__mark" />
-              Thesis
+              eqveste
             </a>
             <div className="mkt__nav-links">
               <a href="#solutions">What it does</a>
@@ -215,7 +228,7 @@ export function HomePage() {
         </header>
 
         <section id="top" className="mkt__hero">
-          <div>
+          <div className="mkt__rise">
             <p className="mkt__pill">
               <span className="mkt__dot" />
               An AI agent for your equity portfolio
@@ -259,7 +272,8 @@ export function HomePage() {
               </div>
             </div>
           </div>
-          <div className="mkt__example">
+          <div className="mkt__example mkt__rise mkt__rise--late">
+            <div className="mkt__sweep" aria-hidden />
             <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 20 }}>
               <div>
                 <p style={{ margin: 0, fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(245,245,247,.62)" }}>
@@ -340,16 +354,18 @@ export function HomePage() {
         </section>
 
         <section id="solutions" className="mkt__section">
-          <p className="mkt__kicker">What it does</p>
-          <h2 className="mkt__h2">Four decisions decide your returns. We handle all four.</h2>
-          <p className="mkt__lede" style={{ marginBottom: 40 }}>
-            Most tools tell you what a stock is worth. Almost none tell you how much to
-            buy, when to buy more, when to take money off the table, and what has to go
-            wrong for you to leave.
-          </p>
+          <Reveal style={{ maxWidth: 760, marginBottom: 40 }}>
+            <p className="mkt__kicker">What it does</p>
+            <h2 className="mkt__h2">Four decisions decide your returns. We handle all four.</h2>
+            <p className="mkt__lede">
+              Most tools tell you what a stock is worth. Almost none tell you how much to
+              buy, when to buy more, when to take money off the table, and what has to go
+              wrong for you to leave.
+            </p>
+          </Reveal>
           <div className="mkt__grid mkt__grid--4">
-            {DECISIONS.map((d) => (
-              <div key={d.title} className="mkt__card">
+            {DECISIONS.map((d, i) => (
+              <Reveal key={d.title} delay={i * 90} className="mkt__card mkt__card--lift">
                 <div
                   style={{
                     width: 42,
@@ -361,25 +377,27 @@ export function HomePage() {
                 />
                 <h3>{d.title}</h3>
                 <p>{d.body}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </section>
 
         <section id="method" className="mkt__section">
-          <p className="mkt__kicker">How it works</p>
-          <h2 className="mkt__h2">Seven checks before we give you an answer.</h2>
-          <p className="mkt__lede" style={{ marginBottom: 36 }}>
-            Finding good news and stopping there isn&apos;t research. We have to go looking
-            for the bad news too — including the kind that never shows up when you search
-            the company&apos;s own name.
-          </p>
-          <div className="mkt__card">
+          <Reveal style={{ maxWidth: 720, marginBottom: 36 }}>
+            <p className="mkt__kicker">How it works</p>
+            <h2 className="mkt__h2">Seven checks before we give you an answer.</h2>
+            <p className="mkt__lede">
+              Finding good news and stopping there isn&apos;t research. We have to go looking
+              for the bad news too — including the kind that never shows up when you search
+              the company&apos;s own name.
+            </p>
+          </Reveal>
+          <Reveal className="mkt__card">
             <div className="mkt__grid mkt__grid--checks">
               {CHECKS.map(([tag, title, body, warn]) => (
                 <div
                   key={tag}
-                  className="mkt__card"
+                  className="mkt__card mkt__tile"
                   style={{
                     padding: 18,
                     background: warn ? "rgba(255,159,10,.09)" : "rgba(255,255,255,.05)",
@@ -396,11 +414,11 @@ export function HomePage() {
                 </div>
               ))}
             </div>
-          </div>
+          </Reveal>
         </section>
 
         <section className="mkt__section">
-          <div
+          <Reveal
             className="mkt__card"
             style={{
               background: "linear-gradient(140deg, rgba(255,159,10,.14), rgba(255,255,255,.04) 55%)",
@@ -434,19 +452,25 @@ export function HomePage() {
                 ))}
               </div>
             </div>
-          </div>
+          </Reveal>
         </section>
 
         <section id="frameworks" className="mkt__section">
-          <p className="mkt__kicker">The rules</p>
-          <h2 className="mkt__h2">Six rulebooks, used the same way every time.</h2>
-          <p className="mkt__lede" style={{ marginBottom: 36 }}>
-            Same order, same standard of proof, every stock. That&apos;s what lets you compare
-            two notes six months apart and actually trust the difference.
-          </p>
+          <Reveal style={{ maxWidth: 720, marginBottom: 36 }}>
+            <p className="mkt__kicker">The rules</p>
+            <h2 className="mkt__h2">Six rulebooks, used the same way every time.</h2>
+            <p className="mkt__lede">
+              Same order, same standard of proof, every stock. That&apos;s what lets you compare
+              two notes six months apart and actually trust the difference.
+            </p>
+          </Reveal>
           <div className="mkt__grid mkt__grid--2">
-            {RULEBOOKS.map((rb) => (
-              <div key={rb.n} className="mkt__card">
+            {RULEBOOKS.map((rb, i) => (
+              <Reveal
+                key={rb.n}
+                delay={(i % 3) * 70}
+                className="mkt__card mkt__card--lift"
+              >
                 <p className="mkt__rb" style={{ color: rb.color }}>
                   {rb.n}
                 </p>
@@ -457,31 +481,33 @@ export function HomePage() {
                     {b}
                   </p>
                 ))}
-              </div>
+              </Reveal>
             ))}
           </div>
         </section>
 
         <section id="whyus" className="mkt__section">
-          <p className="mkt__kicker">Why us</p>
-          <h2 className="mkt__h2">Why pick us over a chatbot or a stock-picking newsletter?</h2>
-          <p className="mkt__lede" style={{ marginBottom: 36 }}>
-            A general chatbot will tell you what you want to hear. A newsletter tells
-            everyone the same thing. We work only on your portfolio, and we follow the
-            same rules every single time.
-          </p>
+          <Reveal style={{ maxWidth: 760, marginBottom: 36 }}>
+            <p className="mkt__kicker">Why us</p>
+            <h2 className="mkt__h2">Why pick us over a chatbot or a stock-picking newsletter?</h2>
+            <p className="mkt__lede">
+              A general chatbot will tell you what you want to hear. A newsletter tells
+              everyone the same thing. We work only on your portfolio, and we follow the
+              same rules every single time.
+            </p>
+          </Reveal>
           <div className="mkt__grid mkt__grid--2">
-            {WHY.map(([t, b]) => (
-              <div key={t} className="mkt__card">
+            {WHY.map(([t, b], i) => (
+              <Reveal key={t} delay={(i % 3) * 70} className="mkt__card mkt__card--lift">
                 <h3>{t}</h3>
                 <p>{b}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </section>
 
         <section id="weekly" className="mkt__section" style={{ paddingTop: 40 }}>
-          <div
+          <Reveal
             className="mkt__card mkt__grid mkt__grid--2"
             style={{
               alignItems: "center",
@@ -503,12 +529,12 @@ export function HomePage() {
               </p>
             </div>
             <WaitlistForm />
-          </div>
+          </Reveal>
         </section>
 
         <section id="pricing" className="mkt__section">
           <PlanGrid />
-          <div className="mkt__card" style={{ marginTop: 16, padding: 0 }}>
+          <Reveal className="mkt__card" style={{ marginTop: 16, padding: 0 }}>
             <div className="mkt__table-wrap">
               <table>
                 <thead>
@@ -564,11 +590,11 @@ export function HomePage() {
                 </tbody>
               </table>
             </div>
-          </div>
+          </Reveal>
         </section>
 
         <section className="mkt__section" style={{ paddingBottom: 40 }}>
-          <div className="mkt__card" style={{ textAlign: "center", padding: "clamp(36px,6vw,76px) clamp(24px,5vw,60px)" }}>
+          <Reveal className="mkt__card" style={{ textAlign: "center", padding: "clamp(36px,6vw,76px) clamp(24px,5vw,60px)" }}>
             <h2 className="mkt__h2" style={{ marginLeft: "auto", marginRight: "auto", maxWidth: "20ch" }}>
               Start with the stock you&apos;re least sure about.
             </h2>
@@ -583,14 +609,14 @@ export function HomePage() {
                 Log in
               </Link>
             </div>
-          </div>
+          </Reveal>
         </section>
 
         <footer className="mkt__footer">
           <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
             <span className="mkt__mark" style={{ width: 20, height: 20 }} />
             <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(245,245,247,.7)" }}>
-              Thesis
+              eqveste
             </span>
           </div>
           <div style={{ display: "flex", gap: 22, flexWrap: "wrap" }}>
