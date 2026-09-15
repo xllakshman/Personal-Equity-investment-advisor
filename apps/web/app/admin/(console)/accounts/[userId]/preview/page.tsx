@@ -31,23 +31,39 @@ export default async function ImpersonationPreviewPage({
 
   return (
     <div>
-      <p>Read-only preview. Run analysis is not on this page.</p>
-      <h1>View as {user?.email ?? userId}</h1>
-      <p>
-        {user?.full_name} · {user?.tax_residency}
-      </p>
-      <h2>Notes (metadata)</h2>
-      <ul>
-        {(reports ?? []).map((r) => (
-          <li key={String(r.name)}>
-            {String(r.ticker)} · {String(r.name)} · {String(r.verdict)}
-          </li>
-        ))}
-      </ul>
-      <form action={closeImpersonation}>
-        <input type="hidden" name="targetUserId" value={userId} />
-        <button type="submit">Close impersonation</button>
-      </form>
+      <div className="admin__impersonate">
+        <span className="admin__chip">Read-only</span>
+        <span>
+          Viewing {user?.email ?? userId} as platform admin · every action is
+          written to the audit log
+        </span>
+      </div>
+      <header className="admin__hero" style={{ marginTop: 20 }}>
+        <div>
+          <p className="admin__kicker">Platform administration</p>
+          <h1 className="admin__h1">View as {user?.email ?? userId}</h1>
+          <p className="admin__lede">
+            {user?.full_name} · {user?.tax_residency}. Run analysis is not on
+            this page. Notes are metadata only — not report sections.
+          </p>
+        </div>
+      </header>
+      <section className="admin__card">
+        <h2 className="admin__h2">Notes (metadata)</h2>
+        <ul className="admin__list">
+          {(reports ?? []).map((r) => (
+            <li key={String(r.name)}>
+              {String(r.ticker)} · {String(r.name)} · {String(r.verdict)}
+            </li>
+          ))}
+        </ul>
+        <form action={closeImpersonation} style={{ marginTop: 16 }}>
+          <input type="hidden" name="targetUserId" value={userId} />
+          <button className="admin__btn admin__btn--solid" type="submit">
+            Close impersonation
+          </button>
+        </form>
+      </section>
     </div>
   );
 }

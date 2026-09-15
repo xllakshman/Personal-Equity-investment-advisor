@@ -17,32 +17,50 @@ export default async function AdminPlansPage() {
 
   return (
     <div>
-      <h1>Plans and limits</h1>
-      <p>Edits apply to the next billing cycle copy. Does not charge anyone.</p>
-      {(plans ?? []).map((p) => (
-        <form action={savePlanLimit} key={p.id} style={{ margin: "18px 0" }}>
-          <input type="hidden" name="planId" value={p.id} />
-          <h2>{planCardTitle(String(p.slug), String(p.name))}</h2>
-          <p>slug {p.slug}</p>
-          <label>
-            monthly_analysis_limit
-            <input
-              name="monthly_analysis_limit"
-              type="number"
-              defaultValue={Number(p.monthly_analysis_limit)}
-            />
-          </label>
-          <p>models {(p.allowed_model_ids ?? []).join(", ")}</p>
-          <p>
-            notices{" "}
-            {(notices ?? [])
-              .filter((n) => n.plan_id === p.id)
-              .map((n) => `${n.pct}%`)
-              .join(", ")}
+      <header className="admin__hero">
+        <div>
+          <p className="admin__kicker">Platform administration</p>
+          <h1 className="admin__h1">Plans and limits</h1>
+          <p className="admin__lede">
+            Edits apply to the next billing cycle copy. Does not charge anyone.
           </p>
-          <button type="submit">Save limit</button>
-        </form>
-      ))}
+        </div>
+      </header>
+      <div className="admin__grid">
+        {(plans ?? []).map((p) => (
+          <form action={savePlanLimit} key={p.id} className="admin__card admin__form">
+            <input type="hidden" name="planId" value={p.id} />
+            <div>
+              <h2 className="admin__h2">
+                {planCardTitle(String(p.slug), String(p.name))}
+              </h2>
+              <p className="admin__hint">slug {p.slug}</p>
+            </div>
+            <label className="admin__field">
+              monthly_analysis_limit
+              <input
+                className="admin__input"
+                name="monthly_analysis_limit"
+                type="number"
+                defaultValue={Number(p.monthly_analysis_limit)}
+              />
+            </label>
+            <p className="admin__hint">
+              models {(p.allowed_model_ids ?? []).join(", ") || "—"}
+            </p>
+            <p className="admin__hint">
+              notices{" "}
+              {(notices ?? [])
+                .filter((n) => n.plan_id === p.id)
+                .map((n) => `${n.pct}%`)
+                .join(", ") || "—"}
+            </p>
+            <button className="admin__btn admin__btn--solid" type="submit">
+              Save limit
+            </button>
+          </form>
+        ))}
+      </div>
     </div>
   );
 }

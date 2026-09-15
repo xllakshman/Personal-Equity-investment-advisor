@@ -353,7 +353,13 @@ html:has(.mkt) {
 }
 
 .mkt__grid--6 {
+  align-items: stretch;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 184px), 1fr));
+}
+
+.mkt__grid--6 > * {
+  min-width: 0;
+  height: 100%;
 }
 
 .mkt__grid--checks {
@@ -387,6 +393,15 @@ html:has(.mkt) {
     0 38px 82px rgba(0, 0, 0, 0.5);
 }
 
+.mkt__card--rec {
+  background: linear-gradient(
+    160deg,
+    rgba(10, 132, 255, 0.22),
+    rgba(255, 255, 255, 0.05) 60%
+  );
+  border-color: rgba(10, 132, 255, 0.4);
+}
+
 .mkt__card--rec:hover {
   background: linear-gradient(
     160deg,
@@ -397,6 +412,101 @@ html:has(.mkt) {
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.24) inset,
     0 44px 92px rgba(0, 0, 0, 0.55);
+}
+
+.mkt__plan {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.mkt__plan-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 2.5rem;
+}
+
+.mkt__card .mkt__plan-name {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #f5f5f7;
+}
+
+.mkt__plan-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #f5f5f7;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mkt__plan-price {
+  margin: 12px 0 0;
+}
+
+.mkt__card .mkt__plan-price-value {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: #f5f5f7;
+}
+
+.mkt__card .mkt__plan-per {
+  margin: 3px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(245, 245, 247, 0.62);
+}
+
+.mkt__card .mkt__plan-quota {
+  margin: 12px 0 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #f5f5f7;
+}
+
+.mkt__card .mkt__plan-who {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: rgba(245, 245, 247, 0.68);
+}
+
+.mkt__plan-cta {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 16px;
+  box-sizing: border-box;
+}
+
+.mkt__plan-cta .mkt__btn {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  font-size: 13px;
+  text-align: center;
+  text-wrap: balance;
 }
 
 .mkt__tile {

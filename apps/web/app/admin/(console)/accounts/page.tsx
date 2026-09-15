@@ -68,41 +68,58 @@ export default async function AdminAccountsPage() {
 
   return (
     <div>
-      <h1>Accounts</h1>
-      <p>Metadata only. Lot quantities are not on this table.</p>
-      <table>
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Name</th>
-            <th>Residency</th>
-            <th>Plan</th>
-            <th>Searches</th>
-            <th>MTD $</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.id}>
-              <td>{r.email}</td>
-              <td>{r.name}</td>
-              <td>{r.residency}</td>
-              <td>{r.plan}</td>
-              <td>
-                {r.used} / {r.limit ?? "—"}
-              </td>
-              <td>{(r.mtd / 100).toFixed(2)}</td>
-              <td>
-                <form action={openImpersonation}>
-                  <input type="hidden" name="targetUserId" value={r.id} />
-                  <button type="submit">View as</button>
-                </form>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <header className="admin__hero">
+        <div>
+          <p className="admin__kicker">Platform administration</p>
+          <h1 className="admin__h1">Accounts</h1>
+          <p className="admin__lede">
+            Metadata only. Lot quantities are not on this table. Impersonation
+            is read-only and written to the audit log.
+          </p>
+        </div>
+      </header>
+      <section className="admin__card admin__card--table">
+        <div className="admin__scroll">
+          <table className="admin__table">
+            <thead>
+              <tr>
+                <th>Account</th>
+                <th>Residency</th>
+                <th>Plan</th>
+                <th className="admin__num">Searches</th>
+                <th className="admin__num">MTD $</th>
+                <th className="admin__actions"> </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.id}>
+                  <td>
+                    <p style={{ margin: 0, fontWeight: 500 }}>{r.name || "—"}</p>
+                    <p className="admin__email" style={{ margin: "2px 0 0" }}>
+                      {r.email}
+                    </p>
+                  </td>
+                  <td className="admin__muted">{r.residency || "—"}</td>
+                  <td>{r.plan}</td>
+                  <td className="admin__num">
+                    {r.used} / {r.limit ?? "—"}
+                  </td>
+                  <td className="admin__num">{(r.mtd / 100).toFixed(2)}</td>
+                  <td className="admin__actions">
+                    <form action={openImpersonation}>
+                      <input type="hidden" name="targetUserId" value={r.id} />
+                      <button className="admin__btn" type="submit">
+                        View as
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   );
 }

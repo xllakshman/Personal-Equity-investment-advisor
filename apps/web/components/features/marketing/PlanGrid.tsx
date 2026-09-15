@@ -150,60 +150,28 @@ function PlanCard({
       delay={delay}
       className={
         recommended
-          ? "mkt__card mkt__card--lift mkt__card--rec"
-          : "mkt__card mkt__card--lift"
-      }
-      style={
-        recommended
-          ? {
-              background:
-                "linear-gradient(160deg, rgba(10,132,255,.22), rgba(255,255,255,.05) 60%)",
-              borderColor: "rgba(10,132,255,.4)",
-            }
-          : undefined
+          ? "mkt__card mkt__card--lift mkt__card--rec mkt__plan"
+          : "mkt__card mkt__card--lift mkt__plan"
       }
     >
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-        <p style={{ margin: 0, fontSize: 14.5, fontWeight: 600, color: "#f5f5f7" }}>
-          {name}
-        </p>
-        {recommended ? (
-          <span
-            style={{
-              padding: "4px 10px",
-              borderRadius: 999,
-              background: "rgba(255,255,255,.18)",
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-            }}
-          >
-            Recommended
-          </span>
-        ) : null}
+      <div className="mkt__plan-head">
+        <p className="mkt__plan-name">{name}</p>
+        {recommended ? <span className="mkt__plan-badge">Recommended</span> : null}
       </div>
-      <div style={{ margin: "12px 0" }}>
-        <p style={{ margin: 0, fontSize: 32, fontWeight: 700, color: "#f5f5f7" }}>
-          {price}
-        </p>
-        <p style={{ margin: "3px 0 0", fontSize: 12, color: "rgba(245,245,247,.62)" }}>
-          {per}
-        </p>
+      <div className="mkt__plan-price">
+        <p className="mkt__plan-price-value">{price}</p>
+        <p className="mkt__plan-per">{per}</p>
       </div>
-      <p style={{ margin: "0 0 6px", fontSize: 13.5, fontWeight: 600, color: "#f5f5f7" }}>
-        {quota}
-      </p>
-      <p style={{ margin: "0 0 16px", fontSize: 12.5, color: "rgba(245,245,247,.68)" }}>
-        {who}
-      </p>
-      <Link
-        href={href}
-        className={recommended ? "mkt__btn mkt__btn--solid" : "mkt__btn mkt__btn--ghost"}
-        style={{ width: "100%" }}
-      >
-        {cta}
-      </Link>
+      <p className="mkt__plan-quota">{quota}</p>
+      <p className="mkt__plan-who">{who}</p>
+      <div className="mkt__plan-cta">
+        <Link
+          href={href}
+          className={recommended ? "mkt__btn mkt__btn--solid" : "mkt__btn mkt__btn--ghost"}
+        >
+          {cta}
+        </Link>
+      </div>
     </Reveal>
   );
 }

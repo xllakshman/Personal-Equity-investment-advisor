@@ -15,6 +15,12 @@ describe("googleSignInBanner", () => {
       GOOGLE_NOT_ENABLED,
     );
     assert.equal(googleSignInBanner("validation_failed"), GOOGLE_NOT_ENABLED);
+    assert.equal(
+      googleSignInBanner(
+        "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      ),
+      GOOGLE_NOT_ENABLED,
+    );
   });
 
   it("does not swallow an unexpected message into a blank banner", () => {

@@ -43,108 +43,141 @@ export default async function ObservabilityPage({
 
   return (
     <div>
-      <h1>Observability</h1>
-      <p>Colours on this screen only. No email. Prompt body and report sections are not stored.</p>
-      <nav>
+      <header className="admin__hero">
+        <div>
+          <p className="admin__kicker">Platform administration</p>
+          <h1 className="admin__h1">Observability</h1>
+          <p className="admin__lede">
+            Colours on this screen only. No email. Prompt body and report
+            sections are not stored.
+          </p>
+        </div>
+      </header>
+      <nav className="admin__subnav" aria-label="Observability tabs">
         {TABS.map((t) => (
-          <a key={t} href={`/admin/observability?tab=${t}`} style={{ marginRight: 12 }}>
+          <a
+            key={t}
+            href={`/admin/observability?tab=${t}`}
+            className={tab === t ? "admin__tab admin__tab--on" : "admin__tab"}
+          >
             {t === "feedback" ? "Customer Feedback" : t}
           </a>
         ))}
       </nav>
       {tab === "overview" || tab === "watch" ? (
-        <section>
-          <p>
+        <section className="admin__card">
+          <p className="admin__lede" style={{ margin: "0 0 16px" }}>
             Calls {calls} · failed {failed}
           </p>
           {(thresholds ?? []).map((t) => (
-            <form action={saveWatchLimit} key={t.watch_kind} style={{ margin: "10px 0" }}>
+            <form action={saveWatchLimit} key={t.watch_kind} className="admin__row" style={{ margin: "10px 0" }}>
               <input type="hidden" name="watch_kind" value={t.watch_kind} />
-              <label>
+              <label className="admin__field" style={{ flex: 1 }}>
                 {t.label} ({t.unit})
-                <input name="limit_value" defaultValue={String(t.limit_value)} />
+                <input
+                  className="admin__input"
+                  name="limit_value"
+                  defaultValue={String(t.limit_value)}
+                />
               </label>
-              <button type="submit">Save</button>
+              <button className="admin__btn" type="submit">
+                Save
+              </button>
             </form>
           ))}
         </section>
       ) : null}
       {tab === "apis" || tab === "latency" ? (
-        <table>
-          <thead>
-            <tr>
-              <th>Route</th>
-              <th>Calls</th>
-              <th>Failed</th>
-              <th>Avg ms</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(buckets ?? []).map((b, i) => (
-              <tr key={`${b.product_id}-${b.route}-${i}`}>
-                <td>
-                  {b.product_id} {b.route}
-                </td>
-                <td>{b.calls}</td>
-                <td>{b.failed}</td>
-                <td>
-                  {Number(b.calls) > 0
-                    ? Math.round(Number(b.duration_ms_sum) / Number(b.calls))
-                    : 0}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : null}
-      {tab === "who" ? (
-        <p>Rows come from observability_events per person + product. Admin login is not a desk ping.</p>
-      ) : null}
-      {tab === "feedback" ? (
-        <section>
-          <p>
-            {feedback?.length ?? 0} responses ·{" "}
-            {feedback && feedback.length > 0
-              ? `${Math.round((yes / feedback.length) * 100)}% Yes`
-              : "No responses yet"}
-          </p>
-          {(feedback ?? []).length === 0 ? (
-            <p>No responses yet</p>
-          ) : (
-            <table>
+        <section className="admin__card admin__card--table">
+          <div className="admin__scroll">
+            <table className="admin__table">
               <thead>
                 <tr>
-                  <th>When</th>
-                  <th>Ticker</th>
-                  <th>Model</th>
-                  <th>Helpful</th>
-                  <th>Dims</th>
-                  <th>Comment</th>
+                  <th>Route</th>
+                  <th className="admin__num">Calls</th>
+                  <th className="admin__num">Failed</th>
+                  <th className="admin__num">Avg ms</th>
                 </tr>
               </thead>
               <tbody>
-                {(feedback ?? []).map((f, i) => (
-                  <tr key={i}>
-                    <td>{String(f.created_at).slice(0, 16)}</td>
-                    <td>{String(f.ticker)}</td>
-                    <td>{String(f.model_id)}</td>
-                    <td>{f.helpful ? "Yes" : "No"}</td>
-                    <td>
-                      {[
-                        f.dim_evidence,
-                        f.dim_decision,
-                        f.dim_bear,
-                        f.dim_next_steps,
-                        f.dim_personal_fit,
-                      ]
-                        .map((d) => (d == null ? "—" : String(d)))
-                        .join(" ")}
+                {(buckets ?? []).map((b, i) => (
+                  <tr key={`${b.product_id}-${b.route}-${i}`}>
+                    <td className="admin__mono">
+                      {b.product_id} {b.route}
                     </td>
-                    <td>{f.comment ? String(f.comment) : "—"}</td>
+                    <td className="admin__num">{b.calls}</td>
+                    <td className="admin__num">{b.failed}</td>
+                    <td className="admin__num">
+                      {Number(b.calls) > 0
+                        ? Math.round(Number(b.duration_ms_sum) / Number(b.calls))
+                        : 0}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+        </section>
+      ) : null}
+      {tab === "who" ? (
+        <p className="admin__hint">
+          Rows come from observability_events per person + product. Admin login
+          is not a desk ping.
+        </p>
+      ) : null}
+      {tab === "feedback" ? (
+        <section className="admin__card admin__card--table">
+          <div style={{ padding: "18px 22px 0" }}>
+            <p className="admin__lede">
+              {feedback?.length ?? 0} responses ·{" "}
+              {feedback && feedback.length > 0
+                ? `${Math.round((yes / feedback.length) * 100)}% Yes`
+                : "No responses yet"}
+            </p>
+          </div>
+          {(feedback ?? []).length === 0 ? (
+            <p className="admin__hint" style={{ padding: "12px 22px 22px" }}>
+              No responses yet
+            </p>
+          ) : (
+            <div className="admin__scroll">
+              <table className="admin__table">
+                <thead>
+                  <tr>
+                    <th>When</th>
+                    <th>Ticker</th>
+                    <th>Model</th>
+                    <th>Helpful</th>
+                    <th>Dims</th>
+                    <th>Comment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(feedback ?? []).map((f, i) => (
+                    <tr key={i}>
+                      <td className="admin__muted">
+                        {String(f.created_at).slice(0, 16)}
+                      </td>
+                      <td className="admin__mono">{String(f.ticker)}</td>
+                      <td>{String(f.model_id)}</td>
+                      <td>{f.helpful ? "Yes" : "No"}</td>
+                      <td className="admin__mono">
+                        {[
+                          f.dim_evidence,
+                          f.dim_decision,
+                          f.dim_bear,
+                          f.dim_next_steps,
+                          f.dim_personal_fit,
+                        ]
+                          .map((d) => (d == null ? "—" : String(d)))
+                          .join(" ")}
+                      </td>
+                      <td>{f.comment ? String(f.comment) : "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </section>
       ) : null}

@@ -10,7 +10,10 @@ export function googleSignInBanner(message: string | null | undefined): string {
     lower.includes("unsupported provider") ||
     lower.includes("provider is not enabled") ||
     lower.includes("validation_failed") ||
-    lower.includes("unsupported_provider")
+    lower.includes("unsupported_provider") ||
+    lower.includes("missing next_public_supabase") ||
+    lower.includes("next_public_supabase_url") ||
+    lower.includes("next_public_supabase_anon_key")
   ) {
     return GOOGLE_NOT_ENABLED;
   }
