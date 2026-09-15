@@ -9,8 +9,7 @@ export default function NotFound() {
         padding: "48px 24px",
         background: "#f6f5f2",
         color: "#1b1a17",
-        fontFamily:
-          "var(--font-ibm-plex-sans), 'IBM Plex Sans', system-ui, sans-serif",
+        fontFamily: "Calibri, Carlito, 'Segoe UI', system-ui, sans-serif",
       }}
     >
       <div style={{ maxWidth: 480, margin: "0 auto" }}>
@@ -27,7 +26,7 @@ export default function NotFound() {
         </p>
         <h1
           style={{
-            font: "400 32px/1.15 var(--font-newsreader), Newsreader, serif",
+            font: "400 32px/1.15 Calibri, Carlito, 'Segoe UI', sans-serif",
             margin: "0 0 12px",
           }}
         >

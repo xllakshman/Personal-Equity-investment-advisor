@@ -4,12 +4,17 @@
   --paper: #f6f5f2;
   --ink: #1b1a17;
   --forest: #2f5f52;
+  --font-ui: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
+  --font-ibm-plex-sans: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
+  --font-ibm-plex-mono: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
+  --font-newsreader: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
 }
 
 html,
 body {
   margin: 0;
   min-height: 100%;
+  font-family: var(--font-ui);
 }
 
 *,

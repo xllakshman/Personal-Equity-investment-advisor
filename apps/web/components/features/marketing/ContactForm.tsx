@@ -2,7 +2,7 @@
 
 import { useActionState, type ReactNode } from "react";
 
-import { submitContact } from "@/app/(marketing)/actions";
+import { submitContact } from "@/lib/contact/submit";
 import { PHONE_COUNTRY_OPTIONS } from "@/lib/auth/signup-fields";
 import { EMPTY_CONTACT_STATE } from "@/lib/contact/parse";
 

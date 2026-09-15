@@ -54,7 +54,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
   color: var(--ink);
-  font-family: var(--font-ibm-plex-sans), "IBM Plex Sans", system-ui, sans-serif;
+  font-family: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
 }
 
 .auth__brand-col {

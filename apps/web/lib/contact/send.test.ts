@@ -58,6 +58,7 @@ describe("sendContactEmail", () => {
     assert.equal(got.ok, true);
     assert.equal(calls[0]?.url, "https://api.resend.com/emails");
     assert.match(calls[0]?.body ?? "", /lakshmaneluri@gmail.com/);
+    assert.match(calls[0]?.body ?? "", /<p>/);
     assert.match(calls[0]?.body ?? "", /you@example.com/);
     assert.equal((calls[0]?.body ?? "").includes("re_test"), false);
     assert.equal(calls[0]?.auth, "Bearer re_test");
@@ -70,6 +71,9 @@ describe("sendContactEmail", () => {
       async () => new Response("nope", { status: 403 }),
     );
     assert.equal(got.ok, false);
-    if (!got.ok) assert.equal(got.error.includes("re_test"), false);
+    if (!got.ok) {
+      assert.match(got.error, /not connected/i);
+      assert.equal(got.error.includes("re_test"), false);
+    }
   });
 });

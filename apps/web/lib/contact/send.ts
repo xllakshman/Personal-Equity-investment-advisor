@@ -1,5 +1,13 @@
 import { CONTACT_INBOX, type ContactFields } from "./parse";
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 export async function sendContactEmail(
   fields: ContactFields,
   env: NodeJS.ProcessEnv = process.env,
@@ -22,6 +30,12 @@ export async function sendContactEmail(
     "",
     fields.message,
   ].join("\n");
+  const html = [
+    `<p><strong>Name:</strong> ${escapeHtml(fields.fullName)}</p>`,
+    `<p><strong>Email:</strong> ${escapeHtml(fields.email)}</p>`,
+    `<p><strong>Phone:</strong> ${escapeHtml(fields.phoneE164)}</p>`,
+    `<p>${escapeHtml(fields.message).replace(/\n/g, "<br/>")}</p>`,
+  ].join("");
 
   let res: Response;
   try {
@@ -37,6 +51,7 @@ export async function sendContactEmail(
         reply_to: fields.email,
         subject: `eqveste contact: ${fields.fullName}`,
         text,
+        html,
       }),
     });
   } catch {
@@ -47,6 +62,12 @@ export async function sendContactEmail(
   }
 
   if (!res.ok) {
+    if (res.status === 401 || res.status === 403) {
+      return {
+        ok: false,
+        error: "Mail is not connected yet. Email us directly and we will reply.",
+      };
+    }
     return {
       ok: false,
       error: "Could not send that just now. Try again in a few minutes.",

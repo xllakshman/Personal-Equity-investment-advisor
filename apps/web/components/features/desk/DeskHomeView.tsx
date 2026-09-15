@@ -112,7 +112,7 @@ export function DeskHomeView({
               <div className="desk__note" key={r.id}>
                 <span
                   style={{
-                    font: "500 12px/1 var(--font-ibm-plex-mono), monospace",
+                    font: "500 12px/1 Calibri, Carlito, sans-serif",
                     width: 76,
                     flex: "none",
                   }}

@@ -79,7 +79,6 @@
   font: 400 13px/1.4 inherit;
 }
 
-.desk__search button,
 .desk__signout,
 .desk__chip {
   padding: 6px 12px;
@@ -95,12 +94,6 @@
     transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1),
     box-shadow 0.3s ease,
     background 0.3s ease;
-}
-
-.desk__search button:hover {
-  background: #0b5fcc;
-  transform: translateY(-1px);
-  box-shadow: 0 10px 22px rgba(10, 132, 255, 0.28);
 }
 
 .desk__chip {
