@@ -14,7 +14,7 @@ describe("parseAcceptError", () => {
   it("maps THS-QUOTA-001", () => {
     assert.match(
       parseAcceptError("THS-QUOTA-001 allowance exhausted for this cycle"),
-      /Allowance exhausted/,
+      /used this month/,
     );
   });
 
@@ -22,8 +22,8 @@ describe("parseAcceptError", () => {
     const msg = parseAcceptError(
       "THS-HOLDING-001 ticker is not on holdings for this family",
     );
-    assert.match(msg, /not on holdings/);
-    assert.match(msg, /No search was counted/);
+    assert.match(msg, /not in your portfolio/);
+    assert.match(msg, /No analysis was counted/);
   });
 
   it("maps THS-LENS-001, empty, and unknown messages", () => {

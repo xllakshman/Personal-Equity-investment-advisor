@@ -19,11 +19,11 @@ function snap(over: Partial<UsageSnapshot> = {}): UsageSnapshot {
 }
 
 describe("usageCaption", () => {
-  it("matches thesis_family_meter_count display 1 / 20", () => {
-    assert.equal(usageCaption(snap()), "1 / 20");
+  it("shows used of limit in plain English", () => {
+    assert.equal(usageCaption(snap()), "1 of 20");
   });
 
   it("handles missing limit", () => {
-    assert.equal(usageCaption(snap({ limit: null, used: 3 })), "3 searches this cycle");
+    assert.equal(usageCaption(snap({ limit: null, used: 3 })), "3 notes this month");
   });
 });

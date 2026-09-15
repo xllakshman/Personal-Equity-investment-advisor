@@ -161,3 +161,67 @@ export async function requireReportDetail(familyId: string, reportId: string) {
   if (!loaded) notFound();
   return loaded;
 }
+
+export type DeskNoteRow = {
+  id: string;
+  kind: "note" | "in_progress";
+  ticker: string;
+  name: string;
+  verdict: string;
+  status: string;
+  lastRun: string;
+  href: string;
+  costCents: number | null;
+  isLibrarySample: boolean;
+};
+
+const IN_PROGRESS = ["queued", "gathering", "drafting", "checking", "rendering"];
+
+export async function loadDeskNotes(familyId: string): Promise<DeskNoteRow[]> {
+  const supabase = await createClient();
+  const [{ data: reports }, { data: pending }] = await Promise.all([
+    supabase
+      .from("reports")
+      .select(
+        "id, name, ticker, verdict, token_cost_cents, is_library_sample, created_at",
+      )
+      .eq("family_id", familyId)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("analysis_requests")
+      .select("id, ticker, status, accepted_at")
+      .eq("family_id", familyId)
+      .in("status", IN_PROGRESS)
+      .order("accepted_at", { ascending: false }),
+  ]);
+
+  const notes: DeskNoteRow[] = (reports ?? []).map((r) => ({
+    id: String(r.id),
+    kind: "note" as const,
+    ticker: String(r.ticker),
+    name: String(r.name),
+    verdict: String(r.verdict ?? ""),
+    status: r.is_library_sample ? "Sample" : "Ready",
+    lastRun: String(r.created_at),
+    href: `/reports/${r.id}`,
+    costCents: Number(r.token_cost_cents ?? 0),
+    isLibrarySample: Boolean(r.is_library_sample),
+  }));
+
+  const inProgress: DeskNoteRow[] = (pending ?? []).map((r) => ({
+    id: String(r.id),
+    kind: "in_progress" as const,
+    ticker: String(r.ticker),
+    name: "Note in progress",
+    verdict: "",
+    status: "In progress",
+    lastRun: String(r.accepted_at),
+    href: `/analyse/${r.id}`,
+    costCents: null,
+    isLibrarySample: false,
+  }));
+
+  return [...notes, ...inProgress].sort((a, b) =>
+    a.lastRun < b.lastRun ? 1 : a.lastRun > b.lastRun ? -1 : 0,
+  );
+}

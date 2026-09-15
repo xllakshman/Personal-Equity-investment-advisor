@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import type { QueuedRequest } from "@/lib/analyse/load-request";
-import { waitHeadline, waitLede, waitStepIndex } from "@/lib/analyse/wait-status";
+import { waitHeadline, waitLede, waitStatusLabel, waitStepIndex } from "@/lib/analyse/wait-status";
 import { createClient } from "@/lib/supabase/client";
 
 const STEPS = [
@@ -55,20 +55,12 @@ export function WaitPanel({ initial }: { initial: QueuedRequest }) {
 
   return (
     <div className="bld__wait">
-      <p className="desk__kicker">Queued analysis</p>
-      <h1 className="desk__h1">
-        {row.ticker} · {row.modelId}
-      </h1>
+      <p className="desk__kicker">Running</p>
+      <h1 className="desk__h1">{row.ticker}</h1>
       <div className="bld__wait-card">
         <div className="bld__spin-row">
           {headline === "working" ? <span className="bld__spin" aria-hidden /> : null}
-          <p>
-            {headline === "ready"
-              ? "Ready"
-              : headline === "failed"
-                ? "Not completed"
-                : `Status on analysis_requests: ${row.status}`}
-          </p>
+          <p>{waitStatusLabel(row.status)}</p>
         </div>
         <div className="bld__wait-steps">
           {STEPS.map((label, i) => (
@@ -78,22 +70,12 @@ export function WaitPanel({ initial }: { initial: QueuedRequest }) {
           ))}
         </div>
         <p className="pf__lede" style={{ marginTop: 20 }}>
-          {headline === "working" ? (
-            <>
-              Usually 40 to 90 seconds <strong>once the worker is running</strong>. Next.js
-              does not start <code>apps/analysis-worker</code>. This row stays{" "}
-              <code>queued</code> until that process writes a <code>reports</code> row.
-              You can leave this page — Reports lists saved notes only, so you will not
-              see a new ready note yet.
-            </>
-          ) : (
-            lede
-          )}
+          {lede}
         </p>
         {row.errorText ? <p className="pf__error">{row.errorText}</p> : null}
         <p className="bld__actions" style={{ marginTop: 18 }}>
           <Link href="/reports">Open Reports</Link>
-          <Link href="/desk">Back to Desk</Link>
+          <Link href="/desk">Back to Home</Link>
         </p>
       </div>
     </div>

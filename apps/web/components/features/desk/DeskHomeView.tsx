@@ -40,7 +40,7 @@ export function DeskHomeView({
           <h1 className="desk__h1">Good morning, {firstName(fullName)}.</h1>
         </div>
         <Link href="/analyse" className="desk__btn">
-          New analysis
+          Analyse a Stock
         </Link>
       </div>
       <div className="desk__kpis">
@@ -49,20 +49,20 @@ export function DeskHomeView({
           <p className="desk__kpi-v">
             {home.positions === 0 ? "—" : money(home.costBasis, home.costCurrency)}
           </p>
-          <p className="desk__kpi-s">Not a live price. Last cost × quantity from holdings.</p>
+          <p className="desk__kpi-s">What you paid × how many shares — not today’s price.</p>
         </div>
         <div className="desk__card">
           <p className="desk__kpi-k">Unrealised P&amp;L</p>
           <p className="desk__kpi-v">—</p>
-          <p className="desk__kpi-s">Needs a last-price vendor. Not shown in this chunk.</p>
+          <p className="desk__kpi-s">Needs a current price. Not shown yet.</p>
         </div>
         <div className="desk__card">
           <p className="desk__kpi-k">Positions</p>
           <p className="desk__kpi-v">{home.positions}</p>
-          <p className="desk__kpi-s">Rows on view holdings for this family.</p>
+          <p className="desk__kpi-s">Names in your book.</p>
         </div>
         <div className="desk__card">
-          <p className="desk__kpi-k">Analyses this cycle</p>
+          <p className="desk__kpi-k">Notes this month</p>
           <p className="desk__kpi-v">{analysesLabel}</p>
           <p className="desk__kpi-s">
             {analysesThisCycleCaption(home.planName)}
@@ -129,11 +129,11 @@ export function DeskHomeView({
       <div className="desk__cta">
         <div style={{ flex: 1, minWidth: 240 }}>
           <p style={{ margin: "0 0 5px", fontWeight: 600 }}>
-            Your CSV drives position-aware verdicts
+            Your holdings change the advice
           </p>
-          <p style={{ color: "#b6b2a9", fontSize: 12.5, lineHeight: 1.6 }}>
-            Upload ticker, company name, cost per share and total purchased. Analyse
-            only runs for names already on holdings.
+          <p style={{ color: "#5c6578", fontSize: 12.5, lineHeight: 1.6 }}>
+            Upload ticker, company, cost, and quantity purchased. Analyse only runs
+            for names already in your book.
           </p>
         </div>
         <Link href="/portfolio">Upload portfolio</Link>

@@ -76,9 +76,8 @@ export function ProfileForm({
       <div className="pf__card">
         <p className="pf__card-title">Book limits</p>
         <p className="pf__lede">
-          Tax residency on this desk is <strong>{residency}</strong> (from{" "}
-          <code>users.tax_residency</code>). This form writes{" "}
-          <code>investor_profiles</code> only.
+          Tax residency on this desk is <strong>{residency}</strong>. This form saves
+          your investment limits only.
         </p>
         <label className="pf__check">
           <input

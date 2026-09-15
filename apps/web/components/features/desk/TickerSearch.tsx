@@ -10,7 +10,7 @@ export function TickerSearch() {
         autoCapitalize="characters"
         autoComplete="off"
       />
-      <button type="submit">Analyse</button>
+      <button type="submit">Analyse a Stock</button>
     </form>
   );
 }

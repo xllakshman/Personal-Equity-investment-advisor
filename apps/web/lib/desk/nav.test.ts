@@ -4,23 +4,26 @@ import { describe, it } from "node:test";
 import { DESK_NAV, isDeskPath } from "./nav";
 
 describe("DESK_NAV", () => {
-  it("has the six desk items plus Managers, and no Admin", () => {
-    assert.equal(DESK_NAV.length, 7);
+  it("has Home, Analyse a Stock, combined Subscription, and no Admin", () => {
+    assert.equal(DESK_NAV.length, 6);
     assert.deepEqual(
       DESK_NAV.map((n) => n.label),
       [
-        "Desk",
-        "New analysis",
+        "Home",
+        "Analyse a Stock",
         "Portfolio",
         "Reports",
         "Managers",
-        "Usage",
-        "Plans & wallet",
+        "Subscription",
       ],
     );
     assert.equal(
-      DESK_NAV.some((n) => /admin|handoff/i.test(n.label)),
+      DESK_NAV.some((n) => /admin|handoff|usage|plans & wallet/i.test(n.label)),
       false,
+    );
+    assert.equal(
+      DESK_NAV.filter((n) => n.href === "/billing").length,
+      1,
     );
   });
 });
@@ -32,6 +35,8 @@ describe("isDeskPath", () => {
     assert.equal(isDeskPath("/analyse/00000000-0000-4000-8000-000000000000"), true);
     assert.equal(isDeskPath("/research/managers"), true);
     assert.equal(isDeskPath("/settings/crash-letter"), true);
+    assert.equal(isDeskPath("/usage"), true);
+    assert.equal(isDeskPath("/subscription"), true);
     assert.equal(isDeskPath("/login"), false);
     assert.equal(isDeskPath("/admin/login"), false);
   });

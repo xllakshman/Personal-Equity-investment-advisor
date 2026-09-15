@@ -29,6 +29,7 @@ export async function acceptAnalysis(
   const currency = String(formData.get("invested_currency") ?? "USD").slice(0, 3) || "USD";
   const invested = Number(formData.get("invested_amount") ?? 0);
   const portfolio = Number(formData.get("portfolio_size") ?? 0);
+  const intended = Number(formData.get("intended_investment") ?? 0);
   const clarifications = clarificationsPayload(
     fields.skipClarify,
     fields.conviction,
@@ -52,6 +53,7 @@ export async function acceptAnalysis(
     p_model_id: fields.modelId,
     p_clarifications: clarifications,
     p_exchange: exchange,
+    p_intended_investment: Number.isFinite(intended) && intended > 0 ? intended : 0,
   });
 
   if (error) {

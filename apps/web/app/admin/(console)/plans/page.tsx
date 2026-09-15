@@ -34,10 +34,10 @@ export default async function AdminPlansPage() {
               <h2 className="admin__h2">
                 {planCardTitle(String(p.slug), String(p.name))}
               </h2>
-              <p className="admin__hint">slug {p.slug}</p>
+              <p className="admin__hint">Internal name {p.slug}</p>
             </div>
             <label className="admin__field">
-              monthly_analysis_limit
+              Notes per month
               <input
                 className="admin__input"
                 name="monthly_analysis_limit"
@@ -46,10 +46,10 @@ export default async function AdminPlansPage() {
               />
             </label>
             <p className="admin__hint">
-              models {(p.allowed_model_ids ?? []).join(", ") || "—"}
+              Allowed models {(p.allowed_model_ids ?? []).join(", ") || "—"}
             </p>
             <p className="admin__hint">
-              notices{" "}
+              Notice thresholds{" "}
               {(notices ?? [])
                 .filter((n) => n.plan_id === p.id)
                 .map((n) => `${n.pct}%`)

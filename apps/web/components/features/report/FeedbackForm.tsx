@@ -48,8 +48,8 @@ export function FeedbackForm({
     <form action={action} className="desk__card" style={{ marginTop: 22 }}>
       <h2>Satisfaction</h2>
       <p className="desk__lede">
-        Not billed. Does not change <code>reports.verdict</code>. Closing this tab without
-        Submit inserts nothing.
+        Not billed. Does not change the saved verdict. Closing this tab without
+        Submit stores nothing.
       </p>
       <input type="hidden" name="reportId" value={reportId} />
       <fieldset className="pf__stack" style={{ marginTop: 12 }}>

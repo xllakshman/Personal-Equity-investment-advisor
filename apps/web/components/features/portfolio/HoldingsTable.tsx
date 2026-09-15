@@ -31,8 +31,7 @@ export function HoldingsTable({
             {rows.length === 0 ? (
               <tr>
                 <td colSpan={8} className="pf__empty">
-                  No lots yet. Upload a CSV or add a position. Desk still reads
-                  view <code>holdings</code> when rows exist.
+                  No lots yet. Upload a CSV or add a position.
                 </td>
               </tr>
             ) : (

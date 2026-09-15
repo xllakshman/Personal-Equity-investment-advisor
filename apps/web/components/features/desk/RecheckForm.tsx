@@ -11,8 +11,8 @@ export function RecheckForm({ tickers }: { tickers: string[] }) {
     <form action={action} className="desk__card" style={{ marginTop: 22 }}>
       <h2>Re-check holdings</h2>
       <p className="desk__lede">
-        Login does not enqueue jobs. Confirm names the count and consumes search quota via{" "}
-        <code>thesis_accept_analysis</code>.
+        Login does not start a run. Confirm names the count and uses one note per
+        stock from this month’s allowance.
       </p>
       <input type="hidden" name="tickers" value={tickers.join(",")} />
       <button className="pf__ghost" type="submit" disabled={pending}>

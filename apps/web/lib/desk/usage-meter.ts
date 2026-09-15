@@ -16,8 +16,17 @@ export function quotaExhausted(used: number, limit: number | null): boolean {
   return used >= limit;
 }
 
-/** Caption under Desk “Analyses this cycle”. Same kinds as thesis_family_meter_count. */
+/** Caption under Home “Notes this month”. */
 export function analysesThisCycleCaption(planName: string | null): string {
-  const kinds = "usage_events kinds search, refine, refine_gate this month";
-  return planName ? `${kinds} · ${planName}` : kinds;
+  return planName ? `${planName} · notes this month` : "Notes this month";
+}
+
+export function notesThisMonthHint(
+  used: number,
+  limit: number | null,
+  planName: string | null,
+): string {
+  const plan = planName ?? "Free trial";
+  if (limit == null) return `${plan} · notes this month`;
+  return `${plan} · ${used} of ${limit} notes this month`;
 }

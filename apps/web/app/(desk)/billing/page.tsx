@@ -1,9 +1,10 @@
-import { TopupForm, PlanCards } from "@/components/features/billing/BillingView";
+import { PaymentSlot, PlanCards, TopupForm } from "@/components/features/billing/BillingView";
 import { WeeklyDigestToggle } from "@/components/features/billing/WeeklyDigestToggle";
 import { planCardTitle } from "@/lib/billing/plan-titles";
 import { requireDeskSession } from "@/lib/desk/session";
 import { createClient } from "@/lib/supabase/server";
 import { loadUsageSnapshot } from "@/lib/usage/load";
+import { usageCaption, usageHumanHint } from "@/lib/usage/format";
 
 export default async function BillingPage() {
   const session = await requireDeskSession();
@@ -34,16 +35,46 @@ export default async function BillingPage() {
 
   return (
     <div>
-      <h1 className="desk__h1">Plans & wallet</h1>
+      <h1 className="desk__h1">Subscription</h1>
       <p className="desk__lede">
-        Cards from <code>plans</code>. Current plan is <code>families.plan_id</code>. Pay
-        does not insert <code>invoices</code> until a merchant is named (P6-03 placeholder).
+        Your plan, notes this month, wallet, and how to pay. Card payments are not
+        connected yet — use UPI until they are.
       </p>
+
+      <div className="desk__kpis" style={{ marginTop: 22 }}>
+        <div className="desk__card">
+          <p className="desk__kpi-k">Notes this month</p>
+          <p className="desk__kpi-v">{usageCaption(snap)}</p>
+          <p className="desk__kpi-s">{usageHumanHint(snap)}</p>
+        </div>
+        <div className="desk__card">
+          <p className="desk__kpi-k">Model spend (this month)</p>
+          <p className="desk__kpi-v">${(snap.costCents / 100).toFixed(2)}</p>
+          <p className="desk__kpi-s">What ran on your book this month</p>
+        </div>
+        <div className="desk__card">
+          <p className="desk__kpi-k">Wallet</p>
+          <p className="desk__kpi-v">${(snap.walletCents / 100).toFixed(2)}</p>
+          <p className="desk__kpi-s">Pay-as-you-go balance. It does not expire.</p>
+        </div>
+      </div>
+      {snap.exhausted ? (
+        <p className="pf__banner" style={{ marginTop: 16 }}>
+          Allowance used up. Saved notes stay readable. New runs are blocked until
+          next month or an upgrade.
+        </p>
+      ) : null}
+      {snap.notices.map((n) => (
+        <p className="pf__banner" key={n.pct} style={{ marginTop: 10 }}>
+          {n.message}
+        </p>
+      ))}
+
       <div className="desk__card" style={{ marginTop: 22 }}>
-        <h2>Wallet</h2>
+        <h2>Wallet top-up</h2>
         <p className="desk__kpi-v">${(snap.walletCents / 100).toFixed(2)}</p>
-        <p className="desk__kpi-s">wallets.balance_cents for this family</p>
         <TopupForm />
+        <PaymentSlot cta="Top up with UPI" />
       </div>
       {session.memberRole === "owner" ? (
         <WeeklyDigestToggle optedIn={Boolean(family?.weekly_digest_opt_in)} />

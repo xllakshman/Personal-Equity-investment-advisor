@@ -26,7 +26,7 @@
 | Maya seed | ✅ `maya@thesis.demo` · 5 lots · 2 reports (1 sample) |
 | Storage bucket `report-pdfs` | ✅ private |
 | Analysis API / worker | ✅ 2026-09-14 — `apps/analysis-api` :8091, `apps/analysis-worker`; Docker compose in `infra/docker` |
-| Next.js desk | ✅ 2026-09-14 — Phases 4–9 on **3100**. Reports reader, usage, billing, admin `/admin/login`, family, crash letter, managers. **001–019** on DEV. |
+| Next.js desk | ✅ 2026-09-15 — Authenticated UI restyle (no black fills, human copy). Home / Analyse a Stock / Subscription. **020** intended investment. |
 | Prod schema | ✅ 2026-09-15 — **001–019** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. |
 | Prod Vercel | 🟡 2026-09-15 — Production anon env + deploy on `equity-investment-advisor-prod.vercel.app`. `eqveste.com` DNS not pointing (404 OpenResty). |
 | Tests | ✅ unit + web tests for 4–9. Live two-JWT CI still skips without a second family JWT. |

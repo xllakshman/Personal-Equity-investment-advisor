@@ -24,14 +24,14 @@ export default async function CrashLetterPage() {
     .join("\n");
   const defaultBody =
     letter?.body ||
-    `If the book drops 30%+, do not abandon F1–F6.\n\nHoldings from view holdings:\n${seed}\n`;
+    `If the book drops 30%+, do not abandon the plan.\n\nHoldings:\n${seed}\n`;
 
   return (
     <div>
       <h1 className="desk__h1">Crash letter</h1>
       <p className="desk__lede">
-        Saved on <code>crash_letters</code> for this family. Names come from view{" "}
-        <code>holdings</code>, not a personal AMZN book. Opening Desk does not call a model.
+        A letter you write to yourself for a sharp drop. Names come from your
+        portfolio, not a sample book. Opening Home does not call a model.
       </p>
       <CrashLetterForm defaultBody={String(defaultBody)} />
     </div>

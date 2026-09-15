@@ -40,14 +40,14 @@ describe("usage meter kinds", () => {
     assert.equal(meterEventCount([]), 0);
   });
 
-  it("names the same kinds the SQL meter counts", () => {
-    assert.match(
-      analysesThisCycleCaption("Professional"),
-      /search, refine, refine_gate/,
-    );
-    assert.match(analysesThisCycleCaption("Professional"), /Professional/);
+  it("names the plan in plain English", () => {
     assert.equal(
-      analysesThisCycleCaption(null).includes("Professional"),
+      analysesThisCycleCaption("Professional"),
+      "Professional · notes this month",
+    );
+    assert.equal(analysesThisCycleCaption(null), "Notes this month");
+    assert.equal(
+      analysesThisCycleCaption("Professional").includes("refine_gate"),
       false,
     );
   });

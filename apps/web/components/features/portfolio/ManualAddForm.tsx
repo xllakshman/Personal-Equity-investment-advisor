@@ -12,8 +12,8 @@ export function ManualAddForm({ presetTicker }: { presetTicker: string }) {
       <p className="pf__card-title">Or enter manually</p>
       {presetTicker ? (
         <p className="pf__lede">
-          Header search found no row on <code>holdings</code> for {presetTicker}.
-          Add a lot here, then open Analyse.
+          Header search found no matching position for {presetTicker}. Add a lot here,
+          then open Analyse a Stock.
         </p>
       ) : null}
       <form className="pf__stack" action={action}>

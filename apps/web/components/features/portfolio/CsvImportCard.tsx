@@ -21,29 +21,36 @@ export function CsvImportCard() {
 
   return (
     <div className="pf__card pf__card--dash">
-      <p className="pf__card-title">Upload CSV</p>
-      <p className="pf__mono-hint">
-        ticker, company_name, cost_per_share, total_purchased
+      <p className="pf__card-title">Upload a spreadsheet</p>
+      <p className="pf__lede">
+        Four columns: ticker, company, cost, and quantity purchased. We show rows we
+        cannot read so you can fix them — nothing is dropped quietly.
       </p>
-      <input
-        className="pf__file"
-        type="file"
-        accept=".csv,text/csv"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (!file) {
-            setCsv("");
-            setFileName("");
-            return;
-          }
-          setFileName(file.name);
-          const reader = new FileReader();
-          reader.onload = () => setCsv(String(reader.result ?? ""));
-          reader.readAsText(file);
-        }}
-      />
+      <label className="pf__dropzone">
+        <strong>Drop a CSV or choose a file</strong>
+        <span className="pf__lede" style={{ margin: 0 }}>
+          {fileName || "No file chosen yet"}
+        </span>
+        <input
+          className="pf__file"
+          type="file"
+          accept=".csv,text/csv"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (!file) {
+              setCsv("");
+              setFileName("");
+              return;
+            }
+            setFileName(file.name);
+            const reader = new FileReader();
+            reader.onload = () => setCsv(String(reader.result ?? ""));
+            reader.readAsText(file);
+          }}
+        />
+      </label>
       <label className="pf__label" htmlFor="csv-currency">
-        Currency override
+        Currency of these costs
       </label>
       <select
         id="csv-currency"
@@ -53,7 +60,7 @@ export function CsvImportCard() {
         value={override}
         onChange={(e) => setOverride(e.target.value as CurrencyOverride)}
       >
-        <option value="auto">Auto (NSE/BSE → INR, else USD)</option>
+        <option value="auto">Guess from exchange (India → INR, else USD)</option>
         <option value="USD">USD</option>
         <option value="INR">INR</option>
       </select>
@@ -85,16 +92,15 @@ export function CsvImportCard() {
               type="submit"
               disabled={pending || !preview.ok || preview.rows.length === 0}
             >
-              {pending ? "Saving…" : "Save to workspace"}
+              {pending ? "Saving…" : "Save to portfolio"}
             </button>
           </form>
         </div>
       ) : null}
       {state.error ? <p className="pf__error">{state.error}</p> : null}
       <p className="pf__foot">
-        Rows we can&apos;t match are shown so you can fix them, never silently
-        dropped. Currency is guessed from the exchange and you can change it.
-        Re-upload appends lots unless you tick replace.
+        Currency is guessed from the exchange and you can change it. Re-upload appends
+        lots unless you tick replace.
       </p>
     </div>
   );

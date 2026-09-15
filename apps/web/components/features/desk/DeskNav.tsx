@@ -14,7 +14,7 @@ export function DeskNav({
 }) {
   const pathname = usePathname();
   return (
-    <nav className="desk__nav" aria-label="Desk">
+    <nav className="desk__nav" aria-label="Home">
       {DESK_NAV.map((item) => (
         <Link
           key={item.href}

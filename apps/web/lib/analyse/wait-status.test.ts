@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { waitHeadline, waitLede, waitStepIndex } from "./wait-status";
+import { waitHeadline, waitLede, waitStatusLabel, waitStepIndex } from "./wait-status";
 
-describe("wait panel vs analysis_requests.status", () => {
+describe("wait panel vs request status", () => {
   it("maps worker statuses to the highlighted step", () => {
     assert.equal(waitStepIndex("queued"), 0);
     assert.equal(waitStepIndex("gathering"), 1);
@@ -18,8 +18,9 @@ describe("wait panel vs analysis_requests.status", () => {
     assert.equal(waitHeadline("ready"), "ready");
     assert.equal(waitHeadline("failed"), "failed");
     assert.equal(waitHeadline("rejected"), "failed");
-    assert.match(waitLede("queued"), /stays queued/);
-    assert.match(waitLede("ready"), /reports row/i);
+    assert.equal(waitStatusLabel("queued"), "In progress");
+    assert.match(waitLede("queued"), /Usually 40 to 90 seconds/);
+    assert.match(waitLede("ready"), /note is ready/i);
     assert.match(waitLede("failed"), /did not finish/);
   });
 });

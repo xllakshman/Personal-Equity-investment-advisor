@@ -14,9 +14,8 @@ export default async function FamilySettingsPage() {
     <div>
       <h1 className="desk__h1">Family</h1>
       <p className="desk__lede">
-        Invites add <code>family_members</code> on this <code>family_id</code>. Existing{" "}
-        <code>reports</code> stay on that family. Viewers cannot call{" "}
-        <code>thesis_accept_analysis</code>.
+        Invites add people to this book. Existing notes stay with the book. Viewers
+        can read but cannot run a new analysis.
       </p>
       <div className="desk__card" style={{ marginTop: 22 }}>
         {(members ?? []).map((m) => (

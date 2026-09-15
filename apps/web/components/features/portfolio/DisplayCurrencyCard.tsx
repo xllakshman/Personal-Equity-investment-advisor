@@ -5,10 +5,11 @@ import { useActionState } from "react";
 import {
   EMPTY_PORTFOLIO_STATE,
   saveDisplaySettings,
-  toggleDisplayCurrency,
 } from "@/app/(desk)/portfolio/actions";
 import type { NativeCurrency } from "@/lib/portfolio/exchange";
 import { DEFAULT_USD_INR } from "@/lib/portfolio/fx";
+
+const DISPLAY_CURRENCIES: NativeCurrency[] = ["USD", "INR"];
 
 export function DisplayCurrencyCard({
   displayCurrency,
@@ -21,24 +22,32 @@ export function DisplayCurrencyCard({
     saveDisplaySettings,
     EMPTY_PORTFOLIO_STATE,
   );
-  const other: NativeCurrency = displayCurrency === "USD" ? "INR" : "USD";
 
   return (
-    <div className="pf__card">
+    <div className="desk__card">
       <p className="pf__card-title">Display currency</p>
       <p className="pf__lede">
-        We store each holding in its own currency and only convert it for
-        display. Lots keep their native <code>cost_per_share</code>.
+        We store each holding in its own currency and only convert it for the screen.
+        Your saved costs do not change.
       </p>
-      <form action={toggleDisplayCurrency}>
-        <button className="pf__chip-btn" type="submit">
-          Showing {displayCurrency} · switch to {other}
-        </button>
-      </form>
       <form className="pf__stack" action={action} style={{ marginTop: 12 }}>
-        <input type="hidden" name="display_currency" value={displayCurrency} />
+        <label className="pf__label" htmlFor="display_currency">
+          Show amounts in
+        </label>
+        <select
+          id="display_currency"
+          className="pf__input"
+          name="display_currency"
+          defaultValue={displayCurrency}
+        >
+          {DISPLAY_CURRENCIES.map((code) => (
+            <option key={code} value={code}>
+              {code}
+            </option>
+          ))}
+        </select>
         <label className="pf__label" htmlFor="fx">
-          USD → INR rate (override)
+          USD → INR rate (optional override)
         </label>
         <input
           id="fx"
@@ -49,8 +58,8 @@ export function DisplayCurrencyCard({
           name="fx_usd_inr_override"
           defaultValue={fxUsdInrOverride ?? DEFAULT_USD_INR}
         />
-        <button className="pf__ghost" type="submit" disabled={pending}>
-          {pending ? "Saving…" : "Save rate"}
+        <button className="desk__btn" type="submit" disabled={pending}>
+          {pending ? "Saving…" : "Save display settings"}
         </button>
       </form>
       {state.error ? <p className="pf__error">{state.error}</p> : null}

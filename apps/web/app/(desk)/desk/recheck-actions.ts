@@ -76,5 +76,5 @@ export async function recheckHoldings(
   }
   revalidatePath("/desk");
   revalidatePath("/usage");
-  return { error: null, notice: `Queued ${queued} analysis_requests (kind search).` };
+  return { error: null, notice: `Queued ${queued} notes.` };
 }

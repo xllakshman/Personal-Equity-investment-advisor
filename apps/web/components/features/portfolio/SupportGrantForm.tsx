@@ -13,8 +13,8 @@ export function SupportGrantForm() {
     <form action={action} className="desk__card" style={{ marginTop: 22 }}>
       <h2>Allow support to see holdings</h2>
       <p className="desk__lede">
-        Writes <code>support_access_grants</code>. Without an unexpired grant, platform
-        admin cannot SELECT lot quantities.
+        Let support see your holdings for seven days. Without this, support cannot
+        see quantities.
       </p>
       <label className="pf__label">
         Platform admin email

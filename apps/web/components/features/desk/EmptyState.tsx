@@ -13,7 +13,7 @@ export function EmptyState({
       <p className="desk__lede">{body}</p>
       <p className="desk__lede">
         <Link href="/desk" style={{ color: "#2f5f52" }}>
-          Back to Desk
+          Back to Home
         </Link>
       </p>
     </div>

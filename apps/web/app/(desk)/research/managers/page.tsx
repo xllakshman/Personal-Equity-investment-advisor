@@ -30,12 +30,14 @@ export default async function ManagersPage() {
     <div>
       <h1 className="desk__h1">Managers</h1>
       <p className="desk__lede">
-        Idea generation only, 13F is 45 days stale, not for timing. Login does not scan.
+        A list of investment managers whose public 13F-style holdings you can study
+        for ideas. This is not a broker and not your personal book. Filings are often
+        about 45 days old, so they are not for timing a trade.
       </p>
       {(watches ?? []).length === 0 ? (
-        <p className="pf__empty">No watches. Empty list shows no clone flags.</p>
+        <p className="pf__empty">No managers watched yet. Add a name below.</p>
       ) : (
-        <ul>
+        <ul className="admin__list" style={{ marginTop: 18 }}>
           {(watches ?? []).map((w) => (
             <li key={String(w.id)}>{String(w.name)}</li>
           ))}
@@ -43,7 +45,7 @@ export default async function ManagersPage() {
       )}
       {flags.length > 0 ? (
         <p className="pf__banner">
-          F1+F2 trigger:{" "}
+          Names several managers hold that you do not:{" "}
           {flags.map(([t]) => (
             <a key={t} href={`/analyse?ticker=${t}`} style={{ marginRight: 8 }}>
               {t}
@@ -51,7 +53,14 @@ export default async function ManagersPage() {
           ))}
         </p>
       ) : null}
-      <ManagersForms />
+      <div className="desk__card" style={{ marginTop: 22 }}>
+        <h2 className="bld__h2">Watch a manager</h2>
+        <p className="pf__lede">
+          Add a public manager to follow. Scanning looks for overlapping names across
+          the people you watch.
+        </p>
+        <ManagersForms />
+      </div>
     </div>
   );
 }

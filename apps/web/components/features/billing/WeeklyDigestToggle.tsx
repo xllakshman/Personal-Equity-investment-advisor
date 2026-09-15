@@ -13,8 +13,8 @@ export function WeeklyDigestToggle({ optedIn }: { optedIn: boolean }) {
     <form action={action} className="desk__card" style={{ marginTop: 22 }}>
       <h2>Weekly email</h2>
       <p className="desk__lede">
-        Quick model, ticker cap from <code>plans.weekly_digest_ticker_limit</code>. Does not
-        use monthly Analyse searches. No email is sent until a provider is named.
+        A short holdings recap using a quick model. It does not use your monthly
+        Analyse notes. Email is not sent until a mail provider is connected.
       </p>
       <input type="hidden" name="opt_in" value={optedIn ? "0" : "1"} />
       <button className="pf__ghost" type="submit" disabled={pending}>
@@ -22,7 +22,7 @@ export function WeeklyDigestToggle({ optedIn }: { optedIn: boolean }) {
       </button>
       {!optedIn ? (
         <button
-          className="pf__primary"
+          className="desk__btn"
           type="submit"
           name="confirm"
           value="1"

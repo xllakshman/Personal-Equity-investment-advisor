@@ -1,10 +1,24 @@
 .admin {
+  --admin-ink: #1d2433;
+  --admin-muted: #5c6578;
+  --admin-blue: #0a84ff;
+  --admin-paper: #f3f6fb;
+  --admin-glass: rgba(255, 255, 255, 0.78);
+  --admin-line: rgba(29, 36, 51, 0.1);
+  --admin-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.85) inset,
+    0 18px 40px rgba(29, 36, 51, 0.07);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f6f5f2;
-  color: #1b1a17;
-  font-family: var(--font-ibm-plex-sans), "IBM Plex Sans", system-ui, sans-serif;
+  background: var(--admin-paper);
+  background-image:
+    radial-gradient(900px 480px at 8% -8%, rgba(10, 132, 255, 0.08), transparent 58%),
+    radial-gradient(800px 420px at 96% 0%, rgba(48, 209, 88, 0.06), transparent 60%);
+  color: var(--admin-ink);
+  font-family:
+    -apple-system, "SF Pro Text", "Helvetica Neue", Helvetica,
+    var(--font-ibm-plex-sans), sans-serif;
 }
 
 .admin a {
@@ -19,8 +33,9 @@
   align-items: center;
   gap: 16px;
   padding: 11px 20px;
-  background: #f6f5f2;
-  border-bottom: 1px solid #e4e1da;
+  background: rgba(243, 246, 251, 0.82);
+  backdrop-filter: blur(22px) saturate(160%);
+  border-bottom: 1px solid var(--admin-line);
   flex-wrap: wrap;
 }
 
@@ -36,7 +51,7 @@
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  background: linear-gradient(145deg, #2f5f52, #1f7a5c);
+  background: linear-gradient(145deg, #0a84ff, #30d158);
 }
 
 .admin__word {
@@ -54,19 +69,19 @@
 }
 
 .admin__tab {
-  padding: 7px 13px;
-  border-radius: 8px;
-  border: 1px solid #e4e1da;
-  background: #fff;
-  color: #57544e;
-  font: 500 12.5px/1 var(--font-ibm-plex-sans), sans-serif;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--admin-line);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--admin-muted);
+  font: 500 12.5px/1 inherit;
 }
 
 .admin__tab--on,
 .admin__tab[aria-current="page"] {
-  border-color: #1b1a17;
-  background: #1b1a17;
-  color: #f6f5f2;
+  border-color: rgba(10, 132, 255, 0.4);
+  background: #0a84ff;
+  color: #fff;
 }
 
 .admin__who {
@@ -181,9 +196,11 @@
 
 .admin__card {
   padding: 22px;
-  border-radius: 11px;
-  background: #fff;
-  border: 1px solid #e4e1da;
+  border-radius: 24px;
+  background: var(--admin-glass);
+  backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid var(--admin-line);
+  box-shadow: var(--admin-shadow);
 }
 
 .admin__card--table {
@@ -342,11 +359,11 @@
 
 .admin__btn--solid {
   border: 0;
-  background: #1b1a17;
-  color: #f6f5f2;
+  background: #0a84ff;
+  color: #fff;
   font-weight: 600;
   padding: 11px 18px;
-  border-radius: 8px;
+  border-radius: 999px;
 }
 
 .admin__subnav {
@@ -360,10 +377,15 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 20px;
-  background: #1b1a17;
-  color: #f6f5f2;
-  font: 500 12px/1 var(--font-ibm-plex-sans), sans-serif;
+  padding: 10px 20px;
+  background: linear-gradient(
+    160deg,
+    rgba(10, 132, 255, 0.16),
+    rgba(191, 90, 242, 0.1)
+  );
+  color: var(--admin-ink);
+  border-bottom: 1px solid rgba(10, 132, 255, 0.22);
+  font: 500 12px/1 inherit;
 }
 
 .admin__impersonate .admin__chip {

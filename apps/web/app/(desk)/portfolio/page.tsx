@@ -30,7 +30,7 @@ function banner(sp: {
     return `Added ${sp.ticker}. Open Analyse when you want a request.`;
   }
   if (sp.ok === "fx") {
-    return "Display currency saved. Native cost_per_share on lots was not changed.";
+    return "Display currency saved. Stored costs were not converted.";
   }
   return null;
 }
@@ -67,18 +67,21 @@ export default async function PortfolioPage({
       {notice ? <p className="pf__banner">{notice}</p> : null}
       {add ? (
         <p className="pf__banner">
-          Add {add} to the book before analysis. Header search found no row on{" "}
-          <code>holdings</code> for this family.
+          Add {add} to the book before analysis. Header search found no matching
+          position.
         </p>
       ) : null}
 
-      <div className="pf__cards">
-        <CsvImportCard />
-        <ManualAddForm presetTicker={add} />
+      <div style={{ margin: "18px 0" }}>
         <DisplayCurrencyCard
           displayCurrency={settings.displayCurrency}
           fxUsdInrOverride={settings.fxUsdInrOverride}
         />
+      </div>
+
+      <div className="pf__cards">
+        <CsvImportCard />
+        <ManualAddForm presetTicker={add} />
       </div>
 
       {rejected.length > 0 ? (

@@ -12,7 +12,7 @@ export async function requestTopup(
   await requireDeskSession();
   return {
     error: null,
-    notice: "UPI not connected. wallets.balance_cents was not changed.",
+    notice: "Top-up is not connected yet. Your wallet was not charged.",
   };
 }
 
@@ -23,6 +23,6 @@ export async function requestCheckout(
   await requireDeskSession();
   return {
     error: null,
-    notice: "Checkout is a placeholder. invoices and families.plan_id were not changed.",
+    notice: "Payment is not connected yet. Your plan was not changed.",
   };
 }

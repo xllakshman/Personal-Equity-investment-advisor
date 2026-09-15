@@ -35,7 +35,7 @@ export default async function ImpersonationPreviewPage({
         <span className="admin__chip">Read-only</span>
         <span>
           Viewing {user?.email ?? userId} as platform admin · every action is
-          written to the audit log
+          recorded
         </span>
       </div>
       <header className="admin__hero" style={{ marginTop: 20 }}>

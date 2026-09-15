@@ -14,7 +14,7 @@ export type HeldLot = {
 export type BuilderPayload = {
   ticker: string;
   held: HeldLot | null;
-  holdings: { ticker: string; company_name: string | null }[];
+  holdings: HeldLot[];
   invested: number;
   portfolioSize: number;
   currency: string;
@@ -55,10 +55,7 @@ export async function loadAnalyseBuilder(
   const invested = held ? held.qty * held.cost_per_share : 0;
   const portfolioSize = rows.reduce((s, r) => s + r.qty * r.cost_per_share, 0);
   const currency = held?.native_currency ?? "USD";
-  const holdings = rows.map((r) => ({
-    ticker: r.ticker,
-    company_name: r.company_name,
-  }));
+  const holdings = rows;
 
   const { data: family } = await supabase
     .from("families")

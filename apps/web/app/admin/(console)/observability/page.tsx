@@ -121,8 +121,8 @@ export default async function ObservabilityPage({
       ) : null}
       {tab === "who" ? (
         <p className="admin__hint">
-          Rows come from observability_events per person + product. Admin login
-          is not a desk ping.
+          Rows come from usage by person and product. Signing in as admin is not
+          counted as desk use.
         </p>
       ) : null}
       {tab === "feedback" ? (

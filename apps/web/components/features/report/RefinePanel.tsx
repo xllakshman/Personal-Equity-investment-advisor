@@ -24,8 +24,8 @@ export function RefinePanel({
     <div>
       <h2>Refinements</h2>
       <p className="desk__lede">
-        Original verdict stays. Each refine appends a row on <code>refinements</code>.
-        Sample notes cannot refine.
+        Original verdict stays. Each follow-up is added underneath. Sample notes
+        cannot be refined.
       </p>
       {refinements.length === 0 ? (
         <p className="pf__muted">No refine rows yet.</p>

@@ -74,7 +74,7 @@ export async function addManagerWatch(
   });
   if (error) return { error: error.message, notice: null };
   revalidatePath("/research/managers");
-  return { error: null, notice: "Watch saved. Scan without confirm inserts no usage_events." };
+  return { error: null, notice: "Watch saved. Scan does not run until you confirm." };
 }
 
 export async function scanManagers(
@@ -84,12 +84,12 @@ export async function scanManagers(
   await requireDeskSession();
   const confirm = String(formData.get("confirm") ?? "") === "1";
   if (!confirm) {
-    return { error: null, notice: "Scan without confirm inserts no usage_events." };
+    return { error: null, notice: "Scan does not run until you confirm." };
   }
   return {
     error: null,
     notice:
-      "13F is idea generation only and 45 days stale. No vendor is named, so no usage_events were inserted.",
+      "Public filings are idea generation only and often 45 days old. No scan ran.",
   };
 }
 

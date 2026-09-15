@@ -40,7 +40,7 @@ describe("accept field guards", () => {
   it("rejects empty ticker before RPC", () => {
     const fields = parseAcceptFields(form({ ...ok, ticker: "  " }));
     assert.equal(fields.ticker, "");
-    assert.match(validateAcceptFields(fields) ?? "", /not on holdings/);
+    assert.match(validateAcceptFields(fields) ?? "", /not in your portfolio/);
   });
 
   it("rejects invalid enums and unknown lenses", () => {

@@ -20,10 +20,10 @@ export function parseAcceptError(message: string): string {
     return "Incompatible pair. The server refused this risk/CAGR combination. No row was queued.";
   }
   if (m.includes("THS-QUOTA-001")) {
-    return "Allowance exhausted for this cycle. No analysis_requests row was inserted.";
+    return "You have used this month’s notes. Saved notes stay readable.";
   }
   if (m.includes("THS-HOLDING-001")) {
-    return "That ticker is not on holdings for this family. No search was counted.";
+    return "That stock is not in your portfolio yet. Add it on Portfolio first. No analysis was counted.";
   }
   if (m.includes("THS-LENS-001")) {
     return "Pick at least one check.";

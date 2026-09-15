@@ -28,12 +28,12 @@ export default async function AdminPromptPage() {
         <section className="admin__card">
           <h2 className="admin__h2">Stage a version</h2>
           <p className="admin__lede" style={{ margin: "0 0 16px" }}>
-            Staging writes <code>prompt_versions</code>. A second admin must
-            approve before promotion. Self-approve is disabled.
+            Staging saves a new version. Another admin must approve it before it is
+            used. Self-approve is disabled.
           </p>
           <form action={stagePrompt} className="admin__form">
             <label className="admin__field" htmlFor="prompt-semver">
-              semver
+              Version
               <input
                 id="prompt-semver"
                 className="admin__input"
@@ -44,7 +44,7 @@ export default async function AdminPromptPage() {
               />
             </label>
             <label className="admin__field" htmlFor="prompt-body">
-              body
+              Prompt text
               <textarea
                 id="prompt-body"
                 className="admin__textarea"
@@ -54,9 +54,8 @@ export default async function AdminPromptPage() {
               />
             </label>
             <p className="admin__hint">
-              The textarea is a write-only field. After Stage, the table below
-              still reads <code>prompt_versions_meta</code> — not{" "}
-              <code>prompt_versions.body</code>.
+              After Stage, the table below still shows versions and dates only — not
+              the prompt text.
             </p>
             <button className="admin__btn admin__btn--solid" type="submit">
               Stage
@@ -97,9 +96,9 @@ export default async function AdminPromptPage() {
             </colgroup>
             <thead>
               <tr>
-                <th>semver</th>
-                <th>submitted</th>
-                <th>promoted</th>
+                <th>Version</th>
+                <th>Submitted</th>
+                <th>Promoted</th>
                 <th>status</th>
                 <th className="admin__actions"> </th>
               </tr>

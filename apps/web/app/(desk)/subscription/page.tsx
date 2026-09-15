@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default function UsageRedirect() {
+export default function SubscriptionRedirect() {
   redirect("/billing");
 }
