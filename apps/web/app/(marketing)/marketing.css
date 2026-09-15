@@ -651,6 +651,62 @@ html:has(.mkt) {
   font-size: 14.5px;
 }
 
+.mkt__input--box {
+  width: 100%;
+  min-width: 0;
+  border-radius: 14px;
+}
+
+.mkt__contact {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mkt__contact-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(245, 245, 247, 0.66);
+}
+
+.mkt__contact-phone {
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.4fr) 1fr;
+  gap: 8px;
+}
+
+.mkt__contact-msg {
+  resize: vertical;
+  min-height: 120px;
+  font-family: inherit;
+}
+
+.mkt__contact-banner {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+.mkt__contact-banner--ok {
+  background: rgba(48, 209, 88, 0.16);
+  color: #30d158;
+}
+
+.mkt__contact-banner--err {
+  background: rgba(255, 69, 58, 0.16);
+  color: #ff8a80;
+}
+
 .mkt__table-wrap {
   overflow-x: auto;
 }

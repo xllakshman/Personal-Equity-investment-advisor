@@ -25,71 +25,41 @@ export function TopupForm() {
   );
 }
 
-export function PaymentSlot({
-  planId,
-  cta,
-}: {
-  planId?: string;
-  cta: string;
-}) {
-  const [method, setMethod] = useState<"upi" | "credit" | "debit">("upi");
-  const [copied, setCopied] = useState(false);
-  const [state, action, pending] = useActionState(requestCheckout, EMPTY_BILLING_STATE);
-
-  async function copyVpa() {
-    try {
-      await navigator.clipboard.writeText(UPI_VPA);
-      setCopied(true);
-    } catch {
-      setCopied(false);
-    }
-  }
+export function PaymentSlot() {
+  const [method, setMethod] = useState<(typeof PAYMENT_METHODS)[number]["id"]>("upi");
+  const selected = PAYMENT_METHODS.find((m) => m.id === method) ?? PAYMENT_METHODS[0];
 
   return (
     <div>
-      <p className="pf__label">How to pay</p>
-      <div className="pay__grid">
-        {PAYMENT_METHODS.map((m) => (
-          <button
-            key={m.id}
-            type="button"
-            className={
-              !m.available
-                ? "pay__method pay__method--off"
-                : method === m.id
-                  ? "pay__method pay__method--on"
-                  : "pay__method"
-            }
-            disabled={!m.available}
-            onClick={() => {
-              if (m.available) setMethod(m.id);
-            }}
-          >
-            <strong>{m.label}</strong>
-            <p className="pf__lede" style={{ marginTop: 4 }}>
-              {m.hint}
-            </p>
-          </button>
-        ))}
-      </div>
-      {method === "upi" ? (
+      <label className="pf__label" htmlFor="pay-method">
+        Payment type
+        <select
+          id="pay-method"
+          className="pf__input"
+          value={method}
+          onChange={(e) =>
+            setMethod(e.target.value as (typeof PAYMENT_METHODS)[number]["id"])
+          }
+        >
+          {PAYMENT_METHODS.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      {selected.id === "upi" ? (
         <div>
-          <p className="pf__lede">Pay with GPay or any UPI app to</p>
+          <p className="pf__lede" style={{ marginTop: 10 }}>
+            {selected.hint}
+          </p>
           <p className="pay__vpa">{UPI_VPA}</p>
-          <div className="bld__actions">
-            <button className="desk__btn" type="button" onClick={() => void copyVpa()}>
-              {copied ? "UPI ID copied" : "Copy UPI ID"}
-            </button>
-            <form action={action}>
-              {planId ? <input type="hidden" name="planId" value={planId} /> : null}
-              <button className="pf__ghost" type="submit" disabled={pending}>
-                {cta}
-              </button>
-            </form>
-          </div>
         </div>
-      ) : null}
-      {state.notice ? <p className="pf__banner">{state.notice}</p> : null}
+      ) : (
+        <p className="pf__lede" style={{ marginTop: 10 }}>
+          {selected.hint}. This type is not connected yet.
+        </p>
+      )}
     </div>
   );
 }
@@ -102,12 +72,16 @@ export function PlanCards({
     slug: string;
     title: string;
     priceCents: number;
-    limit: number;
+    limitLabel: string;
     who: string;
     why: string;
     current: boolean;
   }[];
 }) {
+  const [state, action, pending] = useActionState(
+    requestCheckout,
+    EMPTY_BILLING_STATE,
+  );
   return (
     <div className="pf__cards" style={{ marginTop: 22 }}>
       {cards.map((card) => (
@@ -117,12 +91,18 @@ export function PlanCards({
             {card.current ? " · current" : ""}
           </p>
           <p className="desk__kpi-v">${(card.priceCents / 100).toFixed(0)}</p>
-          <p className="desk__kpi-s">{card.limit} notes / month</p>
+          <p className="desk__kpi-s">{card.limitLabel}</p>
           <p className="desk__lede">{card.who}</p>
           <p className="desk__lede">{card.why}</p>
-          <PaymentSlot planId={card.id} cta="Subscribe" />
+          <form action={action}>
+            <input type="hidden" name="planId" value={card.id} />
+            <button className="desk__btn" type="submit" disabled={pending}>
+              Subscribe
+            </button>
+          </form>
         </div>
       ))}
+      {state.notice ? <p className="pf__banner">{state.notice}</p> : null}
     </div>
   );
 }

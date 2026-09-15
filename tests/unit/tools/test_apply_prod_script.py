@@ -30,3 +30,5 @@ def test_dry_run_is_readonly_session() -> None:
     assert "fetch_inventory" in DRY
     assert "run_migration.sh" not in DRY
     assert "apply_foundation" not in DRY
+    assert "SUPABASE_DB_USER" in DRY
+    assert "ipv4_hostaddr" in DRY

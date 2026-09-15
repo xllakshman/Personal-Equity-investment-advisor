@@ -14,7 +14,7 @@ export function WeeklyDigestToggle({ optedIn }: { optedIn: boolean }) {
       <h2>Weekly email</h2>
       <p className="desk__lede">
         A short holdings recap using a quick model. It does not use your monthly
-        Analyse notes. Email is not sent until a mail provider is connected.
+        analyses.
       </p>
       <input type="hidden" name="opt_in" value={optedIn ? "0" : "1"} />
       <button className="pf__ghost" type="submit" disabled={pending}>

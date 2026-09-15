@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT / "packages/python"))
 import psycopg2
 from psycopg2.extensions import connection
 
+from thesis_platform.db import ipv4_hostaddr
 from thesis_platform.schema_parity import (
     COUNT_RELATIONS,
     DEV_PROJECT_REF,
@@ -33,17 +34,24 @@ PROD_ENV = ROOT / ".env.prod"
 MIGRATIONS = ROOT / "supabase/migrations"
 
 
-def _connect_readonly(host: str, password: str) -> connection:
-    conn = psycopg2.connect(
-        host=host,
-        port=5432,
-        dbname="postgres",
-        user="postgres",
-        password=password,
-        sslmode="require",
-        connect_timeout=20,
-        options="-c statement_timeout=15000",
-    )
+def _connect_readonly(env: dict[str, str], host: str) -> connection:
+    """Session pooler needs postgres.<ref>; db.* hosts still use postgres."""
+    port = int((env.get("SUPABASE_DB_PORT") or "5432").strip() or "5432")
+    user = (env.get("SUPABASE_DB_USER") or "postgres").strip() or "postgres"
+    kwargs: dict = {
+        "host": host,
+        "port": port,
+        "dbname": "postgres",
+        "user": user,
+        "password": env["SUPABASE_DB_PASSWORD"],
+        "sslmode": "require",
+        "connect_timeout": 20,
+        "options": "-c statement_timeout=15000",
+    }
+    addr = ipv4_hostaddr(host, port)
+    if addr:
+        kwargs["hostaddr"] = addr
+    conn = psycopg2.connect(**kwargs)
     conn.set_session(readonly=True, autocommit=True)
     return conn
 
@@ -201,8 +209,8 @@ def run() -> int:
     print(f"PROD host: {prod_host} (ref {PROD_PROJECT_REF})", file=sys.stderr)
 
     try:
-        dev_conn = _connect_readonly(dev_host, dev_env["SUPABASE_DB_PASSWORD"])
-        prod_conn = _connect_readonly(prod_host, prod_env["SUPABASE_DB_PASSWORD"])
+        dev_conn = _connect_readonly(dev_env, dev_host)
+        prod_conn = _connect_readonly(prod_env, prod_host)
     except psycopg2.Error as exc:
         print(f"Connect failed (password not printed): {type(exc).__name__}", file=sys.stderr)
         return 1

@@ -7,6 +7,7 @@
   --desk-paper: #f3f6fb;
   --desk-glass: rgba(255, 255, 255, 0.78);
   --desk-line: rgba(29, 36, 51, 0.1);
+  --desk-ui: Calibri, Carlito, "Segoe UI", sans-serif;
   --desk-shadow:
     0 1px 0 rgba(255, 255, 255, 0.85) inset,
     0 18px 40px rgba(29, 36, 51, 0.07);
@@ -18,9 +19,7 @@
     radial-gradient(900px 480px at 8% -8%, rgba(10, 132, 255, 0.08), transparent 58%),
     radial-gradient(800px 420px at 96% 0%, rgba(48, 209, 88, 0.06), transparent 60%);
   color: var(--desk-ink);
-  font-family:
-    -apple-system, "SF Pro Text", "Helvetica Neue", Helvetica,
-    var(--font-ibm-plex-sans), sans-serif;
+  font-family: var(--desk-ui);
 }
 
 .desk a {
@@ -83,7 +82,8 @@
 .desk__search button,
 .desk__signout,
 .desk__chip {
-  padding: 9px 16px;
+  padding: 6px 12px;
+  min-height: 32px;
   border: 0;
   border-radius: 999px;
   background: #0a84ff;
@@ -244,7 +244,7 @@
 }
 
 .desk__h1 {
-  font: 400 33px/1.15 var(--font-newsreader), Newsreader, serif;
+  font: 400 28px/1.15 var(--desk-ui);
   margin: 0;
   letter-spacing: -0.01em;
 }
@@ -277,13 +277,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 11px 18px;
-  min-height: 42px;
+  padding: 6px 14px;
+  min-height: 32px;
   border: 0;
   border-radius: 999px;
   background: #0a84ff;
   color: #fff;
-  font: 600 13.5px/1 inherit;
+  font: 600 13px/1 var(--desk-ui);
   cursor: pointer;
   transition:
     transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
@@ -328,7 +328,7 @@
 }
 
 .desk__card h2 {
-  font: 400 18px/1.25 var(--font-newsreader), Newsreader, serif;
+  font: 400 18px/1.25 var(--desk-ui);
   margin: 0 0 16px;
 }
 
@@ -416,12 +416,13 @@
 }
 
 .desk__cta a {
-  padding: 10px 16px;
+  padding: 6px 14px;
+  min-height: 32px;
   border: 0;
   border-radius: 999px;
   background: #0a84ff;
   color: #fff;
-  font: 600 12.5px/1 inherit;
+  font: 600 13px/1 var(--desk-ui);
 }
 
 @media (max-width: 720px) {
@@ -459,6 +460,10 @@
     max-width: none;
     width: 100%;
   }
+
+  .pf__trio {
+    grid-template-columns: 1fr;
+  }
 }
 
 .pf__cards {
@@ -466,6 +471,46 @@
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 14px;
   margin: 0 0 22px;
+}
+
+.pf__trio {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0 22px;
+  align-items: stretch;
+}
+
+.pf__trio > * {
+  min-width: 0;
+  height: 100%;
+}
+
+.pf__compact .pf__lede {
+  display: none;
+}
+
+.pf__primary {
+  margin-top: 8px;
+  padding: 6px 14px;
+  min-height: 32px;
+  border: 0;
+  border-radius: 999px;
+  background: #0a84ff;
+  color: #fff;
+  cursor: pointer;
+  font: 600 13px/1 var(--desk-ui);
+}
+
+.pf__ghost {
+  padding: 6px 12px;
+  min-height: 32px;
+  border: 1px solid rgba(10, 132, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(10, 132, 255, 0.08);
+  cursor: pointer;
+  font: 600 13px/1 var(--desk-ui);
+  color: #0b5fcc;
 }
 
 .pf__card {
@@ -482,9 +527,14 @@
   border-color: #c6c2b9;
 }
 
+.pf__trio .desk__card,
+.pf__trio .pf__card {
+  padding: 14px;
+}
+
 .pf__card-title {
   margin: 0 0 10px;
-  font: 600 12.5px/1.4 var(--font-ibm-plex-sans), sans-serif;
+  font: 600 13px/1.4 var(--desk-ui);
 }
 
 .pf__mono-hint {
@@ -520,6 +570,7 @@
   border-radius: 7px;
   background: #fff;
   font: 400 12.5px/1.4 var(--font-ibm-plex-sans), sans-serif;
+  text-transform: none;
 }
 
 .pf__stack {
@@ -538,25 +589,15 @@
   min-width: 0;
 }
 
-.pf__primary {
-  margin-top: 8px;
-  padding: 10px 16px;
-  border: 0;
-  border-radius: 999px;
-  background: #0a84ff;
-  color: #fff;
-  cursor: pointer;
-  font: 600 12.5px/1 inherit;
+.pf__phone {
+  display: grid;
+  grid-template-columns: minmax(9rem, 11rem) 1fr;
+  gap: 9px;
 }
 
-.pf__ghost {
-  padding: 10px 14px;
-  border: 1px solid rgba(10, 132, 255, 0.28);
-  border-radius: 999px;
-  background: rgba(10, 132, 255, 0.08);
-  cursor: pointer;
-  font: 600 12.5px/1 inherit;
-  color: #0b5fcc;
+.pf__contact-msg {
+  min-height: 140px;
+  resize: vertical;
 }
 
 .pf__chip-btn {
@@ -727,7 +768,7 @@
 }
 
 .bld__h2 {
-  font: 400 18px/1.25 var(--font-newsreader), Newsreader, serif;
+  font: 400 18px/1.25 var(--desk-ui);
   margin: 0 0 4px;
 }
 

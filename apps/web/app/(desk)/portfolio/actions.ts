@@ -26,6 +26,14 @@ export const EMPTY_PORTFOLIO_STATE: PortfolioActionState = {
   notice: null,
 };
 
+function safeReturnPath(raw: string): string {
+  const path = raw.trim().split("?")[0] ?? "";
+  if (!path.startsWith("/") || path.startsWith("//") || path.includes("://")) {
+    return "/desk";
+  }
+  return path;
+}
+
 async function requirePortfolioId(familyId: string): Promise<string> {
   const settings = await loadPortfolioSettings(familyId);
   if (settings.portfolioId) return settings.portfolioId;
@@ -35,11 +43,13 @@ async function requirePortfolioId(familyId: string): Promise<string> {
     .from("portfolios")
     .insert({ family_id: familyId, display_currency: "USD" })
     .select("id")
-    .single();
-  if (error || !data?.id) {
-    throw new Error("Could not open a portfolio for this family.");
-  }
-  return String(data.id);
+    .maybeSingle();
+  if (data?.id) return String(data.id);
+
+  const again = await loadPortfolioSettings(familyId);
+  if (again.portfolioId) return again.portfolioId;
+
+  throw new Error(error?.message || "Could not open a portfolio for this family.");
 }
 
 function revalidateDesk() {
@@ -211,16 +221,25 @@ export async function saveDisplaySettings(
   redirect("/portfolio?ok=fx");
 }
 
-export async function toggleDisplayCurrency() {
+export async function toggleDisplayCurrency(formData: FormData) {
   const session = await requireDeskSession();
-  const settings = await loadPortfolioSettings(session.familyId);
-  const next = settings.displayCurrency === "USD" ? "INR" : "USD";
-  const supabase = await createClient();
-  const portfolioId = await requirePortfolioId(session.familyId);
-  await supabase
-    .from("portfolios")
-    .update({ display_currency: next })
-    .eq("id", portfolioId)
-    .eq("family_id", session.familyId);
-  revalidateDesk();
+  const back = safeReturnPath(String(formData.get("returnTo") ?? "/desk"));
+  try {
+    const settings = await loadPortfolioSettings(session.familyId);
+    const next = settings.displayCurrency === "USD" ? "INR" : "USD";
+    const supabase = await createClient();
+    const portfolioId = await requirePortfolioId(session.familyId);
+    const { error } = await supabase
+      .from("portfolios")
+      .update({ display_currency: next })
+      .eq("id", portfolioId)
+      .eq("family_id", session.familyId);
+    if (error) {
+      redirect(back);
+    }
+    revalidateDesk();
+  } catch {
+    redirect(back);
+  }
+  redirect(back);
 }

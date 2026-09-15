@@ -5,6 +5,7 @@ export const DESK_NAV = [
   { href: "/reports", label: "Reports", hint: "Saved notes" },
   { href: "/research/managers", label: "Managers", hint: "Public filings" },
   { href: "/billing", label: "Subscription", hint: "Plan & wallet" },
+  { href: "/contact", label: "Contact us", hint: "Ask a question" },
 ] as const;
 
 export const DESK_PATHS = DESK_NAV.map((n) => n.href);
@@ -20,6 +21,8 @@ export function isDeskPath(pathname: string): boolean {
     pathname === "/usage" ||
     pathname.startsWith("/usage/") ||
     pathname === "/subscription" ||
-    pathname.startsWith("/subscription/")
+    pathname.startsWith("/subscription/") ||
+    pathname === "/contact" ||
+    pathname.startsWith("/contact/")
   );
 }

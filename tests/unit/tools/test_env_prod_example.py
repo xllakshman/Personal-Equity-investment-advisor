@@ -15,6 +15,12 @@ def test_prod_example_points_at_prod_not_dev() -> None:
     assert "SUPABASE_SERVICE_KEY=" in EXAMPLE
     assert "PORKBUN_API_KEY=" in EXAMPLE
     assert "PORKBUN_SECRET_KEY=" in EXAMPLE
+    assert "RESEND_API_KEY=" in EXAMPLE
+
+
+def test_prod_example_resend_key_is_empty() -> None:
+    lines = [ln.strip() for ln in EXAMPLE.splitlines() if ln.startswith("RESEND_API_KEY=")]
+    assert lines == ["RESEND_API_KEY="]
 
 
 def test_gitignore_keeps_prod_file_out_of_git() -> None:

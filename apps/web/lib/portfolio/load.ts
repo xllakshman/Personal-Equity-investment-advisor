@@ -23,6 +23,8 @@ export async function loadPortfolioSettings(
     .from("portfolios")
     .select("id, display_currency, fx_usd_inr_override")
     .eq("family_id", familyId)
+    .order("created_at", { ascending: true })
+    .limit(1)
     .maybeSingle();
 
   const fxRaw = data?.fx_usd_inr_override;

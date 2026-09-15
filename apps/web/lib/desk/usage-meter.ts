@@ -18,7 +18,7 @@ export function quotaExhausted(used: number, limit: number | null): boolean {
 
 /** Caption under Home “Notes this month”. */
 export function analysesThisCycleCaption(planName: string | null): string {
-  return planName ? `${planName} · notes this month` : "Notes this month";
+  return planName ? `${planName} · analyses this month` : "Analyses this month";
 }
 
 export function notesThisMonthHint(
@@ -27,6 +27,6 @@ export function notesThisMonthHint(
   planName: string | null,
 ): string {
   const plan = planName ?? "Free trial";
-  if (limit == null) return `${plan} · notes this month`;
-  return `${plan} · ${used} of ${limit} notes this month`;
+  if (limit == null) return `${plan} · analyses this month`;
+  return `${plan} · ${used} of ${limit} analyses this month`;
 }

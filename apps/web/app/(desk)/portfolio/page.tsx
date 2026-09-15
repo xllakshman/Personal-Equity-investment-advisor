@@ -72,14 +72,11 @@ export default async function PortfolioPage({
         </p>
       ) : null}
 
-      <div style={{ margin: "18px 0" }}>
+      <div className="pf__trio">
         <DisplayCurrencyCard
           displayCurrency={settings.displayCurrency}
           fxUsdInrOverride={settings.fxUsdInrOverride}
         />
-      </div>
-
-      <div className="pf__cards">
         <CsvImportCard />
         <ManualAddForm presetTicker={add} />
       </div>

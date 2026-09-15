@@ -62,7 +62,7 @@ export function DeskHomeView({
           <p className="desk__kpi-s">Names in your book.</p>
         </div>
         <div className="desk__card">
-          <p className="desk__kpi-k">Notes this month</p>
+          <p className="desk__kpi-k">Analyses this month</p>
           <p className="desk__kpi-v">{analysesLabel}</p>
           <p className="desk__kpi-s">
             {analysesThisCycleCaption(home.planName)}
@@ -143,6 +143,8 @@ export function DeskHomeView({
         <Link href="/settings/family">Family</Link>
         {" · "}
         <Link href="/settings/crash-letter">Crash letter</Link>
+        {" · "}
+        <Link href="/contact">Contact us</Link>
       </p>
     </div>
   );

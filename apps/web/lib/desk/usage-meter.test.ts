@@ -43,9 +43,9 @@ describe("usage meter kinds", () => {
   it("names the plan in plain English", () => {
     assert.equal(
       analysesThisCycleCaption("Professional"),
-      "Professional · notes this month",
+      "Professional · analyses this month",
     );
-    assert.equal(analysesThisCycleCaption(null), "Notes this month");
+    assert.equal(analysesThisCycleCaption(null), "Analyses this month");
     assert.equal(
       analysesThisCycleCaption("Professional").includes("refine_gate"),
       false,

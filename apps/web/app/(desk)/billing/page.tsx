@@ -1,6 +1,6 @@
 import { PaymentSlot, PlanCards, TopupForm } from "@/components/features/billing/BillingView";
 import { WeeklyDigestToggle } from "@/components/features/billing/WeeklyDigestToggle";
-import { planCardTitle } from "@/lib/billing/plan-titles";
+import { planCardTitle, planLimitLabel } from "@/lib/billing/plan-titles";
 import { requireDeskSession } from "@/lib/desk/session";
 import { createClient } from "@/lib/supabase/server";
 import { loadUsageSnapshot } from "@/lib/usage/load";
@@ -27,7 +27,7 @@ export default async function BillingPage() {
     title: planCardTitle(String(p.slug), String(p.name)),
     name: String(p.name),
     priceCents: Number(p.price_cents ?? 0),
-    limit: Number(p.monthly_analysis_limit ?? 0),
+    limitLabel: planLimitLabel(String(p.slug), Number(p.monthly_analysis_limit ?? 0)),
     who: String(p.who_copy ?? ""),
     why: String(p.why_copy ?? ""),
     current: snap.planSlug === String(p.slug),
@@ -37,13 +37,12 @@ export default async function BillingPage() {
     <div>
       <h1 className="desk__h1">Subscription</h1>
       <p className="desk__lede">
-        Your plan, notes this month, wallet, and how to pay. Card payments are not
-        connected yet — use UPI until they are.
+        Your plan, analyses this month, and wallet. Choose how to pay below.
       </p>
 
       <div className="desk__kpis" style={{ marginTop: 22 }}>
         <div className="desk__card">
-          <p className="desk__kpi-k">Notes this month</p>
+          <p className="desk__kpi-k">Analyses this month</p>
           <p className="desk__kpi-v">{usageCaption(snap)}</p>
           <p className="desk__kpi-s">{usageHumanHint(snap)}</p>
         </div>
@@ -71,10 +70,13 @@ export default async function BillingPage() {
       ))}
 
       <div className="desk__card" style={{ marginTop: 22 }}>
-        <h2>Wallet top-up</h2>
+        <h2>Wallet</h2>
         <p className="desk__kpi-v">${(snap.walletCents / 100).toFixed(2)}</p>
         <TopupForm />
-        <PaymentSlot cta="Top up with UPI" />
+      </div>
+      <div className="desk__card" style={{ marginTop: 22 }}>
+        <h2>How to pay</h2>
+        <PaymentSlot />
       </div>
       {session.memberRole === "owner" ? (
         <WeeklyDigestToggle optedIn={Boolean(family?.weekly_digest_opt_in)} />

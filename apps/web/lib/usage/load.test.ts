@@ -24,6 +24,6 @@ describe("usageCaption", () => {
   });
 
   it("handles missing limit", () => {
-    assert.equal(usageCaption(snap({ limit: null, used: 3 })), "3 notes this month");
+    assert.equal(usageCaption(snap({ limit: null, used: 3 })), "3 analyses this month");
   });
 });

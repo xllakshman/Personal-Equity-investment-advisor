@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ContactForm } from "./ContactForm";
 import { PlanGrid } from "./PlanGrid";
 import { Reveal } from "./Reveal";
 import { WaitlistForm } from "./WaitlistForm";
@@ -215,6 +216,7 @@ export function HomePage() {
               <a href="#frameworks">The rules</a>
               <a href="#whyus">Why us</a>
               <a href="#pricing">Subscription</a>
+              <a href="#contact">Contact</a>
             </div>
             <div className="mkt__nav-cta">
               <Link href="/login" className="mkt__btn mkt__btn--login">
@@ -593,6 +595,22 @@ export function HomePage() {
           </Reveal>
         </section>
 
+        <section id="contact" className="mkt__section">
+          <Reveal className="mkt__card mkt__grid mkt__grid--2" style={{ alignItems: "start" }}>
+            <div>
+              <p className="mkt__kicker">Contact us</p>
+              <h2 className="mkt__h2" style={{ fontSize: "clamp(26px, 3.4vw, 40px)" }}>
+                Ask a question. We read every note.
+              </h2>
+              <p className="mkt__lede">
+                Name, email, phone, and what you need. We reply to the inbox you
+                give us, usually within 24–48 hours.
+              </p>
+            </div>
+            <ContactForm />
+          </Reveal>
+        </section>
+
         <section className="mkt__section" style={{ paddingBottom: 40 }}>
           <Reveal className="mkt__card" style={{ textAlign: "center", padding: "clamp(36px,6vw,76px) clamp(24px,5vw,60px)" }}>
             <h2 className="mkt__h2" style={{ marginLeft: "auto", marginRight: "auto", maxWidth: "20ch" }}>
@@ -626,6 +644,7 @@ export function HomePage() {
             <a href="#pricing">Subscription</a>
             <a href="#whyus">Why us</a>
             <a href="#weekly">Weekly email</a>
+            <a href="#contact">Contact</a>
             <Link href="/login">Log in</Link>
           </div>
           <p style={{ margin: 0, fontSize: 12.5, color: "rgba(245,245,247,.64)" }}>

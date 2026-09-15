@@ -23,8 +23,7 @@ export function CsvImportCard() {
     <div className="pf__card pf__card--dash">
       <p className="pf__card-title">Upload a spreadsheet</p>
       <p className="pf__lede">
-        Four columns: ticker, company, cost, and quantity purchased. We show rows we
-        cannot read so you can fix them — nothing is dropped quietly.
+        Ticker, company, cost, and quantity purchased.
       </p>
       <label className="pf__dropzone">
         <strong>Drop a CSV or choose a file</strong>

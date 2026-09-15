@@ -20,6 +20,7 @@ fi
 
 URL=""
 ANON=""
+RESEND=""
 while IFS= read -r line; do
   case "${line}" in
     NEXT_PUBLIC_SUPABASE_URL=*) URL="${line#NEXT_PUBLIC_SUPABASE_URL=}" ;;
@@ -27,6 +28,7 @@ while IFS= read -r line; do
     SUPABASE_ANON_KEY=*)
       if [[ -z "${ANON}" ]]; then ANON="${line#SUPABASE_ANON_KEY=}"; fi
       ;;
+    RESEND_API_KEY=*) RESEND="${line#RESEND_API_KEY=}" ;;
   esac
 done < "${ENV_FILE}"
 URL="${URL%%$'\r'}"
@@ -53,6 +55,11 @@ done
 echo "Setting Production NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
 printf '%s' "${URL}" | vercel env add NEXT_PUBLIC_SUPABASE_URL production --force >/dev/null
 printf '%s' "${ANON}" | vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production --force >/dev/null
+
+if [[ -n "${RESEND}" ]]; then
+  echo "Setting Production RESEND_API_KEY (server, not NEXT_PUBLIC)."
+  printf '%s' "${RESEND%%$'\r'}" | vercel env add RESEND_API_KEY production --force >/dev/null
+fi
 
 echo "Deploying Production (root apps/web)."
 vercel deploy --prod --yes --local-config "${WEB}/vercel.json" 2>/dev/null || vercel deploy --prod --yes

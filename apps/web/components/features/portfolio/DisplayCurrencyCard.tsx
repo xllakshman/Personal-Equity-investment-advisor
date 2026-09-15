@@ -24,13 +24,9 @@ export function DisplayCurrencyCard({
   );
 
   return (
-    <div className="desk__card">
+    <div className="desk__card pf__compact">
       <p className="pf__card-title">Display currency</p>
-      <p className="pf__lede">
-        We store each holding in its own currency and only convert it for the screen.
-        Your saved costs do not change.
-      </p>
-      <form className="pf__stack" action={action} style={{ marginTop: 12 }}>
+      <form className="pf__stack" action={action}>
         <label className="pf__label" htmlFor="display_currency">
           Show amounts in
         </label>
@@ -47,7 +43,7 @@ export function DisplayCurrencyCard({
           ))}
         </select>
         <label className="pf__label" htmlFor="fx">
-          USD → INR rate (optional override)
+          USD → INR rate
         </label>
         <input
           id="fx"
@@ -59,7 +55,7 @@ export function DisplayCurrencyCard({
           defaultValue={fxUsdInrOverride ?? DEFAULT_USD_INR}
         />
         <button className="desk__btn" type="submit" disabled={pending}>
-          {pending ? "Saving…" : "Save display settings"}
+          {pending ? "Saving…" : "Save"}
         </button>
       </form>
       {state.error ? <p className="pf__error">{state.error}</p> : null}
