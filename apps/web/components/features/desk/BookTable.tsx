@@ -43,7 +43,7 @@ export function BookTable({
     return m.value;
   });
   const pricedCount = values.filter((v) => v != null).length;
-  const valueSum = values.reduce((s, v) => s + (v ?? 0), 0);
+  const valueSum = values.reduce<number>((s, v) => s + (v ?? 0), 0);
   const allPriced = rows.length > 0 && pricedCount === rows.length;
   const valueForWeights = allPriced ? valueSum : null;
   const valueTotal = pricedCount > 0 ? valueSum : null;
@@ -54,7 +54,7 @@ export function BookTable({
   const realizedTotal = null as number | null;
   const unrealizedTotal =
     oneCcy && pricedCount > 0
-      ? values.reduce((s, v, i) => {
+      ? values.reduce<number>((s, v, i) => {
           if (v == null) return s;
           const row = rows[i];
           if (!row) return s;
