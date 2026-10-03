@@ -2,7 +2,8 @@
 
 import { useActionState, useState } from "react";
 
-import { EMPTY_REPORT_STATE, refineReport } from "@/app/(desk)/reports/actions";
+import { refineReport } from "@/app/(desk)/reports/actions";
+import { EMPTY_REPORT_STATE } from "@/lib/reports/action-state";
 import type { RefineRow } from "@/lib/reports/load";
 
 export function RefinePanel({

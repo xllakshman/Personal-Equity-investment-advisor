@@ -2,11 +2,8 @@
 
 import { useActionState, useState } from "react";
 
-import {
-  EMPTY_BILLING_STATE,
-  requestCheckout,
-  requestTopup,
-} from "@/app/(desk)/billing/actions";
+import { requestCheckout, requestTopup } from "@/app/(desk)/billing/actions";
+import { EMPTY_BILLING_STATE } from "@/lib/billing/action-state";
 import { PAYMENT_METHODS, UPI_VPA } from "@/lib/billing/upi";
 
 export function TopupForm() {

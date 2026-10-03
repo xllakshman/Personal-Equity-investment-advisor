@@ -2,7 +2,8 @@
 
 import { useActionState, useState } from "react";
 
-import { EMPTY_REPORT_STATE, submitAnalysisFeedback } from "@/app/(desk)/reports/actions";
+import { submitAnalysisFeedback } from "@/app/(desk)/reports/actions";
+import { EMPTY_REPORT_STATE } from "@/lib/reports/action-state";
 
 const DIMS = [
   ["dim_evidence", "Were the facts and sources clear enough?"],

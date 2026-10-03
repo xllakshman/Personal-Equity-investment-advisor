@@ -2,10 +2,8 @@
 
 import { useActionState } from "react";
 
-import {
-  EMPTY_FAMILY,
-  toggleWeeklyDigest,
-} from "@/app/(desk)/settings/family-actions";
+import { toggleWeeklyDigest } from "@/app/(desk)/settings/family-actions";
+import { EMPTY_FAMILY } from "@/lib/family/action-state";
 
 export function WeeklyDigestToggle({ optedIn }: { optedIn: boolean }) {
   const [state, action, pending] = useActionState(toggleWeeklyDigest, EMPTY_FAMILY);

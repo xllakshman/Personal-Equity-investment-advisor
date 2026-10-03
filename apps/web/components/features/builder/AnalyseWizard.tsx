@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useMemo, useState } from "react";
 
 import { AgentPicker } from "@/components/features/builder/AgentPicker";
+import { CancelRunButton } from "@/components/features/builder/CancelRunButton";
 import { TickerLookup } from "@/components/features/builder/TickerLookup";
 import { ReportNoteBody } from "@/components/features/report/ReportNoteBody";
-import { acceptAnalysis, EMPTY_ACCEPT } from "@/app/(desk)/analyse/actions";
+import { acceptAnalysis } from "@/app/(desk)/analyse/actions";
+import { EMPTY_ACCEPT } from "@/lib/analyse/accept-state";
 import { guessExchange } from "@/lib/portfolio/exchange";
 import { normalizeTicker } from "@/lib/desk/ticker";
 import {
@@ -44,7 +45,7 @@ import {
   analyseStepsDone,
   firstOpenStep,
 } from "@/lib/analyse/steps";
-import { analyseWaitTarget } from "@/lib/analyse/in-flight";
+import { analyseWaitHref } from "@/lib/analyse/in-flight";
 import { trancheSummary } from "@/lib/profile/tranches";
 import { usageCaption, usageHumanHint } from "@/lib/usage/format";
 import type { UsageSnapshot } from "@/lib/usage/types";
@@ -119,12 +120,11 @@ export function AnalyseWizard({
   const [addFunds, setAddFunds] = useState("");
   const [exitRule, setExitRule] = useState("");
   const [state, action, pending] = useActionState(acceptAnalysis, EMPTY_ACCEPT);
-  const router = useRouter();
 
   useEffect(() => {
-    const href = analyseWaitTarget(state.requestId, payload.inFlight?.id);
-    if (href) router.replace(href);
-  }, [router, state.requestId, payload.inFlight?.id]);
+    if (!state.requestId) return;
+    window.location.assign(analyseWaitHref(state.requestId));
+  }, [state.requestId]);
 
   useEffect(() => {
     if (payload.ticker) setTicker(payload.ticker);
@@ -201,6 +201,17 @@ export function AnalyseWizard({
   const showSlab = taxResidency === "us" || taxResidency === "india";
 
   return (
+    <>
+      {payload.inFlight ? (
+        <div className="pf__banner">
+          {payload.inFlight.ticker} is still {payload.inFlight.status}.{" "}
+          <Link href={`/analyse/${payload.inFlight.id}`}>Open that wait page</Link>
+          . Submit for analysis stays off until it finishes, or you reset it.
+          {canWrite ? (
+            <CancelRunButton requestId={payload.inFlight.id} />
+          ) : null}
+        </div>
+      ) : null}
     <form className="bld" action={action}>
       <input type="hidden" name="ticker" value={normalizeTicker(ticker)} />
       <input type="hidden" name="exchange" value={exchange} />
@@ -241,13 +252,6 @@ export function AnalyseWizard({
             run. Each run uses one note from this month’s allowance. One Submit at
             a time — wait until the current run is ready or failed.
           </p>
-          {payload.inFlight ? (
-            <p className="pf__banner">
-              {payload.inFlight.ticker} is still {payload.inFlight.status}.{" "}
-              <Link href={`/analyse/${payload.inFlight.id}`}>Open that wait page</Link>
-              . Submit for analysis stays off until it finishes.
-            </p>
-          ) : null}
           <ol className="bld__rail" aria-label="Analysis steps">
             {ANALYSE_STEPS.map((s, i) => (
               <li key={s.id}>
@@ -734,5 +738,6 @@ export function AnalyseWizard({
       )}
       {state.error && !state.requestId ? <p className="pf__error">{state.error}</p> : null}
     </form>
+    </>
   );
 }

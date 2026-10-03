@@ -2,10 +2,8 @@
 
 import { useActionState } from "react";
 
-import {
-  EMPTY_PORTFOLIO_STATE,
-  saveDisplaySettings,
-} from "@/app/(desk)/portfolio/actions";
+import { saveDisplaySettings } from "@/app/(desk)/portfolio/actions";
+import { EMPTY_PORTFOLIO_STATE } from "@/lib/portfolio/action-state";
 import type { NativeCurrency } from "@/lib/portfolio/exchange";
 import { roundUsdInr } from "@/lib/portfolio/fx";
 

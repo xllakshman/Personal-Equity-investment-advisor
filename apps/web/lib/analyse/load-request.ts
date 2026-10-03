@@ -22,12 +22,12 @@ export type QueuedRequest = {
 
 export async function loadAnalysisRequest(id: string): Promise<QueuedRequest | null> {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("analysis_requests")
     .select("id, family_id, ticker, status, model_id, accepted_at, error_text")
     .eq("id", id)
     .maybeSingle();
-  if (!data) return null;
+  if (error || !data) return null;
   const ticker = String(data.ticker);
   const familyId = String(data.family_id);
   const { data: report } = await supabase

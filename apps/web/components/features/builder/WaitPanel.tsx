@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { CancelRunButton } from "@/components/features/builder/CancelRunButton";
 import type { QueuedRequest } from "@/lib/analyse/load-request";
 import {
   WAIT_STEPS,
@@ -25,7 +26,13 @@ type NotePreview = {
   sections: Record<string, unknown>;
 };
 
-export function WaitPanel({ initial }: { initial: QueuedRequest }) {
+export function WaitPanel({
+  initial,
+  canWrite = false,
+}: {
+  initial: QueuedRequest;
+  canWrite?: boolean;
+}) {
   const [row, setRow] = useState(initial);
   const [note, setNote] = useState<NotePreview | null>(null);
   const [tick, setTick] = useState(0);
@@ -143,16 +150,19 @@ export function WaitPanel({ initial }: { initial: QueuedRequest }) {
           {lede}
         </p>
         {row.errorText ? <p className="pf__error">{row.errorText}</p> : null}
-        <p className="bld__actions" style={{ marginTop: 18 }}>
+        <div className="bld__actions" style={{ marginTop: 18 }}>
           {row.reportId ? (
             <Link href={`/reports/${row.reportId}`} className="desk__btn">
               Open this note
             </Link>
           ) : null}
+          {canWrite && headline === "working" ? (
+            <CancelRunButton requestId={row.id} />
+          ) : null}
           <Link href="/reports">Open Reports</Link>
           <Link href="/analyse">New analysis</Link>
           <Link href="/desk">Back to Home</Link>
-        </p>
+        </div>
       </div>
       {note ? (
         <ReportNoteBody

@@ -3,14 +3,12 @@
 import { revalidatePath } from "next/cache";
 
 import { canWriteFamily, requireDeskSession } from "@/lib/desk/session";
+import { type FamilyState } from "@/lib/family/action-state";
 import { ELITE_INVESTORS } from "@/lib/research/elite-catalog";
 import { persistEliteBook } from "@/lib/research/elite-store";
 import { eliteMatchWatch } from "@/lib/research/issuer-ticker";
 import { refreshInvestor } from "@/lib/research/refresh-investor";
 import { createClient } from "@/lib/supabase/server";
-
-export type FamilyState = { error: string | null; notice: string | null };
-export const EMPTY_FAMILY: FamilyState = { error: null, notice: null };
 
 export async function inviteMember(
   _prev: FamilyState,

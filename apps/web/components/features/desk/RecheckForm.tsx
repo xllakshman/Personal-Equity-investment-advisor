@@ -2,7 +2,8 @@
 
 import { useActionState } from "react";
 
-import { EMPTY_RECHECK, recheckHoldings } from "@/app/(desk)/desk/recheck-actions";
+import { recheckHoldings } from "@/app/(desk)/desk/recheck-actions";
+import { EMPTY_RECHECK } from "@/lib/desk/recheck-state";
 
 export function RecheckForm({ tickers }: { tickers: string[] }) {
   const [state, action, pending] = useActionState(recheckHoldings, EMPTY_RECHECK);

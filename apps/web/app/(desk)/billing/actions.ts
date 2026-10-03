@@ -4,13 +4,11 @@ import { revalidatePath } from "next/cache";
 
 import { planCardTitle } from "@/lib/billing/plan-titles";
 import { sendSubscribeRequestEmail } from "@/lib/billing/send-subscribe";
+import { type BillingActionState } from "@/lib/billing/action-state";
 import { parseSubscribePlanId, subscribeNotice } from "@/lib/billing/subscribe-request";
 import { UPI_VPA } from "@/lib/billing/upi";
 import { canWriteFamily, getDeskSession } from "@/lib/desk/session";
 import { createClient } from "@/lib/supabase/server";
-
-export type BillingActionState = { error: string | null; notice: string | null };
-export const EMPTY_BILLING_STATE: BillingActionState = { error: null, notice: null };
 
 export async function requestTopup(
   _prev: BillingActionState,

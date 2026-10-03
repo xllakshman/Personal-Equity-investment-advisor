@@ -2,11 +2,8 @@
 
 import { useActionState } from "react";
 
-import {
-  EMPTY_REPORT_STATE,
-  downloadReportPdf,
-  renameReport,
-} from "@/app/(desk)/reports/actions";
+import { downloadReportPdf, renameReport } from "@/app/(desk)/reports/actions";
+import { EMPTY_REPORT_STATE } from "@/lib/reports/action-state";
 
 export function RenameForm({
   reportId,

@@ -1,19 +1,16 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
 import {
   clarificationsPayload,
   parseAcceptFields,
   validateAcceptFields,
 } from "@/lib/analyse/accept-fields";
+import { type AcceptState } from "@/lib/analyse/accept-state";
+import { type CancelState } from "@/lib/analyse/cancel-state";
 import { parseAcceptError } from "@/lib/analyse/errors";
-import { analyseWaitHref, IN_FLIGHT_STATUSES } from "@/lib/analyse/in-flight";
+import { IN_FLIGHT_STATUSES } from "@/lib/analyse/in-flight";
 import { canWriteFamily, getDeskSession } from "@/lib/desk/session";
 import { createClient } from "@/lib/supabase/server";
-
-export type AcceptState = { error: string | null; requestId: string | null };
-export const EMPTY_ACCEPT: AcceptState = { error: null, requestId: null };
 
 function acceptFail(error: string): AcceptState {
   return { error, requestId: null };
@@ -51,14 +48,14 @@ export async function acceptAnalysis(
   );
 
   const supabase = await createClient();
-  const { data: busy } = await supabase
+  const { data: busyRows } = await supabase
     .from("analysis_requests")
     .select("id, ticker")
     .eq("family_id", session.familyId)
     .in("status", [...IN_FLIGHT_STATUSES])
     .order("accepted_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .limit(1);
+  const busy = busyRows?.[0];
   if (busy?.id) {
     return { error: parseAcceptError("THS-BUSY-001"), requestId: String(busy.id) };
   }
@@ -89,6 +86,48 @@ export async function acceptAnalysis(
   if (!id) {
     return acceptFail("Could not queue the analysis.");
   }
-  revalidatePath(analyseWaitHref(id));
   return { error: null, requestId: id };
+}
+
+export async function cancelInFlightAnalysis(
+  _prev: CancelState,
+  formData: FormData,
+): Promise<CancelState> {
+  const session = await getDeskSession();
+  if (!session) {
+    return { error: "Sign in again at /login.", done: false };
+  }
+  if (!canWriteFamily(session)) {
+    return { error: parseAcceptError("THS-AUTH-001"), done: false };
+  }
+  const requestId = String(formData.get("request_id") ?? "").trim();
+  if (!requestId) {
+    return { error: "That analysis was not found.", done: false };
+  }
+  const supabase = await createClient();
+  try {
+    const { data, error } = await supabase
+      .from("analysis_requests")
+      .update({
+        status: "failed",
+        error_text: "Cancelled by user",
+        completed_at: new Date().toISOString(),
+      })
+      .eq("id", requestId)
+      .eq("family_id", session.familyId)
+      .in("status", [
+        "queued",
+        "gathering",
+        "drafting",
+        "checking",
+        "rendering",
+      ])
+      .select("id");
+    if (error || !data?.length) {
+      return { error: "Could not stop that analysis.", done: false };
+    }
+  } catch {
+    return { error: "Could not stop that analysis.", done: false };
+  }
+  return { error: null, done: true };
 }

@@ -3,10 +3,8 @@
 import { revalidatePath } from "next/cache";
 
 import { canWriteFamily, requireDeskSession } from "@/lib/desk/session";
+import { type RecheckState } from "@/lib/desk/recheck-state";
 import { createClient } from "@/lib/supabase/server";
-
-export type RecheckState = { error: string | null; notice: string | null };
-export const EMPTY_RECHECK: RecheckState = { error: null, notice: null };
 
 export async function recheckHoldings(
   _prev: RecheckState,

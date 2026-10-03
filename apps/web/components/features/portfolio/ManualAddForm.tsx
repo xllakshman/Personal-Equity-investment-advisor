@@ -2,7 +2,8 @@
 
 import { useActionState } from "react";
 
-import { addManualLot, EMPTY_PORTFOLIO_STATE } from "@/app/(desk)/portfolio/actions";
+import { addManualLot } from "@/app/(desk)/portfolio/actions";
+import { EMPTY_PORTFOLIO_STATE } from "@/lib/portfolio/action-state";
 
 export function ManualAddForm({
   presetTicker,

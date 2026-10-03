@@ -2,10 +2,8 @@
 
 import { useActionState } from "react";
 
-import {
-  EMPTY_FAMILY,
-  grantSupportAccess,
-} from "@/app/(desk)/settings/family-actions";
+import { grantSupportAccess } from "@/app/(desk)/settings/family-actions";
+import { EMPTY_FAMILY } from "@/lib/family/action-state";
 
 export function SupportGrantForm() {
   const [state, action, pending] = useActionState(grantSupportAccess, EMPTY_FAMILY);

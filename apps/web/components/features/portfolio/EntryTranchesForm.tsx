@@ -2,10 +2,8 @@
 
 import { useActionState } from "react";
 
-import {
-  EMPTY_PORTFOLIO_STATE,
-  saveEntryTranches,
-} from "@/app/(desk)/portfolio/actions";
+import { saveEntryTranches } from "@/app/(desk)/portfolio/actions";
+import { EMPTY_PORTFOLIO_STATE } from "@/lib/portfolio/action-state";
 import type { EntryTranches } from "@/lib/profile/tranches";
 
 export function EntryTranchesForm({

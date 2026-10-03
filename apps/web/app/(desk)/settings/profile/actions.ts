@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireDeskSession } from "@/lib/desk/session";
+import { type ProfileActionState } from "@/lib/profile/action-state";
 import { profileDefaults } from "@/lib/profile/defaults";
 import { loadInvestorProfile } from "@/lib/profile/load";
 import {
@@ -13,12 +14,6 @@ import {
   parseOptionalNumber,
 } from "@/lib/profile/parse";
 import { createClient } from "@/lib/supabase/server";
-
-export type ProfileActionState = {
-  error: string | null;
-};
-
-export const EMPTY_PROFILE_STATE: ProfileActionState = { error: null };
 
 export async function saveInvestorProfile(
   _prev: ProfileActionState,

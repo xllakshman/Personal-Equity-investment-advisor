@@ -2,11 +2,8 @@
 
 import { useActionState } from "react";
 
-import {
-  addManagerWatch,
-  EMPTY_FAMILY,
-  scanManagers,
-} from "@/app/(desk)/settings/family-actions";
+import { addManagerWatch, scanManagers } from "@/app/(desk)/settings/family-actions";
+import { EMPTY_FAMILY } from "@/lib/family/action-state";
 
 export function ManagersForms() {
   const [addState, addAction, addPending] = useActionState(addManagerWatch, EMPTY_FAMILY);

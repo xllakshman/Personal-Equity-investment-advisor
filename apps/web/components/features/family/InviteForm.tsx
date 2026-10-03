@@ -2,7 +2,8 @@
 
 import { useActionState } from "react";
 
-import { EMPTY_FAMILY, inviteMember } from "@/app/(desk)/settings/family-actions";
+import { inviteMember } from "@/app/(desk)/settings/family-actions";
+import { EMPTY_FAMILY } from "@/lib/family/action-state";
 
 export function InviteForm() {
   const [state, action, pending] = useActionState(inviteMember, EMPTY_FAMILY);

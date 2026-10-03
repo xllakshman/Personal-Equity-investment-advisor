@@ -12,17 +12,8 @@ import { loadPortfolioSettings } from "@/lib/portfolio/load";
 import { loadInvestorProfile } from "@/lib/profile/load";
 import { parseLotId, parseLotWrite } from "@/lib/portfolio/lot-write";
 import { parseEntryTranches } from "@/lib/profile/tranches";
+import { type PortfolioActionState } from "@/lib/portfolio/action-state";
 import { createClient } from "@/lib/supabase/server";
-
-export type PortfolioActionState = {
-  error: string | null;
-  notice: string | null;
-};
-
-export const EMPTY_PORTFOLIO_STATE: PortfolioActionState = {
-  error: null,
-  notice: null,
-};
 
 function safeReturnPath(raw: string): string {
   const path = raw.trim().split("?")[0] ?? "";

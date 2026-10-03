@@ -4,11 +4,8 @@ import { redirect } from "next/navigation";
 
 import { analysisApiFetch } from "@/lib/analysis-api";
 import { requireDeskSession } from "@/lib/desk/session";
+import { type ReportActionState } from "@/lib/reports/action-state";
 import { createClient } from "@/lib/supabase/server";
-
-export type ReportActionState = { error: string | null; notice: string | null };
-
-export const EMPTY_REPORT_STATE: ReportActionState = { error: null, notice: null };
 
 async function accessToken(): Promise<string | null> {
   const supabase = await createClient();

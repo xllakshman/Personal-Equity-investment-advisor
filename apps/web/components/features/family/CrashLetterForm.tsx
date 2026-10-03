@@ -2,7 +2,8 @@
 
 import { useActionState } from "react";
 
-import { EMPTY_FAMILY, saveCrashLetter } from "@/app/(desk)/settings/family-actions";
+import { saveCrashLetter } from "@/app/(desk)/settings/family-actions";
+import { EMPTY_FAMILY } from "@/lib/family/action-state";
 
 export function CrashLetterForm({ defaultBody }: { defaultBody: string }) {
   const [state, action, pending] = useActionState(saveCrashLetter, EMPTY_FAMILY);

@@ -6,9 +6,9 @@ import { useActionState, useState } from "react";
 import {
   addManualLot,
   deleteHoldingLot,
-  EMPTY_PORTFOLIO_STATE,
   updateHoldingLot,
 } from "@/app/(desk)/portfolio/actions";
+import { EMPTY_PORTFOLIO_STATE } from "@/lib/portfolio/action-state";
 import { BookTable } from "@/components/features/desk/BookTable";
 import type { HoldingLotRow } from "@/lib/portfolio/load";
 import { useQuotes } from "@/lib/market/use-quotes";

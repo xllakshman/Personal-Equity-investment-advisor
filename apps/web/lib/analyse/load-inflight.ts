@@ -12,12 +12,12 @@ export async function loadInFlightAnalysis(
     .eq("family_id", familyId)
     .in("status", [...IN_FLIGHT_STATUSES])
     .order("accepted_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (!data?.id) return null;
+    .limit(1);
+  const row = data?.[0];
+  if (!row?.id) return null;
   return {
-    id: String(data.id),
-    ticker: String(data.ticker),
-    status: String(data.status),
+    id: String(row.id),
+    ticker: String(row.ticker),
+    status: String(row.status),
   };
 }

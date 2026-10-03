@@ -2,7 +2,8 @@
 
 import { useActionState, useMemo, useState } from "react";
 
-import { commitCsvImport, EMPTY_PORTFOLIO_STATE } from "@/app/(desk)/portfolio/actions";
+import { commitCsvImport } from "@/app/(desk)/portfolio/actions";
+import { EMPTY_PORTFOLIO_STATE } from "@/lib/portfolio/action-state";
 import { parsePortfolioCsv } from "@/lib/portfolio/csv";
 import type { CurrencyOverride } from "@/lib/portfolio/exchange";
 

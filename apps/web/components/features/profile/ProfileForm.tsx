@@ -2,10 +2,8 @@
 
 import { useActionState, useState } from "react";
 
-import {
-  EMPTY_PROFILE_STATE,
-  saveInvestorProfile,
-} from "@/app/(desk)/settings/profile/actions";
+import { saveInvestorProfile } from "@/app/(desk)/settings/profile/actions";
+import { EMPTY_PROFILE_STATE } from "@/lib/profile/action-state";
 import {
   showLrsFields,
   type BlackoutWindow,
