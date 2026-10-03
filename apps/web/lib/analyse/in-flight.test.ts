@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { analyseRunningChip, analyseRunningHint, analyseWaitHref, isInFlightStatus } from "./in-flight";
+import { analyseRunningChip, analyseRunningHint, analyseWaitHref, analyseWaitTarget, isInFlightStatus } from "./in-flight";
 
 describe("isInFlightStatus", () => {
   it("blocks Submit while a request is not terminal", () => {
@@ -28,5 +28,20 @@ describe("analyseWaitHref", () => {
     );
     assert.equal(analyseRunningHint("MSFT"), "MSFT — watch progress");
     assert.equal(analyseRunningChip("MSFT"), "MSFT · in progress");
+  });
+});
+
+describe("analyseWaitTarget", () => {
+  it("prefers the Submit request id and skips empty", () => {
+    assert.equal(
+      analyseWaitTarget("11111111-1111-4111-8111-111111111111", null),
+      "/analyse/11111111-1111-4111-8111-111111111111",
+    );
+    assert.equal(
+      analyseWaitTarget("", "22222222-2222-4222-8222-222222222222"),
+      "/analyse/22222222-2222-4222-8222-222222222222",
+    );
+    assert.equal(analyseWaitTarget(null, null), null);
+    assert.equal(analyseWaitTarget("  ", ""), null);
   });
 });

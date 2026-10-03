@@ -9,7 +9,7 @@ import {
 } from "@/lib/analyse/accept-fields";
 import { parseAcceptError } from "@/lib/analyse/errors";
 import { analyseWaitHref, IN_FLIGHT_STATUSES } from "@/lib/analyse/in-flight";
-import { requireDeskSession } from "@/lib/desk/session";
+import { canWriteFamily, getDeskSession } from "@/lib/desk/session";
 import { createClient } from "@/lib/supabase/server";
 
 export type AcceptState = { error: string | null; requestId: string | null };
@@ -23,7 +23,13 @@ export async function acceptAnalysis(
   _prev: AcceptState,
   formData: FormData,
 ): Promise<AcceptState> {
-  const session = await requireDeskSession();
+  const session = await getDeskSession();
+  if (!session) {
+    return acceptFail("Sign in again at /login.");
+  }
+  if (!canWriteFamily(session)) {
+    return acceptFail(parseAcceptError("THS-AUTH-001"));
+  }
   const fields = parseAcceptFields(formData);
   const fieldError = validateAcceptFields(fields);
   if (fieldError) {
@@ -83,7 +89,6 @@ export async function acceptAnalysis(
   if (!id) {
     return acceptFail("Could not queue the analysis.");
   }
-  revalidatePath("/analyse");
   revalidatePath(analyseWaitHref(id));
   return { error: null, requestId: id };
 }

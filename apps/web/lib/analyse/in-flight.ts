@@ -20,6 +20,15 @@ export function analyseWaitHref(id: string): string {
   return `/analyse/${id}`;
 }
 
+/** Client navigation only — server redirect() on /analyse after Submit is caught by error.tsx. */
+export function analyseWaitTarget(
+  requestId: string | null | undefined,
+  inFlightId: string | null | undefined,
+): string | null {
+  const id = String(requestId || inFlightId || "").trim();
+  return id ? analyseWaitHref(id) : null;
+}
+
 export function analyseRunningHint(ticker: string): string {
   return `${ticker} — watch progress`;
 }

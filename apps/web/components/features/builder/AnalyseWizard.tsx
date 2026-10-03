@@ -44,7 +44,7 @@ import {
   analyseStepsDone,
   firstOpenStep,
 } from "@/lib/analyse/steps";
-import { analyseWaitHref } from "@/lib/analyse/in-flight";
+import { analyseWaitTarget } from "@/lib/analyse/in-flight";
 import { trancheSummary } from "@/lib/profile/tranches";
 import { usageCaption, usageHumanHint } from "@/lib/usage/format";
 import type { UsageSnapshot } from "@/lib/usage/types";
@@ -122,10 +122,9 @@ export function AnalyseWizard({
   const router = useRouter();
 
   useEffect(() => {
-    if (state.requestId) {
-      router.replace(analyseWaitHref(state.requestId));
-    }
-  }, [router, state.requestId]);
+    const href = analyseWaitTarget(state.requestId, payload.inFlight?.id);
+    if (href) router.replace(href);
+  }, [router, state.requestId, payload.inFlight?.id]);
 
   useEffect(() => {
     if (payload.ticker) setTicker(payload.ticker);
