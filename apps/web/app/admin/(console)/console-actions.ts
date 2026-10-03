@@ -3,17 +3,72 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { parsePlanEdit, type PlanEditState } from "@/lib/admin/plan-edit";
 import { requirePlatformAdmin } from "@/lib/admin/session";
+import { isNativeProvider } from "@/lib/analyse/models";
 import { createClient } from "@/lib/supabase/server";
 
-export async function savePlanLimit(formData: FormData) {
+export async function savePlan(
+  _prev: PlanEditState,
+  formData: FormData,
+): Promise<PlanEditState> {
   await requirePlatformAdmin();
-  const id = String(formData.get("planId") ?? "");
-  const limit = Number(formData.get("monthly_analysis_limit") ?? "");
-  if (!id || !Number.isInteger(limit) || limit < 0) return;
   const supabase = await createClient();
-  await supabase.from("plans").update({ monthly_analysis_limit: limit }).eq("id", id);
+  const { data: catalog } = await supabase
+    .from("model_catalog")
+    .select("id, provider")
+    .eq("is_active", true);
+  const catalogIds = (catalog ?? [])
+    .filter((m) => isNativeProvider(String(m.provider)))
+    .map((m) => String(m.id));
+  const parsed = parsePlanEdit(formData, catalogIds);
+  if (!parsed.ok) return { error: parsed.error, notice: null };
+
+  const { error } = await supabase
+    .from("plans")
+    .update({
+      monthly_analysis_limit: parsed.value.monthlyAnalysisLimit,
+      price_cents: parsed.value.priceCents,
+      weekly_digest_ticker_limit: parsed.value.weeklyDigestTickerLimit,
+      is_active: parsed.value.isActive,
+      allowed_model_ids: parsed.value.allowedModelIds,
+      who_copy: parsed.value.whoCopy,
+      why_copy: parsed.value.whyCopy,
+    })
+    .eq("id", parsed.value.planId);
+  if (error) return { error: error.message, notice: null };
+
+  for (const notice of parsed.value.notices) {
+    const { data: existing } = await supabase
+      .from("plan_notice_thresholds")
+      .select("id")
+      .eq("plan_id", parsed.value.planId)
+      .eq("pct", notice.pct)
+      .maybeSingle();
+    const noticeError = existing?.id
+      ? (
+          await supabase
+            .from("plan_notice_thresholds")
+            .update({ message: notice.message })
+            .eq("id", existing.id)
+        ).error
+      : (
+          await supabase.from("plan_notice_thresholds").insert({
+            plan_id: parsed.value.planId,
+            pct: notice.pct,
+            message: notice.message,
+          })
+        ).error;
+    if (noticeError) return { error: noticeError.message, notice: null };
+  }
+
   revalidatePath("/admin/plans");
+  revalidatePath("/billing");
+  return {
+    error: null,
+    notice:
+      "Saved. Desk Subscription and Analyse agent lists read these rows on the next load.",
+  };
 }
 
 export async function stagePrompt(formData: FormData) {

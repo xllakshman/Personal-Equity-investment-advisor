@@ -13,8 +13,10 @@ export function SupportGrantForm() {
     <form action={action} className="desk__card" style={{ marginTop: 22 }}>
       <h2>Allow support to see holdings</h2>
       <p className="desk__lede">
-        Let support see your holdings for seven days. Without this, support cannot
-        see quantities.
+        Nobody at eqveste can see what you own or how much unless you grant access
+        here. Home then shows Shared with admin. Access lasts seven days and ends
+        on its own. Type a platform admin email to let support SELECT view{" "}
+        <code>holdings</code> for this family.
       </p>
       <label className="pf__label">
         Platform admin email

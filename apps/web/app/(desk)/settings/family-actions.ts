@@ -145,5 +145,9 @@ export async function grantSupportAccess(
   });
   if (error) return { error: error.message, notice: null };
   revalidatePath("/portfolio");
-  return { error: null, notice: "Support may SELECT lots until the grant expires." };
+  revalidatePath("/desk");
+  return {
+    error: null,
+    notice: "Support may SELECT lots until the grant expires on its own.",
+  };
 }

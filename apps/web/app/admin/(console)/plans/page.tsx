@@ -1,6 +1,7 @@
-import { savePlanLimit } from "@/app/admin/(console)/console-actions";
+import { PlanEditForm } from "@/components/features/admin/PlanEditForm";
+import { NOTICE_PCTS } from "@/lib/admin/plan-edit";
 import { requirePlatformAdmin } from "@/lib/admin/session";
-import { planCardTitle } from "@/lib/billing/plan-titles";
+import { isNativeProvider } from "@/lib/analyse/models";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminPlansPage() {
@@ -8,12 +9,28 @@ export default async function AdminPlansPage() {
   const supabase = await createClient();
   const { data: plans } = await supabase
     .from("plans")
-    .select("id, slug, name, monthly_analysis_limit, allowed_model_ids")
+    .select(
+      "id, slug, name, monthly_analysis_limit, price_cents, weekly_digest_ticker_limit, is_active, allowed_model_ids, who_copy, why_copy",
+    )
     .order("sort_order");
   const { data: notices } = await supabase
     .from("plan_notice_thresholds")
     .select("plan_id, pct, message")
     .order("pct");
+  const { data: catalog } = await supabase
+    .from("model_catalog")
+    .select("id, label, provider, thesis_class")
+    .eq("is_active", true)
+    .order("sort_order");
+
+  const agents = (catalog ?? [])
+    .filter((m) => isNativeProvider(String(m.provider)))
+    .filter((m) => m.thesis_class === "frontier" || m.thesis_class === "quick")
+    .map((m) => ({
+      id: String(m.id),
+      label: String(m.label),
+      thesis_class: m.thesis_class === "frontier" ? ("frontier" as const) : ("quick" as const),
+    }));
 
   return (
     <div>
@@ -22,44 +39,44 @@ export default async function AdminPlansPage() {
           <p className="admin__kicker">Platform administration</p>
           <h1 className="admin__h1">Plans and limits</h1>
           <p className="admin__lede">
-            Edits apply to the next billing cycle copy. Does not charge anyone.
+            Five subscription rows: Trial, Basic, Professional, Professional +,
+            Ultra. Price, monthly notes, agents, weekly email cap, and 60 / 80 /
+            90 / 100 notices write to <code>plans</code> and{" "}
+            <code>plan_notice_thresholds</code>. Desk Subscription and Analyse
+            read those tables. This does not charge a card.
           </p>
         </div>
       </header>
       <div className="admin__grid">
-        {(plans ?? []).map((p) => (
-          <form action={savePlanLimit} key={p.id} className="admin__card admin__form">
-            <input type="hidden" name="planId" value={p.id} />
-            <div>
-              <h2 className="admin__h2">
-                {planCardTitle(String(p.slug), String(p.name))}
-              </h2>
-              <p className="admin__hint">Internal name {p.slug}</p>
-            </div>
-            <label className="admin__field">
-              Notes per month
-              <input
-                className="admin__input"
-                name="monthly_analysis_limit"
-                type="number"
-                defaultValue={Number(p.monthly_analysis_limit)}
-              />
-            </label>
-            <p className="admin__hint">
-              Allowed models {(p.allowed_model_ids ?? []).join(", ") || "—"}
-            </p>
-            <p className="admin__hint">
-              Notice thresholds{" "}
-              {(notices ?? [])
-                .filter((n) => n.plan_id === p.id)
-                .map((n) => `${n.pct}%`)
-                .join(", ") || "—"}
-            </p>
-            <button className="admin__btn admin__btn--solid" type="submit">
-              Save limit
-            </button>
-          </form>
-        ))}
+        {(plans ?? []).map((p) => {
+          const planNotices = NOTICE_PCTS.map((pct) => {
+            const row = (notices ?? []).find(
+              (n) => n.plan_id === p.id && Number(n.pct) === pct,
+            );
+            return { pct, message: row?.message ? String(row.message) : "" };
+          });
+          return (
+            <PlanEditForm
+              key={p.id}
+              catalog={agents}
+              plan={{
+                id: String(p.id),
+                slug: String(p.slug),
+                name: String(p.name),
+                monthlyAnalysisLimit: Number(p.monthly_analysis_limit ?? 0),
+                priceCents: Number(p.price_cents ?? 0),
+                weeklyDigestTickerLimit: Number(p.weekly_digest_ticker_limit ?? 3),
+                isActive: p.is_active !== false,
+                allowedModelIds: Array.isArray(p.allowed_model_ids)
+                  ? p.allowed_model_ids.map((id) => String(id))
+                  : [],
+                whoCopy: String(p.who_copy ?? ""),
+                whyCopy: String(p.why_copy ?? ""),
+                notices: planNotices,
+              }}
+            />
+          );
+        })}
       </div>
     </div>
   );

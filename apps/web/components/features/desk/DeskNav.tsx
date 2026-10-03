@@ -33,6 +33,9 @@ export function DeskNav({
         <p className="desk__meter-k">This cycle</p>
         <p className="desk__meter-v">{meterLabel}</p>
         <p className="desk__kpi-s">{meterHint}</p>
+        <Link href="/billing" className="desk__upgrade">
+          Upgrade Plan
+        </Link>
       </div>
     </nav>
   );

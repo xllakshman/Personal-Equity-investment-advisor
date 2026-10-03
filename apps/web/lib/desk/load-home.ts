@@ -7,6 +7,11 @@ import {
 import { meterEventCount } from "@/lib/desk/usage-meter";
 import { createClient } from "@/lib/supabase/server";
 
+export type SupportGrantStatus = {
+  active: boolean;
+  expiresAt: string | null;
+};
+
 export type DeskHome = {
   positions: number;
   analysesThisCycle: number;
@@ -22,6 +27,7 @@ export type DeskHome = {
     verdict: string;
     createdAt: string;
   }[];
+  supportGrant: SupportGrantStatus;
 };
 
 function monthStartUtc(now = new Date()): string {
@@ -32,7 +38,8 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
   const supabase = await createClient();
   const period = monthStartUtc();
 
-  const [holdingsRes, usageRes, reportsRes, familyRes] = await Promise.all([
+  const nowIso = new Date().toISOString();
+  const [holdingsRes, usageRes, reportsRes, familyRes, grantRes] = await Promise.all([
     supabase
       .from("holdings")
       .select("ticker, company_name, qty, cost_per_share, native_currency")
@@ -50,6 +57,14 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
       .order("created_at", { ascending: false })
       .limit(8),
     supabase.from("families").select("plan_id").eq("id", familyId).maybeSingle(),
+    supabase
+      .from("support_access_grants")
+      .select("expires_at")
+      .eq("family_id", familyId)
+      .gt("expires_at", nowIso)
+      .order("expires_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
 
   let planName: string | null = null;
@@ -112,5 +127,8 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
       verdict: String(r.verdict),
       createdAt: String(r.created_at),
     })),
+    supportGrant: grantRes.data?.expires_at
+      ? { active: true, expiresAt: String(grantRes.data.expires_at) }
+      : { active: false, expiresAt: null },
   };
 }

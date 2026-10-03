@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { signOut } from "@/app/(auth)/actions";
+import { EqvesteWord } from "@/components/features/brand/EqvesteWord";
 import { CurrencyChip } from "@/components/features/desk/CurrencyChip";
 import { DeskNav } from "@/components/features/desk/DeskNav";
 import { ObservabilityPing } from "@/components/features/desk/ObservabilityPing";
@@ -27,7 +28,7 @@ export function AppShell({
       <header className="desk__top">
         <Link href="/desk" className="desk__brand">
           <span className="desk__mark" />
-          <span className="desk__word">eqveste</span>
+          <EqvesteWord className="desk__word" />
         </Link>
         <TickerSearch />
         <div className="desk__right">

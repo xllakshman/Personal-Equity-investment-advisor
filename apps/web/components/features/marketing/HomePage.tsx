@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { EqvesteWord } from "@/components/features/brand/EqvesteWord";
 import { ContactForm } from "./ContactForm";
 import { PlanGrid } from "./PlanGrid";
 import { Reveal } from "./Reveal";
@@ -208,13 +209,14 @@ export function HomePage() {
           <nav className="mkt__nav" aria-label="Marketing">
             <a href="#top" className="mkt__brand">
               <span className="mkt__mark" />
-              eqveste
+              <EqvesteWord />
             </a>
             <div className="mkt__nav-links">
               <a href="#solutions">What it does</a>
               <a href="#method">How it works</a>
               <a href="#frameworks">The rules</a>
               <a href="#whyus">Why us</a>
+              <a href="#privacy">Privacy</a>
               <a href="#pricing">Subscription</a>
               <a href="#contact">Contact</a>
             </div>
@@ -353,6 +355,43 @@ export function HomePage() {
           <p style={{ margin: "12px 0 0", textAlign: "center", fontSize: 12.5, color: "rgba(245,245,247,.64)" }}>
             Every time you log in, we re-check the open questions on the stocks you own
           </p>
+        </section>
+
+        <section id="privacy" className="mkt__section">
+          <Reveal className="mkt__privacy">
+            <p className="mkt__kicker">Holdings stay yours</p>
+            <h2 className="mkt__h2">Your portfolio is private. We can&apos;t see it.</h2>
+            <p className="mkt__lede">
+              Nobody at eqveste can see what you own or how much. Only if you ask
+              us for help can you let support look and access ends on its own.
+            </p>
+            <div className="mkt__privacy-grid">
+              <div className="mkt__card">
+                <p className="mkt__privacy-k">Off unless you ask</p>
+                <p>
+                  After you log in, Home and Portfolio show this same rule. Platform
+                  admin cannot SELECT view <code>holdings</code> until the family
+                  owner grants access.
+                </p>
+              </div>
+              <div className="mkt__card">
+                <p className="mkt__privacy-k">Ends on its own</p>
+                <p>
+                  The owner types a platform admin email on Portfolio. That insert
+                  into <code>support_access_grants</code> lasts seven days, then
+                  SELECT on lots stops. No extra click is required to end it.
+                </p>
+              </div>
+              <div className="mkt__card">
+                <p className="mkt__privacy-k">We never trade or share</p>
+                <p>
+                  eqveste is not a broker. We never place a trade. Notes stay on
+                  Reports for your family. Support never sees report sections or
+                  lot quantities without that grant.
+                </p>
+              </div>
+            </div>
+          </Reveal>
         </section>
 
         <section id="solutions" className="mkt__section">
@@ -633,9 +672,7 @@ export function HomePage() {
         <footer className="mkt__footer">
           <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
             <span className="mkt__mark" style={{ width: 20, height: 20 }} />
-            <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(245,245,247,.7)" }}>
-              eqveste
-            </span>
+            <EqvesteWord />
           </div>
           <div style={{ display: "flex", gap: 22, flexWrap: "wrap" }}>
             <a href="#solutions">What it does</a>
@@ -644,6 +681,7 @@ export function HomePage() {
             <a href="#pricing">Subscription</a>
             <a href="#whyus">Why us</a>
             <a href="#weekly">Weekly email</a>
+            <a href="#privacy">Privacy</a>
             <a href="#contact">Contact</a>
             <Link href="/login">Log in</Link>
           </div>

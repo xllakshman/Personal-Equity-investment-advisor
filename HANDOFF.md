@@ -26,7 +26,7 @@
 | Maya seed | ✅ `maya@thesis.demo` · 5 lots · 2 reports (1 sample) |
 | Storage bucket `report-pdfs` | ✅ private |
 | Analysis API / worker | ✅ 2026-09-14 — `apps/analysis-api` :8091, `apps/analysis-worker`; Docker compose in `infra/docker` |
-| Next.js desk | ✅ 2026-10-03 — Analyse without a holding (D33). Home `/desk` add/edit/delete `holding_lots`. Viewers read `reports`. **021** in git; apply when named. |
+| Next.js desk | ✅ 2026-10-03 — `/admin/plans` edits `plans` + `plan_notice_thresholds` (limit, price, agents, weekly cap). Home `/desk` shows Private vs Shared with admin from `support_access_grants`. **021** in git; apply when named. |
 | Prod schema | ✅ 2026-09-15 — **001–019** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. |
 | Prod Vercel | 🟡 2026-09-15 — Production anon env + deploy on `equity-investment-advisor-prod.vercel.app`. `eqveste.com` DNS not pointing (404 OpenResty). |
 | Tests | ✅ unit + web tests for 4–9. Live two-JWT CI still skips without a second family JWT. |

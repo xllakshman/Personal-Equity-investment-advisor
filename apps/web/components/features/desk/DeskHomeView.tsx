@@ -4,6 +4,7 @@ import type { DeskHome } from "@/lib/desk/load-home";
 import { analysesThisCycleCaption } from "@/lib/desk/usage-meter";
 import { RecheckForm } from "@/components/features/desk/RecheckForm";
 import { HomeBook } from "@/components/features/desk/HomeBook";
+import { deskPrivacyView } from "@/lib/desk/privacy-status";
 import { firstName } from "@/lib/desk/session";
 import type { HoldingLotRow } from "@/lib/portfolio/load";
 
@@ -39,6 +40,7 @@ export function DeskHomeView({
     home.analysisLimit != null
       ? `${home.analysesThisCycle} / ${home.analysisLimit}`
       : String(home.analysesThisCycle);
+  const privacy = deskPrivacyView(home.supportGrant);
 
   return (
     <div>
@@ -51,6 +53,29 @@ export function DeskHomeView({
           Analyse a Stock
         </Link>
       </div>
+      <section
+        className={privacy.shared ? "desk__privacy desk__privacy--shared" : "desk__privacy"}
+        aria-labelledby="desk-privacy-title"
+      >
+        <div>
+          <p
+            className={
+              privacy.shared
+                ? "desk__privacy-badge desk__privacy-badge--shared"
+                : "desk__privacy-badge desk__privacy-badge--private"
+            }
+          >
+            {privacy.badge}
+          </p>
+          <h2 id="desk-privacy-title" className="desk__privacy-h">
+            {privacy.title}
+          </h2>
+          <p>{privacy.detail}</p>
+        </div>
+        <Link href="/portfolio" className="desk__btn desk__btn--ghost">
+          Manage access
+        </Link>
+      </section>
       <div className="desk__kpis">
         <div className="desk__card">
           <p className="desk__kpi-k">At last cost</p>
@@ -109,7 +134,7 @@ export function DeskHomeView({
             }}
           >
             <h2 style={{ margin: 0 }}>Recent notes</h2>
-            <Link href="/reports" style={{ color: "#2f5f52", fontSize: 12, fontWeight: 500 }}>
+            <Link href="/reports" style={{ color: "#9ecbff", fontSize: 12, fontWeight: 500 }}>
               All reports
             </Link>
           </div>
@@ -141,7 +166,7 @@ export function DeskHomeView({
           <p style={{ margin: "0 0 5px", fontWeight: 600 }}>
             CSV upload still lives on Portfolio
           </p>
-          <p style={{ color: "#5c6578", fontSize: 12.5, lineHeight: 1.6 }}>
+          <p style={{ color: "rgba(245,245,247,.66)", fontSize: 12.5, lineHeight: 1.6 }}>
             Use Portfolio for a bulk file. Tickers you type on Analyse do not have
             to be in this book. Both paths use one note from this month’s
             allowance. Viewers can open saved notes on Reports.

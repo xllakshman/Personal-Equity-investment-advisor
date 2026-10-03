@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { EqvesteWord } from "@/components/features/brand/EqvesteWord";
+
 const POINTS = [
   { color: "#0a84ff", text: "Sized to your capital, drawdown tolerance and CAGR target" },
   { color: "#30d158", text: "Built to disagree with you — never a flattering answer" },
@@ -37,7 +39,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
         />
         <Link href="/" className="auth__wordmark">
           <span className="auth__mark" />
-          eqveste
+          <EqvesteWord />
         </Link>
         <div style={{ position: "relative", maxWidth: 480 }}>
           <p className="auth__pill">

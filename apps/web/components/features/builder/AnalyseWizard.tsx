@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState, useEffect, useMemo, useState } from "react";
 
+import { AgentPicker } from "@/components/features/builder/AgentPicker";
 import { acceptAnalysis, EMPTY_ACCEPT } from "@/app/(desk)/analyse/actions";
 import { guessExchange } from "@/lib/portfolio/exchange";
 import { normalizeTicker } from "@/lib/desk/ticker";
@@ -159,7 +160,6 @@ export function AnalyseWizard({
 
   const slabOptions = taxResidency === "india" ? IN_SLABS : US_SLABS;
   const showSlab = taxResidency === "us" || taxResidency === "india";
-  const allModels = [...groups.frontier, ...groups.quick];
 
   return (
     <form className="bld" action={action}>
@@ -513,40 +513,19 @@ export function AnalyseWizard({
 
               <aside className="bld__side">
                 <section className="pf__card">
-                  <h2 className="bld__h2">Model</h2>
+                  <h2 className="bld__h2">Choose your agent</h2>
                   <p className="pf__lede">
-                    Frontier agents come with Professional and above. Plan:{" "}
-                    {payload.planName}. {usageCaption(usage)} used this cycle.
+                    Frontier agents come with Professional and above. Quick agents
+                    are on Trial and Basic. Plan: {payload.planName}.{" "}
+                    {usageCaption(usage)} used this cycle.
                   </p>
-                  <label className="pf__label">
-                    Agent
-                    <select
-                      className="pf__input"
-                      value={modelId ?? ""}
-                      onChange={(e) => {
-                        const next = e.target.value;
-                        if (next && modelAllowed(next, payload.allowedModelIds)) {
-                          setModelId(next);
-                        }
-                      }}
-                    >
-                      {allModels.map((m) => {
-                        const locked = !modelAllowed(m.id, payload.allowedModelIds);
-                        return (
-                          <option key={m.id} value={m.id} disabled={locked}>
-                            {m.label} · {m.provider} · {modelCost(m.cost_cents_per_run)}
-                            {locked ? " · needs a higher plan" : ""}
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </label>
-                  {chosen ? (
-                    <p className="pf__lede" style={{ marginTop: 10 }}>
-                      {chosen.provider} · {chosen.vendor_class}
-                      {!onPlan ? ` · Needs a higher plan than ${payload.planName}.` : ""}
-                    </p>
-                  ) : null}
+                  <AgentPicker
+                    models={payload.models}
+                    allowedIds={payload.allowedModelIds}
+                    planName={payload.planName}
+                    selectedId={modelId}
+                    onSelect={setModelId}
+                  />
                   {upgradeNudge ? (
                     <div className="bld__alert bld__alert--warn">
                       <span>

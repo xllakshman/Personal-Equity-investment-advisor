@@ -1,5 +1,6 @@
 import { openImpersonation } from "@/app/admin/(console)/console-actions";
 import { requirePlatformAdmin } from "@/lib/admin/session";
+import { planCardTitle } from "@/lib/billing/plan-titles";
 import { createClient } from "@/lib/supabase/server";
 import { meterEventCount } from "@/lib/desk/usage-meter";
 
@@ -43,7 +44,7 @@ export default async function AdminAccountsPage() {
           .select("slug, monthly_analysis_limit")
           .eq("id", fam.plan_id)
           .maybeSingle();
-        plan = p?.slug ?? "—";
+        plan = p?.slug ? planCardTitle(String(p.slug), String(p.slug)) : "—";
         limit = p?.monthly_analysis_limit ?? null;
       }
       const { data: usage } = await supabase

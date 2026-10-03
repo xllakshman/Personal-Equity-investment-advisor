@@ -95,3 +95,7 @@ def test_marketing_home_still_renders() -> None:
         pytest.skip(f"web not reachable at {BASE}")
     assert res.status_code == 200
     assert "An institutional-grade AI agent built to" in res.text
+    assert "Your portfolio is private. We can" in res.text
+    assert "Nobody at eqveste can see what you own or how much" in res.text
+    assert 'id="privacy"' in res.text
+    assert 'href="#privacy"' in res.text

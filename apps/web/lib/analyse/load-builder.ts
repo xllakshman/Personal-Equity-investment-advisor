@@ -82,7 +82,9 @@ export async function loadAnalyseBuilder(
 
   const { data: catalog } = await supabase
     .from("model_catalog")
-    .select("id, label, provider, vendor_class, thesis_class, cost_cents_per_run, is_active")
+    .select(
+      "id, label, provider, vendor_class, thesis_class, cost_cents_per_run, min_plan_slug, is_active",
+    )
     .eq("is_active", true)
     .order("sort_order");
 
@@ -96,6 +98,7 @@ export async function loadAnalyseBuilder(
       vendor_class: String(m.vendor_class ?? ""),
       thesis_class: m.thesis_class === "frontier" ? "frontier" : "quick",
       cost_cents_per_run: Number(m.cost_cents_per_run ?? 0),
+      min_plan_slug: String(m.min_plan_slug ?? "trial"),
     }));
 
   const { data: userRow } = await supabase

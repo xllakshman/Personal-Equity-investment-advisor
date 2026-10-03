@@ -14,6 +14,7 @@ import {
   defaultModelId,
   groupModels,
   modelAllowed,
+  agentEligibility,
   nativeCatalogModels,
 } from "./models";
 
@@ -66,6 +67,7 @@ describe("model picker", () => {
       vendor_class: "Opus",
       thesis_class: "frontier" as const,
       cost_cents_per_run: 180,
+      min_plan_slug: "professional",
     },
     {
       id: "gpt6a",
@@ -74,6 +76,7 @@ describe("model picker", () => {
       vendor_class: "Flagship",
       thesis_class: "frontier" as const,
       cost_cents_per_run: 180,
+      min_plan_slug: "professional",
     },
     {
       id: "gpt56m",
@@ -82,6 +85,7 @@ describe("model picker", () => {
       vendor_class: "Cost-sensitive",
       thesis_class: "quick" as const,
       cost_cents_per_run: 20,
+      min_plan_slug: "trial",
     },
   ];
 
@@ -97,6 +101,21 @@ describe("model picker", () => {
     assert.equal(g.quick.length, 1);
   });
 
+  it("labels Frontier vs Quick eligibility from allowed_model_ids and min_plan_slug", () => {
+    const trial = ["gpt56m"];
+    const frontier = agentEligibility(models[0], trial);
+    const quick = agentEligibility(models[2], trial);
+    assert.equal(frontier.band, "Frontier agents");
+    assert.equal(frontier.allowed, false);
+    assert.equal(frontier.badge, "Needs Professional");
+    assert.equal(quick.band, "Quick agents");
+    assert.equal(quick.allowed, true);
+    assert.equal(quick.badge, "On your plan");
+    const pro = agentEligibility(models[0], ["opus5", "gpt56m"]);
+    assert.equal(pro.allowed, true);
+    assert.equal(pro.badge, "On your plan");
+  });
+
   it("hides Gemini and Kimi from the picker", () => {
     const mixed = [
       ...models,
@@ -107,6 +126,7 @@ describe("model picker", () => {
         vendor_class: "Pro",
         thesis_class: "frontier" as const,
         cost_cents_per_run: 150,
+        min_plan_slug: "professional",
       },
       {
         id: "kimik3",
@@ -115,6 +135,7 @@ describe("model picker", () => {
         vendor_class: "K3",
         thesis_class: "frontier" as const,
         cost_cents_per_run: 150,
+        min_plan_slug: "professional",
       },
     ];
     const shown = nativeCatalogModels(mixed);
