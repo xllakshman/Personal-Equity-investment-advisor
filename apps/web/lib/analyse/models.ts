@@ -22,6 +22,36 @@ export function modelAllowed(id: string, allowedIds: readonly string[]): boolean
   return allowedIds.includes(id);
 }
 
+/** Lower number = cheaper plan. trial < basic < professional < premium < ultra. */
+export const PLAN_RANK: Record<string, number> = {
+  trial: 0,
+  basic: 1,
+  professional: 2,
+  premium: 3,
+  ultra: 4,
+};
+
+export function planMeetsMin(planSlug: string, minSlug: string): boolean {
+  return (PLAN_RANK[planSlug] ?? 0) >= (PLAN_RANK[minSlug] ?? 0);
+}
+
+/** On plan = ticked on that plan row AND the family's plan meets min_plan_slug. Trial/Basic never run Frontier. */
+export function modelOnPlan(
+  model: Pick<CatalogModel, "id" | "thesis_class" | "min_plan_slug">,
+  allowedIds: readonly string[],
+  planSlug: string,
+): boolean {
+  if (!modelAllowed(model.id, allowedIds)) return false;
+  if (!planMeetsMin(planSlug, model.min_plan_slug)) return false;
+  if (
+    (planSlug === "trial" || planSlug === "basic") &&
+    model.thesis_class === "frontier"
+  ) {
+    return false;
+  }
+  return true;
+}
+
 export function groupModels(models: CatalogModel[]): {
   frontier: CatalogModel[];
   quick: CatalogModel[];
@@ -35,13 +65,13 @@ export function groupModels(models: CatalogModel[]): {
 export function defaultModelId(
   models: CatalogModel[],
   allowedIds: readonly string[],
+  planSlug = "trial",
   preferred = "opus5",
 ): string | null {
-  if (modelAllowed(preferred, allowedIds) && models.some((m) => m.id === preferred)) {
-    return preferred;
-  }
-  const first = models.find((m) => modelAllowed(m.id, allowedIds));
-  return first?.id ?? null;
+  const onPlan = (m: CatalogModel) => modelOnPlan(m, allowedIds, planSlug);
+  const prefer = models.find((m) => m.id === preferred && onPlan(m));
+  if (prefer) return prefer.id;
+  return models.find(onPlan)?.id ?? null;
 }
 
 export function canContinue(opts: {
@@ -60,14 +90,6 @@ export function canContinue(opts: {
   );
 }
 
-const PLAN_NEED: Record<string, string> = {
-  trial: "Trial",
-  basic: "Basic",
-  professional: "Professional",
-  premium: "Professional +",
-  ultra: "Ultra",
-};
-
 export function agentBand(thesisClass: CatalogModel["thesis_class"]): string {
   return thesisClass === "frontier" ? "Frontier agents" : "Quick agents";
 }
@@ -75,14 +97,12 @@ export function agentBand(thesisClass: CatalogModel["thesis_class"]): string {
 export function agentEligibility(
   model: CatalogModel,
   allowedIds: readonly string[],
+  planSlug: string,
 ): { allowed: boolean; badge: string; band: string } {
-  const allowed = modelAllowed(model.id, allowedIds);
+  const allowed = modelOnPlan(model, allowedIds, planSlug);
   const band = agentBand(model.thesis_class);
   if (allowed) {
-    return { allowed: true, badge: "On your plan", band };
+    return { allowed: true, badge: "On plan", band };
   }
-  const need =
-    PLAN_NEED[model.min_plan_slug] ??
-    (model.thesis_class === "frontier" ? "Professional" : "a higher plan");
-  return { allowed: false, badge: `Needs ${need}`, band };
+  return { allowed: false, badge: "Upgrade your plan", band };
 }

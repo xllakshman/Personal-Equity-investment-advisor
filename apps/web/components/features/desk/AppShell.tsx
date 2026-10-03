@@ -2,12 +2,13 @@ import Link from "next/link";
 
 import { EqvesteMark } from "@/components/features/brand/EqvesteMark";
 import { EqvesteWord } from "@/components/features/brand/EqvesteWord";
+import { AccountMenu } from "@/components/features/desk/AccountMenu";
 import { CurrencyChip } from "@/components/features/desk/CurrencyChip";
 import { DeskNav } from "@/components/features/desk/DeskNav";
 import { ObservabilityPing } from "@/components/features/desk/ObservabilityPing";
-import { SignOutButton } from "@/components/features/desk/SignOutButton";
 import { TickerSearch } from "@/components/features/desk/TickerSearch";
-import { initials, roleLabel, type DeskSession } from "@/lib/desk/session";
+import { deskFont } from "@/lib/desk/font";
+import type { DeskSession } from "@/lib/desk/session";
 import type { NativeCurrency } from "@/lib/portfolio/exchange";
 
 export function AppShell({
@@ -28,7 +29,7 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="desk">
+    <div className={`desk ${deskFont.className}`}>
       <div className="desk__blobs" aria-hidden>
         <span className="desk__blob desk__blob--a" />
         <span className="desk__blob desk__blob--b" />
@@ -42,25 +43,11 @@ export function AppShell({
         </Link>
         <TickerSearch />
         <div className="desk__right">
-          <Link href="/billing" className="desk__plan-chip" title="Subscription">
-            <span className="desk__plan-chip-k">Subscription</span>
-            <span className="desk__plan-chip-v">{planChip}</span>
+          <Link href="/billing" className="desk__plan-chip" title="Open Subscription">
+            Subscription · {planChip}
           </Link>
           <CurrencyChip currency={displayCurrency} />
-          <div className="desk__who">
-            <strong>
-              <Link href="/settings/profile">{session.fullName}</Link>
-            </strong>
-            <span>
-              <Link href="/settings/profile">Profile</Link>
-              {" · "}
-              {roleLabel(session.role, session.memberRole)}
-            </span>
-          </div>
-          <span className="desk__avatar" aria-hidden>
-            {initials(session.fullName)}
-          </span>
-          <SignOutButton />
+          <AccountMenu fullName={session.fullName} />
         </div>
       </header>
       <div className="desk__body">

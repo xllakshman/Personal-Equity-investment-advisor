@@ -35,7 +35,7 @@ import {
   type LensState,
 } from "@/lib/analyse/lenses";
 import type { BuilderPayload, HeldLot } from "@/lib/analyse/load-builder";
-import { canContinue, defaultModelId, groupModels, modelAllowed } from "@/lib/analyse/models";
+import { canContinue, defaultModelId, groupModels, modelOnPlan } from "@/lib/analyse/models";
 import { ANALYSE_STEPS, analyseGuide, analyseStepsDone } from "@/lib/analyse/steps";
 import { trancheSummary } from "@/lib/profile/tranches";
 import { usageCaption, usageHumanHint } from "@/lib/usage/format";
@@ -105,7 +105,7 @@ export function AnalyseWizard({
     return nearestSlab(payload.taxSlab, opts);
   });
   const [modelId, setModelId] = useState<string | null>(
-    defaultModelId(payload.models, payload.allowedModelIds),
+    defaultModelId(payload.models, payload.allowedModelIds, payload.planSlug),
   );
   const [conviction, setConviction] = useState("");
   const [addFunds, setAddFunds] = useState("");
@@ -127,7 +127,11 @@ export function AnalyseWizard({
   const picked = selectedLenses(lenses);
   const conflict = isRiskCagrConflict(risk, cagr);
   const slack = hasRiskCagrSlack(risk, cagr);
-  const onPlan = modelId ? modelAllowed(modelId, payload.allowedModelIds) : false;
+  const groups = groupModels(payload.models);
+  const chosen = payload.models.find((m) => m.id === modelId) ?? null;
+  const onPlan = chosen
+    ? modelOnPlan(chosen, payload.allowedModelIds, payload.planSlug)
+    : false;
   const ok = canContinue({
     hasTicker: Boolean(normalizeTicker(ticker)),
     lensCount: picked.length,
@@ -143,14 +147,12 @@ export function AnalyseWizard({
     modelOnPlan: onPlan && Boolean(modelId),
   });
   const guide = analyseGuide(stepDone);
-  const groups = groupModels(payload.models);
-  const chosen = payload.models.find((m) => m.id === modelId) ?? null;
   const alloc = allocationPct(invested, portfolio);
   const kindSummary = picked.length
     ? picked.map((k) => LENS_COPY[k as keyof typeof LENS_COPY]?.label ?? k).join(" · ")
     : "Nothing picked yet";
   const lockedFrontier = groups.frontier.some(
-    (m) => !modelAllowed(m.id, payload.allowedModelIds),
+    (m) => !modelOnPlan(m, payload.allowedModelIds, payload.planSlug),
   );
   const upgradeNudge = Boolean(chosen && chosen.thesis_class !== "frontier" && lockedFrontier);
   const exchange = held?.exchange || guessExchange(ticker);
@@ -166,7 +168,7 @@ export function AnalyseWizard({
     if (!normalizeTicker(ticker)) return "Enter a ticker, or pick one from your book.";
     if (conflict) return "Fix the risk and return mismatch to continue";
     if (picked.length === 0) return "Pick at least one check";
-    if (!onPlan || !modelId) return "This model needs a higher plan";
+    if (!onPlan || !modelId) return "Upgrade your plan to run this agent";
     return `Runs on ${chosen?.label ?? modelId} · uses 1 note, or ${modelCost(chosen?.cost_cents_per_run ?? 0)}`;
   }, [canWrite, ticker, conflict, picked.length, onPlan, modelId, chosen, payload.inFlight]);
 
@@ -574,6 +576,7 @@ export function AnalyseWizard({
                   <AgentPicker
                     models={payload.models}
                     allowedIds={payload.allowedModelIds}
+                    planSlug={payload.planSlug}
                     planName={payload.planName}
                     selectedId={modelId}
                     onSelect={setModelId}

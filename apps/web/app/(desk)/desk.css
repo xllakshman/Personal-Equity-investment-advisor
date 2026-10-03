@@ -7,7 +7,8 @@
   --desk-paper: #191f30;
   --desk-glass: rgba(255, 255, 255, 0.07);
   --desk-line: rgba(255, 255, 255, 0.12);
-  --desk-ui: -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
+  --desk-ui: inherit;
+  --font-ibm-plex-sans: inherit;
   --desk-shadow:
     0 1px 0 rgba(255, 255, 255, 0.06) inset,
     0 18px 40px rgba(0, 0, 0, 0.28);
@@ -22,7 +23,9 @@
     radial-gradient(720px 420px at 70% 40%, rgba(255, 159, 10, 0.08), transparent 62%);
   background-attachment: fixed;
   color: var(--desk-ink);
-  font-family: var(--desk-ui);
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   position: relative;
 }
@@ -233,17 +236,18 @@
 }
 
 .desk__plan-chip {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 6px 12px;
-  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
   border: 1px solid rgba(10, 132, 255, 0.45);
   background: rgba(10, 132, 255, 0.14);
   color: #f5f5f7 !important;
   text-decoration: none;
   min-width: 0;
-  max-width: 220px;
+  white-space: nowrap;
+  font: 600 13px/1.2 inherit;
 }
 
 .desk__plan-chip:hover {
@@ -299,6 +303,81 @@
   align-items: center;
   gap: 9px;
   margin-left: auto;
+}
+
+.desk__account {
+  position: relative;
+}
+
+.desk__account-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 2px 2px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f5f7;
+  cursor: pointer;
+  font: 600 13px/1.2 inherit;
+}
+
+.desk__account-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.desk__account-name {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.desk__account-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  min-width: 180px;
+  padding: 6px;
+  border-radius: 14px;
+  background: rgba(25, 31, 48, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: var(--desk-shadow);
+}
+
+.desk__account-item {
+  display: block;
+  padding: 9px 12px;
+  border-radius: 10px;
+  color: #f5f5f7 !important;
+  font: 500 14px/1.3 inherit;
+}
+
+.desk__account-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.desk__account-item--signout {
+  padding: 0;
+}
+
+.desk__account-item--signout .desk__signout {
+  width: 100%;
+  justify-content: flex-start;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  color: #f5f5f7;
+  padding: 9px 12px;
+  min-height: 0;
+  font: 500 14px/1.3 inherit;
+  box-shadow: none;
+}
+
+.desk__account-item--signout .desk__signout:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: none;
 }
 
 .desk__who {
@@ -462,9 +541,9 @@
 }
 
 .desk__h1 {
-  font: 700 clamp(32px, 4vw, 46px)/1.05 var(--desk-ui);
+  font: 700 clamp(28px, 3.4vw, 40px)/1.12 var(--desk-ui);
   margin: 0;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.028em;
 }
 
 .desk__kicker {
@@ -477,7 +556,7 @@
 
 .desk__lede {
   margin: 8px 0 0;
-  font: 400 14px/1.65 var(--font-ibm-plex-sans), sans-serif;
+  font: 400 15px/1.65 var(--font-ibm-plex-sans), sans-serif;
   color: var(--desk-muted);
   max-width: 62ch;
 }

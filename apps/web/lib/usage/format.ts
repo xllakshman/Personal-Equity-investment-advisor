@@ -26,7 +26,8 @@ export function planStatusLabel(
 
 export function planChipLabel(snap: UsageSnapshot): string {
   const plan = snap.planName ?? "Trial";
-  return `${plan} · ${planStatusLabel(snap.billingStatus, snap.exhausted)}`;
+  if (snap.exhausted) return `${plan} · Allowance used`;
+  return plan;
 }
 
 /** Width for the sidebar meter fill. Unlimited plans match App.dc.html’s 8%. */

@@ -44,7 +44,15 @@ describe("planStatusLabel", () => {
     assert.equal(planStatusLabel("subscribed", true), "Allowance used");
     assert.equal(
       planChipLabel(snap()),
-      "Professional · Active",
+      "Professional",
+    );
+    assert.equal(
+      planChipLabel(snap({ planName: "Trial", billingStatus: "trial" })),
+      "Trial",
+    );
+    assert.equal(
+      planChipLabel(snap({ exhausted: true })),
+      "Professional · Allowance used",
     );
   });
 });

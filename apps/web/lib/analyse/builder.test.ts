@@ -14,6 +14,7 @@ import {
   defaultModelId,
   groupModels,
   modelAllowed,
+  modelOnPlan,
   agentEligibility,
   nativeCatalogModels,
 } from "./models";
@@ -94,26 +95,30 @@ describe("model picker", () => {
     const trial = ["gpt56m"];
     assert.equal(modelAllowed("opus5", pro), true);
     assert.equal(modelAllowed("gpt6a", trial), false);
-    assert.equal(defaultModelId(models, pro), "opus5");
-    assert.equal(defaultModelId(models, trial), "gpt56m");
+    assert.equal(defaultModelId(models, pro, "professional"), "opus5");
+    assert.equal(defaultModelId(models, trial, "trial"), "gpt56m");
     const g = groupModels(models);
     assert.equal(g.frontier.length, 2);
     assert.equal(g.quick.length, 1);
   });
 
   it("labels Frontier vs Quick eligibility from allowed_model_ids and min_plan_slug", () => {
-    const trial = ["gpt56m"];
-    const frontier = agentEligibility(models[0], trial);
-    const quick = agentEligibility(models[2], trial);
+    const trial = ["gpt56m", "gpt6a"];
+    const frontier = agentEligibility(models[0], trial, "trial");
+    const quick = agentEligibility(models[2], trial, "trial");
     assert.equal(frontier.band, "Frontier agents");
     assert.equal(frontier.allowed, false);
-    assert.equal(frontier.badge, "Needs Professional");
+    assert.equal(frontier.badge, "Upgrade your plan");
     assert.equal(quick.band, "Quick agents");
     assert.equal(quick.allowed, true);
-    assert.equal(quick.badge, "On your plan");
-    const pro = agentEligibility(models[0], ["opus5", "gpt56m"]);
+    assert.equal(quick.badge, "On plan");
+    const astraOnTrial = agentEligibility(models[1], trial, "trial");
+    assert.equal(astraOnTrial.allowed, false);
+    assert.equal(astraOnTrial.badge, "Upgrade your plan");
+    assert.equal(modelOnPlan(models[1], trial, "trial"), false);
+    const pro = agentEligibility(models[0], ["opus5", "gpt56m"], "professional");
     assert.equal(pro.allowed, true);
-    assert.equal(pro.badge, "On your plan");
+    assert.equal(pro.badge, "On plan");
   });
 
   it("hides Gemini and Kimi from the picker", () => {

@@ -26,10 +26,22 @@ export const EMPTY_PORTFOLIO_STATE: PortfolioActionState = {
 
 function safeReturnPath(raw: string): string {
   const path = raw.trim().split("?")[0] ?? "";
-  if (path === "/desk" || path === "/portfolio") return path;
   if (!path.startsWith("/") || path.startsWith("//") || path.includes("://")) {
     return "/desk";
   }
+  const allowed = [
+    "/desk",
+    "/portfolio",
+    "/analyse",
+    "/reports",
+    "/billing",
+    "/subscription",
+    "/settings",
+    "/research",
+    "/contact",
+    "/usage",
+  ];
+  if (allowed.some((p) => path === p || path.startsWith(`${p}/`))) return path;
   return "/desk";
 }
 

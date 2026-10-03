@@ -5,6 +5,7 @@ import { AdminSignOutButton } from "@/components/features/admin/AdminSignOutButt
 import { EqvesteMark } from "@/components/features/brand/EqvesteMark";
 import { EqvesteWord } from "@/components/features/brand/EqvesteWord";
 import { requirePlatformAdmin } from "@/lib/admin/session";
+import { deskFont } from "@/lib/desk/font";
 import { initials } from "@/lib/desk/session";
 
 import "../../(desk)/desk.css";
@@ -15,7 +16,7 @@ export default async function AdminSectionLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const session = await requirePlatformAdmin();
   return (
-    <div className="desk">
+    <div className={`desk ${deskFont.className}`}>
       <div className="desk__blobs" aria-hidden>
         <span className="desk__blob desk__blob--a" />
         <span className="desk__blob desk__blob--b" />
@@ -29,8 +30,7 @@ export default async function AdminSectionLayout({
         <p className="admin__top-title">Platform admin</p>
         <div className="desk__right">
           <span className="desk__plan-chip" title="Elevated role">
-            <span className="desk__plan-chip-k">Role</span>
-            <span className="desk__plan-chip-v">platform admin</span>
+            Role · platform admin
           </span>
           <div className="desk__who">
             <strong>{session.fullName}</strong>
