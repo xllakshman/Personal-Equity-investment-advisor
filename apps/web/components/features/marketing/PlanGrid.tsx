@@ -59,7 +59,7 @@ export function PlanGrid() {
       </div>
       <div className="mkt__grid mkt__grid--6">
         <PlanCard
-          name="Free trial"
+          name="Trial"
           price="Free"
           per="no card needed"
           quota="3 sample analyses"

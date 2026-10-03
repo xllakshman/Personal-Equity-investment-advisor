@@ -1,11 +1,11 @@
 export const DESK_NAV = [
-  { href: "/desk", label: "Home", hint: "Overview" },
-  { href: "/analyse", label: "Analyse a Stock", hint: "Request builder" },
-  { href: "/portfolio", label: "Portfolio", hint: "Holdings & CSV" },
-  { href: "/reports", label: "Reports", hint: "Saved notes" },
-  { href: "/research/managers", label: "Managers", hint: "Public filings" },
-  { href: "/billing", label: "Subscription", hint: "Plan & wallet" },
-  { href: "/contact", label: "Contact us", hint: "Ask a question" },
+  { href: "/desk", label: "Home", hint: "Overview", dot: "#0a84ff" },
+  { href: "/analyse", label: "Analyse a stock", hint: "Get a decision", dot: "#30d158" },
+  { href: "/portfolio", label: "Review Portfolio", hint: "Your holdings", dot: "#ff9f0a" },
+  { href: "/reports", label: "Reports", hint: "Saved research", dot: "#bf5af2" },
+  { href: "/research/managers", label: "Elite Investor Portfolios", hint: "Public 13F books", dot: "#64d2ff" },
+  { href: "/billing", label: "Subscription", hint: "Plan & wallet", dot: "#ff375f" },
+  { href: "/contact", label: "Contact us", hint: "Ask a question", dot: "#ffd60a" },
 ] as const;
 
 export const DESK_PATHS = DESK_NAV.map((n) => n.href);

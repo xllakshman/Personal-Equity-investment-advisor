@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { EqvesteMark } from "@/components/features/brand/EqvesteMark";
 import { EqvesteWord } from "@/components/features/brand/EqvesteWord";
 import { ContactForm } from "./ContactForm";
 import { PlanGrid } from "./PlanGrid";
@@ -208,7 +209,7 @@ export function HomePage() {
         <header className="mkt__nav-outer">
           <nav className="mkt__nav" aria-label="Marketing">
             <a href="#top" className="mkt__brand">
-              <span className="mkt__mark" />
+              <EqvesteMark gid="eqeg-mkt" size={22} />
               <EqvesteWord />
             </a>
             <div className="mkt__nav-links">
@@ -588,7 +589,7 @@ export function HomePage() {
                 <tbody>
                   <tr>
                     <td>
-                      <p style={{ margin: 0, fontWeight: 600, color: "#f5f5f7" }}>Free trial</p>
+                      <p style={{ margin: 0, fontWeight: 600, color: "#f5f5f7" }}>Trial</p>
                     </td>
                     <td>Anyone who wants to judge the quality first.</td>
                     <td>Three finished notes on well-known companies. Read every page, then decide.</td>
@@ -671,7 +672,7 @@ export function HomePage() {
 
         <footer className="mkt__footer">
           <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-            <span className="mkt__mark" style={{ width: 20, height: 20 }} />
+            <EqvesteMark gid="eqeg-mkt-foot" size={20} />
             <EqvesteWord />
           </div>
           <div style={{ display: "flex", gap: 22, flexWrap: "wrap" }}>

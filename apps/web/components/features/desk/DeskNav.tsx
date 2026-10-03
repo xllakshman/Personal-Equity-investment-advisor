@@ -8,9 +8,11 @@ import { DESK_NAV } from "@/lib/desk/nav";
 export function DeskNav({
   meterLabel,
   meterHint,
+  meterPct,
 }: {
   meterLabel: string;
   meterHint: string;
+  meterPct: number;
 }) {
   const pathname = usePathname();
   return (
@@ -25,16 +27,26 @@ export function DeskNav({
               : undefined
           }
         >
-          <span className="desk__nav-label">{item.label}</span>
-          <span className="desk__nav-hint">{item.hint}</span>
+          <span
+            className="desk__nav-dot"
+            style={{ background: item.dot, boxShadow: `0 0 10px ${item.dot}` }}
+            aria-hidden
+          />
+          <span className="desk__nav-copy">
+            <span className="desk__nav-label">{item.label}</span>
+            <span className="desk__nav-hint">{item.hint}</span>
+          </span>
         </Link>
       ))}
       <div className="desk__meter">
-        <p className="desk__meter-k">This cycle</p>
+        <p className="desk__meter-k">This month</p>
         <p className="desk__meter-v">{meterLabel}</p>
+        <div className="desk__meter-bar" aria-hidden>
+          <div className="desk__meter-fill" style={{ width: `${meterPct}%` }} />
+        </div>
         <p className="desk__kpi-s">{meterHint}</p>
         <Link href="/billing" className="desk__upgrade">
-          Upgrade Plan
+          Upgrade plan
         </Link>
       </div>
     </nav>

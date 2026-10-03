@@ -1,3 +1,4 @@
+import { planCardTitle } from "@/lib/billing/plan-titles";
 import {
   allocationWeights,
   costBasisNative,
@@ -42,7 +43,7 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
   const [holdingsRes, usageRes, reportsRes, familyRes, grantRes] = await Promise.all([
     supabase
       .from("holdings")
-      .select("ticker, company_name, qty, cost_per_share, native_currency")
+      .select("ticker, company_name, qty, cost_per_share, native_currency, exchange")
       .eq("family_id", familyId)
       .order("ticker"),
     supabase
@@ -73,10 +74,10 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
   if (planId) {
     const { data: plan } = await supabase
       .from("plans")
-      .select("name, monthly_analysis_limit")
+      .select("name, slug, monthly_analysis_limit")
       .eq("id", planId)
       .maybeSingle();
-    planName = plan?.name ?? null;
+    planName = planCardTitle(String(plan?.slug ?? ""), String(plan?.name ?? "Trial"));
     analysisLimit =
       typeof plan?.monthly_analysis_limit === "number"
         ? plan.monthly_analysis_limit
@@ -97,6 +98,7 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
     qty: Number(h.qty ?? 0),
     cost_per_share: Number(h.cost_per_share ?? 0),
     native_currency: String(h.native_currency ?? "USD"),
+    exchange: String(h.exchange ?? ""),
     last_checked_at: latestByTicker.get(String(h.ticker)) ?? null,
   }));
 

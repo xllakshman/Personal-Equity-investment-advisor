@@ -4,6 +4,7 @@ import type { DeskHome } from "@/lib/desk/load-home";
 import { analysesThisCycleCaption } from "@/lib/desk/usage-meter";
 import { RecheckForm } from "@/components/features/desk/RecheckForm";
 import { HomeBook } from "@/components/features/desk/HomeBook";
+import { AllocationTable } from "@/components/features/desk/AllocationTable";
 import { deskPrivacyView } from "@/lib/desk/privacy-status";
 import { firstName } from "@/lib/desk/session";
 import type { HoldingLotRow } from "@/lib/portfolio/load";
@@ -50,7 +51,7 @@ export function DeskHomeView({
           <h1 className="desk__h1">Good morning, {firstName(fullName)}.</h1>
         </div>
         <Link href="/analyse" className="desk__btn">
-          Analyse a Stock
+          Analyse a stock
         </Link>
       </div>
       <section
@@ -102,28 +103,10 @@ export function DeskHomeView({
           </p>
         </div>
       </div>
+      <div className="desk__book-block">
+        <AllocationTable holdings={home.holdings} />
+      </div>
       <div className="desk__split">
-        <div className="desk__card">
-          <h2>Allocation</h2>
-          {home.holdings.length === 0 ? (
-            <p className="desk__kpi-s">No lots yet. Add a stock below, or upload a CSV on Portfolio.</p>
-          ) : (
-            home.holdings.map((h) => (
-              <div className="desk__bar" key={h.ticker}>
-                <b>{h.ticker}</b>
-                <div className="desk__track">
-                  <div
-                    className="desk__fill"
-                    style={{ width: `${Math.min(100, h.weightPct)}%` }}
-                  />
-                </div>
-                <span className="desk__kpi-s" style={{ width: 92, textAlign: "right" }}>
-                  {h.weightPct.toFixed(0)}% · {h.lastChecked}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
         <div className="desk__card">
           <div
             style={{
@@ -145,7 +128,7 @@ export function DeskHomeView({
               <Link className="desk__note" href={`/reports/${r.id}`} key={r.id}>
                 <span
                   style={{
-                    font: "500 12px/1 Calibri, Carlito, sans-serif",
+                    font: "600 13px/1 inherit",
                     width: 76,
                     flex: "none",
                   }}

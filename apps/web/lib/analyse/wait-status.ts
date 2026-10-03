@@ -29,7 +29,7 @@ export function waitStatusLabel(status: string): string {
 
 export function waitLede(status: string): string {
   if (status === "ready") {
-    return "Your note is ready. Open Reports to read it.";
+    return "Your note is ready on this page. The same row is saved on Reports.";
   }
   if (status === "failed" || status === "rejected") {
     return "This run did not finish. Saved notes are unchanged.";

@@ -1,3 +1,4 @@
+import { planCardTitle } from "@/lib/billing/plan-titles";
 import { meterEventCount, quotaExhausted } from "@/lib/desk/usage-meter";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,7 +21,7 @@ export async function loadUsageSnapshot(familyId: string): Promise<UsageSnapshot
       .select("kind, cost_cents")
       .eq("family_id", familyId)
       .eq("billing_period", period),
-    supabase.from("families").select("plan_id").eq("id", familyId).maybeSingle(),
+    supabase.from("families").select("plan_id, billing_status").eq("id", familyId).maybeSingle(),
     supabase.from("wallets").select("balance_cents").eq("family_id", familyId).maybeSingle(),
   ]);
 
@@ -28,6 +29,9 @@ export async function loadUsageSnapshot(familyId: string): Promise<UsageSnapshot
   let planSlug: string | null = null;
   let limit: number | null = null;
   let notices: { pct: number; message: string }[] = [];
+  const billingStatus = familyRes.data?.billing_status
+    ? String(familyRes.data.billing_status)
+    : "trial";
   const planId = familyRes.data?.plan_id as string | null | undefined;
   if (planId) {
     const { data: plan } = await supabase
@@ -35,7 +39,7 @@ export async function loadUsageSnapshot(familyId: string): Promise<UsageSnapshot
       .select("name, slug, monthly_analysis_limit")
       .eq("id", planId)
       .maybeSingle();
-    planName = plan?.name ?? null;
+    planName = planCardTitle(String(plan?.slug ?? ""), String(plan?.name ?? "Trial"));
     planSlug = plan?.slug ? String(plan.slug) : null;
     limit =
       typeof plan?.monthly_analysis_limit === "number" ? plan.monthly_analysis_limit : null;
@@ -64,6 +68,7 @@ export async function loadUsageSnapshot(familyId: string): Promise<UsageSnapshot
     limit,
     planName,
     planSlug,
+    billingStatus,
     walletCents: Number(walletRes.data?.balance_cents ?? 0),
     costCents,
     notices: activeNotices,

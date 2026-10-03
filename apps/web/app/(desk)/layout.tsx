@@ -2,7 +2,7 @@ import { AppShell } from "@/components/features/desk/AppShell";
 import { requireDeskSession } from "@/lib/desk/session";
 import { loadPortfolioSettings } from "@/lib/portfolio/load";
 import { loadUsageSnapshot } from "@/lib/usage/load";
-import { usageCaption, usageHumanHint } from "@/lib/usage/format";
+import { usageBarPct, usageCaption, usageHumanHint, planChipLabel } from "@/lib/usage/format";
 
 import "./desk.css";
 
@@ -20,6 +20,8 @@ export default async function DeskLayout({
       displayCurrency={settings.displayCurrency}
       meterLabel={usageCaption(usage)}
       meterHint={usageHumanHint(usage)}
+      meterPct={usageBarPct(usage.used, usage.limit)}
+      planChip={planChipLabel(usage)}
     >
       {children}
     </AppShell>

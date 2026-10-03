@@ -4,9 +4,9 @@ import { describe, it } from "node:test";
 import { tickerSearchHref, tickerSearchTarget } from "./ticker";
 
 describe("tickerSearchTarget", () => {
-  it("does nothing on empty or whitespace", () => {
+  it("opens the Analyse builder on empty or whitespace", () => {
     assert.deepEqual(tickerSearchTarget("  "), { kind: "empty" });
-    assert.equal(tickerSearchHref({ kind: "empty" }), null);
+    assert.equal(tickerSearchHref({ kind: "empty" }), "/analyse");
   });
 
   it("uppercases a ticker onto /analyse whether or not it is held", () => {
@@ -16,5 +16,6 @@ describe("tickerSearchTarget", () => {
     const unknown = tickerSearchTarget("zzzz");
     assert.deepEqual(unknown, { kind: "analyse", ticker: "ZZZZ" });
     assert.equal(tickerSearchHref(unknown), "/analyse?ticker=ZZZZ");
+    assert.equal(tickerSearchHref(tickerSearchTarget("hdfcbank.ns")), "/analyse?ticker=HDFCBANK");
   });
 });

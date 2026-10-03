@@ -68,6 +68,9 @@ export async function recheckHoldings(
       p_model_id: modelId,
       p_clarifications: {},
       p_exchange: null,
+      p_intended_investment: 0,
+      p_run_qty: 0,
+      p_run_cost_per_share: 0,
     });
     if (error) {
       return { error: error.message, notice: queued ? `Queued ${queued} before failure.` : null };

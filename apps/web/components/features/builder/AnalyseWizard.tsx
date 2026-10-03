@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useActionState, useEffect, useMemo, useState } from "react";
 
 import { AgentPicker } from "@/components/features/builder/AgentPicker";
+import { TickerLookup } from "@/components/features/builder/TickerLookup";
+import { ReportNoteBody } from "@/components/features/report/ReportNoteBody";
 import { acceptAnalysis, EMPTY_ACCEPT } from "@/app/(desk)/analyse/actions";
 import { guessExchange } from "@/lib/portfolio/exchange";
 import { normalizeTicker } from "@/lib/desk/ticker";
@@ -34,8 +36,10 @@ import {
 } from "@/lib/analyse/lenses";
 import type { BuilderPayload, HeldLot } from "@/lib/analyse/load-builder";
 import { canContinue, defaultModelId, groupModels, modelAllowed } from "@/lib/analyse/models";
+import { ANALYSE_STEPS, analyseGuide, analyseStepsDone } from "@/lib/analyse/steps";
 import { usageCaption, usageHumanHint } from "@/lib/usage/format";
 import type { UsageSnapshot } from "@/lib/usage/types";
+import { versionLabel } from "@/lib/reports/versions";
 
 const TAX_RES = [
   { id: "us", label: "US resident" },
@@ -80,7 +84,6 @@ export function AnalyseWizard({
     news: false,
     tax: false,
   });
-  const [lensOpen, setLensOpen] = useState(false);
   const [ticker, setTicker] = useState(
     () => payload.ticker || payload.holdings[0]?.ticker || "",
   );
@@ -109,6 +112,10 @@ export function AnalyseWizard({
   const [state, action, pending] = useActionState(acceptAnalysis, EMPTY_ACCEPT);
 
   useEffect(() => {
+    if (payload.ticker) setTicker(payload.ticker);
+  }, [payload.ticker]);
+
+  useEffect(() => {
     const next = pickHeld(payload.holdings, ticker);
     setQty(next?.qty ?? 0);
     setCost(next?.cost_per_share ?? 0);
@@ -127,6 +134,14 @@ export function AnalyseWizard({
     modelId,
     modelOnPlan: onPlan,
   }) && canWrite;
+  const stepDone = analyseStepsDone({
+    hasTicker: Boolean(normalizeTicker(ticker)),
+    lensCount: picked.length,
+    conflict,
+    hasTaxResidency: Boolean(taxResidency),
+    modelOnPlan: onPlan && Boolean(modelId),
+  });
+  const guide = analyseGuide(stepDone);
   const groups = groupModels(payload.models);
   const chosen = payload.models.find((m) => m.id === modelId) ?? null;
   const alloc = allocationPct(invested, portfolio);
@@ -138,6 +153,9 @@ export function AnalyseWizard({
   );
   const upgradeNudge = Boolean(chosen && chosen.thesis_class !== "frontier" && lockedFrontier);
   const exchange = held?.exchange || guessExchange(ticker);
+  const priorForTicker = payload.priorNotes.filter(
+    (n) => n.ticker === normalizeTicker(ticker),
+  );
 
   const runNote = useMemo(() => {
     if (!canWrite) return "Viewers can read notes but cannot start an analysis.";
@@ -169,6 +187,8 @@ export function AnalyseWizard({
       <input type="hidden" name="invested_amount" value={String(invested)} />
       <input type="hidden" name="portfolio_size" value={String(portfolio)} />
       <input type="hidden" name="intended_investment" value={String(intended)} />
+      <input type="hidden" name="run_qty" value={String(Number.isFinite(qty) ? qty : 0)} />
+      <input type="hidden" name="run_cost_per_share" value={String(Number.isFinite(cost) ? cost : 0)} />
       <input type="hidden" name="intent" value={intent} />
       <input type="hidden" name="avg_down" value={avgDown} />
       <input type="hidden" name="risk" value={risk} />
@@ -185,7 +205,7 @@ export function AnalyseWizard({
           <div className="desk__toolbar">
             <div>
               <p className="desk__kicker">Research</p>
-              <h1 className="desk__h1">Analyse a Stock</h1>
+              <h1 className="desk__h1">Analyse a stock</h1>
             </div>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
               <span className="desk__consume">{usageHumanHint(usage)}</span>
@@ -195,26 +215,53 @@ export function AnalyseWizard({
             </div>
           </div>
           <p className="desk__lede">
-            Type any ticker, or pick a name from your book. A holding fills qty and
-            cost; you can still change the numbers for this run. Each run uses one
-            note from this month’s allowance.
+            Complete steps 1 to 6. Type any ticker, or pick a name from your book.
+            A holding fills qty and cost; you can still change the numbers for this
+            run. Each run uses one note from this month’s allowance.
           </p>
+          <ol className="bld__rail" aria-label="Analysis steps">
+            {ANALYSE_STEPS.map((s, i) => (
+              <li key={s.id}>
+                <a
+                  href={`#${s.id}`}
+                  className={
+                    stepDone[i]
+                      ? "bld__rail-item bld__rail-item--done"
+                      : "bld__rail-item"
+                  }
+                >
+                  <span>Step {s.n}</span>
+                  {s.title}
+                </a>
+              </li>
+            ))}
+          </ol>
+          <p className="bld__guide">{guide}</p>
+          {priorForTicker.length > 0 ? (
+            <p className="pf__lede" style={{ marginTop: 10 }}>
+              Saved research for {normalizeTicker(ticker)}:{" "}
+              {priorForTicker.map((n, i) => (
+                <span key={n.id}>
+                  {i > 0 ? " · " : ""}
+                  <Link href={`/reports/${n.id}`}>
+                    {n.version != null && n.versionCount > 1
+                      ? `v${n.version} of ${n.versionCount}`
+                      : n.name}
+                  </Link>
+                </span>
+              ))}
+              . A new Submit stores another version; it does not rewrite the last one.
+            </p>
+          ) : null}
 
           <div className="bld__grid" style={{ marginTop: 18 }}>
               <div className="bld__col">
-                <section className="pf__card">
-                  <h2 className="bld__h2">Stock to research</h2>
+                <section className="pf__card" id="analyse-step-1">
+                  <h2 className="bld__h2">Step 1 · Stock to research</h2>
                   <p className="pf__lede">Your own ticker or a name you already hold.</p>
                   <label className="pf__label">
                     Ticker
-                    <input
-                      className="pf__input"
-                      value={ticker}
-                      onChange={(e) => setTicker(e.target.value.toUpperCase())}
-                      placeholder="MSFT, TSM, HDFCBANK…"
-                      autoCapitalize="characters"
-                      autoComplete="off"
-                    />
+                    <TickerLookup value={ticker} onChange={setTicker} />
                   </label>
                   {payload.holdings.length > 0 ? (
                     <label className="pf__label">
@@ -243,55 +290,44 @@ export function AnalyseWizard({
                   )}
                 </section>
 
-                <section className="pf__card">
+                <section className="pf__card" id="analyse-step-2">
                   <div className="bld__sec-head">
-                    <h2 className="bld__h2">What to check</h2>
+                    <h2 className="bld__h2">Step 2 · What to check</h2>
                     <span className="bld__meta">{kindSummary}</span>
                   </div>
                   <p className="pf__lede">
-                    Pick one kind of check, or run them together.
+                    Pick one kind of check, or run them together. This stays open —
+                    it is required before Submit for analysis.
                   </p>
-                  <div className="bld__drop">
-                    <button
-                      type="button"
-                      className="bld__drop-btn"
-                      aria-expanded={lensOpen}
-                      onClick={() => setLensOpen((v) => !v)}
-                    >
-                      {kindSummary}
-                      <span>{lensOpen ? "Hide" : "Choose"}</span>
-                    </button>
-                    {lensOpen ? (
-                      <div className="bld__drop-panel" role="listbox" aria-multiselectable>
-                        {LENS_OPTIONS.map((id) => {
-                          const on =
-                            id === "comprehensive"
-                              ? isComprehensive(lenses)
-                              : id === "tax"
-                                ? lenses.tax
-                                : lenses[id];
-                          return (
-                            <button
-                              key={id}
-                              type="button"
-                              className={on ? "bld__drop-opt bld__drop-opt--on" : "bld__drop-opt"}
-                              onClick={() => toggleCheck(id)}
-                            >
-                              <span className={on ? "bld__box bld__box--on" : "bld__box"} />
-                              <span>
-                                <strong>{LENS_COPY[id].label}</strong>
-                                <em>{LENS_COPY[id].desc}</em>
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ) : null}
+                  <div className="bld__kinds" role="group" aria-label="What to check">
+                    {LENS_OPTIONS.map((id) => {
+                      const on =
+                        id === "comprehensive"
+                          ? isComprehensive(lenses)
+                          : id === "tax"
+                            ? lenses.tax
+                            : lenses[id];
+                      return (
+                        <button
+                          key={id}
+                          type="button"
+                          className={on ? "bld__kind bld__kind--on" : "bld__kind"}
+                          aria-pressed={on}
+                          onClick={() => toggleCheck(id)}
+                        >
+                          <span className={on ? "bld__box bld__box--on" : "bld__box"} />
+                          <span>
+                            <strong>{LENS_COPY[id].label}</strong>
+                            <em>{LENS_COPY[id].desc}</em>
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </section>
 
-                <section className="pf__card">
-                  <h2 className="bld__h2">Your position</h2>
+                <section className="pf__card" id="analyse-step-3">
+                  <h2 className="bld__h2">Step 3 · Your position</h2>
                   <p className="pf__lede">
                     If this ticker is in your book, qty and cost are filled. Change
                     them for this run only — that does not edit lots on Home.
@@ -397,8 +433,8 @@ export function AnalyseWizard({
                   </div>
                 </section>
 
-                <section className="pf__card">
-                  <h2 className="bld__h2">Risk and return</h2>
+                <section className="pf__card" id="analyse-step-4">
+                  <h2 className="bld__h2">Step 4 · Risk and return</h2>
                   <p className="pf__lede">
                     These two have to match. We check before spending a note.
                   </p>
@@ -450,8 +486,8 @@ export function AnalyseWizard({
                   ) : null}
                 </section>
 
-                <section className="pf__card">
-                  <h2 className="bld__h2">Tax treatment</h2>
+                <section className="pf__card" id="analyse-step-5">
+                  <h2 className="bld__h2">Step 5 · Tax treatment</h2>
                   <p className="pf__lede">
                     Decides how long to hold, and when selling actually makes sense.
                   </p>
@@ -512,8 +548,8 @@ export function AnalyseWizard({
               </div>
 
               <aside className="bld__side">
-                <section className="pf__card">
-                  <h2 className="bld__h2">Choose your agent</h2>
+                <section className="pf__card" id="analyse-step-6">
+                  <h2 className="bld__h2">Step 6 · Choose your agent</h2>
                   <p className="pf__lede">
                     Frontier agents come with Professional and above. Quick agents
                     are on Trial and Basic. Plan: {payload.planName}.{" "}
@@ -557,16 +593,36 @@ export function AnalyseWizard({
                   </div>
                   <button
                     className="bld__continue"
+                    type="submit"
+                    name="skip_clarify"
+                    value="1"
+                    disabled={!ok || pending}
+                  >
+                    {pending ? "Queuing…" : "Submit for analysis"}
+                  </button>
+                  <button
+                    className="pf__ghost"
                     type="button"
                     disabled={!ok}
                     onClick={() => setStep("clarify")}
+                    style={{ marginTop: 8, width: "100%" }}
                   >
-                    Continue
+                    Add three clarifications first
                   </button>
                   <p className="bld__run-note">{runNote}</p>
                 </section>
               </aside>
             </div>
+          {payload.latestNote ? (
+            <ReportNoteBody
+              note={payload.latestNote}
+              kicker={
+                payload.latestNote.version
+                  ? `Latest saved research · ${versionLabel(payload.latestNote.version, payload.latestNote.versionCount)} for ${payload.latestNote.ticker}`
+                  : `Latest saved research for ${payload.latestNote.ticker}`
+              }
+            />
+          ) : null}
         </>
       ) : (
         <div className="bld__clarify">

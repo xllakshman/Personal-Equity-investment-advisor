@@ -76,4 +76,25 @@ describe("sendContactEmail", () => {
       assert.equal(got.error.includes("re_test"), false);
     }
   });
+
+  it("explains Resend test-mode recipient lock without leaking the key", async () => {
+    const got = await sendContactEmail(
+      fields,
+      { RESEND_API_KEY: "re_test" },
+      async () =>
+        new Response(
+          JSON.stringify({
+            message:
+              "You can only send testing emails to your own email address (acct@example.com).",
+          }),
+          { status: 403 },
+        ),
+    );
+    assert.equal(got.ok, false);
+    if (!got.ok) {
+      assert.match(got.error, /test mode/i);
+      assert.equal(got.error.includes("re_test"), false);
+      assert.equal(got.error.includes("acct@example.com"), false);
+    }
+  });
 });

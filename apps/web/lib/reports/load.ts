@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { assignNoteVersions } from "@/lib/reports/versions";
 
 export type ReportListRow = {
   id: string;
@@ -173,6 +174,8 @@ export type DeskNoteRow = {
   href: string;
   costCents: number | null;
   isLibrarySample: boolean;
+  version: number | null;
+  versionCount: number;
 };
 
 const IN_PROGRESS = ["queued", "gathering", "drafting", "checking", "rendering"];
@@ -206,6 +209,8 @@ export async function loadDeskNotes(familyId: string): Promise<DeskNoteRow[]> {
     href: `/reports/${r.id}`,
     costCents: Number(r.token_cost_cents ?? 0),
     isLibrarySample: Boolean(r.is_library_sample),
+    version: null,
+    versionCount: 0,
   }));
 
   const inProgress: DeskNoteRow[] = (pending ?? []).map((r) => ({
@@ -219,9 +224,13 @@ export async function loadDeskNotes(familyId: string): Promise<DeskNoteRow[]> {
     href: `/analyse/${r.id}`,
     costCents: null,
     isLibrarySample: false,
+    version: null,
+    versionCount: 0,
   }));
 
-  return [...notes, ...inProgress].sort((a, b) =>
-    a.lastRun < b.lastRun ? 1 : a.lastRun > b.lastRun ? -1 : 0,
+  return assignNoteVersions(
+    [...notes, ...inProgress].sort((a, b) =>
+      a.lastRun < b.lastRun ? 1 : a.lastRun > b.lastRun ? -1 : 0,
+    ),
   );
 }

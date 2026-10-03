@@ -4,7 +4,7 @@
 > **Workspace:** `/Users/lakshmanyeluri/Documents/personalEquity_Advisor`  
 > **Reference layout:** `/Users/lakshmanyeluri/Documents/activePieces-docker/invoice-processing`  
 > **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P10-02**  
-> **Latest session:** [`docs/handoff/SESSION-2026-09-14-p4-to-p9.md`](docs/handoff/SESSION-2026-09-14-p4-to-p9.md)  
+> **Latest session:** [`docs/handoff/SESSION-2026-10-03-analyse-elite.md`](docs/handoff/SESSION-2026-10-03-analyse-elite.md)  
 > **Mock UI:** [`docs/mock-ui/`](docs/mock-ui/README.md)  
 > **GitHub (empty):** `xllakshman/Personal-Equity-investment-advisor` · branch `main`
 
@@ -26,8 +26,8 @@
 | Maya seed | ✅ `maya@thesis.demo` · 5 lots · 2 reports (1 sample) |
 | Storage bucket `report-pdfs` | ✅ private |
 | Analysis API / worker | ✅ 2026-09-14 — `apps/analysis-api` :8091, `apps/analysis-worker`; Docker compose in `infra/docker` |
-| Next.js desk | ✅ 2026-10-03 — `/admin/plans` edits `plans` + `plan_notice_thresholds` (limit, price, agents, weekly cap). Home `/desk` shows Private vs Shared with admin from `support_access_grants`. **021** in git; apply when named. |
-| Prod schema | ✅ 2026-09-15 — **001–019** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. |
+| Next.js desk | ✅ 2026-10-03 — Header Analyse GET/push opens `/analyse?ticker=` (same six-step builder as nav **Analyse a stock**). Submit writes `analysis_requests` + `usage_events.kind = search`. Elite Refresh upserts `elite_investor_books`. Reports version column. |
+| Prod schema | 🟡 2026-10-03 — **001–019** on `ndgvglcrkbygovlszxze`. **020–022** apply with **prod** + `CONFIRM_APPLY=1`. `holdings` = 0. No Maya seed. |
 | Prod Vercel | 🟡 2026-09-15 — Production anon env + deploy on `equity-investment-advisor-prod.vercel.app`. `eqveste.com` DNS not pointing (404 OpenResty). |
 | Tests | ✅ unit + web tests for 4–9. Live two-JWT CI still skips without a second family JWT. |
 | Weekly holdings email | 🟡 **P8-02** table + opt-in + job; **send** blocked until a provider is named |
@@ -231,9 +231,9 @@ Env template: [`.env.example`](.env.example).
 
 ## 6. Database status
 
-**Applied on `cmksomahsfmsjufakryw` (DEV):** migrations **001–019** and seed `supabase/seed/001_maya_desk.sql`. **012** worker quotes/gate. **013** `analysis_feedback`. **014** observability. **015** family invite. **016** weekly digest. **017** crash letters. **018** manager watches. **019** native labs (Gemini/Kimi off). Do not re-run unless §25 fails.
+**Applied on `cmksomahsfmsjufakryw` (DEV):** migrations **001–022**. Seed `supabase/seed/001_maya_desk.sql` was applied earlier. Do not re-run unless §25 fails.
 
-**PROD `ndgvglcrkbygovlszxze`:** **001–019 applied** (`CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`; 019 on 2026-09-15). `select count(*) from holdings` = **0**. Maya seed not run. `report-pdfs` bucket exists. Do not copy Maya (`maya@thesis.demo`) onto prod unless you name `supabase/seed/001_maya_desk.sql`.
+**PROD `ndgvglcrkbygovlszxze`:** **001–019 applied** (019 on 2026-09-15). **020–022** apply with **prod** + `CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`. `select count(*) from holdings` = **0**. Maya seed not run. `report-pdfs` bucket exists. Do not copy Maya (`maya@thesis.demo`) onto prod unless you name `supabase/seed/001_maya_desk.sql`.
 
 Demo desk: `maya@thesis.demo` / `ThesisMaya!2026` (Auth email+password). Google/Phone flags must still be turned on in the Supabase Auth dashboard.
 
@@ -326,7 +326,7 @@ See `.cursor/rules/web-ui-maintenance.mdc`. Marketing vs desk palettes must not 
 
 ## 18. Next steps
 
-Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P10-02** droplet. **021** (Analyse without a holding) is in git; it does not run until you name the file + DEV or **prod** + `CONFIRM_APPLY=1`. Worker LLM is native labs (D39). **019** applied on DEV and PROD. Paste lab keys in local `.env` for port **3100** worker (prod `.env.prod` already has all four). Never put lab keys on Vercel. `/analyse` wait panel stays `queued` on prod until the droplet worker runs. Local **3100** stays DEV.
+Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P10-02** droplet. **021** and **022** applied on DEV 2026-10-03. Worker LLM is native labs (D39). **019** applied on DEV and PROD. Local `.env` lab keys are set; never put them on Vercel. `/analyse` wait panel stays `queued` on prod until the droplet worker runs. Local **3100** stays DEV.
 
 ---
 

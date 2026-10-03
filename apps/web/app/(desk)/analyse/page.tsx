@@ -14,5 +14,12 @@ export default async function AnalysePage({
     loadAnalyseBuilder(session.familyId, session.userId, raw ?? ""),
     loadUsageSnapshot(session.familyId),
   ]);
-  return <AnalyseWizard payload={payload} usage={usage} canWrite={canWriteFamily(session)} />;
+  return (
+    <AnalyseWizard
+      key={payload.ticker || "new"}
+      payload={payload}
+      usage={usage}
+      canWrite={canWriteFamily(session)}
+    />
+  );
 }

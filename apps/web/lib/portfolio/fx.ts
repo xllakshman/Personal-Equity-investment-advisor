@@ -3,11 +3,16 @@ import type { NativeCurrency } from "./exchange";
 /** Renderer default only. Never written to holding_lots.cost_per_share. */
 export const DEFAULT_USD_INR = 88.4;
 
+export function roundUsdInr(n: number): number {
+  if (!Number.isFinite(n) || n <= 0) return DEFAULT_USD_INR;
+  return Math.round(n * 100) / 100;
+}
+
 export function displayFxRate(override: number | null | undefined): number {
   if (typeof override === "number" && Number.isFinite(override) && override > 0) {
-    return override;
+    return roundUsdInr(override);
   }
-  return DEFAULT_USD_INR;
+  return roundUsdInr(DEFAULT_USD_INR);
 }
 
 export function toDisplayAmount(

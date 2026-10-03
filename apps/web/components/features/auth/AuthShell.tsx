@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { EqvesteMark } from "@/components/features/brand/EqvesteMark";
 import { EqvesteWord } from "@/components/features/brand/EqvesteWord";
 
 const POINTS = [
@@ -38,7 +39,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
           aria-hidden
         />
         <Link href="/" className="auth__wordmark">
-          <span className="auth__mark" />
+          <EqvesteMark gid="eqeg-auth" size={26} />
           <EqvesteWord />
         </Link>
         <div style={{ position: "relative", maxWidth: 480 }}>

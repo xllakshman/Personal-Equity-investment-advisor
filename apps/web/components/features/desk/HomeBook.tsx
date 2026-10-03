@@ -9,8 +9,9 @@ import {
   EMPTY_PORTFOLIO_STATE,
   updateHoldingLot,
 } from "@/app/(desk)/portfolio/actions";
+import { BookTable } from "@/components/features/desk/BookTable";
 import type { HoldingLotRow } from "@/lib/portfolio/load";
-import { formatMoney, formatQty } from "@/lib/portfolio/fx";
+import { useQuotes } from "@/lib/market/use-quotes";
 
 export function HomeBook({
   lots,
@@ -29,13 +30,17 @@ export function HomeBook({
   );
   const [editingId, setEditingId] = useState<string | null>(null);
   const editing = lots.find((l) => l.id === editingId) ?? null;
+  const { quotes, status } = useQuotes(
+    lots.map((l) => ({ ticker: l.ticker, exchange: l.exchange })),
+  );
 
   return (
     <div className="desk__card" style={{ marginTop: 22 }}>
-      <h2>Your stocks</h2>
+      <h2>Your holdings</h2>
       <p className="desk__lede">
-        Add, change, or remove lots here. CSV upload stays on Portfolio. Analyse
-        does not require a lot.
+        Add, edit or delete lots here. Price is the previous regular-session
+        close. Realized P&amp;L stays — until a sale is stored (lots only keep
+        remaining shares). CSV upload stays on Portfolio.
       </p>
 
       {canWrite ? (
@@ -145,84 +150,64 @@ export function HomeBook({
         </form>
       ) : null}
 
-      <div className="pf__table-wrap" style={{ marginTop: 16 }}>
-        <div className="pf__scroll">
-          <table className="pf__table">
-            <thead>
-              <tr>
-                <th>Ticker</th>
-                <th>Company</th>
-                <th className="pf__num">Qty</th>
-                <th className="pf__num">Cost</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lots.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="pf__empty">
-                    No lots yet. Add a stock above, or upload a CSV on Portfolio.
-                  </td>
-                </tr>
-              ) : (
-                lots.map((lot) => (
-                  <tr key={lot.id}>
-                    <td className="pf__ticker">
-                      <Link href={`/analyse?ticker=${encodeURIComponent(lot.ticker)}`}>
-                        {lot.ticker}
-                      </Link>
-                    </td>
-                    <td>{lot.company_name ?? "—"}</td>
-                    <td className="pf__num">{formatQty(lot.qty)}</td>
-                    <td className="pf__num">
-                      {formatMoney(lot.cost_per_share, lot.native_currency)}
-                    </td>
-                    <td>
-                      <div className="desk__lot-actions">
-                        <Link
-                          href={`/analyse?ticker=${encodeURIComponent(lot.ticker)}`}
-                          className="pf__ghost"
-                          style={{ textDecoration: "none" }}
-                        >
-                          Analyse
-                        </Link>
-                        {canWrite ? (
-                          <>
-                            <button
-                              className="pf__ghost"
-                              type="button"
-                              onClick={() => setEditingId(lot.id)}
-                            >
-                              Edit
-                            </button>
-                            <form
-                              action={deleteHoldingLot}
-                              onSubmit={(e) => {
-                                if (
-                                  !window.confirm(
-                                    `Remove ${lot.ticker} from your book? Saved notes stay.`,
-                                  )
-                                ) {
-                                  e.preventDefault();
-                                }
-                              }}
-                            >
-                              <input type="hidden" name="returnTo" value="/desk" />
-                              <input type="hidden" name="lotId" value={lot.id} />
-                              <button className="pf__ghost" type="submit">
-                                Delete
-                              </button>
-                            </form>
-                          </>
-                        ) : null}
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      <div style={{ marginTop: 16 }}>
+        <BookTable
+          showActions
+          caption={
+            status === "loading"
+              ? "Loading previous close…"
+              : "Price = previous regular-session close. Desk load does not fetch Yahoo."
+          }
+          rows={lots.map((lot) => ({
+            key: lot.id,
+            stock: lot.company_name ?? lot.ticker,
+            ticker: lot.ticker,
+            qty: lot.qty,
+            costPerShare: lot.cost_per_share,
+            currency: lot.native_currency,
+            quote: quotes[lot.ticker],
+            actions: (
+              <>
+                <Link
+                  href={`/analyse?ticker=${encodeURIComponent(lot.ticker)}`}
+                  className="pf__ghost"
+                  style={{ textDecoration: "none" }}
+                >
+                  Analyse
+                </Link>
+                {canWrite ? (
+                  <>
+                    <button
+                      className="pf__ghost"
+                      type="button"
+                      onClick={() => setEditingId(lot.id)}
+                    >
+                      Edit
+                    </button>
+                    <form
+                      action={deleteHoldingLot}
+                      onSubmit={(e) => {
+                        if (
+                          !window.confirm(
+                            `Remove ${lot.ticker} from your book? Saved notes stay.`,
+                          )
+                        ) {
+                          e.preventDefault();
+                        }
+                      }}
+                    >
+                      <input type="hidden" name="returnTo" value="/desk" />
+                      <input type="hidden" name="lotId" value={lot.id} />
+                      <button className="pf__ghost" type="submit">
+                        Delete
+                      </button>
+                    </form>
+                  </>
+                ) : null}
+              </>
+            ),
+          }))}
+        />
       </div>
     </div>
   );

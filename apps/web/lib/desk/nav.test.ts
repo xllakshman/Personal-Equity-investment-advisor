@@ -10,10 +10,10 @@ describe("DESK_NAV", () => {
       DESK_NAV.map((n) => n.label),
       [
         "Home",
-        "Analyse a Stock",
-        "Portfolio",
+        "Analyse a stock",
+        "Review Portfolio",
         "Reports",
-        "Managers",
+        "Elite Investor Portfolios",
         "Subscription",
         "Contact us",
       ],
@@ -29,6 +29,14 @@ describe("DESK_NAV", () => {
     assert.equal(
       DESK_NAV.filter((n) => n.href === "/billing").length,
       1,
+    );
+    assert.equal(
+      DESK_NAV.find((n) => n.href === "/reports")?.hint,
+      "Saved research",
+    );
+    assert.equal(
+      DESK_NAV.find((n) => n.href === "/research/managers")?.hint,
+      "Public 13F books",
     );
   });
 });

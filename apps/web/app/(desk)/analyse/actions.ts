@@ -30,6 +30,8 @@ export async function acceptAnalysis(
   const invested = Number(formData.get("invested_amount") ?? 0);
   const portfolio = Number(formData.get("portfolio_size") ?? 0);
   const intended = Number(formData.get("intended_investment") ?? 0);
+  const runQty = Number(formData.get("run_qty") ?? 0);
+  const runCost = Number(formData.get("run_cost_per_share") ?? 0);
   const clarifications = clarificationsPayload(
     fields.skipClarify,
     fields.conviction,
@@ -54,6 +56,8 @@ export async function acceptAnalysis(
     p_clarifications: clarifications,
     p_exchange: exchange,
     p_intended_investment: Number.isFinite(intended) && intended > 0 ? intended : 0,
+    p_run_qty: Number.isFinite(runQty) && runQty > 0 ? runQty : 0,
+    p_run_cost_per_share: Number.isFinite(runCost) && runCost > 0 ? runCost : 0,
   });
 
   if (error) {

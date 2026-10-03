@@ -62,6 +62,22 @@ export async function sendContactEmail(
   }
 
   if (!res.ok) {
+    let detail = "";
+    try {
+      detail = await res.text();
+    } catch {
+      detail = "";
+    }
+    if (
+      res.status === 403 &&
+      /only send testing emails/i.test(detail)
+    ) {
+      return {
+        ok: false,
+        error:
+          "Mail is in test mode. Resend will only deliver to the account inbox until a sending domain is verified at resend.com/domains.",
+      };
+    }
     if (res.status === 401 || res.status === 403) {
       return {
         ok: false,

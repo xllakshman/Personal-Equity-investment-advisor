@@ -26,7 +26,7 @@ export function notesThisMonthHint(
   limit: number | null,
   planName: string | null,
 ): string {
-  const plan = planName ?? "Free trial";
+  const plan = planName ?? "Trial";
   if (limit == null) return `${plan} · analyses this month`;
   return `${plan} · ${used} of ${limit} analyses this month`;
 }

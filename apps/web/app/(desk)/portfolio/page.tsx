@@ -1,15 +1,14 @@
 import { CsvImportCard } from "@/components/features/portfolio/CsvImportCard";
 import { DisplayCurrencyCard } from "@/components/features/portfolio/DisplayCurrencyCard";
-import { HoldingsTable } from "@/components/features/portfolio/HoldingsTable";
 import { ManualAddForm } from "@/components/features/portfolio/ManualAddForm";
+import { AllocationTable } from "@/components/features/desk/AllocationTable";
 import { normalizeTicker } from "@/lib/desk/ticker";
-import { displayFxRate } from "@/lib/portfolio/fx";
-import { holdingsForDisplay } from "@/lib/portfolio/grid";
 import {
   loadHoldingsGrid,
   loadPortfolioSettings,
   loadRecentRejected,
 } from "@/lib/portfolio/load";
+import { displayRateThisLoad, fetchUsdInrRate } from "@/lib/portfolio/fx-live";
 import { SupportGrantForm } from "@/components/features/portfolio/SupportGrantForm";
 import { requireDeskSession } from "@/lib/desk/session";
 
@@ -53,13 +52,13 @@ export default async function PortfolioPage({
   const settings = await loadPortfolioSettings(session.familyId);
   const holdings = await loadHoldingsGrid(session.familyId);
   const rejected = await loadRecentRejected(session.familyId);
-  const fx = displayFxRate(settings.fxUsdInrOverride);
-  const rows = holdingsForDisplay(holdings, settings.displayCurrency, fx);
+  const liveFx = await fetchUsdInrRate();
+  const fxThisLoad = displayRateThisLoad(liveFx, settings.fxUsdInrOverride);
   const notice = banner(sp);
 
   return (
     <div>
-      <h1 className="desk__h1">Portfolio</h1>
+      <h1 className="desk__h1">Review Portfolio</h1>
       <p className="desk__lede" style={{ maxWidth: "62ch" }}>
         Optional. Lots change size and tax in the note. You can still Analyse a
         ticker that is not in this book.
@@ -76,6 +75,8 @@ export default async function PortfolioPage({
         <DisplayCurrencyCard
           displayCurrency={settings.displayCurrency}
           fxUsdInrOverride={settings.fxUsdInrOverride}
+          liveRate={fxThisLoad.rate}
+          rateSource={fxThisLoad.source}
         />
         <CsvImportCard />
         <ManualAddForm presetTicker={add} />
@@ -94,7 +95,7 @@ export default async function PortfolioPage({
         </div>
       ) : null}
 
-      <HoldingsTable rows={rows} displayCurrency={settings.displayCurrency} />
+      <AllocationTable holdings={holdings} />
       {session.memberRole === "owner" ? <SupportGrantForm /> : null}
     </div>
   );

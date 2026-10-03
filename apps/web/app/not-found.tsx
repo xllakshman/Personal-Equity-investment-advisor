@@ -9,7 +9,7 @@ export default function NotFound() {
         padding: "48px 24px",
         background: "#f6f5f2",
         color: "#1b1a17",
-        fontFamily: "Calibri, Carlito, 'Segoe UI', system-ui, sans-serif",
+        fontFamily: '-apple-system, "SF Pro Display", "Helvetica Neue", sans-serif',
       }}
     >
       <div style={{ maxWidth: 480, margin: "0 auto" }}>
@@ -26,7 +26,7 @@ export default function NotFound() {
         </p>
         <h1
           style={{
-            font: "400 32px/1.15 Calibri, Carlito, 'Segoe UI', sans-serif",
+            font: '700 32px/1.15 -apple-system, "SF Pro Display", "Helvetica Neue", sans-serif',
             margin: "0 0 12px",
           }}
         >

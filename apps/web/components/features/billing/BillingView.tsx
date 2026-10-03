@@ -84,8 +84,8 @@ export function PlanCards({
   );
   return (
     <div className="pf__cards" style={{ marginTop: 22 }}>
-      {cards.map((card) => (
-        <div className="pf__card" key={card.id}>
+      {[...cards].sort((a, b) => Number(b.current) - Number(a.current)).map((card) => (
+        <div className={card.current ? "pf__card pf__card--current" : "pf__card"} key={card.id}>
           <p className="pf__card-title">
             {card.title}
             {card.current ? " · current" : ""}
@@ -96,8 +96,12 @@ export function PlanCards({
           <p className="desk__lede">{card.why}</p>
           <form action={action}>
             <input type="hidden" name="planId" value={card.id} />
-            <button className="desk__btn" type="submit" disabled={pending}>
-              Subscribe
+            <button
+              className={card.current ? "desk__btn desk__btn--ghost" : "desk__btn"}
+              type="submit"
+              disabled={pending || card.current}
+            >
+              {card.current ? "Current plan" : "Subscribe"}
             </button>
           </form>
         </div>

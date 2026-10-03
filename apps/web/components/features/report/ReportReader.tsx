@@ -3,13 +3,8 @@
 import { useMemo, useState } from "react";
 
 import { parseCharts } from "@/lib/reports/charts";
-import {
-  pickSection,
-  sectionText,
-  visibleSectionKeys,
-  type ReportTab,
-  TAB_KEYS,
-} from "@/lib/reports/sections";
+import { pickSection, sectionText, visibleSectionKeys, type ReportTab, TAB_KEYS } from "@/lib/reports/sections";
+import { isStaleNote, STALE_COPY } from "@/lib/reports/age";
 import type { EvidenceRow, RefineRow, ReportDetail } from "@/lib/reports/load";
 import { ExpertToggle } from "@/components/features/report/ExpertToggle";
 import { FeedbackForm } from "@/components/features/report/FeedbackForm";
@@ -58,6 +53,11 @@ export function ReportReader({
           : `$${(report.tokenCostCents / 100).toFixed(2)}`}
         {report.isLibrarySample ? " · library sample (no refine)" : ""}
       </p>
+      {isStaleNote(report.createdAt) ? (
+        <p className="pf__banner" style={{ marginTop: 12 }}>
+          {STALE_COPY}
+        </p>
+      ) : null}
       <div className="pf__row" style={{ marginTop: 16, gap: 16, flexWrap: "wrap" }}>
         <ExpertToggle expert={expert} onChange={setExpert} />
         <RenameForm reportId={report.id} currentName={report.name} />

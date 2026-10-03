@@ -1,5 +1,7 @@
+import { planCardTitle } from "@/lib/billing/plan-titles";
 import { createClient } from "@/lib/supabase/server";
-import { normalizeTicker } from "@/lib/desk/ticker";
+import { tickerSearchTarget } from "@/lib/desk/ticker";
+import { assignNoteVersions } from "@/lib/reports/versions";
 import { isNativeProvider, type CatalogModel } from "./models";
 
 export type HeldLot = {
@@ -27,6 +29,27 @@ export type BuilderPayload = {
   ltcgHoldingMonths: number | null;
   ltcgRateBps: number | null;
   stcgRateBps: number | null;
+  priorNotes: PriorNote[];
+  latestNote: LatestBuilderNote | null;
+};
+
+export type LatestBuilderNote = {
+  id: string;
+  name: string;
+  ticker: string;
+  verdict: string;
+  sections: Record<string, unknown>;
+  version: number | null;
+  versionCount: number;
+};
+
+export type PriorNote = {
+  id: string;
+  ticker: string;
+  name: string;
+  createdAt: string;
+  version: number | null;
+  versionCount: number;
 };
 
 export async function loadAnalyseBuilder(
@@ -34,7 +57,8 @@ export async function loadAnalyseBuilder(
   userId: string,
   rawTicker: string,
 ): Promise<BuilderPayload> {
-  const ticker = normalizeTicker(rawTicker);
+  const wanted = tickerSearchTarget(rawTicker);
+  const ticker = wanted.kind === "analyse" ? wanted.ticker : "";
   const supabase = await createClient();
 
   const { data: holdingRows } = await supabase
@@ -74,7 +98,7 @@ export async function loadAnalyseBuilder(
       .eq("id", planId)
       .maybeSingle();
     planSlug = plan?.slug ? String(plan.slug) : planSlug;
-    planName = plan?.name ? String(plan.name) : planName;
+    planName = planCardTitle(planSlug, plan?.name ? String(plan.name) : "Trial");
     allowedModelIds = Array.isArray(plan?.allowed_model_ids)
       ? plan.allowed_model_ids.map((x) => String(x))
       : [];
@@ -113,6 +137,57 @@ export async function loadAnalyseBuilder(
     .eq("family_id", familyId)
     .maybeSingle();
 
+  const { data: reportRows } = await supabase
+    .from("reports")
+    .select("id, ticker, name, created_at")
+    .eq("family_id", familyId)
+    .order("created_at", { ascending: false });
+
+  const priorNotes: PriorNote[] = assignNoteVersions(
+    (reportRows ?? []).map((r) => ({
+      id: String(r.id),
+      ticker: String(r.ticker),
+      name: String(r.name),
+      lastRun: String(r.created_at),
+      kind: "note" as const,
+    })),
+  ).map((r) => ({
+    id: r.id,
+    ticker: r.ticker,
+    name: r.name,
+    createdAt: r.lastRun,
+    version: r.version,
+    versionCount: r.versionCount,
+  }));
+
+  let latestNote: LatestBuilderNote | null = null;
+  const noteQuery = supabase
+    .from("reports")
+    .select("id, ticker, name, verdict, sections, created_at")
+    .eq("family_id", familyId)
+    .order("created_at", { ascending: false })
+    .limit(1);
+  const { data: latestRows } = ticker
+    ? await noteQuery.eq("ticker", ticker)
+    : await noteQuery;
+  const latest = latestRows?.[0];
+  if (latest) {
+    const sections =
+      latest.sections && typeof latest.sections === "object" && !Array.isArray(latest.sections)
+        ? (latest.sections as Record<string, unknown>)
+        : {};
+    const numbered = priorNotes.find((n) => n.id === String(latest.id));
+    latestNote = {
+      id: String(latest.id),
+      name: String(latest.name),
+      ticker: String(latest.ticker),
+      verdict: String(latest.verdict ?? ""),
+      sections,
+      version: numbered?.version ?? null,
+      versionCount: numbered?.versionCount ?? 1,
+    };
+  }
+
   return {
     ticker,
     held,
@@ -130,5 +205,7 @@ export async function loadAnalyseBuilder(
       profile?.ltcg_holding_months == null ? null : Number(profile.ltcg_holding_months),
     ltcgRateBps: profile?.ltcg_rate_bps == null ? null : Number(profile.ltcg_rate_bps),
     stcgRateBps: profile?.stcg_rate_bps == null ? null : Number(profile.stcg_rate_bps),
+    priorNotes,
+    latestNote,
   };
 }

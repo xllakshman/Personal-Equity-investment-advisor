@@ -7,6 +7,7 @@ import { canWriteFamily, requireDeskSession } from "@/lib/desk/session";
 import { parsePortfolioCsv } from "@/lib/portfolio/csv";
 import { parseCurrencyOverride } from "@/lib/portfolio/exchange";
 import { asDisplayCurrency } from "@/lib/portfolio/grid";
+import { roundUsdInr } from "@/lib/portfolio/fx";
 import { loadPortfolioSettings } from "@/lib/portfolio/load";
 import { parseLotId, parseLotWrite } from "@/lib/portfolio/lot-write";
 import { createClient } from "@/lib/supabase/server";
@@ -258,7 +259,7 @@ export async function saveDisplaySettings(
     if (!Number.isFinite(n) || n <= 0) {
       return { error: "USD → INR rate must be greater than 0.", notice: null };
     }
-    fx = n;
+    fx = roundUsdInr(n);
   }
 
   const supabase = await createClient();

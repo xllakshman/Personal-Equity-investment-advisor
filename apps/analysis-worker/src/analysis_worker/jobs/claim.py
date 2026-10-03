@@ -30,6 +30,7 @@ def claim_queued(conn: connection) -> dict[str, Any] | None:
         """
         select id, family_id, created_by, ticker, exchange, lenses,
                invested_amount, portfolio_size, intended_investment,
+               run_qty, run_cost_per_share,
                intent, avg_down, risk_band, cagr_band, tax_residency, tax_slab,
                model_id, clarifications, status
           from analysis_requests

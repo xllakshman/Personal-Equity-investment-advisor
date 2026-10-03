@@ -4,7 +4,7 @@ import { planCardTitle, planLimitLabel } from "@/lib/billing/plan-titles";
 import { requireDeskSession } from "@/lib/desk/session";
 import { createClient } from "@/lib/supabase/server";
 import { loadUsageSnapshot } from "@/lib/usage/load";
-import { usageCaption, usageHumanHint } from "@/lib/usage/format";
+import { planStatusLabel, usageCaption, usageHumanHint } from "@/lib/usage/format";
 
 export default async function BillingPage() {
   const session = await requireDeskSession();
@@ -39,6 +39,16 @@ export default async function BillingPage() {
       <p className="desk__lede">
         Your plan, analyses this month, and wallet. Choose how to pay below.
       </p>
+
+      <section className="desk__card desk__current-plan" style={{ marginTop: 22 }}>
+        <p className="desk__kpi-k">Current subscription</p>
+        <p className="desk__kpi-v">{snap.planName ?? "No plan"}</p>
+        <p className="desk__kpi-s">
+          Status: {planStatusLabel(snap.billingStatus, snap.exhausted)}
+          {" · "}
+          {usageHumanHint(snap)}
+        </p>
+      </section>
 
       <div className="desk__kpis" style={{ marginTop: 22 }}>
         <div className="desk__card">

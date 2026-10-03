@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { DEFAULT_USD_INR, displayFxRate, toDisplayAmount } from "./fx";
+import { DEFAULT_USD_INR, displayFxRate, roundUsdInr, toDisplayAmount } from "./fx";
 
 describe("toDisplayAmount", () => {
   it("converts USD to INR only in the renderer", () => {
@@ -23,6 +23,8 @@ describe("toDisplayAmount", () => {
     assert.equal(displayFxRate(null), DEFAULT_USD_INR);
     assert.equal(displayFxRate(0), DEFAULT_USD_INR);
     assert.equal(displayFxRate(90), 90);
+    assert.equal(roundUsdInr(95.086), 95.09);
+    assert.equal(displayFxRate(95.086), 95.09);
   });
 
   it("does not write converted amounts — native stays native", () => {

@@ -16,6 +16,7 @@ describe("costBasisNative", () => {
         qty: 2,
         cost_per_share: 10,
         native_currency: "USD",
+        exchange: "NASDAQ",
         last_checked_at: null,
       },
       {
@@ -24,6 +25,7 @@ describe("costBasisNative", () => {
         qty: 1,
         cost_per_share: 5,
         native_currency: "USD",
+        exchange: "NASDAQ",
         last_checked_at: null,
       },
     ];
@@ -44,6 +46,7 @@ describe("costBasisNative", () => {
           qty: Number.NaN,
           cost_per_share: 403,
           native_currency: "USD",
+          exchange: "NASDAQ",
           last_checked_at: null,
         },
       ]),
@@ -57,6 +60,7 @@ describe("costBasisNative", () => {
           qty: 0,
           cost_per_share: 0,
           native_currency: "USD",
+          exchange: "NASDAQ",
           last_checked_at: null,
         },
       ]),

@@ -37,6 +37,35 @@ def test_skip_clarifications_are_empty_object() -> None:
     assert "conviction" not in raw
 
 
+def test_pack_includes_analyse_step_inputs() -> None:
+    raw = build_variable_pack(
+        {
+            "ticker": "MSFT",
+            "lenses": ["fundamental"],
+            "intent": "long_term",
+            "avg_down": "planned_tranches",
+            "risk_band": "medium_11_20",
+            "cagr_band": "medium_13_18",
+            "tax_residency": "india",
+            "tax_slab": "30%",
+            "invested_amount": 12090,
+            "portfolio_size": 35588,
+            "intended_investment": 5000,
+            "run_qty": 12,
+            "run_cost_per_share": 100.75,
+            "model_id": "opus5",
+        }
+    )
+    assert '"invested_amount": 12090' in raw
+    assert '"portfolio_size": 35588' in raw
+    assert '"intended_investment": 5000' in raw
+    assert '"run_qty": 12' in raw
+    assert '"run_cost_per_share": 100.75' in raw
+    assert '"model_id": "opus5"' in raw
+    assert '"tax_residency": "india"' in raw
+    assert '"lenses": ["fundamental"]' in raw
+
+
 def test_empty_ticker_and_unknown_lenses() -> None:
     assert required_step0([]) == [1]
     assert required_step0(["tax", "vibes"]) == [1]

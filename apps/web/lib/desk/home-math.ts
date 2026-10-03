@@ -4,6 +4,7 @@ export type HoldingRow = {
   qty: number;
   cost_per_share: number;
   native_currency: string;
+  exchange: string;
   last_checked_at: string | null;
 };
 

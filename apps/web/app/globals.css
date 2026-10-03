@@ -4,10 +4,10 @@
   --paper: #f6f5f2;
   --ink: #1b1a17;
   --forest: #2f5f52;
-  --font-ui: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
-  --font-ibm-plex-sans: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
-  --font-ibm-plex-mono: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
-  --font-newsreader: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
+  --font-ui: -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
+  --font-ibm-plex-sans: -apple-system, "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
+  --font-ibm-plex-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --font-newsreader: Newsreader, "Iowan Old Style", Palatino, Georgia, serif;
 }
 
 html,
@@ -33,9 +33,16 @@ a {
   text-transform: none;
 }
 
+.eqveste-mark {
+  display: block;
+  flex: none;
+}
+
 .eqveste-word__v {
+  display: inline-block;
   background-image: linear-gradient(120deg, #0a84ff, #30d158 38%, #ff9f0a 68%, #bf5af2);
   -webkit-background-clip: text;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: transparent;
 }

@@ -18,18 +18,18 @@ export function ManagersForms() {
           Manager name
           <input className="pf__input" name="name" required />
         </label>
-        <button className="pf__primary" type="submit" disabled={addPending}>
+        <button className="desk__btn" type="submit" disabled={addPending}>
           Watch
         </button>
       </form>
       {addState.error ? <p className="pf__error">{addState.error}</p> : null}
       {addState.notice ? <p className="pf__banner">{addState.notice}</p> : null}
       <form action={scanAction} style={{ marginTop: 16 }}>
-        <button className="pf__ghost" type="submit" disabled={scanPending}>
+        <button className="desk__btn desk__btn--ghost" type="submit" disabled={scanPending}>
           Scan without confirm
         </button>
         <button
-          className="pf__primary"
+          className="desk__btn"
           type="submit"
           name="confirm"
           value="1"

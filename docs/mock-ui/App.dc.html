@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#191f30;background-image:radial-gradient(1200px 700px at 8% -8%,rgba(10,132,255,.10),transparent 60%),radial-gradient(1000px 620px at 96% 6%,rgba(191,90,242,.08),transparent 62%),radial-gradient(1100px 700px at 55% 110%,rgba(48,209,88,.07),transparent 60%);background-attachment:fixed;color:#f5f5f7;font-family:-apple-system,"SF Pro Display","SF Pro Text","Helvetica Neue",Helvetica,sans-serif;-webkit-font-smoothing:antialiased}a{color:#409cff;text-decoration:none}a:hover{color:#6cb4ff}option{color:#111;background:#fff}*{scrollbar-color:rgba(255,255,255,.25) transparent;scrollbar-width:thin}::-webkit-scrollbar{height:8px;width:8px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.22);border-radius:8px}input,select,textarea,button{font-family:inherit}::placeholder{color:rgba(245,245,247,.42)}@keyframes appin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}@keyframes apppulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.5)}}@keyframes appspin{to{transform:rotate(360deg)}}</style></helmet>
+<header style="position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:18px;padding:12px 22px;background:rgba(25,31,48,.72);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);border-bottom:1px solid rgba(255,255,255,.1)">
+<a href="Home.dc.html" style="display:flex;align-items:center;gap:10px;width:206px;flex:none;color:#f5f5f7;transition:opacity .3s" style-hover="opacity:.75;color:#f5f5f7"><svg width="28" height="28" viewBox="0 0 36 36" fill="none" style="display:block;flex:none"><defs><linearGradient id="eqeg" x1="5" y1="29" x2="34" y2="12" gradientUnits="userSpaceOnUse"><stop stop-color="#0a84ff"></stop><stop offset=".45" stop-color="#30d158"></stop><stop offset=".72" stop-color="#ff9f0a"></stop><stop offset="1" stop-color="#bf5af2"></stop></linearGradient></defs><path d="M5 20H23A9 9 0 1 0 20.4 26.4L25 21.6L27.6 23.6L33 12.5" stroke="url(#eqeg)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M28.8 14.2L33 12.5L34 16.9" stroke="url(#eqeg)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path></svg><span style="font-size:19px;font-weight:700;letter-spacing:-.01em">eq<span style="display:inline-block;background-image:linear-gradient(120deg,#0a84ff,#30d158 38%,#ff9f0a 68%,#bf5af2);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent">v</span>este</span></a>
+<div style="flex:1;min-width:0;max-width:560px;display:flex;gap:8px"><input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Search a stock you own — MSFT, TSM, HDFCBANK…" style="flex:1;min-width:0;padding:11px 18px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:#f5f5f7;font-size:14px;outline:none;transition:border-color .25s,background .25s" style-focus="border-color:#0a84ff;background:rgba(255,255,255,.11)" /><button onClick="{{ runSearch }}" style="padding:11px 18px;border-radius:999px;border:0;background:#0a84ff;color:#fff;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap;transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s" style-hover="transform:translateY(-2px);box-shadow:0 12px 28px rgba(10,132,255,.4)">Analyse</button></div>
+<div style="display:flex;align-items:center;gap:10px;margin-left:auto">
+<button onClick="{{ toggleCur }}" style="padding:7px 13px;border-radius:999px;border:1px solid rgba(10,132,255,.5);background:rgba(10,132,255,.16);color:#f5f5f7;font-size:12.5px;font-weight:700;cursor:pointer;transition:background .25s,transform .25s" style-hover="background:rgba(10,132,255,.3);transform:translateY(-1px)">{{ curLabel }}</button>
+<div style="display:flex;align-items:center;gap:10px;padding-left:12px;border-left:1px solid rgba(255,255,255,.12)"><div style="text-align:right"><p style="margin:0;font-size:13px;font-weight:600">Lakshman Yeluri</p><p style="margin:2px 0 0;font-size:11.5px;color:rgba(245,245,247,.62)">{{ planLine }}</p></div><div style="width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(140deg,#0a84ff,#bf5af2);font-size:12px;font-weight:700">LY</div></div>
+<a href="Home.dc.html" style="padding:8px 15px;border-radius:999px;border:1px solid rgba(255,255,255,.18);color:#f5f5f7;font-size:13px;font-weight:600;transition:background .25s,transform .25s" style-hover="background:rgba(255,255,255,.1);color:#f5f5f7;transform:translateY(-1px)">Sign out</a>
+</div>
+</header>
+<div style="display:grid;grid-template-columns:236px minmax(0,1fr);align-items:start">
+<nav style="position:sticky;top:61px;padding:22px 14px;display:flex;flex-direction:column;gap:4px;min-height:calc(100vh - 61px);border-right:1px solid rgba(255,255,255,.08)">
+<sc-for list="{{ nav }}" as="n" hint-placeholder-count="7">
+<button onClick="{{ n.onClick }}" style="{{ n.style }}" style-hover="background:rgba(255,255,255,.09);transform:translateX(3px)" data-key="{{ n.id }}"><span style="width:8px;height:8px;border-radius:50%;flex:none;background:{{ n.dot }};box-shadow:0 0 10px {{ n.dot }}"></span><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:14px;font-weight:600">{{ n.label }}</span><span style="font-size:11.5px;color:rgba(245,245,247,.58)">{{ n.hint }}</span></span></button>
+</sc-for>
+<div style="margin:18px 0 0;padding:16px;border-radius:20px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)">
+<p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">This month</p>
+<p style="margin:0 0 10px;font-size:22px;font-weight:700;letter-spacing:-.02em">{{ usedS }}</p>
+<div style="height:6px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden"><div style="height:100%;width:{{ usedBar }};border-radius:3px;background:linear-gradient(90deg,#0a84ff,#30d158,#ff9f0a);transition:width .6s cubic-bezier(.2,.7,.2,1)"></div></div>
+<p style="margin:10px 0 12px;font-size:12px;line-height:1.5;color:rgba(245,245,247,.66)">{{ planName }} plan · wallet {{ walletS }}</p>
+<button onClick="{{ goSub }}" style="width:100%;padding:9px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:12.5px;font-weight:600;cursor:pointer;transition:background .25s,transform .25s" style-hover="background:rgba(255,255,255,.14);transform:translateY(-1px)">Upgrade plan</button>
+</div>
+</nav>
+<main style="padding:30px 34px 72px;min-width:0">
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div style="animation:appin .5s cubic-bezier(.2,.7,.2,1) both">
+<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin:0 0 26px">
+<div><p style="margin:0 0 8px;font-size:12.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,245,247,.62)">Your desk</p><h1 style="margin:0;font-size:clamp(32px,4vw,46px);font-weight:700;letter-spacing:-.03em;line-height:1.05">Good morning, Lakshman.</h1></div>
+<button onClick="{{ goAnalyse }}" style="padding:14px 24px;border-radius:999px;border:0;background:linear-gradient(100deg,#0a84ff,#30d158);color:#fff;font-size:14.5px;font-weight:700;cursor:pointer;box-shadow:0 16px 36px rgba(10,132,255,.3);transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s" style-hover="transform:translateY(-3px);box-shadow:0 22px 46px rgba(10,132,255,.42)">Analyse a stock</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:0 0 18px">
+<div style="padding:20px;border-radius:22px;background:rgba(255,255,255,.07);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,.12);transition:transform .35s cubic-bezier(.2,.7,.2,1),background .35s" style-hover="transform:translateY(-4px);background:rgba(255,255,255,.1)"><p style="margin:0 0 10px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Portfolio value</p><p style="margin:0;font-size:28px;font-weight:700;letter-spacing:-.02em">{{ totalS }}</p><p style="margin:6px 0 0;font-size:12.5px;color:rgba(245,245,247,.62)">{{ holdCount }} holdings</p></div>
+<div style="padding:20px;border-radius:22px;background:rgba(255,255,255,.07);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,.12);transition:transform .35s cubic-bezier(.2,.7,.2,1),background .35s" style-hover="transform:translateY(-4px);background:rgba(255,255,255,.1)"><p style="margin:0 0 10px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Gain or loss</p><p style="margin:0;font-size:28px;font-weight:700;letter-spacing:-.02em;color:{{ plCol }}">{{ plS }}</p><p style="margin:6px 0 0;font-size:12.5px;color:{{ plCol }}">{{ plPct }}</p></div>
+<div style="padding:20px;border-radius:22px;background:rgba(255,255,255,.07);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,.12);transition:transform .35s cubic-bezier(.2,.7,.2,1),background .35s" style-hover="transform:translateY(-4px);background:rgba(255,255,255,.1)"><p style="margin:0 0 10px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Analyses this month</p><p style="margin:0;font-size:28px;font-weight:700;letter-spacing:-.02em">{{ usedS }}</p><p style="margin:6px 0 0;font-size:12.5px;color:rgba(245,245,247,.62)">{{ planName }} plan</p></div>
+<div style="padding:20px;border-radius:22px;background:rgba(255,255,255,.07);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,.12);transition:transform .35s cubic-bezier(.2,.7,.2,1),background .35s" style-hover="transform:translateY(-4px);background:rgba(255,255,255,.1)"><p style="margin:0 0 10px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Saved notes</p><p style="margin:0;font-size:28px;font-weight:700;letter-spacing:-.02em">{{ reportCount }}</p><p style="margin:6px 0 0;font-size:12.5px;color:rgba(245,245,247,.62)">plus 3 samples</p></div>
+</div>
+<div style="display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;padding:20px 24px;border-radius:24px;margin:0 0 18px;background:linear-gradient(120deg,rgba(48,209,88,.15),rgba(10,132,255,.08) 60%,rgba(255,255,255,.04));border:1px solid rgba(48,209,88,.38);transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s" style-hover="transform:translateY(-3px);box-shadow:0 20px 44px rgba(48,209,88,.14)">
+<div style="width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:rgba(48,209,88,.18);border:1px solid rgba(48,209,88,.5)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#30d158" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2.5"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg></div>
+<div style="min-width:0"><p style="margin:0 0 4px;font-size:16.5px;font-weight:700;letter-spacing:-.01em">Your portfolio is private. We can't see it.</p><p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(245,245,247,.76)">Nobody at eqveste can see what you own or how much. Only if you ask us for help can you let support look — for 3 to 15 days, your choice — and access ends on its own.</p></div>
+<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end"><sc-if value="{{ supportOff }}" hint-placeholder-val="{{ true }}"><span style="padding:7px 12px;border-radius:999px;background:rgba(48,209,88,.16);color:#30d158;font-size:12px;font-weight:700;white-space:nowrap">Support access: off</span></sc-if><sc-if value="{{ supportGranted }}" hint-placeholder-val="{{ false }}"><span style="padding:7px 12px;border-radius:999px;background:rgba(255,159,10,.16);color:#ffb340;font-size:12px;font-weight:700;white-space:nowrap">Support access: on · {{ supportDays }} days</span></sc-if><button onClick="{{ goPortfolio }}" style="border:0;background:transparent;padding:0;color:#409cff;font-size:12.5px;font-weight:600;cursor:pointer;transition:color .2s" style-hover="color:#6cb4ff">Manage access →</button></div>
+</div>
+<sc-if value="{{ noBook }}" hint-placeholder-val="{{ true }}">
+<div style="padding:clamp(24px,3vw,36px);border-radius:28px;background:linear-gradient(140deg,rgba(10,132,255,.16),rgba(255,255,255,.05) 60%);border:1px solid rgba(255,255,255,.14);margin:0 0 18px">
+<h2 style="margin:0 0 8px;font-size:26px;font-weight:700;letter-spacing:-.02em">Three steps to your first decision</h2>
+<p style="margin:0 0 22px;font-size:15px;line-height:1.6;color:rgba(245,245,247,.72);max-width:60ch">You can analyse any stock straight away. Add your holdings too, and every answer is sized to your real money.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+<button onClick="{{ goPortfolio }}" style="display:flex;flex-direction:column;gap:8px;text-align:left;padding:18px;border-radius:20px;background:rgba(255,159,10,.14);border:1px solid rgba(255,159,10,.45);color:#f5f5f7;cursor:pointer;transition:transform .3s cubic-bezier(.2,.7,.2,1),background .3s" style-hover="transform:translateY(-4px);background:rgba(255,159,10,.22)"><span style="font-size:12px;font-weight:700;letter-spacing:.08em;color:#ff9f0a">STEP 1 · OPTIONAL</span><span style="font-size:16px;font-weight:600">Add your holdings below</span><span style="font-size:13px;line-height:1.5;color:rgba(245,245,247,.72)">Type them in here, or upload a spreadsheet.</span></button>
+<div style="display:flex;flex-direction:column;gap:8px;padding:18px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12)"><span style="font-size:12px;font-weight:700;letter-spacing:.08em;color:rgba(245,245,247,.6)">STEP 2</span><span style="font-size:16px;font-weight:600">Pick a stock and your limits</span><span style="font-size:13px;line-height:1.5;color:rgba(245,245,247,.66)">How big a fall you can take, and the return you want.</span></div>
+<div style="display:flex;flex-direction:column;gap:8px;padding:18px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12)"><span style="font-size:12px;font-weight:700;letter-spacing:.08em;color:rgba(245,245,247,.6)">STEP 3</span><span style="font-size:16px;font-weight:600">Get a clear plan</span><span style="font-size:13px;line-height:1.5;color:rgba(245,245,247,.66)">How much to buy, when to add, when to sell.</span></div>
+</div>
+</div>
+</sc-if>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px">
+<div style="grid-column:1 / -1;padding:24px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)">
+<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin:0 0 16px"><div><h2 style="margin:0 0 4px;font-size:19px;font-weight:700;letter-spacing:-.02em">Your holdings</h2><p style="margin:0;font-size:13px;color:rgba(245,245,247,.66)">Add, edit or delete stocks here. Changes apply everywhere.</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><sc-if value="{{ noRows }}" hint-placeholder-val="{{ true }}"><button onClick="{{ loadSample }}" style="padding:9px 15px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:13px;font-weight:600;cursor:pointer;transition:background .25s,transform .25s" style-hover="background:rgba(255,255,255,.14);transform:translateY(-1px)">Try a sample</button></sc-if><button onClick="{{ goPortfolio }}" style="padding:9px 15px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:13px;font-weight:600;cursor:pointer;transition:background .25s,transform .25s" style-hover="background:rgba(255,255,255,.14);transform:translateY(-1px)">Upload a spreadsheet</button></div></div>
+<div style="overflow-x:auto"><div style="min-width:820px">
+<div style="display:grid;grid-template-columns:minmax(150px,1.6fr) 90px 110px 120px 90px 210px;gap:10px;align-items:center;padding:0 4px 10px;border-bottom:1px solid rgba(255,255,255,.1)"><span style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.6)">Stock</span><span style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.6)">Qty</span><span style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.6)">Cost / share</span><span style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.6)">Value</span><span style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.6)">Share</span><span></span></div>
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="0">
+<div data-key="{{ r.key }}" style="border-bottom:1px solid rgba(255,255,255,.07)">
+<sc-if value="{{ r.notEditing }}" hint-placeholder-val="{{ true }}"><div style="display:grid;grid-template-columns:minmax(150px,1.6fr) 90px 110px 120px 90px 210px;gap:10px;align-items:center;padding:12px 4px;border-radius:12px;transition:background .25s" style-hover="background:rgba(255,255,255,.05)"><div style="min-width:0"><p style="margin:0;font-size:14px;font-weight:700">{{ r.t }}</p><p style="margin:2px 0 0;font-size:12px;color:rgba(245,245,247,.62);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.n }}</p></div><span style="font-size:13.5px">{{ r.q }}</span><span style="font-size:13.5px">{{ r.costS }}</span><span style="font-size:13.5px;font-weight:600">{{ r.valS }}</span><span style="font-size:13px;color:rgba(245,245,247,.72)">{{ r.wS }}</span><div style="display:flex;gap:6px;justify-content:flex-end"><button onClick="{{ r.onAnalyse }}" style="padding:7px 12px;border-radius:999px;border:0;background:rgba(48,209,88,.18);color:#30d158;font-size:12.5px;font-weight:700;cursor:pointer;transition:background .25s" style-hover="background:rgba(48,209,88,.3)">Analyse</button><button onClick="{{ r.onEdit }}" style="padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:transparent;color:#f5f5f7;font-size:12.5px;font-weight:600;cursor:pointer;transition:background .25s" style-hover="background:rgba(255,255,255,.12)">Edit</button><button onClick="{{ r.onRemove }}" style="padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:transparent;color:rgba(245,245,247,.8);font-size:12.5px;cursor:pointer;transition:background .25s,color .25s" style-hover="background:rgba(255,69,58,.16);color:#ff6961">Delete</button></div></div></sc-if>
+<sc-if value="{{ r.editing }}" hint-placeholder-val="{{ false }}"><div style="display:grid;grid-template-columns:minmax(150px,1.6fr) 90px 110px 120px 90px 210px;gap:10px;align-items:center;padding:12px 4px;background:rgba(10,132,255,.08);border-radius:12px"><div style="display:flex;gap:6px;min-width:0"><input value="{{ r.eb.t }}" onChange="{{ r.onEbT }}" placeholder="Ticker" style="width:100%;min-width:0;padding:9px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#f5f5f7;font-size:13.5px;outline:none;flex:0 0 76px" style-focus="border-color:#0a84ff" /><input value="{{ r.eb.n }}" onChange="{{ r.onEbN }}" placeholder="Company" style="width:100%;min-width:0;padding:9px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#f5f5f7;font-size:13.5px;outline:none;flex:1" style-focus="border-color:#0a84ff" /></div><input value="{{ r.eb.q }}" onChange="{{ r.onEbQ }}" placeholder="Qty" style="width:100%;min-width:0;padding:9px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#f5f5f7;font-size:13.5px;outline:none" style-focus="border-color:#0a84ff" /><input value="{{ r.eb.c }}" onChange="{{ r.onEbC }}" placeholder="Cost" style="width:100%;min-width:0;padding:9px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#f5f5f7;font-size:13.5px;outline:none" style-focus="border-color:#0a84ff" /><span style="font-size:12.5px;color:rgba(245,245,247,.6)">Editing</span><span></span><div style="display:flex;gap:6px;justify-content:flex-end"><button onClick="{{ r.onSave }}" style="padding:7px 14px;border-radius:999px;border:0;background:#0a84ff;color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;transition:transform .25s" style-hover="transform:translateY(-1px)">Save</button><button onClick="{{ r.onCancel }}" style="padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:transparent;color:#f5f5f7;font-size:12.5px;cursor:pointer;transition:background .25s" style-hover="background:rgba(255,255,255,.12)">Cancel</button></div></div></sc-if>
+</div>
+</sc-for>
+<sc-if value="{{ noRows }}" hint-placeholder-val="{{ true }}"><p style="margin:0;padding:16px 4px;font-size:13.5px;color:rgba(245,245,247,.66)">No stocks yet. Add your first one below.</p></sc-if>
+<div style="display:grid;grid-template-columns:minmax(150px,1.6fr) 90px 110px 120px 90px 210px;gap:10px;align-items:center;padding:14px 4px 2px"><div style="display:flex;gap:6px;min-width:0"><input value="{{ h.t }}" onChange="{{ onHT }}" placeholder="Ticker" style="width:100%;min-width:0;padding:9px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#f5f5f7;font-size:13.5px;outline:none;flex:0 0 76px" style-focus="border-color:#0a84ff" /><input value="{{ h.n }}" onChange="{{ onHN }}" placeholder="Company (optional)" style="width:100%;min-width:0;padding:9px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#f5f5f7;font-size:13.5px;outline:none;flex:1" style-focus="border-color:#0a84ff" /></div><input value="{{ h.q }}" onChange="{{ onHQ }}" placeholder="Qty" style="width:100%;min-width:0;padding:9px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#f5f5f7;font-size:13.5px;outline:none" style-focus="border-color:#0a84ff" /><input value="{{ h.c }}" onChange="{{ onHC }}" placeholder="Cost / share" style="width:100%;min-width:0;padding:9px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#f5f5f7;font-size:13.5px;outline:none" style-focus="border-color:#0a84ff" /><span></span><span></span><div style="display:flex;justify-content:flex-end"><button onClick="{{ addPos }}" style="padding:9px 18px;border-radius:999px;border:0;background:linear-gradient(100deg,#0a84ff,#30d158);color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:transform .25s,box-shadow .25s" style-hover="transform:translateY(-1px);box-shadow:0 10px 24px rgba(10,132,255,.35)">+ Add stock</button></div></div>
+</div></div>
+</div>
+<div style="padding:24px;border-radius:24px;background:linear-gradient(140deg,rgba(255,159,10,.12),rgba(255,255,255,.05) 60%);border:1px solid rgba(255,255,255,.12)">
+<h2 style="margin:0 0 16px;font-size:19px;font-weight:700;letter-spacing:-.02em">We'll tell you without being asked</h2>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);transition:transform .3s,background .3s" style-hover="transform:translateX(5px);background:rgba(255,255,255,.1)"><span style="width:8px;height:8px;border-radius:50%;background:#ff9f0a;margin-top:6px;flex:none;animation:apppulse 2.4s ease-in-out infinite"></span><p style="margin:0;font-size:14px;line-height:1.55">When one stock grows too big for your portfolio</p></div>
+<div style="display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);transition:transform .3s,background .3s" style-hover="transform:translateX(5px);background:rgba(255,255,255,.1)"><span style="width:8px;height:8px;border-radius:50%;background:#ff9f0a;margin-top:6px;flex:none"></span><p style="margin:0;font-size:14px;line-height:1.55">When your cash is too low for the market we're in</p></div>
+<div style="display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);transition:transform .3s,background .3s" style-hover="transform:translateX(5px);background:rgba(255,255,255,.1)"><span style="width:8px;height:8px;border-radius:50%;background:#ff9f0a;margin-top:6px;flex:none"></span><p style="margin:0;font-size:14px;line-height:1.55">When you're buying more only because the price fell</p></div>
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ isAnalyse }}" hint-placeholder-val="{{ false }}">
+<div style="animation:appin .5s cubic-bezier(.2,.7,.2,1) both">
+<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;margin:0 0 24px">
+<div><p style="margin:0 0 8px;font-size:12.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,245,247,.62)">Analyse a stock</p><h1 style="margin:0 0 10px;font-size:clamp(30px,3.8vw,44px);font-weight:700;letter-spacing:-.03em;line-height:1.05">What do you want to decide?</h1><p style="margin:0;font-size:15px;line-height:1.6;color:rgba(245,245,247,.7);max-width:58ch">Analyse any stock, or one from your portfolio. Either way it uses one analysis and the note lands in Reports.</p></div>
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="padding:9px 15px;border-radius:999px;background:rgba(10,132,255,.16);border:1px solid rgba(10,132,255,.45);font-size:13px;font-weight:600">{{ planName }} · {{ usedLong }}</span><button onClick="{{ goSub }}" style="padding:9px 16px;border-radius:999px;border:0;background:#f5f5f7;color:#0b0d14;font-size:13px;font-weight:700;cursor:pointer;transition:transform .3s,box-shadow .3s" style-hover="transform:translateY(-2px);box-shadow:0 12px 26px rgba(245,245,247,.2)">Upgrade</button></div>
+</div>
+<div>
+<div style="display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr);gap:18px;align-items:start">
+<div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+<section style="padding:24px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)">
+<h2 style="margin:0 0 4px;font-size:19px;font-weight:700;letter-spacing:-.02em">1 · Which stock?</h2><p style="margin:0 0 16px;font-size:13.5px;color:rgba(245,245,247,.66)">Type any stock, or pick one you already own.</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px"><sc-for list="{{ srcOpts }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onPick }}" style="{{ o.style }}" style-hover="transform:translateY(-2px)" data-key="{{ o.k }}">{{ o.l }}</button></sc-for></div>
+<sc-if value="{{ srcOther }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:0 0 12px">
+<div><label style="display:block;margin:0 0 7px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Stock</label><input value="{{ customT }}" onChange="{{ onCustomT }}" placeholder="Ticker, e.g. NVDA" style="width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:15px;font-weight:600;outline:none" style-focus="border-color:#0a84ff" /></div>
+<div><label style="display:block;margin:0 0 7px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">You hold or plan to put in</label><input value="{{ customAmt }}" onChange="{{ onCustomAmt }}" placeholder="Optional, e.g. 5000" style="width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:14px;outline:none" style-focus="border-color:#0a84ff" /></div>
+<div><label style="display:block;margin:0 0 7px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Your total portfolio</label><input value="{{ customPort }}" onChange="{{ onCustomPort }}" placeholder="Optional, e.g. 60000" style="width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:14px;outline:none" style-focus="border-color:#0a84ff" /></div>
+</div>
+</sc-if>
+<sc-if value="{{ srcPortfolio }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ hasBook }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:9px;flex-wrap:wrap;margin:0 0 18px"><sc-for list="{{ stockChips }}" as="c" hint-placeholder-count="5"><button onClick="{{ c.onPick }}" style="{{ c.style }}" style-hover="transform:translateY(-2px)" data-key="{{ c.t }}">{{ c.t }}</button></sc-for></div></sc-if>
+<sc-if value="{{ noBook }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:14px 16px;border-radius:16px;background:rgba(255,159,10,.1);border:1px solid rgba(255,159,10,.35);margin:0 0 14px"><p style="margin:0;flex:1;min-width:200px;font-size:13.5px;line-height:1.5">Your portfolio is empty. Add stocks on Home, or analyse any stock now.</p><button onClick="{{ goHome }}" style="padding:9px 15px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:13px;font-weight:600;cursor:pointer;transition:background .25s" style-hover="background:rgba(255,255,255,.14)">Add stocks</button><button onClick="{{ setOther }}" style="padding:9px 15px;border-radius:999px;border:0;background:#f5f5f7;color:#0b0d14;font-size:13px;font-weight:700;cursor:pointer;transition:transform .25s" style-hover="transform:translateY(-1px)">Any stock</button></div></sc-if>
+</sc-if>
+<div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)"><div style="flex:none"><p style="margin:0;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(245,245,247,.6)">Share of portfolio</p><p style="margin:4px 0 0;font-size:22px;font-weight:700">{{ allocS }}</p></div><div style="flex:1;min-width:0"><div style="height:8px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden;margin:0 0 7px"><div style="height:100%;width:{{ allocBar }};border-radius:4px;background:linear-gradient(90deg,#0a84ff,#30d158)"></div></div><p style="margin:0;font-size:12.5px;color:rgba(245,245,247,.7)">{{ allocNote }}</p></div></div>
+</section>
+<section style="padding:24px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)">
+<h2 style="margin:0 0 4px;font-size:19px;font-weight:700;letter-spacing:-.02em">2 · What should we check?</h2><p style="margin:0 0 16px;font-size:13.5px;color:rgba(245,245,247,.66)">Pick one or all four — it still counts as one analysis.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px"><sc-for list="{{ kinds }}" as="k" hint-placeholder-count="4"><button onClick="{{ k.onToggle }}" style="{{ k.style }}" style-hover="transform:translateY(-3px)" data-key="{{ k.id }}"><span style="{{ k.box }}"></span><span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:15px;font-weight:600">{{ k.label }}</span><span style="font-size:12.5px;line-height:1.5;color:rgba(245,245,247,.7)">{{ k.desc }}</span></span></button></sc-for></div>
+</section>
+<section style="padding:24px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)">
+<h2 style="margin:0 0 4px;font-size:19px;font-weight:700;letter-spacing:-.02em">3 · Your limits</h2><p style="margin:0 0 16px;font-size:13.5px;color:rgba(245,245,247,.66)">These two have to match, and we check before spending an analysis.</p>
+<p style="margin:0 0 9px;font-size:13px;font-weight:600">How big a fall can you sit through?</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px"><sc-for list="{{ riskOpts }}" as="o" hint-placeholder-count="4"><button onClick="{{ o.onPick }}" style="{{ o.style }}" style-hover="transform:translateY(-2px)" data-key="{{ o.label }}">{{ o.label }}</button></sc-for></div>
+<p style="margin:0 0 9px;font-size:13px;font-weight:600">What return are you aiming for?</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ cagrOpts }}" as="o" hint-placeholder-count="4"><button onClick="{{ o.onPick }}" style="{{ o.style }}" style-hover="transform:translateY(-2px)" data-key="{{ o.label }}">{{ o.label }}</button></sc-for></div>
+<sc-if value="{{ conflict }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:12px;margin:16px 0 0;padding:14px 16px;border-radius:16px;background:rgba(255,69,58,.12);border:1px solid rgba(255,69,58,.45)"><span style="width:8px;height:8px;border-radius:50%;background:#ff453a;margin-top:6px;flex:none"></span><p style="margin:0;font-size:13.5px;line-height:1.6">A return that high comes with bigger falls than you've said you can take. Allow a bigger fall, or aim a little lower — we won't plan for something that can't happen.</p></div></sc-if>
+</section>
+<section style="padding:24px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)">
+<h2 style="margin:0 0 4px;font-size:19px;font-weight:700;letter-spacing:-.02em">4 · Choose your agent</h2><p style="margin:0 0 16px;font-size:13.5px;color:rgba(245,245,247,.66)">How good the analysis is depends on the agent you pick.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px"><sc-for list="{{ agents }}" as="a" hint-placeholder-count="2"><button onClick="{{ a.onPick }}" style="{{ a.style }}" style-hover="transform:translateY(-3px)" data-key="{{ a.id }}"><span style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><span style="font-size:15.5px;font-weight:700">{{ a.name }}</span><span style="font-size:14px;font-weight:700;color:{{ a.col }}">{{ a.price }}</span></span><span style="font-size:13px;line-height:1.55;color:rgba(245,245,247,.72)">{{ a.note }}</span><sc-if value="{{ a.locked }}" hint-placeholder-val="{{ false }}"><span style="font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#bf5af2">Ultra Premium and Unlimited</span></sc-if></button></sc-for></div>
+</section>
+</div>
+<aside style="position:sticky;top:84px;display:flex;flex-direction:column;gap:14px;min-width:0">
+<div style="padding:24px;border-radius:24px;background:linear-gradient(160deg,rgba(10,132,255,.2),rgba(255,255,255,.05) 60%);border:1px solid rgba(255,255,255,.16);box-shadow:0 26px 60px rgba(0,0,0,.3)">
+<p style="margin:0 0 14px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.66)">Ready to run</p>
+<div style="display:flex;flex-direction:column;gap:10px;margin:0 0 20px">
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font-size:13.5px;color:rgba(245,245,247,.68)">Stock</span><span style="font-size:13.5px;font-weight:700">{{ pickT }}</span></div>
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font-size:13.5px;color:rgba(245,245,247,.68)">Checks</span><span style="font-size:13.5px;font-weight:600">{{ kindCount }} of 4</span></div>
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font-size:13.5px;color:rgba(245,245,247,.68)">Share of portfolio</span><span style="font-size:13.5px;font-weight:600">{{ allocS }}</span></div>
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font-size:13.5px;color:rgba(245,245,247,.68)">Agent</span><span style="font-size:13.5px;font-weight:600">{{ agentName }}</span></div>
+</div>
+<button onClick="{{ runAnalysis }}" style="{{ runBtnStyle }}" style-hover="transform:translateY(-2px)">Run analysis</button>
+<p style="margin:12px 0 0;font-size:12.5px;line-height:1.5;color:rgba(245,245,247,.66);text-align:center">{{ runNote }}</p>
+</div>
+<div style="display:flex;gap:12px;padding:18px;border-radius:20px;background:rgba(255,159,10,.1);border:1px solid rgba(255,159,10,.35)"><span style="width:8px;height:8px;border-radius:50%;background:#ff9f0a;margin-top:6px;flex:none"></span><div><p style="margin:0 0 5px;font-size:14px;font-weight:600">Run it with a decision in mind</p><p style="margin:0;font-size:13px;line-height:1.6;color:rgba(245,245,247,.76)">Each run costs real compute and uses your allowance. Start one when you're ready to buy, add, trim or leave it — and finish knowing which.</p></div></div>
+</aside>
+</div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ isPortfolio }}" hint-placeholder-val="{{ false }}">
+<div style="animation:appin .5s cubic-bezier(.2,.7,.2,1) both">
+<p style="margin:0 0 8px;font-size:12.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,245,247,.62)">Portfolio</p>
+<h1 style="margin:0 0 10px;font-size:clamp(30px,3.8vw,44px);font-weight:700;letter-spacing:-.03em;line-height:1.05">Your holdings</h1>
+<p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:rgba(245,245,247,.7);max-width:62ch">With your holdings loaded, every answer uses your real cost — how much to buy, when to add, and what you'd owe in tax.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:0 0 16px">
+<div style="padding:22px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);transition:transform .35s cubic-bezier(.2,.7,.2,1),background .35s" style-hover="transform:translateY(-4px);background:rgba(255,255,255,.09)">
+<p style="margin:0 0 4px;font-size:16px;font-weight:700">Upload a spreadsheet</p><p style="margin:0 0 14px;font-size:13px;color:rgba(245,245,247,.66)">Columns: ticker, company, cost per share, quantity.</p>
+<label style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:24px 16px;border-radius:18px;border:1.5px dashed rgba(10,132,255,.6);background:rgba(10,132,255,.08);cursor:pointer;text-align:center;transition:background .3s,border-color .3s" style-hover="background:rgba(10,132,255,.16);border-color:#0a84ff"><span style="font-size:15px;font-weight:600">Drop a CSV or choose a file</span><span style="font-size:12.5px;color:rgba(245,245,247,.66)">{{ csvName }}</span><input type="file" accept=".csv" onChange="{{ onCsv }}" style="display:none" /></label>
+<label style="display:block;margin:14px 0 7px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Currency of these costs</label>
+<select value="{{ csvCur }}" onChange="{{ onCsvCur }}" style="width:100%;padding:11px 13px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:13.5px"><option value="auto">Guess from the exchange</option><option value="USD">All in USD</option><option value="INR">All in INR</option></select>
+</div>
+<div style="padding:22px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);transition:transform .35s cubic-bezier(.2,.7,.2,1),background .35s" style-hover="transform:translateY(-4px);background:rgba(255,255,255,.09)">
+<p style="margin:0 0 14px;font-size:16px;font-weight:700">Or type one in</p>
+<div style="display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;gap:9px"><input value="{{ h.t }}" onChange="{{ onHT }}" placeholder="Ticker" style="width:110px;padding:11px 13px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:14px;outline:none" style-focus="border-color:#0a84ff" /><input value="{{ h.n }}" onChange="{{ onHN }}" placeholder="Company name" style="flex:1;min-width:0;padding:11px 13px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:14px;outline:none" style-focus="border-color:#0a84ff" /></div>
+<div style="display:flex;gap:9px"><input value="{{ h.c }}" onChange="{{ onHC }}" placeholder="Cost per share" style="flex:1;min-width:0;padding:11px 13px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:14px;outline:none" style-focus="border-color:#0a84ff" /><input value="{{ h.q }}" onChange="{{ onHQ }}" placeholder="Quantity" style="flex:1;min-width:0;padding:11px 13px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:14px;outline:none" style-focus="border-color:#0a84ff" /></div>
+<button onClick="{{ addPos }}" style="padding:12px;border-radius:999px;border:0;background:#0a84ff;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:transform .3s,box-shadow .3s" style-hover="transform:translateY(-2px);box-shadow:0 12px 28px rgba(10,132,255,.4)">Add to portfolio</button>
+</div>
+</div>
+<div style="padding:22px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);transition:transform .35s cubic-bezier(.2,.7,.2,1),background .35s" style-hover="transform:translateY(-4px);background:rgba(255,255,255,.09)">
+<p style="margin:0 0 14px;font-size:16px;font-weight:700">Show amounts in</p>
+<select value="{{ currency }}" onChange="{{ onCurrency }}" style="width:100%;padding:11px 13px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:14px;margin:0 0 14px"><option value="USD">US dollars ($)</option><option value="INR">Indian rupees (₹)</option></select>
+<label style="display:block;margin:0 0 7px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">1 USD in rupees</label>
+<input type="number" step="0.1" value="{{ fx }}" onChange="{{ onFx }}" style="width:100%;padding:11px 13px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:14px;outline:none" style-focus="border-color:#0a84ff" />
+<p style="margin:12px 0 0;font-size:12.5px;line-height:1.55;color:rgba(245,245,247,.62)">We store each holding in its own currency and only convert for display.</p>
+</div>
+</div>
+<div style="border-radius:24px;overflow:hidden;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);margin:0 0 16px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.08)"><p style="margin:0;font-size:16px;font-weight:700">{{ holdCount }} holdings · {{ totalS }}</p><span style="font-size:14px;font-weight:600;color:{{ plCol }}">{{ plS }} ({{ plPct }})</span></div>
+<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:820px">
+<thead><tr><th style="text-align:left;padding:13px 22px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.6)">Stock</th><th style="text-align:right;padding:13px 14px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.6)">Qty</th><th style="text-align:right;padding:13px 14px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.6)">Your cost</th><th style="text-align:right;padding:13px 14px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.6)">Price now</th><th style="text-align:right;padding:13px 14px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.6)">Value</th><th style="text-align:right;padding:13px 14px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.6)">Gain / loss</th><th style="text-align:left;padding:13px 14px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.6)">Share</th><th style="padding:13px 22px"></th></tr></thead>
+<tbody><sc-for list="{{ rows }}" as="r" hint-placeholder-count="0"><tr data-key="{{ r.key }}" style="transition:background .25s" style-hover="background:rgba(255,255,255,.05)"><td style="padding:14px 22px;border-top:1px solid rgba(255,255,255,.07)"><p style="margin:0;font-size:14px;font-weight:700">{{ r.t }}</p><p style="margin:2px 0 0;font-size:12px;color:rgba(245,245,247,.62)">{{ r.n }}</p></td><td style="padding:14px;text-align:right;font-size:13.5px;border-top:1px solid rgba(255,255,255,.07)">{{ r.q }}</td><td style="padding:14px;text-align:right;font-size:13.5px;border-top:1px solid rgba(255,255,255,.07)">{{ r.costS }}</td><td style="padding:14px;text-align:right;font-size:13.5px;border-top:1px solid rgba(255,255,255,.07)">{{ r.ltpS }}</td><td style="padding:14px;text-align:right;font-size:13.5px;font-weight:600;border-top:1px solid rgba(255,255,255,.07)">{{ r.valS }}</td><td style="padding:14px;text-align:right;font-size:13.5px;font-weight:600;color:{{ r.col }};border-top:1px solid rgba(255,255,255,.07)">{{ r.plS }} <span style="font-size:12px">{{ r.ppS }}</span></td><td style="padding:14px;border-top:1px solid rgba(255,255,255,.07)"><div style="display:flex;align-items:center;gap:8px"><div style="width:70px;height:6px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden"><div style="height:100%;width:{{ r.wBar }};background:linear-gradient(90deg,#0a84ff,#bf5af2)"></div></div><span style="font-size:12.5px;color:rgba(245,245,247,.72)">{{ r.wS }}</span></div></td><td style="padding:14px 22px;text-align:right;border-top:1px solid rgba(255,255,255,.07)"><div style="display:flex;gap:7px;justify-content:flex-end"><button onClick="{{ r.onAnalyse }}" style="padding:7px 13px;border-radius:999px;border:0;background:rgba(48,209,88,.18);color:#30d158;font-size:12.5px;font-weight:700;cursor:pointer;transition:background .25s,transform .25s" style-hover="background:rgba(48,209,88,.3);transform:translateY(-1px)">Analyse</button><button onClick="{{ r.onRemove }}" style="padding:7px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:transparent;color:rgba(245,245,247,.72);font-size:12.5px;cursor:pointer;transition:background .25s" style-hover="background:rgba(255,69,58,.16);color:#ff453a">Remove</button></div></td></tr></sc-for></tbody>
+</table></div>
+<sc-if value="{{ noRows }}" hint-placeholder-val="{{ true }}"><div style="padding:30px 22px;text-align:center"><p style="margin:0 0 14px;font-size:14.5px;color:rgba(245,245,247,.7)">No holdings yet. Upload a spreadsheet or add one above.</p><button onClick="{{ loadSample }}" style="padding:10px 18px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:13px;font-weight:600;cursor:pointer;transition:background .25s,transform .25s" style-hover="background:rgba(255,255,255,.14);transform:translateY(-2px)">Try a sample portfolio</button></div></sc-if>
+</div>
+<div style="padding:22px;border-radius:24px;background:linear-gradient(130deg,rgba(48,209,88,.12),rgba(255,255,255,.04) 60%);border:1px solid rgba(48,209,88,.3)">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center">
+<div style="min-width:0"><p style="margin:0 0 5px;font-size:16px;font-weight:700">Let support see your holdings</p><p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(245,245,247,.72)">Only when you've asked us for help. You choose how long — 3 to 15 days — and access switches off on its own. Until you turn it on, nobody at eqveste can see your holdings.</p></div>
+<sc-if value="{{ supportGranted }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="padding:8px 13px;border-radius:999px;background:rgba(48,209,88,.16);color:#30d158;font-size:12.5px;font-weight:700;white-space:nowrap">On · {{ supportDays }} days left</span><button onClick="{{ revokeSupport }}" style="padding:9px 15px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#f5f5f7;font-size:13px;cursor:pointer;transition:background .25s" style-hover="background:rgba(255,69,58,.16)">Turn off now</button></div></sc-if>
+</div>
+<sc-if value="{{ supportOff }}" hint-placeholder-val="{{ true }}"><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:18px 0 0;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
+<span style="font-size:13px;font-weight:600">Access for</span>
+<span style="font-size:12px;color:rgba(245,245,247,.6)">3</span><input type="range" min="3" max="15" step="1" value="{{ supportDays }}" onChange="{{ onSupportDays }}" style="flex:1;min-width:160px;accent-color:#30d158;cursor:pointer" /><span style="font-size:12px;color:rgba(245,245,247,.6)">15</span>
+<span style="min-width:62px;font-size:16px;font-weight:700">{{ supportDays }} days</span>
+<button onClick="{{ grantSupport }}" style="padding:10px 18px;border-radius:999px;border:0;background:#30d158;color:#0b0d14;font-size:13.5px;font-weight:700;cursor:pointer;white-space:nowrap;transition:transform .3s,box-shadow .3s" style-hover="transform:translateY(-2px);box-shadow:0 12px 26px rgba(48,209,88,.35)">Allow for {{ supportDays }} days</button>
+</div></sc-if>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ isReports }}" hint-placeholder-val="{{ false }}">
+<div style="animation:appin .5s cubic-bezier(.2,.7,.2,1) both">
+<p style="margin:0 0 8px;font-size:12.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,245,247,.62)">Reports</p>
+<h1 style="margin:0 0 10px;font-size:clamp(30px,3.8vw,44px);font-weight:700;letter-spacing:-.03em;line-height:1.05">Your saved notes</h1>
+<p style="margin:0 0 22px;font-size:15px;line-height:1.6;color:rgba(245,245,247,.7);max-width:64ch">Prices and news move on. Any note older than 60 days is marked outdated — run a fresh analysis before you act on it.</p>
+<div style="display:flex;flex-direction:column;gap:14px;padding:20px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);margin:0 0 14px">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+<input value="{{ rq }}" onChange="{{ onRq }}" placeholder="Filter by company or ticker" style="flex:1;min-width:220px;padding:11px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:14px;outline:none;transition:border-color .25s" style-focus="border-color:#0a84ff" />
+<div style="display:flex;gap:6px"><sc-for list="{{ grpOpts }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onPick }}" style="{{ o.style }}" style-hover="transform:translateY(-1px)" data-key="{{ o.k }}">{{ o.l }}</button></sc-for></div>
+<sc-if value="{{ filtersOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ clearFilters }}" style="padding:8px 14px;border-radius:999px;border:0;background:transparent;color:#409cff;font-size:13px;font-weight:600;cursor:pointer;transition:color .2s" style-hover="color:#6cb4ff">Clear filters</button></sc-if>
+</div>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="width:58px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.6)">Month</span><sc-for list="{{ monthChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onPick }}" style="{{ c.style }}" style-hover="transform:translateY(-1px)" data-key="{{ c.k }}">{{ c.l }}</button></sc-for></div>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="width:58px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.6)">Week</span><sc-for list="{{ weekChips }}" as="c" hint-placeholder-count="5"><button onClick="{{ c.onPick }}" style="{{ c.style }}" style-hover="transform:translateY(-1px)" data-key="{{ c.k }}">{{ c.l }}</button></sc-for></div>
+</div>
+<p style="margin:0 0 20px;font-size:13px;color:rgba(245,245,247,.66)">{{ rSummary }}</p>
+<sc-for list="{{ rGroups }}" as="g" hint-placeholder-count="2">
+<section data-key="{{ g.key }}" style="margin:0 0 26px">
+<div style="display:flex;align-items:baseline;gap:12px;margin:0 0 12px"><h2 style="margin:0;font-size:20px;font-weight:700;letter-spacing:-.02em">{{ g.label }}</h2><span style="font-size:12.5px;color:rgba(245,245,247,.62)">{{ g.countS }}</span></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">
+<sc-for list="{{ g.items }}" as="r" hint-placeholder-count="2">
+<div data-key="{{ r.id }}" style="{{ r.cardStyle }}" style-hover="transform:translateY(-5px);border-color:rgba(255,255,255,.3)">
+<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(245,245,247,.66)">{{ r.t }} · {{ r.dateLabel }}</span><span style="{{ r.vStyle }}">{{ r.verdict }}</span></div>
+<p style="margin:0;font-size:17px;font-weight:600;line-height:1.35;letter-spacing:-.01em">{{ r.name }}</p>
+<sc-if value="{{ r.outdated }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border-radius:14px;background:rgba(255,159,10,.12);border:1px solid rgba(255,159,10,.4)"><span style="width:7px;height:7px;border-radius:50%;background:#ff9f0a;margin-top:6px;flex:none"></span><p style="margin:0;font-size:12.5px;line-height:1.5"><strong style="color:#ffb340">Outdated · {{ r.ageLabel }}.</strong> Run a fresh analysis before acting on this.</p></div></sc-if>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto;flex-wrap:wrap"><span style="font-size:12.5px;color:rgba(245,245,247,.62)">{{ r.agent }} · {{ r.ageLabel }}</span><div style="display:flex;gap:7px">
+<sc-if value="{{ r.outdated }}" hint-placeholder-val="{{ false }}"><button onClick="{{ r.onRerun }}" style="padding:8px 14px;border-radius:999px;border:0;background:linear-gradient(100deg,#ff9f0a,#ff375f);color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;transition:transform .25s,box-shadow .25s" style-hover="transform:translateY(-1px);box-shadow:0 10px 22px rgba(255,159,10,.35)">Run fresh analysis</button></sc-if>
+<button onClick="{{ r.onPdf }}" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:12.5px;font-weight:600;cursor:pointer;transition:background .25s,transform .25s" style-hover="background:rgba(255,255,255,.14);transform:translateY(-1px)">Open PDF</button></div></div>
+</div>
+</sc-for>
+</div>
+</section>
+</sc-for>
+<sc-if value="{{ rEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:30px;border-radius:24px;text-align:center;background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.2);margin:0 0 26px"><p style="margin:0 0 12px;font-size:15px;color:rgba(245,245,247,.74)">No notes match these filters.</p><button onClick="{{ clearFilters }}" style="padding:9px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:13px;font-weight:600;cursor:pointer;transition:background .25s" style-hover="background:rgba(255,255,255,.14)">Clear filters</button></div></sc-if>
+<div style="display:flex;align-items:baseline;gap:12px;margin:8px 0 12px"><h2 style="margin:0;font-size:20px;font-weight:700;letter-spacing:-.02em">Free samples</h2><span style="font-size:12.5px;color:rgba(245,245,247,.62)">Read-only, never count against your plan</span></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">
+<sc-for list="{{ sampleRows }}" as="r" hint-placeholder-count="3">
+<div data-key="{{ r.id }}" style="display:flex;flex-direction:column;gap:12px;padding:22px;border-radius:24px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);transition:transform .35s cubic-bezier(.2,.7,.2,1),background .35s" style-hover="transform:translateY(-5px);background:rgba(255,255,255,.09)">
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(245,245,247,.62)">Sample</span><span style="{{ r.vStyle }}">{{ r.verdict }}</span></div>
+<p style="margin:0;font-size:17px;font-weight:600;line-height:1.35">{{ r.name }}</p>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto"><span style="font-size:12.5px;color:rgba(245,245,247,.62)">{{ r.agent }}</span><button onClick="{{ r.onPdf }}" style="padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:12.5px;font-weight:600;cursor:pointer;transition:background .25s" style-hover="background:rgba(255,255,255,.14)">Read</button></div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ isManagers }}" hint-placeholder-val="{{ false }}">
+<div style="animation:appin .5s cubic-bezier(.2,.7,.2,1) both">
+<p style="margin:0 0 8px;font-size:12.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,245,247,.62)">Managers</p>
+<h1 style="margin:0 0 10px;font-size:clamp(30px,3.8vw,44px);font-weight:700;letter-spacing:-.03em;line-height:1.05">What top investors hold</h1>
+<p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:rgba(245,245,247,.7);max-width:62ch">From their latest public filings, updated every quarter. Stocks you also own are highlighted. A good starting point for ideas — never a reason to buy on its own.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px">
+<sc-for list="{{ managers }}" as="m" hint-placeholder-count="4">
+<div data-key="{{ m.n }}" style="display:flex;flex-direction:column;gap:14px;padding:24px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);transition:transform .35s cubic-bezier(.2,.7,.2,1),background .35s" style-hover="transform:translateY(-5px);background:rgba(255,255,255,.1)">
+<div style="display:flex;align-items:center;gap:12px"><span style="width:12px;height:12px;border-radius:50%;background:{{ m.col }};box-shadow:0 0 14px {{ m.col }}"></span><div><p style="margin:0;font-size:17px;font-weight:700;letter-spacing:-.01em">{{ m.n }}</p><p style="margin:2px 0 0;font-size:12.5px;color:rgba(245,245,247,.62)">{{ m.sty }}</p></div></div>
+<p style="margin:0;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.6)">Top five holdings</p>
+<div style="display:flex;gap:7px;flex-wrap:wrap"><sc-for list="{{ m.hold }}" as="x" hint-placeholder-count="5"><span style="{{ x.style }}" data-key="{{ x.t }}">{{ x.t }}</span></sc-for></div>
+<p style="margin:0;font-size:13px;color:rgba(245,245,247,.72)">{{ m.overlapS }}</p>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ isSub }}" hint-placeholder-val="{{ false }}">
+<div style="animation:appin .5s cubic-bezier(.2,.7,.2,1) both">
+<p style="margin:0 0 8px;font-size:12.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,245,247,.62)">Subscription</p>
+<h1 style="margin:0 0 10px;font-size:clamp(30px,3.8vw,44px);font-weight:700;letter-spacing:-.03em;line-height:1.05">Your plan and wallet</h1>
+<p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:rgba(245,245,247,.7);max-width:62ch">One analysis is one full note on one stock. How good it is depends on the agent you choose — frontier agents come with Ultra Premium and Unlimited. Every other plan uses the basic agent.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:0 0 16px">
+<div style="padding:20px;border-radius:22px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)"><p style="margin:0 0 10px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">This month</p><p style="margin:0 0 10px;font-size:28px;font-weight:700;letter-spacing:-.02em">{{ usedS }}</p><div style="height:6px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden"><div style="height:100%;width:{{ usedBar }};background:linear-gradient(90deg,#0a84ff,#30d158,#ff9f0a)"></div></div></div>
+<div style="padding:20px;border-radius:22px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)"><p style="margin:0 0 10px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Agent spend this month</p><p style="margin:0;font-size:28px;font-weight:700;letter-spacing:-.02em">{{ spendS }}</p><p style="margin:6px 0 0;font-size:12.5px;color:rgba(245,245,247,.62)">$1 basic · $1.50 frontier</p></div>
+<div style="padding:20px;border-radius:22px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)"><p style="margin:0 0 10px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Wallet</p><p style="margin:0;font-size:28px;font-weight:700;letter-spacing:-.02em">{{ walletS }}</p><p style="margin:6px 0 0;font-size:12.5px;color:rgba(245,245,247,.62)">Never expires</p></div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin:26px 0 14px"><h2 style="margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em">Choose a plan</h2><button onClick="{{ toggleAnnual }}" style="padding:9px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:13px;font-weight:600;cursor:pointer;transition:background .25s,transform .25s" style-hover="background:rgba(255,255,255,.14);transform:translateY(-1px)">{{ annualLabel }}</button></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:0 0 16px">
+<sc-for list="{{ plans }}" as="p" hint-placeholder-count="6">
+<div data-key="{{ p.id }}" style="{{ p.style }}" style-hover="transform:translateY(-6px)">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;min-height:22px"><p style="margin:0;font-size:14.5px;font-weight:700">{{ p.id }}</p><sc-if value="{{ p.rec }}" hint-placeholder-val="{{ false }}"><span style="flex:none;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.2);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">Recommended</span></sc-if></div>
+<div><p style="margin:0;font-size:30px;font-weight:700;letter-spacing:-.03em">{{ p.price }}</p><p style="margin:2px 0 0;font-size:12px;color:rgba(245,245,247,.62)">{{ p.per }}</p></div>
+<p style="margin:0;font-size:13.5px;font-weight:600">{{ p.n }}</p>
+<p style="margin:0;font-size:12.5px;line-height:1.5;color:rgba(245,245,247,.68)">{{ p.who }}</p>
+<p style="margin:0;font-size:12px;font-weight:700;color:{{ p.agentCol }}">{{ p.agentLine }}</p>
+<sc-if value="{{ p.isCur }}" hint-placeholder-val="{{ false }}"><span style="margin-top:auto;padding:10px;border-radius:999px;text-align:center;font-size:13px;font-weight:700;background:rgba(48,209,88,.16);color:#30d158;border:1px solid rgba(48,209,88,.45)">Your plan</span></sc-if>
+<sc-if value="{{ p.notCur }}" hint-placeholder-val="{{ true }}"><button onClick="{{ p.onPick }}" style="margin-top:auto;padding:10px;border-radius:999px;border:0;background:#f5f5f7;color:#0b0d14;font-size:13px;font-weight:700;cursor:pointer;transition:transform .25s,box-shadow .25s" style-hover="transform:translateY(-2px);box-shadow:0 12px 26px rgba(245,245,247,.2)">Choose</button></sc-if>
+</div>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;padding:24px;border-radius:24px;margin:0 0 16px;background:linear-gradient(130deg,rgba(191,90,242,.2),rgba(10,132,255,.1) 55%,rgba(255,255,255,.04));border:1px solid rgba(191,90,242,.45);box-shadow:0 22px 50px rgba(191,90,242,.14)">
+<div style="min-width:0"><p style="margin:0 0 6px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#d69bff">Our recommendation</p><h3 style="margin:0 0 8px;font-size:21px;font-weight:700;letter-spacing:-.02em">Choose a plan with frontier agents</h3><p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(245,245,247,.78);max-width:68ch">We recommend it for the depth of analysis it gives you. Frontier agents put a number on how far a stock could fall, argue the case against buying in detail, and give you a tax-aware exit. When real money is going in, that depth is worth it. Included with Ultra Premium and Unlimited.</p></div>
+<button onClick="{{ chooseUltra }}" style="padding:13px 22px;border-radius:999px;border:0;background:linear-gradient(100deg,#bf5af2,#0a84ff);color:#fff;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 14px 32px rgba(191,90,242,.35);transition:transform .3s,box-shadow .3s" style-hover="transform:translateY(-2px);box-shadow:0 20px 42px rgba(191,90,242,.5)">Choose Ultra Premium</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin:0 0 16px">
+<div style="padding:24px;border-radius:24px;background:rgba(255,255,255,.07);border:1px dashed rgba(255,255,255,.24);transition:background .3s,border-color .3s" style-hover="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.36)">
+<p style="margin:0 0 6px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">No monthly commitment</p>
+<h3 style="margin:0 0 8px;font-size:21px;font-weight:700;letter-spacing:-.02em">Pay per use</h3>
+<p style="margin:0 0 16px;font-size:13.5px;line-height:1.6;color:rgba(245,245,247,.72)">Add money and pay only when you run: $1 basic agent, $1.50 frontier agent.</p>
+<label style="display:block;margin:0 0 7px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Amount (USD)</label>
+<div style="display:flex;gap:9px;margin:0 0 14px"><input type="number" value="{{ topup }}" onChange="{{ onTopup }}" style="flex:1;min-width:0;padding:11px 13px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:14px;outline:none" style-focus="border-color:#0a84ff" /><button onClick="{{ doTopup }}" style="padding:11px 20px;border-radius:999px;border:0;background:#0a84ff;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:transform .3s,box-shadow .3s" style-hover="transform:translateY(-2px);box-shadow:0 12px 28px rgba(10,132,255,.4)">Add money</button></div>
+<div style="display:flex;gap:8px;margin:0 0 12px"><sc-for list="{{ payOpts }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onPick }}" style="{{ o.style }}" style-hover="transform:translateY(-1px)" data-key="{{ o.p }}">{{ o.p }}</button></sc-for></div>
+<sc-if value="{{ isUpi }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:12.5px;line-height:1.55;color:rgba(245,245,247,.66)">We send a request to GPay or any UPI app. Nothing is charged until you approve it there.</p></sc-if>
+<sc-if value="{{ isCard }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-size:12.5px;line-height:1.55;color:rgba(245,245,247,.66)">Visa, Mastercard or Amex. Charged in USD.</p></sc-if>
+</div>
+<div style="padding:24px;border-radius:24px;background:linear-gradient(140deg,rgba(48,209,88,.14),rgba(255,255,255,.05) 60%);border:1px solid rgba(255,255,255,.14)">
+<p style="margin:0 0 6px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#30d158">Ultra Premium &amp; Unlimited · doesn't use your analyses</p>
+<h3 style="margin:0 0 8px;font-size:21px;font-weight:700;letter-spacing:-.02em">Weekly email about your stocks</h3>
+<p style="margin:0 0 18px;font-size:13.5px;line-height:1.6;color:rgba(245,245,247,.74)">Every Sunday: what changed for the companies you own, what it means for your position, and two or three new names that fit your goals.</p>
+<sc-if value="{{ weeklyLocked }}" hint-placeholder-val="{{ true }}"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="padding:8px 13px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);font-size:12.5px;font-weight:600;color:rgba(245,245,247,.8)">Included with Ultra Premium and Unlimited</span><button onClick="{{ chooseUltra }}" style="padding:10px 18px;border-radius:999px;border:0;background:#f5f5f7;color:#0b0d14;font-size:13.5px;font-weight:700;cursor:pointer;transition:transform .3s,box-shadow .3s" style-hover="transform:translateY(-2px);box-shadow:0 12px 26px rgba(245,245,247,.2)">Upgrade to unlock</button></div></sc-if>
+<sc-if value="{{ weeklyOff }}" hint-placeholder-val="{{ false }}"><button onClick="{{ weeklyStart }}" style="padding:11px 20px;border-radius:999px;border:0;background:#f5f5f7;color:#0b0d14;font-size:14px;font-weight:700;cursor:pointer;transition:transform .3s,box-shadow .3s" style-hover="transform:translateY(-2px);box-shadow:0 12px 26px rgba(245,245,247,.2)">Turn on</button></sc-if>
+<sc-if value="{{ weeklyPending }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="font-size:13px;color:rgba(245,245,247,.74)">Send to xllakshman@gmail.com?</span><button onClick="{{ weeklyConfirm }}" style="padding:10px 18px;border-radius:999px;border:0;background:#30d158;color:#0b0d14;font-size:13.5px;font-weight:700;cursor:pointer;transition:transform .3s" style-hover="transform:translateY(-2px)">Yes, turn on</button></div></sc-if>
+<sc-if value="{{ weekly }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="padding:8px 13px;border-radius:999px;background:rgba(48,209,88,.18);color:#30d158;font-size:13px;font-weight:700">On · next one Sunday</span><button onClick="{{ weeklyStop }}" style="padding:9px 15px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#f5f5f7;font-size:13px;cursor:pointer;transition:background .25s" style-hover="background:rgba(255,255,255,.1)">Turn off</button></div></sc-if>
+</div>
+</div>
+<div style="display:flex;gap:14px;align-items:flex-start;padding:20px 22px;border-radius:22px;background:rgba(255,159,10,.1);border:1px solid rgba(255,159,10,.35)"><span style="width:8px;height:8px;border-radius:50%;background:#ff9f0a;margin-top:7px;flex:none"></span><div><p style="margin:0 0 5px;font-size:14.5px;font-weight:600">Please run the agent with intent</p><p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(245,245,247,.78)">Every run costs us real compute and comes out of your allowance. Start one when you have a decision to make, and finish it knowing what you'll do.</p></div></div>
+</div>
+</sc-if>
+<sc-if value="{{ isContact }}" hint-placeholder-val="{{ false }}">
+<div style="animation:appin .5s cubic-bezier(.2,.7,.2,1) both">
+<p style="margin:0 0 8px;font-size:12.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,245,247,.62)">Contact us</p>
+<h1 style="margin:0 0 10px;font-size:clamp(30px,3.8vw,44px);font-weight:700;letter-spacing:-.03em;line-height:1.05">How can we help?</h1>
+<p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:rgba(245,245,247,.7);max-width:58ch">A real person replies to the email you give us, usually within 24 to 48 hours.</p>
+<div style="display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,1fr);gap:16px;align-items:start">
+<div style="padding:26px;border-radius:26px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);box-shadow:0 26px 60px rgba(0,0,0,.25)">
+<sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
+<label style="display:block;margin:0 0 9px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">What is it about?</label>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px"><sc-for list="{{ topics }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onPick }}" style="{{ t.style }}" style-hover="transform:translateY(-2px)" data-key="{{ t.t }}">{{ t.t }}</button></sc-for></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:0 0 12px">
+<div><label style="display:block;margin:0 0 7px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Name</label><input value="{{ contact.name }}" onChange="{{ onCName }}" style="width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:14px;outline:none" style-focus="border-color:#0a84ff" /></div>
+<div><label style="display:block;margin:0 0 7px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Email</label><input value="{{ contact.email }}" onChange="{{ onCEmail }}" style="width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:14px;outline:none" style-focus="border-color:#0a84ff" /></div>
+</div>
+<label style="display:block;margin:0 0 7px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Phone (optional)</label>
+<div style="display:flex;gap:9px;margin:0 0 12px"><select value="{{ contact.cc }}" onChange="{{ onCCc }}" style="width:150px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:14px"><option value="+91">🇮🇳 +91 India</option><option value="+1">🇺🇸 +1 USA</option><option value="+971">🇦🇪 +971 UAE</option></select><input value="{{ contact.phone }}" onChange="{{ onCPhone }}" placeholder="Mobile number" style="flex:1;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:14px;outline:none" style-focus="border-color:#0a84ff" /></div>
+<label style="display:block;margin:0 0 7px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Message</label>
+<textarea value="{{ contact.msg }}" onChange="{{ onCMsg }}" rows="5" placeholder="Tell us what happened, and the stock or report if it's about one." style="width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:14px;line-height:1.55;resize:vertical;outline:none;margin:0 0 16px" style-focus="border-color:#0a84ff"></textarea>
+<button onClick="{{ sendContact }}" style="width:100%;padding:14px;border-radius:999px;border:0;background:linear-gradient(100deg,#0a84ff,#bf5af2);color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 14px 32px rgba(10,132,255,.28);transition:transform .3s,box-shadow .3s" style-hover="transform:translateY(-2px);box-shadow:0 20px 42px rgba(10,132,255,.4)">Send message</button>
+</sc-if>
+<sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+<div style="text-align:center;padding:20px 8px"><div style="width:60px;height:60px;margin:0 auto 18px;border-radius:50%;display:grid;place-items:center;background:rgba(48,209,88,.18);border:1px solid rgba(48,209,88,.5);font-size:26px;color:#30d158">✓</div><h2 style="margin:0 0 8px;font-size:24px;font-weight:700;letter-spacing:-.02em">Message sent</h2><p style="margin:0 0 20px;font-size:14.5px;line-height:1.6;color:rgba(245,245,247,.72)">We'll reply to {{ contact.email }} within 24 to 48 hours.</p><button onClick="{{ newMessage }}" style="padding:11px 20px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#f5f5f7;font-size:13.5px;font-weight:600;cursor:pointer;transition:background .25s" style-hover="background:rgba(255,255,255,.14)">Send another</button></div>
+</sc-if>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="padding:20px;border-radius:22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)"><p style="margin:0 0 6px;font-size:15px;font-weight:600">Reply time</p><p style="margin:0;font-size:13.5px;line-height:1.6;color:rgba(245,245,247,.7)">24 to 48 hours, Monday to Saturday. Billing questions are answered first.</p></div>
+<div style="padding:20px;border-radius:22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)"><p style="margin:0 0 6px;font-size:15px;font-weight:600">Question about your holdings?</p><p style="margin:0 0 12px;font-size:13.5px;line-height:1.6;color:rgba(245,245,247,.7)">We can't see them unless you allow it for seven days.</p><button onClick="{{ goPortfolio }}" style="border:0;background:transparent;padding:0;color:#409cff;font-size:13.5px;font-weight:600;cursor:pointer;transition:color .2s" style-hover="color:#6cb4ff">Allow access in Portfolio →</button></div>
+<div style="padding:20px;border-radius:22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)"><p style="margin:0 0 6px;font-size:15px;font-weight:600">Plans and billing</p><p style="margin:0 0 12px;font-size:13.5px;line-height:1.6;color:rgba(245,245,247,.7)">Change plan, add money or switch to yearly any time.</p><button onClick="{{ goSub }}" style="border:0;background:transparent;padding:0;color:#409cff;font-size:13.5px;font-weight:600;cursor:pointer;transition:color .2s" style-hover="color:#6cb4ff">Go to Subscription →</button></div>
+</div>
+</div>
+</div>
+</sc-if>
+</main>
+</div>
+<sc-if value="{{ payOpen }}" hint-placeholder-val="{{ false }}"><div style="position:fixed;inset:0;z-index:75;display:grid;place-items:center;padding:24px;background:rgba(10,12,20,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)"><div style="width:100%;max-width:440px;padding:28px;border-radius:28px;background:rgba(36,42,60,.96);border:1px solid rgba(255,255,255,.16);box-shadow:0 36px 80px rgba(0,0,0,.55);animation:appin .25s ease both">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin:0 0 18px"><div><p style="margin:0 0 6px;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Checkout</p><h3 style="margin:0;font-size:24px;font-weight:700;letter-spacing:-.02em">{{ payPlanName }}</h3></div><div style="text-align:right"><p style="margin:0;font-size:26px;font-weight:700;letter-spacing:-.02em">{{ payPrice }}</p><p style="margin:2px 0 0;font-size:12px;color:rgba(245,245,247,.62)">{{ payPer }}</p></div></div>
+<p style="margin:0 0 18px;font-size:13.5px;line-height:1.55;color:rgba(245,245,247,.74)">{{ payIncl }}</p>
+<div style="display:flex;gap:8px;margin:0 0 16px"><sc-for list="{{ payOpts }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onPick }}" style="{{ o.style }}" style-hover="transform:translateY(-1px)" data-key="{{ o.p }}">{{ o.p }}</button></sc-for></div>
+<sc-if value="{{ isUpi }}" hint-placeholder-val="{{ true }}"><div style="padding:16px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);margin:0 0 18px"><label style="display:block;margin:0 0 7px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Your UPI ID</label><input value="{{ upiId }}" onChange="{{ onUpi }}" placeholder="name@okbank" style="width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#f5f5f7;font-size:15px;outline:none" style-focus="border-color:#0a84ff" /><p style="margin:10px 0 0;font-size:12.5px;line-height:1.55;color:rgba(245,245,247,.66)">We send a payment request to GPay, PhonePe, Paytm or any UPI app. Nothing is charged until you approve it there.</p></div></sc-if>
+<sc-if value="{{ isCard }}" hint-placeholder-val="{{ false }}"><div style="padding:16px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);margin:0 0 18px"><label style="display:block;margin:0 0 7px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,245,247,.62)">Card number</label><input value="{{ cardNo }}" onChange="{{ onCardNo }}" placeholder="1234 5678 9012 3456" style="width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#f5f5f7;font-size:15px;outline:none" style-focus="border-color:#0a84ff" /><p style="margin:10px 0 0;font-size:12.5px;color:rgba(245,245,247,.66)">Visa, Mastercard or Amex. Charged in USD.</p></div></sc-if>
+<button onClick="{{ confirmPay }}" style="width:100%;padding:14px;border-radius:999px;border:0;background:linear-gradient(100deg,#0a84ff,#30d158);color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 14px 32px rgba(10,132,255,.3);transition:transform .3s,box-shadow .3s" style-hover="transform:translateY(-2px);box-shadow:0 20px 42px rgba(10,132,255,.42)">Pay {{ payPrice }}</button>
+<button onClick="{{ closePay }}" style="width:100%;margin:10px 0 0;padding:11px;border-radius:999px;border:0;background:transparent;color:rgba(245,245,247,.7);font-size:13.5px;cursor:pointer;transition:color .2s" style-hover="color:#f5f5f7">Cancel</button>
+</div></div></sc-if>
+<sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}"><div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:80;padding:13px 20px;border-radius:999px;background:rgba(40,46,64,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.16);color:#f5f5f7;font-size:13.5px;font-weight:500;box-shadow:0 18px 40px rgba(0,0,0,.4);animation:appin .25s ease both;max-width:min(92vw,560px);text-align:center">{{ toastMsg }}</div></sc-if>
+<sc-if value="{{ running }}" hint-placeholder-val="{{ false }}"><div style="position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:24px;background:rgba(10,12,20,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)"><div style="width:100%;max-width:400px;padding:28px;border-radius:26px;background:rgba(40,46,64,.92);border:1px solid rgba(255,255,255,.14);box-shadow:0 30px 70px rgba(0,0,0,.5)"><div style="display:flex;align-items:center;gap:12px;margin:0 0 20px"><div style="width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.2);border-top-color:#0a84ff;animation:appspin .8s linear infinite"></div><p style="margin:0;font-size:15px;font-weight:600">We're working on {{ pickT }}</p></div><div style="display:flex;flex-direction:column;gap:12px"><sc-for list="{{ runSteps }}" as="st" hint-placeholder-count="4"><p style="{{ st.style }}" data-key="{{ st.label }}">{{ st.label }}</p></sc-for></div><p style="margin:20px 0 0;font-size:12.5px;color:rgba(245,245,247,.6)">Usually 40 to 90 seconds.</p></div></div></sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;home&quot;,&quot;analyse&quot;,&quot;portfolio&quot;,&quot;reports&quot;,&quot;managers&quot;,&quot;subscription&quot;,&quot;contact&quot;],&quot;default&quot;:&quot;home&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'home', currency: 'USD', fx: 88.4, query: '', src: null, customT: '', customAmt: '', customPort: '', editIdx: -1, eb: { t: '', n: '', c: '', q: '' }, payOpen: false, payPlan: '', upiId: '', cardNo: '',
+    holdings: [], h: { t: '', n: '', c: '', q: '' }, csvName: null, csvCur: 'auto',
+    plan: 'Trial', used: 0, wallet: 0, spend: 0, topup: 25, pay: 'UPI', weekly: false, weeklyPending: false, annual: false,
+    supportEmail: '', supportGranted: false, supportDays: 3,
+    kinds: { fundamental: true, technical: true, macro: false, news: false }, agent: 'quick', risk: 1, cagr: 1, pick: null,
+    reports: [
+      { id: 'r1', name: 'MSFT — add in slices', t: 'MSFT', date: '2026-10-01', agent: 'Frontier agent', verdict: 'Add in slices', col: '#30d158' },
+      { id: 'r2', name: 'TSM — wait for the next slice', t: 'TSM', date: '2026-09-29', agent: 'Basic agent', verdict: 'Hold', col: '#ff9f0a' },
+      { id: 'r3', name: 'HDFCBANK — the tax angle', t: 'HDFCBANK', date: '2026-09-17', agent: 'Basic agent', verdict: 'Add', col: '#30d158' },
+      { id: 'r4', name: 'UNH — the case against buying holds', t: 'UNH', date: '2026-09-02', agent: 'Frontier agent', verdict: 'Trim', col: '#ff453a' },
+      { id: 'r5', name: 'BRK.B — keep as your steady holding', t: 'BRK.B', date: '2026-08-20', agent: 'Basic agent', verdict: 'Hold', col: '#ff9f0a' },
+      { id: 'r6', name: 'MSFT — first slice', t: 'MSFT', date: '2026-07-27', agent: 'Frontier agent', verdict: 'Buy slice 1', col: '#30d158' },
+      { id: 'r7', name: 'TSM — buying at the cycle turn', t: 'TSM', date: '2026-07-08', agent: 'Basic agent', verdict: 'Add', col: '#30d158' }
+    ], rq: '', rWeek: '', rMonth: '', rGroup: 'week', running: false, runStep: 0,
+    contact: { name: 'Lakshman Yeluri', email: 'xllakshman@gmail.com', cc: '+91', phone: '', msg: '', topic: 'Billing' }, sent: false,
+    toast: null
+  };
+  componentDidMount() {
+    const h = (window.location.hash || '').replace('#', '');
+    if (['home', 'analyse', 'portfolio', 'reports', 'managers', 'subscription', 'contact'].indexOf(h) >= 0) this.setState({ screen: h });
+  }
+  go = (s) => { this.setState({ screen: s }); try { history.replaceState(null, '', '#' + s); } catch (e) {} window.scrollTo(0, 0); };
+  toast = (m) => { this.setState({ toast: m }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2800); };
+  money(v, d) { const u = this.state.currency === 'USD'; const x = u ? v : v * this.state.fx; const dd = d === undefined ? 0 : d; return (u ? '$' : '₹') + x.toLocaleString(u ? 'en-US' : 'en-IN', { minimumFractionDigits: dd, maximumFractionDigits: dd }); }
+  rank(p) { return ({ Trial: 0, Basic: 1, Professional: 2, Premium: 3, 'Ultra Premium': 4, Unlimited: 5 })[p] || 0; }
+  limit(p) { return ({ Trial: 3, Basic: 5, Professional: 20, Premium: 50, 'Ultra Premium': 80, Unlimited: 9999 })[p]; }
+  sampleBook() { return [
+    { t: 'MSFT', n: 'Microsoft', c: 402.5, q: 28, ltp: 486.2 }, { t: 'TSM', n: 'Taiwan Semiconductor', c: 168, q: 60, ltp: 212.4 },
+    { t: 'UNH', n: 'UnitedHealth Group', c: 512, q: 14, ltp: 448.7 }, { t: 'HDFCBANK', n: 'HDFC Bank', c: 18.4, q: 120, ltp: 21.1 },
+    { t: 'BRK.B', n: 'Berkshire Hathaway B', c: 438, q: 9, ltp: 512.9 }]; }
+
+  renderVals() {
+    const s = this.state, sc = s.screen;
+    const lim = this.limit(s.plan), unlimited = lim > 1000;
+    const pct = unlimited ? 8 : Math.min(100, (s.used / lim) * 100);
+    const hasBook = s.holdings.length > 0;
+    const effSrc = s.src || (hasBook ? 'portfolio' : 'other');
+    const dots = { home: '#0a84ff', analyse: '#30d158', portfolio: '#ff9f0a', reports: '#bf5af2', managers: '#64d2ff', subscription: '#ff375f', contact: '#ffd60a' };
+    const nav = [
+      ['home', 'Home', 'Overview'], ['analyse', 'Analyse a stock', 'Get a decision'], ['portfolio', 'Portfolio', 'Your holdings'],
+      ['reports', 'Reports', 'Saved notes'], ['managers', 'Managers', 'What top investors hold'], ['subscription', 'Subscription', 'Plan & wallet'], ['contact', 'Contact us', 'Ask a question']
+    ].map(([id, label, hint]) => ({ id, label, hint, dot: dots[id], onClick: () => this.go(id),
+      style: 'display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 13px;border-radius:16px;cursor:pointer;color:#f5f5f7;transition:background .25s ease,transform .25s ease,border-color .25s;background:' + (sc === id ? 'rgba(255,255,255,.12)' : 'transparent') + ';border:1px solid ' + (sc === id ? 'rgba(255,255,255,.2)' : 'transparent') }));
+
+    const total = s.holdings.reduce((a, x) => a + x.ltp * x.q, 0);
+    const cost = s.holdings.reduce((a, x) => a + x.c * x.q, 0);
+    const pl = total - cost;
+    const rows = s.holdings.map((x, i) => {
+      const v = x.ltp * x.q, p = (x.ltp - x.c) * x.q, pp = ((x.ltp - x.c) / x.c) * 100, w = total ? (v / total) * 100 : 0;
+      return { key: x.t + i, t: x.t, n: x.n, q: x.q, costS: this.money(x.c, 2), ltpS: this.money(x.ltp, 2), valS: this.money(v),
+        plS: (p >= 0 ? '+' : '−') + this.money(Math.abs(p)), ppS: (pp >= 0 ? '+' : '−') + Math.abs(pp).toFixed(1) + '%', col: p >= 0 ? '#30d158' : '#ff453a',
+        wS: w.toFixed(0) + '%', wBar: w.toFixed(0) + '%', over: w > 20,
+        onRemove: () => { this.setState(st => ({ holdings: st.holdings.filter((_, j) => j !== i), editIdx: -1 })); this.toast(x.t + ' deleted'); },
+        editing: s.editIdx === i, notEditing: s.editIdx !== i, eb: s.eb,
+        onEdit: () => this.setState({ editIdx: i, eb: { t: x.t, n: x.n, c: String(x.c), q: String(x.q) } }),
+        onCancel: () => this.setState({ editIdx: -1 }),
+        onEbT: e => { const v = e.target.value; this.setState(st => ({ eb: Object.assign({}, st.eb, { t: v }) })); },
+        onEbN: e => { const v = e.target.value; this.setState(st => ({ eb: Object.assign({}, st.eb, { n: v }) })); },
+        onEbC: e => { const v = e.target.value; this.setState(st => ({ eb: Object.assign({}, st.eb, { c: v }) })); },
+        onEbQ: e => { const v = e.target.value; this.setState(st => ({ eb: Object.assign({}, st.eb, { q: v }) })); },
+        onSave: () => { const t = (s.eb.t || '').trim().toUpperCase(), c = parseFloat(s.eb.c), q = parseFloat(s.eb.q); if (!t || !c || !q) { this.toast('Ticker, quantity and cost are needed'); return; } this.setState(st => ({ editIdx: -1, holdings: st.holdings.map((y, j) => j === i ? Object.assign({}, y, { t, n: st.eb.n || t, c, q, ltp: y.c === c ? y.ltp : +(c * 1.06).toFixed(2) }) : y) })); this.toast(t + ' updated'); },
+        onAnalyse: () => { this.setState({ src: 'portfolio', pick: x.t }); this.go('analyse'); } };
+    });
+
+    const pick = effSrc === 'other' ? (s.customT || '').trim().toUpperCase() : (s.pick || (s.holdings[0] && s.holdings[0].t));
+    const pickH = s.holdings.find(x => x.t === pick);
+    const cAmt = parseFloat(s.customAmt), cPort = parseFloat(s.customPort);
+    const allocKnown = effSrc !== 'other' || !!(cAmt && cPort);
+    const alloc = effSrc === 'other' ? (cAmt && cPort ? (cAmt / cPort) * 100 : 0) : (pickH && total ? (pickH.ltp * pickH.q / total) * 100 : 0);
+    const stockChips = s.holdings.map(x => ({ t: x.t, onPick: () => this.setState({ pick: x.t }),
+      style: 'padding:10px 16px;border-radius:999px;cursor:pointer;font-size:13.5px;font-weight:600;transition:transform .25s,background .25s;color:' + (x.t === pick ? '#0b0d14' : '#f5f5f7') + ';background:' + (x.t === pick ? '#f5f5f7' : 'rgba(255,255,255,.07)') + ';border:1px solid ' + (x.t === pick ? '#f5f5f7' : 'rgba(255,255,255,.16)') }));
+
+    const kindMeta = { fundamental: ['Business', 'Results, profit margins, and price versus rivals', '#0a84ff'], technical: ['Price', 'Trend, averages, and levels it keeps bouncing off', '#30d158'], macro: ['Economy', 'Interest rates, currency, the industry cycle', '#ff9f0a'], news: ['News', 'Company and industry headlines, last 90 days', '#bf5af2'] };
+    const kinds = Object.keys(kindMeta).map(k => ({ id: k, label: kindMeta[k][0], desc: kindMeta[k][1], on: s.kinds[k],
+      onToggle: () => this.setState(st => ({ kinds: Object.assign({}, st.kinds, { [k]: !st.kinds[k] }) })),
+      style: 'display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;padding:16px;border-radius:18px;cursor:pointer;color:#f5f5f7;transition:transform .3s cubic-bezier(.2,.7,.2,1),background .3s,border-color .3s;background:' + (s.kinds[k] ? kindMeta[k][2] + '24' : 'rgba(255,255,255,.05)') + ';border:1px solid ' + (s.kinds[k] ? kindMeta[k][2] + '88' : 'rgba(255,255,255,.12)'),
+      box: 'width:18px;height:18px;border-radius:6px;flex:none;margin-top:1px;transition:background .2s;background:' + (s.kinds[k] ? kindMeta[k][2] : 'transparent') + ';border:1.5px solid ' + (s.kinds[k] ? kindMeta[k][2] : 'rgba(255,255,255,.35)') }));
+    const kindCount = Object.keys(s.kinds).filter(k => s.kinds[k]).length;
+
+    const seg = (list, cur, key, col) => list.map((l, i) => ({ label: l, onPick: () => this.setState({ [key]: i }),
+      style: 'flex:1;min-width:120px;padding:11px 12px;border-radius:14px;cursor:pointer;font-size:13px;font-weight:600;text-align:center;transition:transform .25s,background .25s;color:' + (cur === i ? '#0b0d14' : '#f5f5f7') + ';background:' + (cur === i ? col : 'rgba(255,255,255,.06)') + ';border:1px solid ' + (cur === i ? col : 'rgba(255,255,255,.14)') }));
+    const riskOpts = seg(['Up to 10% fall', '11–20% fall', '21–35% fall', 'More than 35%'], s.risk, 'risk', '#64d2ff');
+    const cagrOpts = seg(['Up to 12% a year', '13–18%', '18–25%', 'Above 25%'], s.cagr, 'cagr', '#30d158');
+    const conflict = s.risk <= 1 && s.cagr >= 2;
+
+    const proUp = this.rank(s.plan) >= 4;
+    const agents = [
+      { id: 'quick', name: 'Basic agent', price: '$1.00', note: 'Included with every plan. A solid first look — good for one check on a stock you know well.', locked: false, col: '#64d2ff' },
+      { id: 'frontier', name: 'Frontier agent', price: '$1.50', note: 'Thinks the hardest. Puts a number on the downside and gives you a tax-aware exit.', locked: !proUp, col: '#bf5af2' }
+    ].map(a => Object.assign({}, a, { open: !a.locked, sel: s.agent === a.id,
+      onPick: () => { if (a.locked) { this.toast('Frontier agents come with Ultra Premium and Unlimited'); this.go('subscription'); } else this.setState({ agent: a.id }); },
+      style: 'display:flex;flex-direction:column;gap:8px;text-align:left;padding:18px;border-radius:20px;cursor:pointer;color:#f5f5f7;transition:transform .3s cubic-bezier(.2,.7,.2,1),background .3s,border-color .3s;background:' + (s.agent === a.id ? a.col + '22' : 'rgba(255,255,255,.05)') + ';border:1px solid ' + (s.agent === a.id ? a.col + '99' : 'rgba(255,255,255,.12)') + ';opacity:' + (a.locked ? '.7' : '1') }));
+    const agentCost = s.agent === 'frontier' ? 1.5 : 1;
+    const canRun = !!pick && kindCount > 0 && !conflict;
+
+    const steps = ['Reading your position and limits', 'Getting results, prices and news', 'Arguing the case against buying', 'Writing your plan'];
+
+    const planDefs = [
+      { id: 'Trial', m: 0, y: 0, n: '3 sample analyses', who: 'See the work before you pay' },
+      { id: 'Basic', m: 2.99, y: 32, n: '5 analyses a month', who: 'Portfolios up to $15K' },
+      { id: 'Professional', m: 5.99, y: 60, n: '20 analyses a month', who: 'Under $50K' },
+      { id: 'Premium', m: 10, y: 100, n: '50 analyses a month', who: 'Under $150K' },
+      { id: 'Ultra Premium', m: 15, y: 150, n: '80 analyses a month', who: '$150K to $500K', rec: true },
+      { id: 'Unlimited', m: 50, y: 500, n: 'Unlimited analyses', who: '$500K and above' }
+    ];
+    const plans = planDefs.map(p => {
+      const cur = p.id === s.plan;
+      return { id: p.id, n: p.n, who: p.who, rec: !!p.rec, isCur: cur, notCur: !cur, agentLine: this.rank(p.id) >= 4 ? 'Frontier agents · weekly email' : 'Basic agent', agentCol: this.rank(p.id) >= 4 ? '#d69bff' : '#64d2ff',
+        price: p.m === 0 ? 'Free' : (s.annual ? '$' + p.y : '$' + p.m), per: p.m === 0 ? 'no card needed' : (s.annual ? 'per year' : 'per month'),
+        onPick: () => { if (p.m === 0) { this.setState({ plan: p.id, used: 0 }); this.toast('You are back on the free trial'); } else this.setState({ payOpen: true, payPlan: p.id }); },
+        style: 'position:relative;display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:22px;transition:transform .35s cubic-bezier(.2,.7,.2,1),background .35s,border-color .35s,box-shadow .35s;' + (p.rec ? 'background:linear-gradient(160deg,rgba(10,132,255,.26),rgba(255,255,255,.05) 62%);border:1px solid rgba(10,132,255,.55);box-shadow:0 22px 50px rgba(10,132,255,.18)' : 'background:rgba(255,255,255,.06);border:1px solid ' + (cur ? 'rgba(48,209,88,.6)' : 'rgba(255,255,255,.12)')) };
+    });
+
+    const managers = [
+      { n: 'Berkshire Hathaway', style: 'Long-term value', hold: ['AAPL', 'BAC', 'AXP', 'KO', 'CVX'], col: '#0a84ff' },
+      { n: 'Pershing Square', style: 'Concentrated quality', hold: ['HLT', 'CMG', 'QSR', 'GOOGL', 'BRK.B'], col: '#30d158' },
+      { n: 'Akre Capital', style: 'Compounders', hold: ['MA', 'V', 'MSFT', 'KKR', 'BN'], col: '#ff9f0a' },
+      { n: 'Fundsmith', style: 'Buy good companies, do nothing', hold: ['MSFT', 'META', 'NVO', 'IDXX', 'TSM'], col: '#bf5af2' }
+    ].map(m => {
+      const mine = s.holdings.map(x => x.t);
+      const overlap = m.hold.filter(t => mine.indexOf(t) >= 0);
+      return { n: m.n, sty: m.style, col: m.col, hold: m.hold.map(t => ({ t, mine: mine.indexOf(t) >= 0, style: 'padding:6px 11px;border-radius:999px;font-size:12.5px;font-weight:600;' + (mine.indexOf(t) >= 0 ? 'background:' + m.col + ';color:#0b0d14' : 'background:rgba(255,255,255,.08);color:#f5f5f7;border:1px solid rgba(255,255,255,.12)') })),
+        overlapS: overlap.length ? 'You both own ' + overlap.join(', ') : 'No overlap with your holdings yet' };
+    });
+
+    const TODAY = new Date('2026-10-03T12:00:00'), DAY = 86400000;
+    const monday = (d) => { const x = new Date(d); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); x.setHours(12, 0, 0, 0); return x; };
+    const short = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const thisWk = monday(TODAY).toISOString().slice(0, 10);
+    const vSt = (col) => 'padding:5px 11px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;background:' + col + '26;color:' + col + ';border:1px solid ' + col + '66';
+    const allR = s.reports.slice().sort((x, y) => (y.date > x.date ? 1 : -1)).map(r => {
+      const d = new Date(r.date + 'T12:00:00'), age = Math.max(0, Math.round((TODAY - d) / DAY)), wk = monday(d), wkKey = wk.toISOString().slice(0, 10), old = age > 60;
+      return Object.assign({}, r, { age, outdated: old, fresh: !old, wkKey, wkLabel: wkKey === thisWk ? 'This week' : 'Week of ' + short(wk), moKey: r.date.slice(0, 7),
+        moLabel: d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }), dateLabel: short(d) + ', ' + d.getFullYear(),
+        ageLabel: age === 0 ? 'today' : age === 1 ? '1 day ago' : age + ' days ago', vStyle: vSt(old ? '#98989d' : r.col),
+        cardStyle: 'display:flex;flex-direction:column;gap:12px;padding:22px;border-radius:24px;transition:transform .35s cubic-bezier(.2,.7,.2,1),background .35s,border-color .35s;' + (old ? 'background:rgba(255,159,10,.06);border:1px solid rgba(255,159,10,.42)' : 'background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)'),
+        onPdf: () => this.toast('Downloading ' + r.name + '.pdf'),
+        onRerun: () => { if (s.holdings.some(x => x.t === r.t)) { this.setState({ pick: r.t }); this.go('analyse'); this.toast('Ready for a fresh analysis of ' + r.t); } else { this.setState({ src: 'other', customT: r.t }); this.go('analyse'); this.toast('Ready for a fresh analysis of ' + r.t); } } });
+    });
+    const rq = (s.rq || '').trim().toLowerCase();
+    const filteredR = allR.filter(r => (!rq || r.t.toLowerCase().indexOf(rq) >= 0 || r.name.toLowerCase().indexOf(rq) >= 0) && (!s.rMonth || r.moKey === s.rMonth) && (!s.rWeek || r.wkKey === s.rWeek));
+    const gk = s.rGroup === 'month' ? 'moKey' : 'wkKey', gl = s.rGroup === 'month' ? 'moLabel' : 'wkLabel';
+    const rGroups = [];
+    filteredR.forEach(r => { let g = rGroups.find(x => x.key === r[gk]); if (!g) { g = { key: r[gk], label: r[gl], items: [] }; rGroups.push(g); } g.items.push(r); });
+    rGroups.forEach(g => { const o = g.items.filter(r => r.outdated).length; g.countS = g.items.length + (g.items.length === 1 ? ' note' : ' notes') + (o ? ' · ' + o + ' outdated' : ''); });
+    const uniq = (arr, k, l) => { const out = []; arr.forEach(r => { if (!out.find(o => o.v === r[k])) out.push({ v: r[k], l: r[l] }); }); return out; };
+    const chipSt = (on, col) => 'padding:8px 14px;border-radius:999px;cursor:pointer;font-size:12.5px;font-weight:600;white-space:nowrap;transition:transform .25s,background .25s;color:' + (on ? '#0b0d14' : '#f5f5f7') + ';background:' + (on ? col : 'rgba(255,255,255,.06)') + ';border:1px solid ' + (on ? col : 'rgba(255,255,255,.16)');
+    const monthChips = [{ v: '', l: 'All months' }].concat(uniq(allR, 'moKey', 'moLabel')).map(o => ({ k: o.v || 'all', l: o.l, onPick: () => this.setState({ rMonth: o.v, rWeek: '' }), style: chipSt(s.rMonth === o.v, '#d69bff') }));
+    const weekChips = [{ v: '', l: 'All weeks' }].concat(uniq(allR.filter(r => !s.rMonth || r.moKey === s.rMonth), 'wkKey', 'wkLabel')).map(o => ({ k: o.v || 'all', l: o.l, onPick: () => this.setState({ rWeek: o.v }), style: chipSt(s.rWeek === o.v, '#64d2ff') }));
+    const grpOpts = [['week', 'By week'], ['month', 'By month']].map(([v, l]) => ({ k: v, l, onPick: () => this.setState({ rGroup: v }), style: chipSt(s.rGroup === v, '#f5f5f7') }));
+    const outdatedCount = allR.filter(r => r.outdated).length;
+    const sampleRows = [
+      { id: 's1', name: 'A cloud software leader — add in slices', agent: 'Frontier agent', verdict: 'Add slowly', col: '#30d158' },
+      { id: 's2', name: 'A chipmaker at a cycle turn', agent: 'Frontier agent', verdict: 'Hold', col: '#ff9f0a' },
+      { id: 's3', name: 'A private bank — tax angle for NRIs', agent: 'Basic agent', verdict: 'Add', col: '#30d158' }
+    ].map(r => Object.assign({}, r, { vStyle: vSt(r.col), onPdf: () => this.toast('Opening the sample: ' + r.name) }));
+
+    const topics = ['Billing', 'A report', 'My portfolio', 'Something else'].map(t => ({ t, onPick: () => this.setState(st => ({ contact: Object.assign({}, st.contact, { topic: t }) })),
+      style: 'padding:9px 15px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600;transition:transform .25s,background .25s;color:' + (s.contact.topic === t ? '#0b0d14' : '#f5f5f7') + ';background:' + (s.contact.topic === t ? '#ffd60a' : 'rgba(255,255,255,.07)') + ';border:1px solid ' + (s.contact.topic === t ? '#ffd60a' : 'rgba(255,255,255,.16)') }));
+    const setC = (k) => (e) => { const v = e.target.value; this.setState(st => ({ contact: Object.assign({}, st.contact, { [k]: v }) })); };
+    const setH = (k) => (e) => { const v = e.target.value; this.setState(st => ({ h: Object.assign({}, st.h, { [k]: v }) })); };
+
+    const payOpts = ['UPI', 'Card'].map(p => ({ p, onPick: () => this.setState({ pay: p }),
+      style: 'flex:1;padding:11px;border-radius:14px;cursor:pointer;font-size:13.5px;font-weight:600;transition:background .25s,transform .25s;color:' + (s.pay === p ? '#0b0d14' : '#f5f5f7') + ';background:' + (s.pay === p ? '#f5f5f7' : 'rgba(255,255,255,.06)') + ';border:1px solid ' + (s.pay === p ? '#f5f5f7' : 'rgba(255,255,255,.16)') }));
+
+    return {
+      nav, isHome: sc === 'home', isAnalyse: sc === 'analyse', isPortfolio: sc === 'portfolio', isReports: sc === 'reports', isManagers: sc === 'managers', isSub: sc === 'subscription', isContact: sc === 'contact',
+      goSub: () => this.go('subscription'), goPortfolio: () => this.go('portfolio'), goAnalyse: () => this.go('analyse'), goReports: () => this.go('reports'), goContact: () => this.go('contact'), goManagers: () => this.go('managers'),
+      query: s.query, onQuery: e => this.setState({ query: e.target.value }),
+      runSearch: () => { const t = (s.query || '').trim().toUpperCase(); if (!t) { this.go('analyse'); return; } const f = s.holdings.find(x => x.t === t); this.setState(f ? { src: 'portfolio', pick: t } : { src: 'other', customT: t }); this.go('analyse'); },
+      curLabel: s.currency === 'USD' ? 'USD $' : 'INR ₹', toggleCur: () => this.setState(st => ({ currency: st.currency === 'USD' ? 'INR' : 'USD' })),
+      currency: s.currency, onCurrency: e => this.setState({ currency: e.target.value }), fx: s.fx, onFx: e => this.setState({ fx: parseFloat(e.target.value) || 0 }),
+      planName: s.plan, planLine: s.plan === 'Trial' ? 'Free trial' : s.plan + ' plan',
+      usedS: unlimited ? s.used + ' used' : s.used + ' of ' + lim, usedBar: pct + '%', walletS: this.money(s.wallet, 2),
+      usedLong: unlimited ? s.used + ' analyses · unlimited' : s.used + ' of ' + lim + ' analyses used',
+      hasBook, noBook: !hasBook, holdCount: s.holdings.length,
+      totalS: this.money(total), plS: (pl >= 0 ? '+' : '−') + this.money(Math.abs(pl)), plCol: pl >= 0 ? '#30d158' : '#ff453a', plPct: cost ? ((pl >= 0 ? '+' : '−') + Math.abs(pl / cost * 100).toFixed(1) + '%') : '—',
+      overCount: rows.filter(r => r.over).length, rows, hasRows: rows.length > 0, noRows: rows.length === 0,
+      loadSample: () => { this.setState({ holdings: this.sampleBook(), pick: 'MSFT' }); this.toast('Sample portfolio loaded — five holdings'); },
+      h: s.h, onHT: setH('t'), onHN: setH('n'), onHC: setH('c'), onHQ: setH('q'),
+      addPos: () => { const t = (s.h.t || '').trim().toUpperCase(), c = parseFloat(s.h.c), q = parseFloat(s.h.q); if (!t || !c || !q) { this.toast('Add a ticker, cost per share and quantity'); return; } this.setState(st => ({ holdings: st.holdings.concat([{ t, n: st.h.n || t, c, q, ltp: +(c * 1.06).toFixed(2) }]), h: { t: '', n: '', c: '', q: '' } })); this.toast(t + ' added to your portfolio'); },
+      csvName: s.csvName, hasCsv: !!s.csvName, onCsv: e => { const f = e.target.files && e.target.files[0]; if (f) { this.setState({ csvName: f.name, holdings: this.sampleBook() }); this.toast(f.name + ' read — 5 rows added, none rejected'); } },
+      csvCur: s.csvCur, onCsvCur: e => this.setState({ csvCur: e.target.value }),
+      supportEmail: s.supportEmail, onSupport: e => this.setState({ supportEmail: e.target.value }), supportGranted: s.supportGranted, supportOff: !s.supportGranted,
+      supportDays: s.supportDays, onSupportDays: e => this.setState({ supportDays: parseInt(e.target.value, 10) || 3 }),
+      grantSupport: () => { this.setState({ supportGranted: true }); this.toast('Support can see your holdings for ' + s.supportDays + ' days. It switches off on its own.'); },
+      revokeSupport: () => { this.setState({ supportGranted: false }); this.toast('Support access removed'); },
+      stockChips, pickT: pick || '—', allocS: allocKnown ? alloc.toFixed(1) + '%' : 'Not given', allocBar: Math.min(100, alloc) + '%',
+      allocNote: !allocKnown ? 'Optional — tell us what you hold and your total, and we will size the answer' : alloc > 20 ? 'Already a big part of your portfolio — we will flag the risk' : alloc < 3 ? 'A small position — we will assume you can build it up' : 'A normal size for one stock',
+      kinds, kindCount, riskOpts, cagrOpts, conflict,
+      agents, agentName: s.agent === 'frontier' ? 'Frontier agent' : 'Basic agent', agentCostS: '$' + agentCost.toFixed(2), proUp, notPro: !proUp,
+      canRun, runNote: !pick ? 'Type or pick a stock first' : kindCount === 0 ? 'Pick at least one check' : conflict ? 'Your risk limit and return goal don\'t match yet' : 'Uses 1 analysis from your plan',
+      runBtnStyle: 'width:100%;padding:15px;border-radius:999px;border:0;font-size:15px;font-weight:700;transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s;' + (canRun ? 'cursor:pointer;color:#fff;background:linear-gradient(100deg,#0a84ff,#30d158);box-shadow:0 16px 36px rgba(10,132,255,.3)' : 'cursor:not-allowed;color:rgba(245,245,247,.5);background:rgba(255,255,255,.08)'),
+      runAnalysis: () => {
+        if (!canRun) return;
+        const out = !unlimited && s.used >= lim;
+        if (out && s.wallet < agentCost) { this.toast('You have used this month\'s analyses — top up or upgrade'); this.go('subscription'); return; }
+        this.setState({ running: true, runStep: 0 });
+        this._i = setInterval(() => this.setState(st => {
+          if (st.runStep >= 3) { clearInterval(this._i); const nr = { id: 'r' + Date.now(), name: pick + ' — your plan', t: pick, date: '2026-10-03', agent: st.agent === 'frontier' ? 'Frontier agent' : 'Basic agent', verdict: 'Add in slices', col: '#30d158' };
+            setTimeout(() => { this.go('reports'); this.toast('Your note on ' + pick + ' is ready'); }, 0);
+            return { running: false, reports: [nr].concat(st.reports), used: out ? st.used : st.used + 1, wallet: out ? +(st.wallet - agentCost).toFixed(2) : st.wallet, spend: +(st.spend + agentCost).toFixed(2) }; }
+          return { runStep: st.runStep + 1 }; }), 650);
+      },
+      running: s.running, runSteps: steps.map((l, i) => ({ label: (i < s.runStep ? '✓  ' : '') + l, style: 'margin:0;font-size:14px;transition:color .3s;color:' + (i <= s.runStep ? '#f5f5f7' : 'rgba(245,245,247,.4)') + ';font-weight:' + (i === s.runStep ? '600' : '400') })),
+      reportCount: s.reports.length, rq: s.rq, onRq: e => this.setState({ rq: e.target.value }), monthChips, weekChips, grpOpts, rGroups, rEmpty: filteredR.length === 0,
+      filtersOn: !!(rq || s.rMonth || s.rWeek), clearFilters: () => this.setState({ rq: '', rMonth: '', rWeek: '' }), sampleRows, outdatedCount,
+      rSummary: 'Showing ' + filteredR.length + ' of ' + allR.length + ' notes' + (outdatedCount ? ' · ' + outdatedCount + ' older than 60 days' : ''),
+      chooseUltra: () => this.setState({ payOpen: true, payPlan: 'Ultra Premium' }),
+      managers,
+      plans, annual: s.annual, toggleAnnual: () => this.setState(st => ({ annual: !st.annual })), annualLabel: s.annual ? 'Yearly · save about 15%' : 'Monthly — switch to yearly',
+      spendS: this.money(s.spend, 2), topup: s.topup, onTopup: e => this.setState({ topup: parseFloat(e.target.value) || 0 }),
+      doTopup: () => { if (!s.topup) return; this.setState(st => ({ wallet: +(st.wallet + st.topup).toFixed(2) })); this.toast(this.money(s.topup, 2) + ' added to your wallet'); },
+      payOpts, isUpi: s.pay === 'UPI', isCard: s.pay === 'Card',
+      weeklyLocked: this.rank(s.plan) < 4, weekly: s.weekly && this.rank(s.plan) >= 4, weeklyOff: this.rank(s.plan) >= 4 && !s.weekly && !s.weeklyPending, weeklyPending: this.rank(s.plan) >= 4 && s.weeklyPending,
+      weeklyStart: () => this.setState({ weeklyPending: true }), weeklyConfirm: () => { this.setState({ weekly: true, weeklyPending: false }); this.toast('Weekly email is on — first one goes out Sunday'); },
+      weeklyStop: () => { this.setState({ weekly: false, weeklyPending: false }); this.toast('Weekly email turned off'); },
+      contact: s.contact, onCName: setC('name'), onCEmail: setC('email'), onCCc: setC('cc'), onCPhone: setC('phone'), onCMsg: setC('msg'), topics,
+      sent: s.sent, notSent: !s.sent,
+      sendContact: () => { if (!(s.contact.msg || '').trim()) { this.toast('Add a short message so we know how to help'); return; } this.setState({ sent: true }); },
+      newMessage: () => this.setState(st => ({ sent: false, contact: Object.assign({}, st.contact, { msg: '' }) })),
+      srcOpts: [['portfolio', 'From my portfolio'], ['other', 'Any stock']].map(([v, l]) => ({ k: v, l, onPick: () => this.setState({ src: v }), style: 'padding:10px 16px;border-radius:999px;cursor:pointer;font-size:13.5px;font-weight:600;transition:transform .25s,background .25s;color:' + (effSrc === v ? '#0b0d14' : '#f5f5f7') + ';background:' + (effSrc === v ? '#f5f5f7' : 'rgba(255,255,255,.06)') + ';border:1px solid ' + (effSrc === v ? '#f5f5f7' : 'rgba(255,255,255,.16)') })),
+      srcPortfolio: effSrc === 'portfolio', srcOther: effSrc === 'other', setOther: () => this.setState({ src: 'other' }), goHome: () => this.go('home'),
+      customT: s.customT, onCustomT: e => this.setState({ customT: e.target.value }), customAmt: s.customAmt, onCustomAmt: e => this.setState({ customAmt: e.target.value }), customPort: s.customPort, onCustomPort: e => this.setState({ customPort: e.target.value }),
+      payOpen: s.payOpen, payPlanName: s.payPlan, closePay: () => this.setState({ payOpen: false }),
+      payPrice: (() => { const d = planDefs.find(p => p.id === s.payPlan); return d ? (s.annual ? '$' + d.y : '$' + d.m) : ''; })(), payPer: s.annual ? 'per year' : 'per month',
+      payIncl: this.rank(s.payPlan) >= 4 ? 'Includes frontier agents and the weekly email about your stocks.' : 'Includes the basic agent.',
+      upiId: s.upiId, onUpi: e => this.setState({ upiId: e.target.value }), cardNo: s.cardNo, onCardNo: e => this.setState({ cardNo: e.target.value }),
+      confirmPay: () => { if (s.pay === 'UPI' && (s.upiId || '').indexOf('@') < 1) { this.toast('Enter your UPI ID, like name@okbank'); return; } this.setState(st => ({ payOpen: false, plan: st.payPlan, used: 0 })); this.toast(s.pay === 'UPI' ? 'Request sent to ' + s.upiId + ' — approve it in your UPI app' : 'Payment received. You are on ' + s.payPlan); },
+      toastOn: !!s.toast, toastMsg: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
