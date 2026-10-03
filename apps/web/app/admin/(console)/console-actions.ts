@@ -4,7 +4,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { parsePlanEdit, type PlanEditState } from "@/lib/admin/plan-edit";
+import {
+  parsePromptRole,
+  promptVersionName,
+  type PromptActionState,
+} from "@/lib/admin/prompt-name";
 import { requirePlatformAdmin } from "@/lib/admin/session";
+import { analysisApiFetch } from "@/lib/analysis-api";
 import { isNativeProvider } from "@/lib/analyse/models";
 import { createClient } from "@/lib/supabase/server";
 
@@ -71,37 +77,117 @@ export async function savePlan(
   };
 }
 
-export async function stagePrompt(formData: FormData) {
-  await requirePlatformAdmin();
-  const semver = String(formData.get("semver") ?? "").trim();
-  const body = String(formData.get("body") ?? "");
-  if (!semver || !body) return;
-  const supabase = await createClient();
+export async function stagePrompt(
+  _prev: PromptActionState,
+  formData: FormData,
+): Promise<PromptActionState> {
   const session = await requirePlatformAdmin();
-  await supabase.from("prompt_versions").insert({
-    semver,
-    body,
-    submitted_by: session.userId,
-  });
+  const role = parsePromptRole(String(formData.get("role") ?? "advisor"));
+  const base = String(formData.get("semver") ?? "").trim();
+  const pasted = String(formData.get("body") ?? "");
+  const file = formData.get("file");
+  let body = pasted;
+  if (file instanceof File && file.size > 0) {
+    body = await file.text();
+  }
+  if (!body.trim()) {
+    return { error: "Upload a file or paste the prompt text.", notice: null };
+  }
+  const fileBase =
+    file instanceof File && file.name
+      ? file.name.replace(/\.(txt|md)$/i, "")
+      : "";
+  const semver = promptVersionName(base || fileBase || role, new Date());
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("prompt_versions")
+    .insert({
+      semver,
+      body,
+      role,
+      submitted_by: session.userId,
+    })
+    .select("id")
+    .maybeSingle();
+  if (error) {
+    return {
+      error:
+        error.message.includes("permission") || error.code === "42501"
+          ? "Apply migration 023 so this admin session can write prompt_versions."
+          : error.message,
+      notice: null,
+    };
+  }
   revalidatePath("/admin/prompt");
+  redirect(`/admin/prompt?view=${data?.id ?? ""}`);
 }
 
-export async function approvePrompt(formData: FormData) {
-  const session = await requirePlatformAdmin();
+export async function promotePrompt(formData: FormData) {
+  await requirePlatformAdmin();
   const promptId = String(formData.get("promptId") ?? "");
-  const submittedBy = String(formData.get("submittedBy") ?? "");
   if (!promptId) return;
-  if (submittedBy === session.userId) {
-    return;
-  }
   const supabase = await createClient();
-  await supabase.from("prompt_version_approvals").insert({
-    prompt_version_id: promptId,
-    submitted_by: submittedBy || session.userId,
-    approved_by: session.userId,
-    approved_at: new Date().toISOString(),
+  const { error } = await supabase.rpc("thesis_admin_promote_prompt", {
+    p_id: promptId,
   });
+  if (error) {
+    redirect(
+      `/admin/prompt?view=${promptId}&err=${encodeURIComponent(error.message)}`,
+    );
+  }
   revalidatePath("/admin/prompt");
+  redirect(`/admin/prompt?view=${promptId}`);
+}
+
+async function accessToken(): Promise<string | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token ?? null;
+}
+
+export async function refreshLabModels(
+  _prev: PlanEditState,
+  _formData: FormData,
+): Promise<PlanEditState> {
+  await requirePlatformAdmin();
+  const token = await accessToken();
+  if (!token) {
+    return { error: "Admin session expired. Sign in again at /admin/login.", notice: null };
+  }
+  let res: Response;
+  try {
+    res = await analysisApiFetch("/admin/models/refresh", token, {
+      method: "POST",
+    });
+  } catch {
+    return {
+      error:
+        "analysis-api is not reachable. Lab keys live on FastAPI (port 8091 / api.eqveste.com), not on Vercel. Start that process, then fetch again.",
+      notice: null,
+    };
+  }
+  const payload = (await res.json().catch(() => ({}))) as {
+    detail?: string;
+    error?: string;
+    upserted?: number;
+    providers?: string[];
+  };
+  if (!res.ok) {
+    return {
+      error:
+        payload.detail ||
+        payload.error ||
+        `Could not fetch lab models (${res.status}).`,
+      notice: null,
+    };
+  }
+  revalidatePath("/admin/plans");
+  const n = Number(payload.upserted ?? 0);
+  const labs = (payload.providers ?? []).join(", ") || "native labs";
+  return {
+    error: null,
+    notice: `Updated ${n} model_catalog rows from ${labs}. Frontier vs quick uses the generation gap on this screen. Save each plan card to offer new agents on Analyse.`,
+  };
 }
 
 export async function saveWatchLimit(formData: FormData) {

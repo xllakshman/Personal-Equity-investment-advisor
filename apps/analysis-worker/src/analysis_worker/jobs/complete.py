@@ -12,8 +12,10 @@ from thesis_platform.http import complete_chat
 from thesis_platform.native_llm import (
     NATIVE_PROVIDERS,
     ChatResult,
-    require_api_key,
+    LlmError,
+    resolve_provider,
 )
+
 from thesis_platform.pack import build_variable_pack
 from thesis_platform.prompt import load_promoted_body
 from thesis_platform.sections import (
@@ -41,7 +43,7 @@ def complete_request(
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute(
         """
-        select id, provider, provider_model_id, label
+        select id, provider, provider_model_id, label, thesis_class
           from model_catalog
          where id = %s and is_active = true
         """,
@@ -53,8 +55,15 @@ def complete_request(
     if not model or provider not in NATIVE_PROVIDERS or not native_id:
         raise RuntimeError("model_catalog row missing native provider")
     if complete_fn is None:
-        require_api_key(settings, provider)
+        provider, native_id, used_id = _lab_for_request(cur, settings, dict(model))
+        model = {
+            **dict(model),
+            "id": used_id,
+            "provider": provider,
+            "provider_model_id": native_id,
+        }
 
+    used_model_id = str(model["id"])
     prompt_id, system = load_promoted_body(cur, "advisor")
     pack = build_variable_pack(_context(cur, request))
 
@@ -123,7 +132,7 @@ def complete_request(
             verdict,
             Json(sections),
             prompt_id,
-            request["model_id"],
+            used_model_id,
             result.cost_cents or 0,
         ),
     )
@@ -139,6 +148,42 @@ def complete_request(
         )
     cur.close()
     return report_id
+
+
+def _lab_for_request(
+    cur, settings: Settings, model: dict[str, Any]
+) -> tuple[str, str, str]:
+    """If the queued lab has no key, use a random keyed lab and its model_catalog row."""
+    requested = str(model["provider"])
+    try:
+        provider = resolve_provider(settings, requested)
+    except LlmError as exc:
+        raise RuntimeError(str(exc)) from exc
+    if provider == requested:
+        return requested, str(model["provider_model_id"]), str(model["id"])
+    thesis_class = str(model.get("thesis_class") or "quick")
+    row = _catalog_for_provider(cur, provider, thesis_class)
+    if not row:
+        raise RuntimeError(f"no active model_catalog row for fallback lab {provider}")
+    return str(row["provider"]), str(row["provider_model_id"]), str(row["id"])
+
+
+def _catalog_for_provider(cur, provider: str, thesis_class: str) -> dict[str, Any] | None:
+    cur.execute(
+        """
+        select id, provider, provider_model_id, label, thesis_class
+          from model_catalog
+         where is_active = true and provider = %s
+         order by
+           case when thesis_class = %s then 0 else 1 end,
+           sort_order asc,
+           id asc
+         limit 1
+        """,
+        (provider, thesis_class),
+    )
+    row = cur.fetchone()
+    return dict(row) if row else None
 
 
 def _context(cur, request: dict[str, Any]) -> dict[str, Any]:

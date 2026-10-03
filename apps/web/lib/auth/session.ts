@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 
+import { unsignedVisitorHref } from "@/lib/auth/paths";
+
 /** Optional Auth user. Missing env or no session → null (marketing still renders). */
 export async function getOptionalUser() {
   try {
@@ -12,11 +14,11 @@ export async function getOptionalUser() {
   }
 }
 
-/** Desk routes. No session → `/login`. */
+/** Desk routes. No session → marketing home. */
 export async function requireUser() {
   const user = await getOptionalUser();
   if (!user) {
-    redirect("/login");
+    redirect(unsignedVisitorHref());
   }
   return user;
 }

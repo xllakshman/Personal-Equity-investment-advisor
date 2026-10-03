@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 
+import { unsignedVisitorHref } from "@/lib/auth/paths";
 import { isDeskPath } from "@/lib/desk/nav";
 import { updateSession } from "@/lib/supabase/middleware";
 
@@ -18,7 +19,8 @@ export async function proxy(request: NextRequest) {
 
   if (!user && isDeskPath(pathname)) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = unsignedVisitorHref();
+    url.search = "";
     return NextResponse.redirect(url);
   }
 

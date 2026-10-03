@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+import random
 from typing import Any
 
 from thesis_platform.config import Settings
 
-NATIVE_PROVIDERS = frozenset({"openai", "anthropic", "xai", "deepseek"})
+LAB_ORDER = ("anthropic", "openai", "xai", "deepseek")
+NATIVE_PROVIDERS = frozenset(LAB_ORDER)
 FORBIDDEN_MODELS = frozenset({"openrouter/auto", "openrouter/auto:nitro"})
 
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"
@@ -49,6 +52,32 @@ def require_api_key(settings: Settings, provider: str) -> str:
     if not key:
         raise LlmError(f"{env_name} missing")
     return key
+
+
+def available_providers(settings: Settings) -> tuple[str, ...]:
+    """Labs whose env key is set: Anthropic, OpenAI, xAI, DeepSeek."""
+    found: list[str] = []
+    for name in LAB_ORDER:
+        key, _env = api_key_for_provider(settings, name)
+        if key:
+            found.append(name)
+    return tuple(found)
+
+
+def resolve_provider(
+    settings: Settings,
+    requested: str,
+    *,
+    choice: Callable[[Sequence[str]], str] | None = None,
+) -> str:
+    """Use the requested lab when its key exists; otherwise pick a keyed lab at random."""
+    available = available_providers(settings)
+    if requested in available:
+        return requested
+    if not available:
+        require_api_key(settings, requested)
+    picker = choice or random.choice
+    return str(picker(available))
 
 
 def assert_model_allowed(model: str) -> None:

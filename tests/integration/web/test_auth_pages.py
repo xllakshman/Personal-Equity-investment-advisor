@@ -7,6 +7,8 @@ import os
 import httpx
 import pytest
 
+from tests.integration.web.home_redirect import is_marketing_home
+
 BASE = os.environ.get("THESIS_WEB_BASE_URL", "http://127.0.0.1:3100").rstrip("/")
 
 
@@ -60,12 +62,13 @@ def test_reset_page_renders() -> None:
 
 
 @pytest.mark.integration
-def test_desk_without_session_redirects_to_login() -> None:
+def test_desk_without_session_redirects_to_marketing_home() -> None:
     res = _get("/desk")
     if res is None:
         pytest.skip(f"web not reachable at {BASE}")
     assert res.status_code in (302, 303, 307, 308)
-    assert "/login" in res.headers.get("location", "")
+    assert is_marketing_home(res.headers.get("location", ""))
+    assert "/login" not in res.headers.get("location", "")
 
 
 @pytest.mark.integration

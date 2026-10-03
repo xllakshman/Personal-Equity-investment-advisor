@@ -352,3 +352,27 @@ def test_get_analysis_other_family_is_404() -> None:
     ):
         res = client.get("/analysis/req1", headers={"Authorization": "Bearer fake"})
     assert res.status_code == 404
+
+
+def test_admin_models_refresh_requires_bearer() -> None:
+    assert client.post("/admin/models/refresh").status_code == 401
+
+
+def test_admin_models_refresh_rejects_desk_user() -> None:
+    cur = FakeCur()
+    with (
+        patch("analysis_api.api.routes.admin_models.Settings.from_env"),
+        patch(
+            "analysis_api.api.routes.admin_models.bearer_user",
+            return_value={"id": "user1"},
+        ),
+        patch(
+            "analysis_api.api.routes.admin_models.connect",
+            return_value=FakeConn(cur),
+        ),
+    ):
+        res = client.post(
+            "/admin/models/refresh",
+            headers={"Authorization": "Bearer fake"},
+        )
+    assert res.status_code == 403

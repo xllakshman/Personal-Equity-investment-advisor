@@ -11,4 +11,4 @@ See `HANDOFF.md` §6.
 
 ## Next on DEV / PROD
 
-None in git after **022**. Further schema needs a new numbered file.
+**023** [`023_admin_prompt_promote.sql`](023_admin_prompt_promote.sql) — grant `prompt_versions` to `authenticated` (RLS still `platform_admin`) + `thesis_admin_promote_prompt`. Apply only with `CONFIRM_APPLY=1` and a named target.

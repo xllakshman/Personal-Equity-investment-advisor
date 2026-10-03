@@ -15,7 +15,7 @@ from thesis_platform.config import Settings
 from thesis_platform.db import connect
 from thesis_platform.extract import REFUSAL
 from thesis_platform.http import complete_chat
-from thesis_platform.native_llm import LlmError, NATIVE_PROVIDERS, require_api_key
+from thesis_platform.native_llm import LlmError, NATIVE_PROVIDERS, resolve_provider
 from thesis_platform.pack import build_variable_pack
 from thesis_platform.prompt import load_promoted_body
 from thesis_platform.sections import parse_sections_json
@@ -86,7 +86,7 @@ def refine_gate(
             raise HTTPException(status_code=400, detail="enrichment required")
         cur.execute(
             """
-            select id, cost_cents_per_run, provider, provider_model_id
+            select id, cost_cents_per_run, provider, provider_model_id, thesis_class
               from model_catalog
              where is_refine_gate = true and is_active = true
              order by sort_order
@@ -132,7 +132,7 @@ def refine_gate(
             },
             default=str,
         )
-        result = _complete_native(settings, gate, gate_body, user_pack)
+        result = _complete_native(settings, gate, gate_body, user_pack, cur)
         parsed = parse_sections_json(result.content)
         material = bool(parsed.get("material"))
         reason = str(parsed.get("reason") or "")
@@ -188,7 +188,7 @@ def refine(
         if body.confirm and not (body.user_text or "").strip():
             raise HTTPException(status_code=400, detail="enrichment required")
         cur.execute(
-            "select id, cost_cents_per_run, provider, provider_model_id from model_catalog where id = %s",
+            "select id, cost_cents_per_run, provider, provider_model_id, thesis_class from model_catalog where id = %s",
             (report["model_id"],),
         )
         model = cur.fetchone()
@@ -223,7 +223,7 @@ def refine(
         _prompt_id, system = load_promoted_body(cur, "advisor")
         del _prompt_id
         pack = _family_pack(cur, report, body.user_text)
-        result = _complete_native(settings, model, system, pack)
+        result = _complete_native(settings, model, system, pack, cur)
         sections = parse_sections_json(result.content)
         _insert_usage(
             cur,
@@ -250,15 +250,37 @@ def refine(
         conn.close()
 
 
-def _complete_native(settings: Settings, row: dict[str, Any], system: str, user: str):
-    provider = str(row.get("provider") or "")
+def _complete_native(settings: Settings, row: dict[str, Any], system: str, user: str, cur):
+    requested = str(row.get("provider") or "")
     model = str(row.get("provider_model_id") or "")
-    if provider not in NATIVE_PROVIDERS or not model:
+    if requested not in NATIVE_PROVIDERS or not model:
         raise HTTPException(status_code=500, detail="model missing")
     try:
-        require_api_key(settings, provider)
+        provider = resolve_provider(settings, requested)
     except LlmError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+    if provider != requested:
+        thesis_class = str(row.get("thesis_class") or "quick")
+        cur.execute(
+            """
+            select provider_model_id
+              from model_catalog
+             where is_active = true and provider = %s
+             order by
+               case when thesis_class = %s then 0 else 1 end,
+               sort_order asc,
+               id asc
+             limit 1
+            """,
+            (provider, thesis_class),
+        )
+        fallback = cur.fetchone()
+        if not fallback or not fallback.get("provider_model_id"):
+            raise HTTPException(
+                status_code=503,
+                detail=f"no active model_catalog row for fallback lab {provider}",
+            )
+        model = str(fallback["provider_model_id"])
     return complete_chat(
         settings,
         provider=provider,

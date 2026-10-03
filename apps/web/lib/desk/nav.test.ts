@@ -53,5 +53,6 @@ describe("isDeskPath", () => {
     assert.equal(isDeskPath("/contact"), true);
     assert.equal(isDeskPath("/login"), false);
     assert.equal(isDeskPath("/admin/login"), false);
+    assert.equal(isDeskPath("/"), false);
   });
 });

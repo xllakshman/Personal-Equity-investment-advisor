@@ -16,6 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv(ROOT / ".env")
 
+from analysis_api.api.routes.admin_models import router as admin_models_router
 from analysis_api.api.routes.analysis import router as analysis_router
 from analysis_api.api.routes.reports import router as reports_router
 
@@ -36,6 +37,7 @@ app.add_middleware(
 )
 app.include_router(analysis_router)
 app.include_router(reports_router)
+app.include_router(admin_models_router)
 
 
 @app.get("/health")

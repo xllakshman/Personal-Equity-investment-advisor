@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { unsignedVisitorHref } from "@/lib/auth/paths";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -40,7 +41,7 @@ export async function requireDeskSession(): Promise<DeskSession> {
     .maybeSingle();
 
   if (!membership?.family_id) {
-    redirect("/login");
+    redirect(unsignedVisitorHref());
   }
 
   return {

@@ -1,8 +1,10 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 import { EMPTY_AUTH_STATE, type AuthFormState } from "@/lib/auth/form-state";
+import { unsignedVisitorHref } from "@/lib/auth/paths";
 import { passwordLengthError } from "@/lib/auth/password";
 import { loginEmailError, parseSignupFields } from "@/lib/auth/signup-fields";
 import { createClient } from "@/lib/supabase/server";
@@ -122,5 +124,7 @@ export async function updatePassword(
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect("/login");
+  revalidatePath("/", "layout");
+  revalidatePath("/desk", "layout");
+  redirect(unsignedVisitorHref());
 }

@@ -1,11 +1,11 @@
 import Link from "next/link";
 
-import { signOut } from "@/app/(auth)/actions";
 import { EqvesteMark } from "@/components/features/brand/EqvesteMark";
 import { EqvesteWord } from "@/components/features/brand/EqvesteWord";
 import { CurrencyChip } from "@/components/features/desk/CurrencyChip";
 import { DeskNav } from "@/components/features/desk/DeskNav";
 import { ObservabilityPing } from "@/components/features/desk/ObservabilityPing";
+import { SignOutButton } from "@/components/features/desk/SignOutButton";
 import { TickerSearch } from "@/components/features/desk/TickerSearch";
 import { initials, roleLabel, type DeskSession } from "@/lib/desk/session";
 import type { NativeCurrency } from "@/lib/portfolio/exchange";
@@ -60,11 +60,7 @@ export function AppShell({
           <span className="desk__avatar" aria-hidden>
             {initials(session.fullName)}
           </span>
-          <form action={signOut}>
-            <button className="desk__signout" type="submit">
-              Sign out
-            </button>
-          </form>
+          <SignOutButton />
         </div>
       </header>
       <div className="desk__body">

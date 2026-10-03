@@ -26,7 +26,7 @@
 | Maya seed | ✅ `maya@thesis.demo` · 5 lots · 2 reports (1 sample) |
 | Storage bucket `report-pdfs` | ✅ private |
 | Analysis API / worker | ✅ 2026-09-14 — `apps/analysis-api` :8091, `apps/analysis-worker`; Docker compose in `infra/docker` |
-| Next.js desk | ✅ 2026-10-03 — Header Analyse GET/push opens `/analyse?ticker=` (same six-step builder as nav **Analyse a stock**). Submit writes `analysis_requests` + `usage_events.kind = search`. Elite Refresh upserts `elite_investor_books`. Reports version column. |
+| Next.js desk | ✅ 2026-10-03 — Header Analyse GET/push opens `/analyse?ticker=`. Admin console uses the same desk shell (`/admin/accounts` sidebar). `/admin/prompt` upload/review/download/Promote. `/admin/plans` Fetch latest lab models via analysis-api `POST /admin/models/refresh`. Desk Sign out goes to marketing `/`. |
 | Prod schema | ✅ 2026-10-03 — **001–022** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. |
 | Prod Vercel | ✅ 2026-10-03 — Production deploy aliased to **`https://eqveste.com`**. Anon URL+key + Resend only. No service role or lab keys. |
 | Tests | ✅ unit + web tests for 4–9. Live two-JWT CI still skips without a second family JWT. |

@@ -1,4 +1,5 @@
 import { PlanEditForm } from "@/components/features/admin/PlanEditForm";
+import { RefreshLabModelsForm } from "@/components/features/admin/RefreshLabModelsForm";
 import { NOTICE_PCTS } from "@/lib/admin/plan-edit";
 import { requirePlatformAdmin } from "@/lib/admin/session";
 import { isNativeProvider } from "@/lib/analyse/models";
@@ -19,7 +20,7 @@ export default async function AdminPlansPage() {
     .order("pct");
   const { data: catalog } = await supabase
     .from("model_catalog")
-    .select("id, label, provider, thesis_class")
+    .select("id, label, provider, thesis_class, provider_model_id")
     .eq("is_active", true)
     .order("sort_order");
 
@@ -47,6 +48,52 @@ export default async function AdminPlansPage() {
           </p>
         </div>
       </header>
+      <section className="admin__card" style={{ marginBottom: 16 }}>
+        <h2 className="admin__h2">Lab models</h2>
+        <RefreshLabModelsForm />
+        <div className="admin__scroll" style={{ marginTop: 16 }}>
+          <table className="admin__table">
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Lab</th>
+                <th>Class</th>
+                <th>API id</th>
+              </tr>
+            </thead>
+            <tbody>
+              {agents.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="admin__muted">
+                    No active native rows in model_catalog.
+                  </td>
+                </tr>
+              ) : (
+                (catalog ?? [])
+                  .filter((m) => isNativeProvider(String(m.provider)))
+                  .map((m) => (
+                    <tr key={String(m.id)}>
+                      <td>{String(m.label)}</td>
+                      <td>{String(m.provider)}</td>
+                      <td>
+                        <span
+                          className={
+                            m.thesis_class === "frontier"
+                              ? "admin__chip admin__chip--ok"
+                              : "admin__chip admin__chip--muted"
+                          }
+                        >
+                          {m.thesis_class === "frontier" ? "Frontier" : "Quick"}
+                        </span>
+                      </td>
+                      <td className="admin__mono">{String(m.provider_model_id)}</td>
+                    </tr>
+                  ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
       <div className="admin__grid">
         {(plans ?? []).map((p) => {
           const planNotices = NOTICE_PCTS.map((pct) => {

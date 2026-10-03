@@ -10,10 +10,12 @@ from thesis_platform.native_llm import (
     LlmError,
     OPENAI_URL,
     XAI_URL,
+    available_providers,
     openai_compat_payload,
     parse_response,
     request_spec,
     require_api_key,
+    resolve_provider,
 )
 
 
@@ -109,3 +111,37 @@ def test_missing_provider_key() -> None:
     assert require_api_key(SETTINGS, "anthropic") == "sk-ant-test"
     with pytest.raises(LlmError, match="unsupported provider"):
         require_api_key(SETTINGS, "google")
+
+
+def test_resolve_provider_keeps_requested_when_key_exists() -> None:
+    assert available_providers(SETTINGS) == ("anthropic", "openai")
+    assert resolve_provider(SETTINGS, "anthropic") == "anthropic"
+    assert resolve_provider(SETTINGS, "openai") == "openai"
+
+
+def test_resolve_provider_picks_a_keyed_lab_when_requested_key_missing() -> None:
+    only_openai = Settings(
+        supabase_url="https://example.supabase.co",
+        supabase_db_host="db.example.supabase.co",
+        supabase_db_password="x",
+        openai_api_key="sk-openai-test",
+    )
+    assert available_providers(only_openai) == ("openai",)
+    assert resolve_provider(only_openai, "anthropic") == "openai"
+    mixed = Settings(
+        supabase_url="https://example.supabase.co",
+        supabase_db_host="db.example.supabase.co",
+        supabase_db_password="x",
+        openai_api_key="sk-openai-test",
+        xai_api_key="xai-test",
+        deepseek_api_key="ds-test",
+    )
+    assert available_providers(mixed) == ("openai", "xai", "deepseek")
+    assert resolve_provider(mixed, "anthropic", choice=lambda labs: labs[-1]) == "deepseek"
+    none = Settings(
+        supabase_url="https://example.supabase.co",
+        supabase_db_host="db.example.supabase.co",
+        supabase_db_password="x",
+    )
+    with pytest.raises(LlmError, match="ANTHROPIC_API_KEY missing"):
+        resolve_provider(none, "anthropic")
