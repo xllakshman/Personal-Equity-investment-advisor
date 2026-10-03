@@ -1,12 +1,91 @@
 import { openImpersonation } from "@/app/admin/(console)/console-actions";
 import { AccountPlanForm } from "@/components/features/admin/AccountPlanForm";
 import { requirePlatformAdmin } from "@/lib/admin/session";
+import {
+  splitAdminAccounts,
+  type AdminAccountRow,
+} from "@/lib/admin/account-rows";
 import { planCardTitle } from "@/lib/billing/plan-titles";
 import { createClient } from "@/lib/supabase/server";
 import { meterEventCount } from "@/lib/desk/usage-meter";
 
 function monthStartUtc(now = new Date()): string {
   return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-01`;
+}
+
+function AccountsTable({
+  rows,
+  plans,
+  empty,
+}: {
+  rows: AdminAccountRow[];
+  plans: { id: string; title: string }[];
+  empty: string;
+}) {
+  if (rows.length === 0) {
+    return <p className="admin__hint" style={{ padding: "14px 18px 18px" }}>{empty}</p>;
+  }
+  return (
+    <div className="admin__scroll">
+      <table className="admin__table">
+        <thead>
+          <tr>
+            <th>Account</th>
+            <th>Residency</th>
+            <th>Plan</th>
+            <th>Requested</th>
+            <th className="admin__num">Searches</th>
+            <th className="admin__num">MTD $</th>
+            <th className="admin__actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.id}>
+              <td>
+                <p style={{ margin: 0, fontWeight: 500 }}>{r.name || "—"}</p>
+                <p className="admin__email" style={{ margin: "2px 0 0" }}>
+                  {r.email}
+                </p>
+              </td>
+              <td className="admin__muted">{r.residency || "—"}</td>
+              <td>
+                {r.plan}
+                <p className="admin__email" style={{ margin: "2px 0 0" }}>
+                  {r.billingStatus}
+                </p>
+              </td>
+              <td>{r.pendingTitle ?? "—"}</td>
+              <td className="admin__num">
+                {r.used} / {r.limit ?? "—"}
+              </td>
+              <td className="admin__num">{(r.mtd / 100).toFixed(2)}</td>
+              <td className="admin__actions">
+                <div className="admin__row-actions">
+                  {r.familyId ? (
+                    <AccountPlanForm
+                      familyId={r.familyId}
+                      plans={plans}
+                      currentPlanId={r.planId}
+                      pendingPlanId={r.pendingPlanId}
+                    />
+                  ) : (
+                    <span className="admin__muted">—</span>
+                  )}
+                  <form action={openImpersonation}>
+                    <input type="hidden" name="targetUserId" value={r.id} />
+                    <button className="admin__btn" type="submit">
+                      View as
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 export default async function AdminAccountsPage() {
@@ -29,7 +108,7 @@ export default async function AdminAccountsPage() {
     .order("created_at", { ascending: false })
     .limit(50);
 
-  const rows = [];
+  const rows: AdminAccountRow[] = [];
   for (const u of users ?? []) {
     const { data: mem } = await supabase
       .from("family_members")
@@ -102,6 +181,8 @@ export default async function AdminAccountsPage() {
     });
   }
 
+  const { waiting, existing } = splitAdminAccounts(rows);
+
   return (
     <div>
       <header className="admin__hero">
@@ -109,74 +190,41 @@ export default async function AdminAccountsPage() {
           <p className="admin__kicker">Platform administration</p>
           <h1 className="admin__h1">Accounts</h1>
           <p className="admin__lede">
-            Current plan is families.plan_id. Requested is invoices.status =
-            pending from Subscription Subscribe. Activate writes families.plan_id
-            and billing_status = subscribed. Deactivate puts the family on Trial.
+            Waiting for activate is Trial families plus invoices.status = pending
+            from Subscription Subscribe. Existing is subscribed or cancelled with
+            no pending invoice. Activate writes families.plan_id and
+            billing_status = subscribed. Deactivate puts the family on Trial.
             Lot quantities are not on this table.
           </p>
         </div>
       </header>
       <section className="admin__card admin__card--table">
-        <div className="admin__scroll">
-          <table className="admin__table">
-            <thead>
-              <tr>
-                <th>Account</th>
-                <th>Residency</th>
-                <th>Plan</th>
-                <th>Requested</th>
-                <th className="admin__num">Searches</th>
-                <th className="admin__num">MTD $</th>
-                <th className="admin__actions">Plan</th>
-                <th className="admin__actions"> </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.id}>
-                  <td>
-                    <p style={{ margin: 0, fontWeight: 500 }}>{r.name || "—"}</p>
-                    <p className="admin__email" style={{ margin: "2px 0 0" }}>
-                      {r.email}
-                    </p>
-                  </td>
-                  <td className="admin__muted">{r.residency || "—"}</td>
-                  <td>
-                    {r.plan}
-                    <p className="admin__email" style={{ margin: "2px 0 0" }}>
-                      {r.billingStatus}
-                    </p>
-                  </td>
-                  <td>{r.pendingTitle ?? "—"}</td>
-                  <td className="admin__num">
-                    {r.used} / {r.limit ?? "—"}
-                  </td>
-                  <td className="admin__num">{(r.mtd / 100).toFixed(2)}</td>
-                  <td className="admin__actions">
-                    {r.familyId ? (
-                      <AccountPlanForm
-                        familyId={r.familyId}
-                        plans={plans}
-                        currentPlanId={r.planId}
-                        pendingPlanId={r.pendingPlanId}
-                      />
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td className="admin__actions">
-                    <form action={openImpersonation}>
-                      <input type="hidden" name="targetUserId" value={r.id} />
-                      <button className="admin__btn" type="submit">
-                        View as
-                      </button>
-                    </form>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="admin__table-head">
+          <h2 className="admin__h2">Waiting for activate</h2>
+          <p className="admin__hint">
+            New signups still on Trial, and Subscribe requests you have not
+            Activated.
+          </p>
         </div>
+        <AccountsTable
+          rows={waiting}
+          plans={plans}
+          empty="No Trial signups or pending Subscribe invoices."
+        />
+      </section>
+      <section className="admin__card admin__card--table" style={{ marginTop: 16 }}>
+        <div className="admin__table-head">
+          <h2 className="admin__h2">Existing accounts</h2>
+          <p className="admin__hint">
+            families.billing_status is subscribed or cancelled, and there is no
+            pending invoice.
+          </p>
+        </div>
+        <AccountsTable
+          rows={existing}
+          plans={plans}
+          empty="No activated or cancelled families yet."
+        />
       </section>
     </div>
   );
