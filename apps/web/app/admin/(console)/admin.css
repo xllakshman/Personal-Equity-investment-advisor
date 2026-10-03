@@ -158,6 +158,20 @@
   gap: 14px;
 }
 
+.admin__form--row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 220px;
+  margin: 0;
+}
+
+.admin__form--row .admin__input {
+  width: auto;
+  min-width: 148px;
+}
+
 .admin__field {
   display: flex;
   flex-direction: column;

@@ -15,8 +15,9 @@ export function RefreshLabModelsForm() {
       <p className="admin__lede" style={{ margin: 0 }}>
         Change Frontier or Quick on each row. That writes{" "}
         <code>model_catalog.thesis_class</code> with this admin session — Analyse
-        groups agents from that column on the next load. Fetch latest models is
-        optional: it calls analysis-api (lab keys on that process, not Vercel).
+        groups agents from that column on the next load. Fetch latest models
+        POSTs to analysis-api on the droplet (lab keys on that process, not
+        Vercel) and upserts model_catalog.
         Frontier is the latest generation; Quick is at least two generations
         behind for OpenAI / xAI / DeepSeek and one generation behind for
         Anthropic. Then tick agents on each plan card and Save.

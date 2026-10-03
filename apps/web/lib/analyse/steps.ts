@@ -44,15 +44,21 @@ export function analyseStepsDone(opts: {
   hasTaxResidency: boolean;
   modelOnPlan: boolean;
 }): boolean[] {
-  const ticker = opts.hasTicker;
   return [
-    ticker,
-    ticker && opts.lensCount > 0,
-    ticker,
-    ticker && !opts.conflict,
-    ticker && opts.hasTaxResidency,
-    ticker && opts.modelOnPlan,
+    opts.hasTicker,
+    opts.lensCount > 0,
+    opts.hasTicker,
+    !opts.conflict,
+    opts.hasTaxResidency,
+    opts.modelOnPlan,
   ];
+}
+
+export function analyseRailItemClass(done: boolean, current: boolean): string {
+  const parts = ["bld__rail-item"];
+  if (done) parts.push("bld__rail-item--done");
+  if (current && !done) parts.push("bld__rail-item--cur");
+  return parts.join(" ");
 }
 
 export function firstOpenStep(done: readonly boolean[]): number {

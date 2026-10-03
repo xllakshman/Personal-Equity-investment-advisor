@@ -1,4 +1,6 @@
 import { AppShell } from "@/components/features/desk/AppShell";
+import { analyseRunningChip, analyseWaitHref } from "@/lib/analyse/in-flight";
+import { loadInFlightAnalysis } from "@/lib/analyse/load-inflight";
 import { requireDeskSession } from "@/lib/desk/session";
 import { loadPortfolioSettings } from "@/lib/portfolio/load";
 import { loadUsageSnapshot } from "@/lib/usage/load";
@@ -10,9 +12,10 @@ export default async function DeskLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const session = await requireDeskSession();
-  const [settings, usage] = await Promise.all([
+  const [settings, usage, running] = await Promise.all([
     loadPortfolioSettings(session.familyId),
     loadUsageSnapshot(session.familyId),
+    loadInFlightAnalysis(session.familyId),
   ]);
   return (
     <AppShell
@@ -22,6 +25,15 @@ export default async function DeskLayout({
       meterHint={usageHumanHint(usage)}
       meterPct={usageBarPct(usage.used, usage.limit)}
       planChip={planChipLabel(usage)}
+      running={
+        running
+          ? {
+              href: analyseWaitHref(running.id),
+              label: analyseRunningChip(running.ticker),
+              ticker: running.ticker,
+            }
+          : null
+      }
     >
       {children}
     </AppShell>

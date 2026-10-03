@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { parsePlanEdit, parseThesisClass, type PlanEditState } from "@/lib/admin/plan-edit";
+import { type FamilyPlanState } from "@/lib/admin/family-plan";
 import {
   parsePromptRole,
   promptVersionName,
@@ -270,4 +271,51 @@ export async function closeImpersonation(formData: FormData) {
   const supabase = await createClient();
   await supabase.rpc("impersonation_close", { p_target_user_id: target });
   redirect("/admin/accounts");
+}
+
+export async function setFamilyPlan(
+  _prev: FamilyPlanState,
+  formData: FormData,
+): Promise<FamilyPlanState> {
+  await requirePlatformAdmin();
+  const familyId = String(formData.get("family_id") ?? "").trim();
+  const planId = String(formData.get("plan_id") ?? "").trim();
+  const intent = String(formData.get("intent") ?? "");
+  if (!familyId) return { error: "Missing family.", notice: null };
+  if (intent !== "activate" && intent !== "deactivate") {
+    return { error: "Pick Activate or Deactivate.", notice: null };
+  }
+  if (intent === "activate" && !planId) {
+    return { error: "Pick a plan to activate.", notice: null };
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("thesis_admin_set_family_plan", {
+    p_family_id: familyId,
+    p_plan_id: planId || familyId,
+    p_billing_status: intent === "activate" ? "subscribed" : "cancelled",
+  });
+  if (error) {
+    const msg = error.message ?? "";
+    if (msg.includes("THS-ADM-001")) {
+      return { error: "Sign in at /admin/login.", notice: null };
+    }
+    if (msg.includes("Could not find the function") || msg.includes("schema cache")) {
+      return {
+        error:
+          "Activate needs supabase/migrations/025_admin_plan_activation.sql applied on this project (CONFIRM_APPLY=1).",
+        notice: null,
+      };
+    }
+    return { error: "Could not change that plan.", notice: null };
+  }
+  revalidatePath("/admin/accounts");
+  revalidatePath("/billing");
+  revalidatePath("/analyse");
+  return {
+    error: null,
+    notice:
+      intent === "activate"
+        ? "Plan is on. Desk Subscription and Analyse read families.plan_id on the next load."
+        : "Plan is off. Family is back on Trial. Desk Subscription reads families.plan_id on the next load.",
+  };
 }

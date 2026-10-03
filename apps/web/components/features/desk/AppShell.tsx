@@ -18,6 +18,7 @@ export function AppShell({
   meterHint,
   meterPct,
   planChip,
+  running = null,
   children,
 }: {
   session: DeskSession;
@@ -26,6 +27,7 @@ export function AppShell({
   meterHint: string;
   meterPct: number;
   planChip: string;
+  running?: { href: string; label: string; ticker: string } | null;
   children: React.ReactNode;
 }) {
   return (
@@ -43,6 +45,11 @@ export function AppShell({
         </Link>
         <TickerSearch />
         <div className="desk__right">
+          {running ? (
+            <Link href={running.href} className="desk__plan-chip" title="Open analysis progress">
+              {running.label}
+            </Link>
+          ) : null}
           <Link href="/billing" className="desk__plan-chip" title="Open Subscription">
             Subscription · {planChip}
           </Link>
@@ -55,6 +62,7 @@ export function AppShell({
           meterLabel={meterLabel}
           meterHint={meterHint}
           meterPct={meterPct}
+          running={running}
         />
         <main className="desk__main">{children}</main>
       </div>

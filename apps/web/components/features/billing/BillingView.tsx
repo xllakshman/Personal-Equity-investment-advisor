@@ -66,6 +66,7 @@ export function PaymentSlot() {
 
 export function PlanCards({
   cards,
+  pendingPlanId = null,
 }: {
   cards: {
     id: string;
@@ -77,6 +78,7 @@ export function PlanCards({
     why: string;
     current: boolean;
   }[];
+  pendingPlanId?: string | null;
 }) {
   const [state, action, pending] = useActionState(
     requestCheckout,
@@ -101,11 +103,16 @@ export function PlanCards({
               type="submit"
               disabled={pending || card.current}
             >
-              {card.current ? "Current plan" : "Subscribe"}
+              {card.current
+                ? "Current plan"
+                : card.id === pendingPlanId
+                  ? "Requested"
+                  : "Subscribe"}
             </button>
           </form>
         </div>
       ))}
+      {state.error ? <p className="pf__error">{state.error}</p> : null}
       {state.notice ? <p className="pf__banner">{state.notice}</p> : null}
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useMemo, useState } from "react";
 
 import { AgentPicker } from "@/components/features/builder/AgentPicker";
@@ -36,7 +37,14 @@ import {
 } from "@/lib/analyse/lenses";
 import type { BuilderPayload, HeldLot } from "@/lib/analyse/load-builder";
 import { canContinue, defaultModelId, groupModels, modelOnPlan } from "@/lib/analyse/models";
-import { ANALYSE_STEPS, analyseGuide, analyseStepsDone } from "@/lib/analyse/steps";
+import {
+  ANALYSE_STEPS,
+  analyseGuide,
+  analyseRailItemClass,
+  analyseStepsDone,
+  firstOpenStep,
+} from "@/lib/analyse/steps";
+import { analyseWaitHref } from "@/lib/analyse/in-flight";
 import { trancheSummary } from "@/lib/profile/tranches";
 import { usageCaption, usageHumanHint } from "@/lib/usage/format";
 import type { UsageSnapshot } from "@/lib/usage/types";
@@ -111,6 +119,13 @@ export function AnalyseWizard({
   const [addFunds, setAddFunds] = useState("");
   const [exitRule, setExitRule] = useState("");
   const [state, action, pending] = useActionState(acceptAnalysis, EMPTY_ACCEPT);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state.requestId) {
+      router.replace(analyseWaitHref(state.requestId));
+    }
+  }, [router, state.requestId]);
 
   useEffect(() => {
     if (payload.ticker) setTicker(payload.ticker);
@@ -147,6 +162,7 @@ export function AnalyseWizard({
     modelOnPlan: onPlan && Boolean(modelId),
   });
   const guide = analyseGuide(stepDone);
+  const currentStep = firstOpenStep(stepDone);
   const alloc = allocationPct(invested, portfolio);
   const kindSummary = picked.length
     ? picked.map((k) => LENS_COPY[k as keyof typeof LENS_COPY]?.label ?? k).join(" · ")
@@ -238,11 +254,10 @@ export function AnalyseWizard({
               <li key={s.id}>
                 <a
                   href={`#${s.id}`}
-                  className={
-                    stepDone[i]
-                      ? "bld__rail-item bld__rail-item--done"
-                      : "bld__rail-item"
-                  }
+                  className={analyseRailItemClass(
+                    Boolean(stepDone[i]),
+                    s.n === currentStep,
+                  )}
                 >
                   <span>Step {s.n}</span>
                   {s.title}
@@ -615,9 +630,9 @@ export function AnalyseWizard({
                     type="submit"
                     name="skip_clarify"
                     value="1"
-                    disabled={!ok || pending}
+                    disabled={!ok || pending || Boolean(state.requestId)}
                   >
-                    {pending ? "Queuing…" : "Submit for analysis"}
+                    {pending || state.requestId ? "Opening wait page…" : "Submit for analysis"}
                   </button>
                   <button
                     className="pf__ghost"
@@ -693,9 +708,9 @@ export function AnalyseWizard({
             />
           </label>
           <div className="bld__actions">
-            <button className="desk__btn" type="submit" disabled={pending || !ok}>
-              {pending
-                ? "Queuing…"
+            <button className="desk__btn" type="submit" disabled={pending || !ok || Boolean(state.requestId)}>
+              {pending || state.requestId
+                ? "Opening wait page…"
                 : `Run analysis · ${chosen ? modelCost(chosen.cost_cents_per_run) : ""}`}
             </button>
             <button
@@ -703,7 +718,7 @@ export function AnalyseWizard({
               type="submit"
               name="skip_clarify"
               value="1"
-              disabled={pending || !ok}
+              disabled={pending || !ok || Boolean(state.requestId)}
             >
               Skip — record assumptions
             </button>
@@ -718,7 +733,7 @@ export function AnalyseWizard({
           </div>
         </div>
       )}
-      {state.error ? <p className="pf__error">{state.error}</p> : null}
+      {state.error && !state.requestId ? <p className="pf__error">{state.error}</p> : null}
     </form>
   );
 }

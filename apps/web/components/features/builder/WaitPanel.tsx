@@ -111,7 +111,7 @@ export function WaitPanel({ initial }: { initial: QueuedRequest }) {
 
   return (
     <div className="bld__wait">
-      <p className="desk__kicker">Running</p>
+      <p className="desk__kicker">Progress is on this page</p>
       <h1 className="desk__h1">{row.ticker}</h1>
       <div className="bld__wait-card">
         <div className="bld__spin-row">

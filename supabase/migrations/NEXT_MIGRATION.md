@@ -6,9 +6,9 @@
 
 See `HANDOFF.md` §6.
 
-- **DEV** `cmksomahsfmsjufakryw`: **001–024**.
-- **PROD** `ndgvglcrkbygovlszxze`: **001–024** (024 on 2026-10-03). Maya seed not applied.
+- **DEV** `cmksomahsfmsjufakryw`: **001–025** (025 on 2026-10-04).
+- **PROD** `ndgvglcrkbygovlszxze`: **001–025** (025 on 2026-10-04). Maya seed not applied. `holdings` = 0.
 
 ## Next on DEV / PROD
 
-None in git after **024**. Further schema needs a new numbered file.
+None in git after **025**. Further schema needs a new numbered file.

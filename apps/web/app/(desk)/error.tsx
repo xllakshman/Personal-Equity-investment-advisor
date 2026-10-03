@@ -1,5 +1,7 @@
 "use client";
 
+import { unstable_rethrow } from "next/navigation";
+
 export default function DeskSegmentError({
   error,
   reset,
@@ -7,10 +9,7 @@ export default function DeskSegmentError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const digest = String(error?.digest ?? "");
-  if (digest.includes("NEXT_REDIRECT") || digest.includes("NEXT_NOT_FOUND")) {
-    throw error;
-  }
+  unstable_rethrow(error);
   return (
     <div>
       <h1 className="desk__h1">This page could not load</h1>

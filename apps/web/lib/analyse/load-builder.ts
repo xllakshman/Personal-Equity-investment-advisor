@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { tickerSearchTarget } from "@/lib/desk/ticker";
 import { assignNoteVersions } from "@/lib/reports/versions";
 import { isNativeProvider, type CatalogModel } from "./models";
-import { IN_FLIGHT_STATUSES, type InFlightAnalysis } from "./in-flight";
+import { type InFlightAnalysis } from "./in-flight";
+import { loadInFlightAnalysis } from "./load-inflight";
 
 export type HeldLot = {
   ticker: string;
@@ -147,14 +148,7 @@ export async function loadAnalyseBuilder(
     .eq("family_id", familyId)
     .maybeSingle();
 
-  const { data: busyRow } = await supabase
-    .from("analysis_requests")
-    .select("id, ticker, status")
-    .eq("family_id", familyId)
-    .in("status", [...IN_FLIGHT_STATUSES])
-    .order("accepted_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const busyRow = await loadInFlightAnalysis(familyId);
 
   const { data: reportRows } = await supabase
     .from("reports")
@@ -232,13 +226,7 @@ export async function loadAnalyseBuilder(
           tranche_t4_pct: Number(profile.tranche_t4_pct ?? 15),
         }
       : null,
-    inFlight: busyRow?.id
-      ? {
-          id: String(busyRow.id),
-          ticker: String(busyRow.ticker),
-          status: String(busyRow.status),
-        }
-      : null,
+    inFlight: busyRow,
     priorNotes,
     latestNote,
   };

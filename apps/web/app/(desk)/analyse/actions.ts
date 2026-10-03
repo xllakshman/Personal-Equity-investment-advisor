@@ -1,6 +1,6 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 import {
   clarificationsPayload,
@@ -8,12 +8,16 @@ import {
   validateAcceptFields,
 } from "@/lib/analyse/accept-fields";
 import { parseAcceptError } from "@/lib/analyse/errors";
-import { IN_FLIGHT_STATUSES } from "@/lib/analyse/in-flight";
+import { analyseWaitHref, IN_FLIGHT_STATUSES } from "@/lib/analyse/in-flight";
 import { requireDeskSession } from "@/lib/desk/session";
 import { createClient } from "@/lib/supabase/server";
 
-export type AcceptState = { error: string | null };
-export const EMPTY_ACCEPT: AcceptState = { error: null };
+export type AcceptState = { error: string | null; requestId: string | null };
+export const EMPTY_ACCEPT: AcceptState = { error: null, requestId: null };
+
+function acceptFail(error: string): AcceptState {
+  return { error, requestId: null };
+}
 
 export async function acceptAnalysis(
   _prev: AcceptState,
@@ -23,7 +27,7 @@ export async function acceptAnalysis(
   const fields = parseAcceptFields(formData);
   const fieldError = validateAcceptFields(fields);
   if (fieldError) {
-    return { error: fieldError };
+    return acceptFail(fieldError);
   }
   const taxSlab = String(formData.get("tax_slab") ?? "").trim() || null;
   const exchange = String(formData.get("exchange") ?? "").trim() || null;
@@ -50,7 +54,7 @@ export async function acceptAnalysis(
     .limit(1)
     .maybeSingle();
   if (busy?.id) {
-    return { error: parseAcceptError("THS-BUSY-001") };
+    return { error: parseAcceptError("THS-BUSY-001"), requestId: String(busy.id) };
   }
   const { data, error } = await supabase.rpc("thesis_accept_analysis", {
     p_ticker: fields.ticker,
@@ -73,11 +77,13 @@ export async function acceptAnalysis(
   });
 
   if (error) {
-    return { error: parseAcceptError(error.message ?? "") };
+    return acceptFail(parseAcceptError(error.message ?? ""));
   }
   const id = String(data ?? "");
   if (!id) {
-    return { error: "Could not queue the analysis." };
+    return acceptFail("Could not queue the analysis.");
   }
-  redirect(`/analyse/${id}`);
+  revalidatePath("/analyse");
+  revalidatePath(analyseWaitHref(id));
+  return { error: null, requestId: id };
 }

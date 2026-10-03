@@ -35,7 +35,7 @@ export function waitLede(status: string): string {
   if (status === "failed" || status === "rejected") {
     return "This run did not finish. Saved notes are unchanged.";
   }
-  return "Stay on this page to watch progress. You can leave — the note still appears under Reports when it is ready. A second Submit on Analyse is blocked until this run finishes.";
+  return "This page is the progress view after Submit. The bar and the five steps update as the worker writes analysis_requests.status. Reports stays empty until status is ready.";
 }
 
 export function waitProgressPct(status: string): number {

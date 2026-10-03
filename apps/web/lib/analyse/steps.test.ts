@@ -1,10 +1,15 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { analyseGuide, analyseStepsDone, firstOpenStep } from "./steps";
+import {
+  analyseGuide,
+  analyseRailItemClass,
+  analyseStepsDone,
+  firstOpenStep,
+} from "./steps";
 
 describe("analyseStepsDone", () => {
-  it("starts at stock when the ticker is empty", () => {
+  it("greens checks, risk, tax, and agent as soon as those fields are set", () => {
     const done = analyseStepsDone({
       hasTicker: false,
       lensCount: 2,
@@ -12,9 +17,12 @@ describe("analyseStepsDone", () => {
       hasTaxResidency: true,
       modelOnPlan: true,
     });
-    assert.deepEqual(done, [false, false, false, false, false, false]);
+    assert.deepEqual(done, [false, true, false, true, true, true]);
     assert.equal(firstOpenStep(done), 1);
     assert.match(analyseGuide(done), /Step 1/);
+    assert.equal(analyseRailItemClass(true, false), "bld__rail-item bld__rail-item--done");
+    assert.equal(analyseRailItemClass(false, true), "bld__rail-item bld__rail-item--cur");
+    assert.equal(analyseRailItemClass(true, true), "bld__rail-item bld__rail-item--done");
   });
 
   it("asks for a check after a ticker is set", () => {

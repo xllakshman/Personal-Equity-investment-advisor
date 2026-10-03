@@ -32,12 +32,26 @@ export default async function BillingPage() {
     why: String(p.why_copy ?? ""),
     current: snap.planSlug === String(p.slug),
   }));
+  const { data: pendingInvoice } = await supabase
+    .from("invoices")
+    .select("plan_id")
+    .eq("family_id", session.familyId)
+    .eq("status", "pending")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const pendingPlanId = pendingInvoice?.plan_id ? String(pendingInvoice.plan_id) : null;
+  const pendingTitle = pendingPlanId
+    ? (cards.find((c) => c.id === pendingPlanId)?.title ?? null)
+    : null;
 
   return (
     <div>
       <h1 className="desk__h1">Subscription</h1>
       <p className="desk__lede">
-        Your plan, analyses this month, and wallet. Choose how to pay below.
+        Your plan, analyses this month, and wallet. Subscribe saves a request and
+        emails the operator. The plan on this page does not change until they
+        Activate it. Pay UPI to the VPA below.
       </p>
 
       <section className="desk__card desk__current-plan" style={{ marginTop: 22 }}>
@@ -67,6 +81,12 @@ export default async function BillingPage() {
           <p className="desk__kpi-s">Pay-as-you-go balance. It does not expire.</p>
         </div>
       </div>
+      {pendingTitle ? (
+        <p className="pf__banner" style={{ marginTop: 16 }}>
+          Requested {pendingTitle}. Pay the UPI VPA below. This page still shows
+          your current plan until Admin → Accounts Activate.
+        </p>
+      ) : null}
       {snap.exhausted ? (
         <p className="pf__banner" style={{ marginTop: 16 }}>
           Allowance used up. Saved notes stay readable. New runs are blocked until
@@ -91,7 +111,7 @@ export default async function BillingPage() {
       {session.memberRole === "owner" ? (
         <WeeklyDigestToggle optedIn={Boolean(family?.weekly_digest_opt_in)} />
       ) : null}
-      <PlanCards cards={cards} />
+      <PlanCards cards={cards} pendingPlanId={pendingPlanId} />
     </div>
   );
 }

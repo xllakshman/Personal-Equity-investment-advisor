@@ -21,12 +21,12 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 | Field | Value |
 |-------|--------|
 | **Build next** | **P10-02** — FastAPI + worker on the named droplet |
-| Last done | Admin Plans class editor; entry tranches on `/portfolio`; Analyse wait progress; one Submit (`024`). **024** applied DEV+PROD 2026-10-03. |
+| Last done | Admin Plans class editor; entry tranches on `/portfolio`; Analyse wait progress; one Submit (`024`). Operator Subscribe → email + `/admin/accounts` Activate (`025`). **024–025** applied DEV+PROD 2026-10-04. |
 | Blocked on you | P10-02 droplet worker (Submit on prod stays queued until it runs). P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
-| DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–024** applied |
-| PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — **001–024 applied 2026-10-03**. `holdings` = 0. Maya seed not run. |
+| DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–025** applied |
+| PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — **001–025 applied 2026-10-04**. `holdings` = 0. Maya seed not run. |
 | PROD web | **`https://eqveste.com`** — Vercel `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`. Next.js only. |
 
 ---
@@ -555,7 +555,7 @@ Allowances are `plans` / `plan_notice_thresholds` rows. 100% blocks new **model*
 - **Writes:** none until un-skipped.
 - **Reads:** `plans` for display only.
 - **Who:** family sees placeholder; operator later.
-- **UI today:** CheckoutModal in mock only.
+- **UI today:** `/billing` Subscribe inserts `invoices` (`status = pending`, `provider = upi`). It does **not** change `families.plan_id`. Resend emails `lakshmaneluri@gmail.com`. `/admin/accounts` Activate/Deactivate calls `thesis_admin_set_family_plan` after **025**. Merchant collect still unnamed.
 - **Success:** Until un-skipped: Maya cannot complete a payment; SQL `invoices` count unchanged after clicking Pay.
 
 ---

@@ -27,7 +27,7 @@ describe("wait panel vs request status", () => {
     assert.equal(waitHeadline("failed"), "failed");
     assert.equal(waitHeadline("rejected"), "failed");
     assert.equal(waitStatusLabel("queued"), "In progress");
-    assert.match(waitLede("queued"), /Stay on this page/);
+    assert.match(waitLede("queued"), /progress view after Submit/);
     assert.match(waitLede("ready"), /note is ready/i);
     assert.match(waitLede("failed"), /did not finish/);
   });

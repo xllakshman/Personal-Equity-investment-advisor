@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# P10-01: set Vercel Production env from .env.prod (anon URL+key only) and deploy apps/web.
+# P10-01/P10-02: set Vercel Production env from .env.prod (anon URL+key, Resend,
+# ANALYSIS_API_URL → api.eqveste.com) and deploy apps/web.
 # Never sets SUPABASE_SERVICE_KEY, SUPABASE_DB_PASSWORD, or lab LLM keys.
 # Usage after you name prod: ./tools/deploy/vercel_prod.sh
 set -euo pipefail
@@ -60,6 +61,9 @@ if [[ -n "${RESEND}" ]]; then
   echo "Setting Production RESEND_API_KEY (server, not NEXT_PUBLIC)."
   printf '%s' "${RESEND%%$'\r'}" | vercel env add RESEND_API_KEY production --force >/dev/null
 fi
+
+echo "Setting Production ANALYSIS_API_URL (server → droplet; not NEXT_PUBLIC)."
+printf '%s' "https://api.eqveste.com" | vercel env add ANALYSIS_API_URL production --force >/dev/null
 
 echo "Deploying Production (root apps/web)."
 vercel deploy --prod --yes --local-config "${WEB}/vercel.json" 2>/dev/null || vercel deploy --prod --yes

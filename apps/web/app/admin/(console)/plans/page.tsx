@@ -6,6 +6,9 @@ import { requirePlatformAdmin } from "@/lib/admin/session";
 import { isNativeProvider } from "@/lib/analyse/models";
 import { createClient } from "@/lib/supabase/server";
 
+/** Fetch latest models POSTs to the droplet and waits on four lab lists. */
+export const maxDuration = 60;
+
 export default async function AdminPlansPage() {
   await requirePlatformAdmin();
   const supabase = await createClient();
