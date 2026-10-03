@@ -13,7 +13,7 @@ grant select, insert, update on prompt_versions to authenticated;
 grant select, insert on prompt_version_approvals to authenticated;
 
 create or replace view prompt_versions_meta as
-select id, semver, role, submitted_by, promoted_at, promoted_by, superseded_at, created_at
+select id, semver, submitted_by, promoted_at, promoted_by, superseded_at, created_at, role
 from prompt_versions;
 
 grant select on prompt_versions_meta to authenticated;
