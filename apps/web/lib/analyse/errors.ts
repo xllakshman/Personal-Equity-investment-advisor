@@ -22,8 +22,14 @@ export function parseAcceptError(message: string): string {
   if (m.includes("THS-QUOTA-001")) {
     return "You have used this month’s notes. Saved notes stay readable.";
   }
+  if (m.includes("THS-TICKER-001")) {
+    return "Enter a ticker. No analysis was counted.";
+  }
+  if (m.includes("THS-AUTH-001")) {
+    return "Viewers can read notes but cannot start an analysis.";
+  }
   if (m.includes("THS-HOLDING-001")) {
-    return "That stock is not in your portfolio yet. Add it on Portfolio first. No analysis was counted.";
+    return "This database still requires the ticker on your book. No analysis was counted. Owner/admin must apply supabase/migrations/021_analyse_without_holding.sql with CONFIRM_APPLY=1 on the named project.";
   }
   if (m.includes("THS-LENS-001")) {
     return "Pick at least one check.";

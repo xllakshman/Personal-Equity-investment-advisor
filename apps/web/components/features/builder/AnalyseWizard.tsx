@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useActionState, useEffect, useMemo, useState } from "react";
 
 import { acceptAnalysis, EMPTY_ACCEPT } from "@/app/(desk)/analyse/actions";
+import { guessExchange } from "@/lib/portfolio/exchange";
+import { normalizeTicker } from "@/lib/desk/ticker";
 import {
   CAGR_BANDS,
   CONFLICT_MSG,
@@ -63,9 +65,11 @@ function pickHeld(holdings: HeldLot[], ticker: string): HeldLot | null {
 export function AnalyseWizard({
   payload,
   usage,
+  canWrite = true,
 }: {
   payload: BuilderPayload;
   usage: UsageSnapshot;
+  canWrite?: boolean;
 }) {
   const [step, setStep] = useState<"build" | "clarify">("build");
   const [lenses, setLenses] = useState<LensState>({
@@ -76,10 +80,9 @@ export function AnalyseWizard({
     tax: false,
   });
   const [lensOpen, setLensOpen] = useState(false);
-  const [ticker, setTicker] = useState(() => {
-    if (payload.held) return payload.ticker;
-    return payload.holdings[0]?.ticker ?? "";
-  });
+  const [ticker, setTicker] = useState(
+    () => payload.ticker || payload.holdings[0]?.ticker || "",
+  );
   const held = pickHeld(payload.holdings, ticker);
   const [qty, setQty] = useState(held?.qty ?? 0);
   const [cost, setCost] = useState(held?.cost_per_share ?? 0);
@@ -117,12 +120,12 @@ export function AnalyseWizard({
   const slack = hasRiskCagrSlack(risk, cagr);
   const onPlan = modelId ? modelAllowed(modelId, payload.allowedModelIds) : false;
   const ok = canContinue({
-    held: Boolean(held),
+    hasTicker: Boolean(normalizeTicker(ticker)),
     lensCount: picked.length,
     conflict,
     modelId,
     modelOnPlan: onPlan,
-  });
+  }) && canWrite;
   const groups = groupModels(payload.models);
   const chosen = payload.models.find((m) => m.id === modelId) ?? null;
   const alloc = allocationPct(invested, portfolio);
@@ -133,16 +136,16 @@ export function AnalyseWizard({
     (m) => !modelAllowed(m.id, payload.allowedModelIds),
   );
   const upgradeNudge = Boolean(chosen && chosen.thesis_class !== "frontier" && lockedFrontier);
-  const emptyBook = payload.holdings.length === 0;
+  const exchange = held?.exchange || guessExchange(ticker);
 
   const runNote = useMemo(() => {
-    if (emptyBook) return "Add a stock on Portfolio before you run a note.";
-    if (!held) return "Pick a stock from your portfolio.";
+    if (!canWrite) return "Viewers can read notes but cannot start an analysis.";
+    if (!normalizeTicker(ticker)) return "Enter a ticker, or pick one from your book.";
     if (conflict) return "Fix the risk and return mismatch to continue";
     if (picked.length === 0) return "Pick at least one check";
     if (!onPlan || !modelId) return "This model needs a higher plan";
     return `Runs on ${chosen?.label ?? modelId} · uses 1 note, or ${modelCost(chosen?.cost_cents_per_run ?? 0)}`;
-  }, [emptyBook, held, conflict, picked.length, onPlan, modelId, chosen]);
+  }, [canWrite, ticker, conflict, picked.length, onPlan, modelId, chosen]);
 
   function setResidency(next: string) {
     setTaxResidency(next);
@@ -160,8 +163,8 @@ export function AnalyseWizard({
 
   return (
     <form className="bld" action={action}>
-      <input type="hidden" name="ticker" value={ticker} />
-      <input type="hidden" name="exchange" value={held?.exchange ?? ""} />
+      <input type="hidden" name="ticker" value={normalizeTicker(ticker)} />
+      <input type="hidden" name="exchange" value={exchange} />
       <input type="hidden" name="invested_currency" value={currency} />
       <input type="hidden" name="invested_amount" value={String(invested)} />
       <input type="hidden" name="portfolio_size" value={String(portfolio)} />
@@ -192,56 +195,52 @@ export function AnalyseWizard({
             </div>
           </div>
           <p className="desk__lede">
-            Filled from your profile and portfolio. Change anything before you run.
-            One stock at a time — add unknown names on Portfolio first.
+            Type any ticker, or pick a name from your book. A holding fills qty and
+            cost; you can still change the numbers for this run. Each run uses one
+            note from this month’s allowance.
           </p>
 
-          {emptyBook ? (
-            <div className="desk__card" style={{ margin: "18px 0 0" }}>
-              <h2 className="bld__h2">No stocks in your book yet</h2>
-              <p className="desk__lede">
-                Analyse only runs for a name you already hold. Upload a CSV or add a
-                position, then come back here.
-              </p>
-              <p style={{ marginTop: 14 }}>
-                <Link href="/portfolio" className="desk__btn">
-                  Go to Portfolio
-                </Link>
-              </p>
-            </div>
-          ) : null}
-
-          {payload.ticker && !payload.held && !emptyBook ? (
-            <p className="pf__banner">
-              {payload.ticker} is not in your portfolio.{" "}
-              <Link href={`/portfolio?add=${encodeURIComponent(payload.ticker)}`}>
-                Add it on Portfolio
-              </Link>{" "}
-              first, or pick a name you already hold.
-            </p>
-          ) : null}
-
-          {!emptyBook ? (
-            <div className="bld__grid" style={{ marginTop: 18 }}>
+          <div className="bld__grid" style={{ marginTop: 18 }}>
               <div className="bld__col">
                 <section className="pf__card">
                   <h2 className="bld__h2">Stock to research</h2>
-                  <p className="pf__lede">One name from your portfolio.</p>
+                  <p className="pf__lede">Your own ticker or a name you already hold.</p>
                   <label className="pf__label">
-                    Stock
-                    <select
+                    Ticker
+                    <input
                       className="pf__input"
                       value={ticker}
-                      onChange={(e) => setTicker(e.target.value)}
-                    >
-                      {payload.holdings.map((h) => (
-                        <option key={`${h.ticker}-${h.exchange}`} value={h.ticker}>
-                          {h.ticker}
-                          {h.company_name ? ` · ${h.company_name}` : ""}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(e) => setTicker(e.target.value.toUpperCase())}
+                      placeholder="MSFT, TSM, HDFCBANK…"
+                      autoCapitalize="characters"
+                      autoComplete="off"
+                    />
                   </label>
+                  {payload.holdings.length > 0 ? (
+                    <label className="pf__label">
+                      From your book
+                      <select
+                        className="pf__input"
+                        value={held ? ticker : ""}
+                        onChange={(e) => {
+                          if (e.target.value) setTicker(e.target.value);
+                        }}
+                      >
+                        <option value="">Type a ticker above, or pick a holding</option>
+                        {payload.holdings.map((h) => (
+                          <option key={`${h.ticker}-${h.exchange}`} value={h.ticker}>
+                            {h.ticker}
+                            {h.company_name ? ` · ${h.company_name}` : ""}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  ) : (
+                    <p className="pf__lede">
+                      No lots yet. You can still run a note; add holdings on Home if
+                      you want size and cost in the pack.
+                    </p>
+                  )}
                 </section>
 
                 <section className="pf__card">
@@ -294,8 +293,8 @@ export function AnalyseWizard({
                 <section className="pf__card">
                   <h2 className="bld__h2">Your position</h2>
                   <p className="pf__lede">
-                    Loaded from the selected holding. You can edit the numbers for this
-                    run without changing your book.
+                    If this ticker is in your book, qty and cost are filled. Change
+                    them for this run only — that does not edit lots on Home.
                   </p>
                   <div className="bld__pos">
                     <label className="pf__label">
@@ -589,7 +588,6 @@ export function AnalyseWizard({
                 </section>
               </aside>
             </div>
-          ) : null}
         </>
       ) : (
         <div className="bld__clarify">
@@ -602,8 +600,9 @@ export function AnalyseWizard({
           </p>
           <label className="pf__card bld__q">
             <p>
-              You already hold {alloc.toFixed(1)}% of your book in {ticker}. Is this a
-              conviction position or a legacy one?
+              {held
+                ? `You already hold ${alloc.toFixed(1)}% of your book in ${normalizeTicker(ticker) || "this ticker"}. Is this a conviction position or a legacy one?`
+                : `${normalizeTicker(ticker) || "This ticker"} is not in your book yet. Are you starting a position, or researching only?`}
             </p>
             <span>Decides whether the note argues for adding or cutting back.</span>
             <input

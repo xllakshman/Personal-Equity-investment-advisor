@@ -48,7 +48,7 @@ export function parseAcceptFields(form: {
 /** Client-side enum/empty guards. RPC still enforces THS-* on insert. */
 export function validateAcceptFields(fields: AcceptFields): string | null {
   if (!fields.ticker) {
-    return "That stock is not in your portfolio yet. Add it on Portfolio first.";
+    return "Enter a ticker.";
   }
   if (
     !INTENTS.has(fields.intent) ||

@@ -3,7 +3,9 @@ import Link from "next/link";
 import type { DeskHome } from "@/lib/desk/load-home";
 import { analysesThisCycleCaption } from "@/lib/desk/usage-meter";
 import { RecheckForm } from "@/components/features/desk/RecheckForm";
+import { HomeBook } from "@/components/features/desk/HomeBook";
 import { firstName } from "@/lib/desk/session";
+import type { HoldingLotRow } from "@/lib/portfolio/load";
 
 function money(amount: number, ccy: string): string {
   if (ccy === "mixed") return amount.toFixed(0);
@@ -22,10 +24,16 @@ export function DeskHomeView({
   home,
   fullName,
   todayLabel,
+  lots,
+  canWrite,
+  notice,
 }: {
   home: DeskHome;
   fullName: string;
   todayLabel: string;
+  lots: HoldingLotRow[];
+  canWrite: boolean;
+  notice: string | null;
 }) {
   const analysesLabel =
     home.analysisLimit != null
@@ -73,7 +81,7 @@ export function DeskHomeView({
         <div className="desk__card">
           <h2>Allocation</h2>
           {home.holdings.length === 0 ? (
-            <p className="desk__kpi-s">No lots yet. Upload a CSV on Portfolio.</p>
+            <p className="desk__kpi-s">No lots yet. Add a stock below, or upload a CSV on Portfolio.</p>
           ) : (
             home.holdings.map((h) => (
               <div className="desk__bar" key={h.ticker}>
@@ -109,7 +117,7 @@ export function DeskHomeView({
             <p className="desk__kpi-s">No saved notes yet.</p>
           ) : (
             home.recentNotes.map((r) => (
-              <div className="desk__note" key={r.id}>
+              <Link className="desk__note" href={`/reports/${r.id}`} key={r.id}>
                 <span
                   style={{
                     font: "500 12px/1 Calibri, Carlito, sans-serif",
@@ -121,22 +129,25 @@ export function DeskHomeView({
                 </span>
                 <span style={{ flex: 1, minWidth: 0 }}>{r.name}</span>
                 <span className="desk__kpi-s">{r.verdict}</span>
-              </div>
+              </Link>
             ))
           )}
         </div>
       </div>
+      {notice ? <p className="pf__banner" style={{ marginTop: 16 }}>{notice}</p> : null}
+      <HomeBook lots={lots} canWrite={canWrite} />
       <div className="desk__cta">
         <div style={{ flex: 1, minWidth: 240 }}>
           <p style={{ margin: "0 0 5px", fontWeight: 600 }}>
-            Your holdings change the advice
+            CSV upload still lives on Portfolio
           </p>
           <p style={{ color: "#5c6578", fontSize: 12.5, lineHeight: 1.6 }}>
-            Upload ticker, company, cost, and quantity purchased. Analyse only runs
-            for names already in your book.
+            Use Portfolio for a bulk file. Tickers you type on Analyse do not have
+            to be in this book. Both paths use one note from this month’s
+            allowance. Viewers can open saved notes on Reports.
           </p>
         </div>
-        <Link href="/portfolio">Upload portfolio</Link>
+        <Link href="/portfolio">Upload CSV</Link>
       </div>
       <RecheckForm tickers={home.holdings.map((h) => h.ticker)} />
       <p className="desk__lede" style={{ marginTop: 18 }}>

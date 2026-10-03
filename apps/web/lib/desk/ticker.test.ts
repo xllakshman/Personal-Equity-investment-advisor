@@ -3,23 +3,18 @@ import { describe, it } from "node:test";
 
 import { tickerSearchHref, tickerSearchTarget } from "./ticker";
 
-const MAYA = ["MSFT", "TSM", "UNH", "HDFCBANK", "BRK.B"];
-
 describe("tickerSearchTarget", () => {
   it("does nothing on empty or whitespace", () => {
-    assert.deepEqual(tickerSearchTarget("  ", MAYA), { kind: "empty" });
+    assert.deepEqual(tickerSearchTarget("  "), { kind: "empty" });
     assert.equal(tickerSearchHref({ kind: "empty" }), null);
   });
 
-  it("uppercases a held ticker onto /analyse", () => {
-    const t = tickerSearchTarget("tsm", MAYA);
-    assert.deepEqual(t, { kind: "analyse", ticker: "TSM" });
-    assert.equal(tickerSearchHref(t), "/analyse?ticker=TSM");
-  });
-
-  it("sends an unknown ticker to /portfolio?add=", () => {
-    const t = tickerSearchTarget("zzzz", MAYA);
-    assert.deepEqual(t, { kind: "add", ticker: "ZZZZ" });
-    assert.equal(tickerSearchHref(t), "/portfolio?add=ZZZZ");
+  it("uppercases a ticker onto /analyse whether or not it is held", () => {
+    const held = tickerSearchTarget("tsm");
+    assert.deepEqual(held, { kind: "analyse", ticker: "TSM" });
+    assert.equal(tickerSearchHref(held), "/analyse?ticker=TSM");
+    const unknown = tickerSearchTarget("zzzz");
+    assert.deepEqual(unknown, { kind: "analyse", ticker: "ZZZZ" });
+    assert.equal(tickerSearchHref(unknown), "/analyse?ticker=ZZZZ");
   });
 });

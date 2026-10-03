@@ -18,12 +18,22 @@ describe("parseAcceptError", () => {
     );
   });
 
-  it("maps THS-HOLDING-001 and does not mention a queued row", () => {
-    const msg = parseAcceptError(
+  it("maps THS-TICKER-001 and THS-HOLDING-001 without a queued row", () => {
+    const empty = parseAcceptError("THS-TICKER-001 ticker is required");
+    assert.match(empty, /Enter a ticker/);
+    assert.match(empty, /No analysis was counted/);
+    const oldGate = parseAcceptError(
       "THS-HOLDING-001 ticker is not on holdings for this family",
     );
-    assert.match(msg, /not in your portfolio/);
-    assert.match(msg, /No analysis was counted/);
+    assert.match(oldGate, /021/);
+    assert.match(oldGate, /No analysis was counted/);
+  });
+
+  it("maps THS-AUTH-001 for viewers", () => {
+    assert.match(
+      parseAcceptError("THS-AUTH-001 no writable family"),
+      /Viewers can read notes/,
+    );
   });
 
   it("maps THS-LENS-001, empty, and unknown messages", () => {

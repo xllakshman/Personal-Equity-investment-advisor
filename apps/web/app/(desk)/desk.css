@@ -418,6 +418,17 @@
   font: 600 13px/1 var(--desk-ui);
 }
 
+.desk__lot-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.desk__lot-actions form {
+  margin: 0;
+}
+
 @media (max-width: 720px) {
   .desk__body {
     grid-template-columns: 1fr;

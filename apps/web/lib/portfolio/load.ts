@@ -15,6 +15,16 @@ export type RejectedImport = {
   created_at: string;
 };
 
+export type HoldingLotRow = {
+  id: string;
+  ticker: string;
+  company_name: string | null;
+  exchange: string;
+  qty: number;
+  cost_per_share: number;
+  native_currency: string;
+};
+
 export async function loadPortfolioSettings(
   familyId: string,
 ): Promise<PortfolioSettings> {
@@ -79,5 +89,26 @@ export async function loadRecentRejected(
     ticker: r.ticker ? String(r.ticker) : null,
     reject_reason: r.reject_reason ? String(r.reject_reason) : null,
     created_at: String(r.created_at),
+  }));
+}
+
+export async function loadHoldingLots(
+  familyId: string,
+): Promise<HoldingLotRow[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("holding_lots")
+    .select("id, ticker, company_name, exchange, qty, cost_per_share, native_currency")
+    .eq("family_id", familyId)
+    .order("ticker");
+
+  return (data ?? []).map((h) => ({
+    id: String(h.id),
+    ticker: String(h.ticker),
+    company_name: h.company_name ? String(h.company_name) : null,
+    exchange: String(h.exchange ?? ""),
+    qty: Number(h.qty ?? 0),
+    cost_per_share: Number(h.cost_per_share ?? 0),
+    native_currency: String(h.native_currency ?? "USD"),
   }));
 }

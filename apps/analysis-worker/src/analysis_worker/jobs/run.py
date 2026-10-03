@@ -12,7 +12,7 @@ from thesis_platform.yahoo import YahooError
 
 from analysis_worker.jobs.claim import claim_queued, mark_failed, set_status
 from analysis_worker.jobs.complete import complete_request
-from analysis_worker.jobs.gather import gather_step0, ticker_is_held
+from analysis_worker.jobs.gather import gather_step0
 from analysis_worker.jobs.pdf import attach_pdf
 
 
@@ -35,8 +35,6 @@ def process_one(
         return None
     rid = request["id"]
     try:
-        if not ticker_is_held(conn, request["family_id"], str(request["ticker"])):
-            raise YahooError("THS-HOLDING-001 ticker is not on holdings for this family")
         gather_step0(conn, settings, request, fetch_close=fetch_close)
         set_status(conn, rid, "drafting")
         report_id = complete_request(

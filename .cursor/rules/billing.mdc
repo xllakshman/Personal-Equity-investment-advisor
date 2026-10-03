@@ -20,7 +20,7 @@ At 100% new **model** calls stop. Saved notes stay readable. Trial sample notes 
 
 **Confirm before spend (D28):** Analyse, Refine, refine **gate**, and holdings Re-check must show ticker count (when N>1), model, and searches or wallet USD **before** the provider is called. Login and `/desk` load never insert `usage_events` for search/refine/`refine_gate`/`weekly_digest`. Weekly digest enable on `/billing` names the Quick model and that it does **not** use Analyse searches (D41).
 
-**Holdings gate (D33):** `POST /analysis` / `thesis_accept_analysis` requires a `holdings` row for that ticker + `family_id`. Header search does not enqueue. Add the name on `/portfolio` first.
+**Holdings optional (D33):** `thesis_accept_analysis` queues any non-empty ticker. Header search does not enqueue; it opens `/analyse?ticker=…`. Lots on `/desk` or `/portfolio` are optional context. Viewer cannot call the RPC; they can SELECT `reports`.
 
 **Native labs (D39):** worker `usage_events.cost_cents` prefers lab response usage when present; else `model_catalog.cost_cents_per_run`. Confirm UI still shows catalog cost **before** send.
 

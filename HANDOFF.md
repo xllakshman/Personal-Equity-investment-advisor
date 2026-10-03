@@ -26,7 +26,7 @@
 | Maya seed | ✅ `maya@thesis.demo` · 5 lots · 2 reports (1 sample) |
 | Storage bucket `report-pdfs` | ✅ private |
 | Analysis API / worker | ✅ 2026-09-14 — `apps/analysis-api` :8091, `apps/analysis-worker`; Docker compose in `infra/docker` |
-| Next.js desk | ✅ 2026-09-15 — Authenticated UI restyle (no black fills, human copy). Home / Analyse a Stock / Subscription. **020** intended investment. |
+| Next.js desk | ✅ 2026-10-03 — Analyse without a holding (D33). Home `/desk` add/edit/delete `holding_lots`. Viewers read `reports`. **021** in git; apply when named. |
 | Prod schema | ✅ 2026-09-15 — **001–019** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. |
 | Prod Vercel | 🟡 2026-09-15 — Production anon env + deploy on `equity-investment-advisor-prod.vercel.app`. `eqveste.com` DNS not pointing (404 OpenResty). |
 | Tests | ✅ unit + web tests for 4–9. Live two-JWT CI still skips without a second family JWT. |
@@ -153,7 +153,7 @@ Taken from `Thesis.dc.html` Architecture & handoff + non-negotiables. Change onl
 | D30 | Model output charts are allowlisted jsonb (`line`, `bar`, `table`, `waterfall`) only. Never execute HTML or `<script>` from the model (P5-04). |
 | D31 | Five plan rows: Trial, Basic, Professional, Professional + (`premium`), Ultra (`ultra`). Admin edits X searches per plan on `/admin/plans` (P7-01). |
 | D32 | Admin observability v1 = Overview + Watch limits + APIs + Latency + Who used which product + **Customer Feedback (P7-10)**. No MCP tab. No red-watch email until P7-09 is un-skipped. |
-| D33 | Analyse only for a ticker already on view `holdings` for that `family_id`. Header search does not enqueue. Add the name on `/portfolio` first (`THS-HOLDING-001`). |
+| D33 | Analyse may run for any ticker the owner/member types on `/analyse`, or for a name already on view `holdings`. Header search does **not** enqueue; it opens `/analyse?ticker=MSFT`. `POST` is `thesis_accept_analysis`, which inserts `analysis_requests` (`status = queued`) and `usage_events.kind = search`. Viewer (`member_role = viewer`) cannot execute the RPC; they **SELECT** `reports` (and in-progress `analysis_requests`) via `user_can_read_family`. Empty ticker is `THS-TICKER-001`. Portfolio lots are optional context for the variable pack. Migration **021** removes the old `THS-HOLDING-001` gate. |
 | D34 | Refine user text is variable-pack **enrichment**. Cheap `refine_gate` first; if `material` is false, **Do you want to proceed?** Full refine uses the report’s Analyse model and is a second billed call. Original `reports` plus each `refinements` row stay readable. |
 | D35 | Git promotion is local commit → named **dev** push → named **prod**. Agents may ask; they must not push/deploy without the user naming that target this turn. See `.cursor/rules/git-deploy.mdc`. |
 | D36 | Analyse/refine **use the selected catalog row**. Never swap to a cheaper model. Picker groups `thesis_class` **frontier** vs **quick**; `vendor_class` is the lab’s own label. Catalog: [`docs/architecture/MODEL-CATALOG.md`](docs/architecture/MODEL-CATALOG.md). **009 applied** on DEV 2026-09-13. |
@@ -326,7 +326,7 @@ See `.cursor/rules/web-ui-maintenance.mdc`. Marketing vs desk palettes must not 
 
 ## 18. Next steps
 
-Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P10-02** droplet. Worker LLM is native labs (D39). **019** applied on DEV and PROD. Paste lab keys in local `.env` for port **3100** worker (prod `.env.prod` already has all four). Never put lab keys on Vercel. `/analyse` wait panel stays `queued` on prod until the droplet worker runs. Local **3100** stays DEV.
+Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P10-02** droplet. **021** (Analyse without a holding) is in git; it does not run until you name the file + DEV or **prod** + `CONFIRM_APPLY=1`. Worker LLM is native labs (D39). **019** applied on DEV and PROD. Paste lab keys in local `.env` for port **3100** worker (prod `.env.prod` already has all four). Never put lab keys on Vercel. `/analyse` wait panel stays `queued` on prod until the droplet worker runs. Local **3100** stays DEV.
 
 ---
 

@@ -44,14 +44,14 @@ export function defaultModelId(
 }
 
 export function canContinue(opts: {
-  held: boolean;
+  hasTicker: boolean;
   lensCount: number;
   conflict: boolean;
   modelId: string | null;
   modelOnPlan: boolean;
 }): boolean {
   return (
-    opts.held &&
+    opts.hasTicker &&
     opts.lensCount > 0 &&
     !opts.conflict &&
     Boolean(opts.modelId) &&

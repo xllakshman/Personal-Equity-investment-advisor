@@ -4,7 +4,13 @@ import { useActionState } from "react";
 
 import { addManualLot, EMPTY_PORTFOLIO_STATE } from "@/app/(desk)/portfolio/actions";
 
-export function ManualAddForm({ presetTicker }: { presetTicker: string }) {
+export function ManualAddForm({
+  presetTicker,
+  returnTo = "/portfolio",
+}: {
+  presetTicker: string;
+  returnTo?: string;
+}) {
   const [state, action, pending] = useActionState(addManualLot, EMPTY_PORTFOLIO_STATE);
 
   return (
@@ -12,11 +18,12 @@ export function ManualAddForm({ presetTicker }: { presetTicker: string }) {
       <p className="pf__card-title">Or enter manually</p>
       {presetTicker ? (
         <p className="pf__lede">
-          Header search found no matching position for {presetTicker}. Add a lot here,
-          then open Analyse a Stock.
+          Header search opened Analyse for unknown names. Adding {presetTicker} here
+          is optional — it fills qty and cost on the next run.
         </p>
       ) : null}
       <form className="pf__stack" action={action}>
+        <input type="hidden" name="returnTo" value={returnTo} />
         <input
           className="pf__input"
           name="ticker"

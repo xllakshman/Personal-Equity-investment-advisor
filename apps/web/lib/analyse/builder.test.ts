@@ -128,10 +128,10 @@ describe("model picker", () => {
     assert.equal(28 * 402.5, 11270);
   });
 
-  it("disables Continue when ticker is not held or pair conflicts", () => {
+  it("disables Continue when ticker is empty or pair conflicts", () => {
     assert.equal(
       canContinue({
-        held: true,
+        hasTicker: true,
         lensCount: 2,
         conflict: false,
         modelId: "opus5",
@@ -141,7 +141,7 @@ describe("model picker", () => {
     );
     assert.equal(
       canContinue({
-        held: false,
+        hasTicker: false,
         lensCount: 2,
         conflict: false,
         modelId: "opus5",
@@ -151,7 +151,7 @@ describe("model picker", () => {
     );
     assert.equal(
       canContinue({
-        held: true,
+        hasTicker: true,
         lensCount: 2,
         conflict: true,
         modelId: "opus5",
@@ -161,7 +161,7 @@ describe("model picker", () => {
     );
     assert.equal(
       canContinue({
-        held: true,
+        hasTicker: true,
         lensCount: 0,
         conflict: false,
         modelId: "opus5",
@@ -171,7 +171,7 @@ describe("model picker", () => {
     );
     assert.equal(
       canContinue({
-        held: true,
+        hasTicker: true,
         lensCount: 2,
         conflict: false,
         modelId: "opus5",
@@ -181,7 +181,7 @@ describe("model picker", () => {
     );
     assert.equal(
       canContinue({
-        held: true,
+        hasTicker: true,
         lensCount: 2,
         conflict: false,
         modelId: null,

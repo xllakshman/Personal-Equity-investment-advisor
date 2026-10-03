@@ -28,7 +28,6 @@ def test_empty_yahoo_marks_failed() -> None:
     }
     with (
         patch("analysis_worker.jobs.run.claim_queued", return_value=request),
-        patch("analysis_worker.jobs.run.ticker_is_held", return_value=True),
         patch(
             "analysis_worker.jobs.run.gather_step0",
             side_effect=YahooError("empty yahoo chart"),
@@ -60,7 +59,7 @@ def test_claim_quota_reject_does_not_complete() -> None:
         failed.assert_not_called()
 
 
-def test_unheld_ticker_does_not_complete() -> None:
+def test_unheld_ticker_still_gathers() -> None:
     conn = MagicMock()
     request = {
         "id": "aaaaaaaa-1111-4111-8111-111111111111",
@@ -72,10 +71,13 @@ def test_unheld_ticker_does_not_complete() -> None:
     }
     with (
         patch("analysis_worker.jobs.run.claim_queued", return_value=request),
-        patch("analysis_worker.jobs.run.ticker_is_held", return_value=False),
-        patch("analysis_worker.jobs.run.complete_request") as complete,
+        patch("analysis_worker.jobs.run.gather_step0") as gather,
+        patch("analysis_worker.jobs.run.complete_request", return_value="r1") as complete,
+        patch("analysis_worker.jobs.run.attach_pdf"),
+        patch("analysis_worker.jobs.run.set_status"),
         patch("analysis_worker.jobs.run.mark_failed") as failed,
     ):
         process_one(conn, SETTINGS)
-        complete.assert_not_called()
-        failed.assert_called_once()
+        gather.assert_called_once()
+        complete.assert_called_once()
+        failed.assert_not_called()

@@ -23,7 +23,7 @@ Live copy in production is `prompt_versions.body` selected by `prompt_versions.i
 - `analysis_requests.intent`, `avg_down`, `risk_band`, `cagr_band`, `tax_basis` are first-class columns, not prompt-only.
 - Risk/CAGR conflict is a **server 422**, mirrored in the UI. See HANDOFF §3.
 - Holdings change the verdict: CSV/`holdings` rows are injected as **user context after** the static prompt prefix (prompt-cache friendly). Admins cannot read holdings unless the user grants support access.
-- Analyse is **only** for a ticker that already appears in view `holdings` for that `family_id` (D33).
+- Analyse may run for any ticker the owner/member types. Lots on view `holdings` are optional context in the variable pack (D33). Viewer reads `reports`; they cannot call `thesis_accept_analysis`.
 - Refine: user feedback is **enrichment** in the variable pack (their perspective). Original `reports` row is immutable; child `refinements` append. Cheap-model **materiality gate** (P4-05, [`docs/prompts/refine-materiality-gate.md`](docs/prompts/refine-materiality-gate.md)) runs first; `material: false` → “Do you want to proceed?” before the frontier refine.
 
 ## Prompt protection

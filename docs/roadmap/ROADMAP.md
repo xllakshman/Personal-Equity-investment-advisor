@@ -21,8 +21,8 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 | Field | Value |
 |-------|--------|
 | **Build next** | **P10-02** — FastAPI + worker on the named droplet |
-| Last done | **019** native labs on DEV and PROD (2026-09-15). Gemini/Kimi off. |
-| Blocked on you | P10-02 droplet (`./tools/deploy/droplet_p10_02.sh` from a network that can `ssh optimai-vps`). Local DEV `.env` still has empty lab keys (prod `.env.prod` has all four). P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
+| Last done | **021** Analyse without a holding + Home lot CRUD (2026-10-03, user override of D33). Apply SQL when named. |
+| Blocked on you | **021** (and **020** if missing) on DEV/PROD: name the file + `CONFIRM_APPLY=1`. P10-02 droplet. Local DEV `.env` still has empty lab keys (prod `.env.prod` has all four). P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/Thesis.dc.html` (app), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
 | DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–019** applied |

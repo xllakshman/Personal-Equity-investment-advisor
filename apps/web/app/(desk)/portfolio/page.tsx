@@ -61,14 +61,14 @@ export default async function PortfolioPage({
     <div>
       <h1 className="desk__h1">Portfolio</h1>
       <p className="desk__lede" style={{ maxWidth: "62ch" }}>
-        Optional, but it changes the answers: with your holdings loaded,
-        position sizes, extra buys and tax all use your real cost.
+        Optional. Lots change size and tax in the note. You can still Analyse a
+        ticker that is not in this book.
       </p>
       {notice ? <p className="pf__banner">{notice}</p> : null}
       {add ? (
         <p className="pf__banner">
-          Add {add} to the book before analysis. Header search found no matching
-          position.
+          Add {add} to the book if you want qty and cost on Analyse. Header search
+          already opened the builder for that ticker.
         </p>
       ) : null}
 

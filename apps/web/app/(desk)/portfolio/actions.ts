@@ -3,17 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { requireDeskSession } from "@/lib/desk/session";
+import { canWriteFamily, requireDeskSession } from "@/lib/desk/session";
 import { parsePortfolioCsv } from "@/lib/portfolio/csv";
-import {
-  canonicalTicker,
-  guessExchange,
-  parseCurrencyOverride,
-  resolveNativeCurrency,
-} from "@/lib/portfolio/exchange";
+import { parseCurrencyOverride } from "@/lib/portfolio/exchange";
 import { asDisplayCurrency } from "@/lib/portfolio/grid";
 import { loadPortfolioSettings } from "@/lib/portfolio/load";
-import { parseMoney, qtyFromTotals } from "@/lib/portfolio/qty";
+import { parseLotId, parseLotWrite } from "@/lib/portfolio/lot-write";
 import { createClient } from "@/lib/supabase/server";
 
 export type PortfolioActionState = {
@@ -28,18 +23,21 @@ export const EMPTY_PORTFOLIO_STATE: PortfolioActionState = {
 
 function safeReturnPath(raw: string): string {
   const path = raw.trim().split("?")[0] ?? "";
+  if (path === "/desk" || path === "/portfolio") return path;
   if (!path.startsWith("/") || path.startsWith("//") || path.includes("://")) {
     return "/desk";
   }
-  return path;
+  return "/desk";
 }
 
-async function requirePortfolioId(familyId: string): Promise<string> {
+const VIEWER_WRITE_ERROR = "Viewers can read this book but cannot change lots.";
+
+async function requirePortfolioId(familyId: string): Promise<string | null> {
   const settings = await loadPortfolioSettings(familyId);
   if (settings.portfolioId) return settings.portfolioId;
 
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("portfolios")
     .insert({ family_id: familyId, display_currency: "USD" })
     .select("id")
@@ -47,13 +45,13 @@ async function requirePortfolioId(familyId: string): Promise<string> {
   if (data?.id) return String(data.id);
 
   const again = await loadPortfolioSettings(familyId);
-  if (again.portfolioId) return again.portfolioId;
-
-  throw new Error(error?.message || "Could not open a portfolio for this family.");
+  return again.portfolioId;
 }
 
 function revalidateDesk() {
-  revalidatePath("/", "layout");
+  revalidatePath("/desk");
+  revalidatePath("/portfolio");
+  revalidatePath("/analyse");
 }
 
 export async function commitCsvImport(
@@ -73,8 +71,15 @@ export async function commitCsvImport(
     return { error: "CSV has no data rows.", notice: null };
   }
 
+  if (!canWriteFamily(session)) {
+    return { error: VIEWER_WRITE_ERROR, notice: null };
+  }
+
   const supabase = await createClient();
   const portfolioId = await requirePortfolioId(session.familyId);
+  if (!portfolioId) {
+    return { error: "Could not open a portfolio for this family.", notice: null };
+  }
 
   if (replace) {
     const { error: delErr } = await supabase
@@ -139,41 +144,29 @@ export async function addManualLot(
   formData: FormData,
 ): Promise<PortfolioActionState> {
   const session = await requireDeskSession();
-  const rawTicker = String(formData.get("ticker") ?? "");
-  const company = String(formData.get("company_name") ?? "").trim();
-  const cost = parseMoney(String(formData.get("cost_per_share") ?? ""));
-  const total = parseMoney(String(formData.get("total_purchased") ?? ""));
-  const override = parseCurrencyOverride(String(formData.get("currency") ?? "auto"));
-
-  const ticker = canonicalTicker(rawTicker);
-  if (!ticker) {
-    return { error: "Enter a ticker.", notice: null };
+  if (!canWriteFamily(session)) {
+    return { error: VIEWER_WRITE_ERROR, notice: null };
   }
-  if (cost === null || cost <= 0) {
-    return { error: "Cost per share must be greater than 0.", notice: null };
-  }
-  if (total === null || total <= 0) {
-    return { error: "Total purchased must be greater than 0.", notice: null };
-  }
-  const qty = qtyFromTotals(total, cost);
-  if (qty === null) {
-    return { error: "Cannot derive qty from total purchased / cost.", notice: null };
+  const parsed = parseLotWrite(formData);
+  if (!parsed.ok) {
+    return { error: parsed.error, notice: null };
   }
 
-  const exchange = guessExchange(rawTicker);
-  const native = resolveNativeCurrency(exchange, override);
   const supabase = await createClient();
   const portfolioId = await requirePortfolioId(session.familyId);
+  if (!portfolioId) {
+    return { error: "Could not open a portfolio for this family.", notice: null };
+  }
 
   const { error } = await supabase.from("holding_lots").insert({
     family_id: session.familyId,
     portfolio_id: portfolioId,
-    ticker,
-    exchange,
-    company_name: company || ticker,
-    qty,
-    cost_per_share: cost,
-    native_currency: native,
+    ticker: parsed.value.ticker,
+    exchange: parsed.value.exchange,
+    company_name: parsed.value.company,
+    qty: parsed.value.qty,
+    cost_per_share: parsed.value.cost,
+    native_currency: parsed.value.native,
     source: "manual",
     created_by: session.userId,
   });
@@ -183,7 +176,73 @@ export async function addManualLot(
   }
 
   revalidateDesk();
-  redirect(`/portfolio?ok=manual&ticker=${encodeURIComponent(ticker)}`);
+  const back = safeReturnPath(String(formData.get("returnTo") ?? "/portfolio"));
+  redirect(`${back}?ok=manual&ticker=${encodeURIComponent(parsed.value.ticker)}`);
+}
+
+export async function updateHoldingLot(
+  _prev: PortfolioActionState,
+  formData: FormData,
+): Promise<PortfolioActionState> {
+  const session = await requireDeskSession();
+  if (!canWriteFamily(session)) {
+    return { error: VIEWER_WRITE_ERROR, notice: null };
+  }
+  const lotId = parseLotId(String(formData.get("lotId") ?? ""));
+  if (!lotId) {
+    return { error: "That position could not be found.", notice: null };
+  }
+  const parsed = parseLotWrite(formData);
+  if (!parsed.ok) {
+    return { error: parsed.error, notice: null };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("holding_lots")
+    .update({
+      ticker: parsed.value.ticker,
+      exchange: parsed.value.exchange,
+      company_name: parsed.value.company,
+      qty: parsed.value.qty,
+      cost_per_share: parsed.value.cost,
+      native_currency: parsed.value.native,
+    })
+    .eq("id", lotId)
+    .eq("family_id", session.familyId)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    return { error: "Could not save that position.", notice: null };
+  }
+  if (!data?.id) {
+    return { error: "That position could not be found.", notice: null };
+  }
+
+  revalidateDesk();
+  const back = safeReturnPath(String(formData.get("returnTo") ?? "/desk"));
+  redirect(`${back}?ok=edit&ticker=${encodeURIComponent(parsed.value.ticker)}`);
+}
+
+export async function deleteHoldingLot(formData: FormData) {
+  const session = await requireDeskSession();
+  const back = safeReturnPath(String(formData.get("returnTo") ?? "/desk"));
+  if (!canWriteFamily(session)) {
+    redirect(`${back}?ok=denied`);
+  }
+  const lotId = parseLotId(String(formData.get("lotId") ?? ""));
+  if (!lotId) {
+    redirect(`${back}?ok=missing`);
+  }
+  const supabase = await createClient();
+  await supabase
+    .from("holding_lots")
+    .delete()
+    .eq("id", lotId)
+    .eq("family_id", session.familyId);
+  revalidateDesk();
+  redirect(`${back}?ok=deleted`);
 }
 
 export async function saveDisplaySettings(
@@ -204,6 +263,9 @@ export async function saveDisplaySettings(
 
   const supabase = await createClient();
   const portfolioId = await requirePortfolioId(session.familyId);
+  if (!portfolioId) {
+    return { error: "Could not open a portfolio for this family.", notice: null };
+  }
   const { error } = await supabase
     .from("portfolios")
     .update({
@@ -229,6 +291,9 @@ export async function toggleDisplayCurrency(formData: FormData) {
     const next = settings.displayCurrency === "USD" ? "INR" : "USD";
     const supabase = await createClient();
     const portfolioId = await requirePortfolioId(session.familyId);
+    if (!portfolioId) {
+      redirect(back);
+    }
     const { error } = await supabase
       .from("portfolios")
       .update({ display_currency: next })
