@@ -27,8 +27,8 @@
 | Storage bucket `report-pdfs` | ✅ private |
 | Analysis API / worker | ✅ 2026-09-14 — `apps/analysis-api` :8091, `apps/analysis-worker`; Docker compose in `infra/docker` |
 | Next.js desk | ✅ 2026-10-03 — Header Analyse GET/push opens `/analyse?ticker=` (same six-step builder as nav **Analyse a stock**). Submit writes `analysis_requests` + `usage_events.kind = search`. Elite Refresh upserts `elite_investor_books`. Reports version column. |
-| Prod schema | 🟡 2026-10-03 — **001–019** on `ndgvglcrkbygovlszxze`. **020–022** apply with **prod** + `CONFIRM_APPLY=1`. `holdings` = 0. No Maya seed. |
-| Prod Vercel | 🟡 2026-09-15 — Production anon env + deploy on `equity-investment-advisor-prod.vercel.app`. `eqveste.com` DNS not pointing (404 OpenResty). |
+| Prod schema | ✅ 2026-10-03 — **001–022** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. |
+| Prod Vercel | ✅ 2026-10-03 — Production deploy aliased to **`https://eqveste.com`**. Anon URL+key + Resend only. No service role or lab keys. |
 | Tests | ✅ unit + web tests for 4–9. Live two-JWT CI still skips without a second family JWT. |
 | Weekly holdings email | 🟡 **P8-02** table + opt-in + job; **send** blocked until a provider is named |
 | Analysis CSAT | ✅ **P5-05** `analysis_feedback` + **P7-10** admin tab |
@@ -233,7 +233,7 @@ Env template: [`.env.example`](.env.example).
 
 **Applied on `cmksomahsfmsjufakryw` (DEV):** migrations **001–022**. Seed `supabase/seed/001_maya_desk.sql` was applied earlier. Do not re-run unless §25 fails.
 
-**PROD `ndgvglcrkbygovlszxze`:** **001–019 applied** (019 on 2026-09-15). **020–022** apply with **prod** + `CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`. `select count(*) from holdings` = **0**. Maya seed not run. `report-pdfs` bucket exists. Do not copy Maya (`maya@thesis.demo`) onto prod unless you name `supabase/seed/001_maya_desk.sql`.
+**PROD `ndgvglcrkbygovlszxze`:** **001–022 applied** (`CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`; 021–022 on 2026-10-03). `select count(*) from holdings` = **0**. Maya seed not run. `report-pdfs` bucket exists. Do not copy Maya (`maya@thesis.demo`) onto prod unless you name `supabase/seed/001_maya_desk.sql`.
 
 Demo desk: `maya@thesis.demo` / `ThesisMaya!2026` (Auth email+password). Google/Phone flags must still be turned on in the Supabase Auth dashboard.
 

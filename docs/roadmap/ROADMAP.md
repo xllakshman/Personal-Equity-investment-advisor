@@ -22,11 +22,11 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 |-------|--------|
 | **Build next** | **P10-02** — FastAPI + worker on the named droplet |
 | Last done | Header Analyse opens the same `/analyse` six-step builder; Elite 13F persist + run qty/cost (**022** applied DEV 2026-10-03). **021** Analyse without a holding. |
-| Blocked on you | **020–022** on **prod** with `CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`. P10-02 droplet worker. P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
+| Blocked on you | P10-02 droplet worker (Submit on prod stays queued until it runs). P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
 | DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–022** applied |
-| PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — **001–019 applied 2026-09-15**. **020–022** pending named apply. `holdings` = 0. Maya seed not run. |
+| PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — **001–022 applied 2026-10-03**. `holdings` = 0. Maya seed not run. |
 | PROD web | **`https://eqveste.com`** — Vercel `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`. Next.js only. |
 
 ---

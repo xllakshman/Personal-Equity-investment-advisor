@@ -7,7 +7,7 @@
 See `HANDOFF.md` §6.
 
 - **DEV** `cmksomahsfmsjufakryw`: **001–022**.
-- **PROD** `ndgvglcrkbygovlszxze`: **001–019** (2026-09-15). **020–022** apply when named with **prod** + `CONFIRM_APPLY=1`.
+- **PROD** `ndgvglcrkbygovlszxze`: **001–022** (021–022 on 2026-10-03). Maya seed not applied.
 
 ## Next on DEV / PROD
 
