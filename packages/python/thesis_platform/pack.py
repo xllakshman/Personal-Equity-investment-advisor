@@ -4,6 +4,11 @@ from __future__ import annotations
 import json
 from typing import Any
 
+INVESTOR_PROFILE_PACK_COLUMNS = (
+    "cannot_trade_us_options, ltcg_holding_months, concentration_cap_pct, "
+    "tranche_t1_pct, tranche_t2_pct, tranche_t3_pct, tranche_t4_pct"
+)
+
 
 def build_variable_pack(ctx: dict[str, Any]) -> str:
     """Ticker, evidence, lots, clarifications, profile. Never the May 2026 book."""

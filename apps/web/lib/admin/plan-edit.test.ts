@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { parsePlanEdit, priceUsdChoices, limitChoices } from "./plan-edit";
+import { parsePlanEdit, parseThesisClass, priceUsdChoices, limitChoices } from "./plan-edit";
 
 const CATALOG = ["gpt56m", "opus5"];
 
@@ -82,5 +82,17 @@ describe("parsePlanEdit", () => {
   it("keeps a current limit that is not in the preset list", () => {
     assert.deepEqual(limitChoices(7).includes(7), true);
     assert.deepEqual(priceUsdChoices(1900).includes(19), true);
+  });
+});
+
+describe("parseThesisClass", () => {
+  it("accepts Frontier and Quick", () => {
+    assert.deepEqual(parseThesisClass("frontier"), { ok: true, value: "frontier" });
+    assert.deepEqual(parseThesisClass("Quick"), { ok: true, value: "quick" });
+  });
+
+  it("rejects empty and unknown class", () => {
+    assert.equal(parseThesisClass("").ok, false);
+    assert.equal(parseThesisClass("haiku").ok, false);
   });
 });

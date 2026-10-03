@@ -66,6 +66,22 @@ def test_pack_includes_analyse_step_inputs() -> None:
     assert '"lenses": ["fundamental"]' in raw
 
 
+def test_pack_includes_entry_tranches() -> None:
+    raw = build_variable_pack(
+        {
+            "ticker": "MSFT",
+            "investor_profiles": {
+                "tranche_t1_pct": 35,
+                "tranche_t2_pct": 25,
+                "tranche_t3_pct": 25,
+                "tranche_t4_pct": 15,
+            },
+        }
+    )
+    assert '"tranche_t1_pct": 35' in raw
+    assert '"tranche_t4_pct": 15' in raw
+
+
 def test_empty_ticker_and_unknown_lenses() -> None:
     assert required_step0([]) == [1]
     assert required_step0(["tax", "vibes"]) == [1]

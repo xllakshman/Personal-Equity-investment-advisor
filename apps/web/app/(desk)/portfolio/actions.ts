@@ -9,7 +9,9 @@ import { parseCurrencyOverride } from "@/lib/portfolio/exchange";
 import { asDisplayCurrency } from "@/lib/portfolio/grid";
 import { roundUsdInr } from "@/lib/portfolio/fx";
 import { loadPortfolioSettings } from "@/lib/portfolio/load";
+import { loadInvestorProfile } from "@/lib/profile/load";
 import { parseLotId, parseLotWrite } from "@/lib/portfolio/lot-write";
+import { parseEntryTranches } from "@/lib/profile/tranches";
 import { createClient } from "@/lib/supabase/server";
 
 export type PortfolioActionState = {
@@ -308,4 +310,46 @@ export async function toggleDisplayCurrency(formData: FormData) {
     redirect(back);
   }
   redirect(back);
+}
+
+export async function saveEntryTranches(
+  _prev: PortfolioActionState,
+  formData: FormData,
+): Promise<PortfolioActionState> {
+  const session = await requireDeskSession();
+  const loaded = await loadInvestorProfile(session.familyId, session.userId);
+  if (!loaded.ok) {
+    return { error: loaded.error, notice: null };
+  }
+  if (!loaded.isOwner) {
+    return { error: "Only the family owner can save entry tranches.", notice: null };
+  }
+  const parsed = parseEntryTranches(formData);
+  if (!parsed.ok) {
+    return { error: parsed.error, notice: null };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("investor_profiles").upsert(
+    {
+      family_id: session.familyId,
+      tranche_t1_pct: parsed.value.tranche_t1_pct,
+      tranche_t2_pct: parsed.value.tranche_t2_pct,
+      tranche_t3_pct: parsed.value.tranche_t3_pct,
+      tranche_t4_pct: parsed.value.tranche_t4_pct,
+    },
+    { onConflict: "family_id" },
+  );
+  if (error) {
+    return { error: "Could not save investor_profiles entry tranches.", notice: null };
+  }
+
+  revalidatePath("/portfolio");
+  revalidatePath("/analyse");
+  revalidatePath("/settings/profile");
+  return {
+    error: null,
+    notice:
+      "Saved. The next Analyse Submit sends T1–T4 in the pack the worker reads from investor_profiles.",
+  };
 }

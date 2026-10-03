@@ -37,6 +37,7 @@ import {
 import type { BuilderPayload, HeldLot } from "@/lib/analyse/load-builder";
 import { canContinue, defaultModelId, groupModels, modelAllowed } from "@/lib/analyse/models";
 import { ANALYSE_STEPS, analyseGuide, analyseStepsDone } from "@/lib/analyse/steps";
+import { trancheSummary } from "@/lib/profile/tranches";
 import { usageCaption, usageHumanHint } from "@/lib/usage/format";
 import type { UsageSnapshot } from "@/lib/usage/types";
 import { versionLabel } from "@/lib/reports/versions";
@@ -133,7 +134,7 @@ export function AnalyseWizard({
     conflict,
     modelId,
     modelOnPlan: onPlan,
-  }) && canWrite;
+  }) && canWrite && !payload.inFlight;
   const stepDone = analyseStepsDone({
     hasTicker: Boolean(normalizeTicker(ticker)),
     lensCount: picked.length,
@@ -158,13 +159,16 @@ export function AnalyseWizard({
   );
 
   const runNote = useMemo(() => {
+    if (payload.inFlight) {
+      return `Finish ${payload.inFlight.ticker} first. Submit stays off until that run is ready or failed.`;
+    }
     if (!canWrite) return "Viewers can read notes but cannot start an analysis.";
     if (!normalizeTicker(ticker)) return "Enter a ticker, or pick one from your book.";
     if (conflict) return "Fix the risk and return mismatch to continue";
     if (picked.length === 0) return "Pick at least one check";
     if (!onPlan || !modelId) return "This model needs a higher plan";
     return `Runs on ${chosen?.label ?? modelId} · uses 1 note, or ${modelCost(chosen?.cost_cents_per_run ?? 0)}`;
-  }, [canWrite, ticker, conflict, picked.length, onPlan, modelId, chosen]);
+  }, [canWrite, ticker, conflict, picked.length, onPlan, modelId, chosen, payload.inFlight]);
 
   function setResidency(next: string) {
     setTaxResidency(next);
@@ -217,8 +221,16 @@ export function AnalyseWizard({
           <p className="desk__lede">
             Complete steps 1 to 6. Type any ticker, or pick a name from your book.
             A holding fills qty and cost; you can still change the numbers for this
-            run. Each run uses one note from this month’s allowance.
+            run. Each run uses one note from this month’s allowance. One Submit at
+            a time — wait until the current run is ready or failed.
           </p>
+          {payload.inFlight ? (
+            <p className="pf__banner">
+              {payload.inFlight.ticker} is still {payload.inFlight.status}.{" "}
+              <Link href={`/analyse/${payload.inFlight.id}`}>Open that wait page</Link>
+              . Submit for analysis stays off until it finishes.
+            </p>
+          ) : null}
           <ol className="bld__rail" aria-label="Analysis steps">
             {ANALYSE_STEPS.map((s, i) => (
               <li key={s.id}>
@@ -331,6 +343,10 @@ export function AnalyseWizard({
                   <p className="pf__lede">
                     If this ticker is in your book, qty and cost are filled. Change
                     them for this run only — that does not edit lots on Home.
+                    {payload.entryTranches
+                      ? ` Entry plan ${trancheSummary(payload.entryTranches)}. Edit on Review Portfolio.`
+                      : " Entry tranches live on Review Portfolio and go with this pack."}{" "}
+                    <Link href="/portfolio#entry-tranches">Open Review Portfolio</Link>
                   </p>
                   <div className="bld__pos">
                     <label className="pf__label">

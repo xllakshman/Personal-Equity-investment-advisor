@@ -3,14 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { parsePlanEdit, type PlanEditState } from "@/lib/admin/plan-edit";
+import { parsePlanEdit, parseThesisClass, type PlanEditState } from "@/lib/admin/plan-edit";
 import {
   parsePromptRole,
   promptVersionName,
   type PromptActionState,
 } from "@/lib/admin/prompt-name";
 import { requirePlatformAdmin } from "@/lib/admin/session";
-import { analysisApiFetch } from "@/lib/analysis-api";
+import { analysisApiBase, analysisApiFetch } from "@/lib/analysis-api";
 import { isNativeProvider } from "@/lib/analyse/models";
 import { createClient } from "@/lib/supabase/server";
 
@@ -145,11 +145,64 @@ async function accessToken(): Promise<string | null> {
   return data.session?.access_token ?? null;
 }
 
+export async function setModelClass(
+  _prev: PlanEditState,
+  formData: FormData,
+): Promise<PlanEditState> {
+  await requirePlatformAdmin();
+  const modelId = String(formData.get("model_id") ?? "").trim();
+  if (!modelId) {
+    return { error: "Missing catalog row.", notice: null };
+  }
+  const parsed = parseThesisClass(String(formData.get("thesis_class") ?? ""));
+  if (!parsed.ok) return { error: parsed.error, notice: null };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("model_catalog")
+    .update({
+      thesis_class: parsed.value,
+      tier: parsed.value === "frontier" ? "Frontier" : "Quick",
+    })
+    .eq("id", modelId)
+    .select("id, label")
+    .maybeSingle();
+  if (error) return { error: error.message, notice: null };
+  if (!data?.id) {
+    return { error: "That catalog row was not found.", notice: null };
+  }
+
+  revalidatePath("/admin/plans");
+  revalidatePath("/analyse");
+  const label = parsed.value === "frontier" ? "Frontier" : "Quick";
+  return {
+    error: null,
+    notice: `${String(data.label)} is now ${label}. Analyse groups agents from model_catalog.thesis_class on the next load.`,
+  };
+}
+
+function analysisApiLooksLocal(base: string): boolean {
+  try {
+    const host = new URL(base).hostname;
+    return host === "127.0.0.1" || host === "localhost";
+  } catch {
+    return true;
+  }
+}
+
 export async function refreshLabModels(
   _prev: PlanEditState,
   _formData: FormData,
 ): Promise<PlanEditState> {
   await requirePlatformAdmin();
+  const base = analysisApiBase();
+  if (process.env.VERCEL && analysisApiLooksLocal(base)) {
+    return {
+      error:
+        "Fetch latest models needs analysis-api on the droplet (set ANALYSIS_API_URL), not this Vercel app. You can still change Frontier / Quick on each row below — that writes model_catalog.thesis_class with this admin session.",
+      notice: null,
+    };
+  }
   const token = await accessToken();
   if (!token) {
     return { error: "Admin session expired. Sign in again at /admin/login.", notice: null };
@@ -162,7 +215,7 @@ export async function refreshLabModels(
   } catch {
     return {
       error:
-        "analysis-api is not reachable. Lab keys live on FastAPI (port 8091 / api.eqveste.com), not on Vercel. Start that process, then fetch again.",
+        "analysis-api did not answer. Fetch uses that process (local :8091 or api.eqveste.com), not Vercel. Class on each row below still writes model_catalog.thesis_class without Fetch.",
       notice: null,
     };
   }

@@ -8,6 +8,7 @@ import {
   validateAcceptFields,
 } from "@/lib/analyse/accept-fields";
 import { parseAcceptError } from "@/lib/analyse/errors";
+import { IN_FLIGHT_STATUSES } from "@/lib/analyse/in-flight";
 import { requireDeskSession } from "@/lib/desk/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -18,7 +19,7 @@ export async function acceptAnalysis(
   _prev: AcceptState,
   formData: FormData,
 ): Promise<AcceptState> {
-  await requireDeskSession();
+  const session = await requireDeskSession();
   const fields = parseAcceptFields(formData);
   const fieldError = validateAcceptFields(fields);
   if (fieldError) {
@@ -40,6 +41,17 @@ export async function acceptAnalysis(
   );
 
   const supabase = await createClient();
+  const { data: busy } = await supabase
+    .from("analysis_requests")
+    .select("id, ticker")
+    .eq("family_id", session.familyId)
+    .in("status", [...IN_FLIGHT_STATUSES])
+    .order("accepted_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (busy?.id) {
+    return { error: parseAcceptError("THS-BUSY-001") };
+  }
   const { data, error } = await supabase.rpc("thesis_accept_analysis", {
     p_ticker: fields.ticker,
     p_lenses: fields.lenses,

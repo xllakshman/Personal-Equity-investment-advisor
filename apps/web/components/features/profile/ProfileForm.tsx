@@ -77,7 +77,8 @@ export function ProfileForm({
         <p className="pf__card-title">Book limits</p>
         <p className="pf__lede">
           Tax residency on this desk is <strong>{residency}</strong>. This form saves
-          your investment limits only.
+          your investment limits only. Entry tranches T1–T4 are on{" "}
+          <a href="/portfolio#entry-tranches">Review Portfolio</a>.
         </p>
         <label className="pf__check">
           <input
@@ -151,16 +152,6 @@ export function ProfileForm({
             step="0.1"
             disabled={disabled}
           />
-        </div>
-      </div>
-
-      <div className="pf__card">
-        <p className="pf__card-title">Entry tranches %</p>
-        <div className="pf__row">
-          <Field label="T1" name="tranche_t1_pct" defaultValue={profile.tranche_t1_pct} disabled={disabled} />
-          <Field label="T2" name="tranche_t2_pct" defaultValue={profile.tranche_t2_pct} disabled={disabled} />
-          <Field label="T3" name="tranche_t3_pct" defaultValue={profile.tranche_t3_pct} disabled={disabled} />
-          <Field label="T4" name="tranche_t4_pct" defaultValue={profile.tranche_t4_pct} disabled={disabled} />
         </div>
       </div>
 

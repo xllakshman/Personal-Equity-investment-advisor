@@ -1,5 +1,6 @@
 import { CsvImportCard } from "@/components/features/portfolio/CsvImportCard";
 import { DisplayCurrencyCard } from "@/components/features/portfolio/DisplayCurrencyCard";
+import { EntryTranchesForm } from "@/components/features/portfolio/EntryTranchesForm";
 import { ManualAddForm } from "@/components/features/portfolio/ManualAddForm";
 import { AllocationTable } from "@/components/features/desk/AllocationTable";
 import { normalizeTicker } from "@/lib/desk/ticker";
@@ -10,6 +11,7 @@ import {
 } from "@/lib/portfolio/load";
 import { displayRateThisLoad, fetchUsdInrRate } from "@/lib/portfolio/fx-live";
 import { SupportGrantForm } from "@/components/features/portfolio/SupportGrantForm";
+import { loadInvestorProfile } from "@/lib/profile/load";
 import { requireDeskSession } from "@/lib/desk/session";
 
 function banner(sp: {
@@ -30,6 +32,9 @@ function banner(sp: {
   }
   if (sp.ok === "fx") {
     return "Display currency saved. Stored costs were not converted.";
+  }
+  if (sp.ok === "tranches") {
+    return "Entry tranches saved. The next Analyse Submit sends T1–T4 with the pack.";
   }
   return null;
 }
@@ -55,13 +60,15 @@ export default async function PortfolioPage({
   const liveFx = await fetchUsdInrRate();
   const fxThisLoad = displayRateThisLoad(liveFx, settings.fxUsdInrOverride);
   const notice = banner(sp);
+  const profileLoad = await loadInvestorProfile(session.familyId, session.userId);
 
   return (
     <div>
       <h1 className="desk__h1">Review Portfolio</h1>
       <p className="desk__lede" style={{ maxWidth: "62ch" }}>
-        Optional. Lots change size and tax in the note. You can still Analyse a
-        ticker that is not in this book.
+        Optional. Lots change size and tax in the note. Entry tranches (step
+        below) go with the analysis pack. You can still Analyse a ticker that is
+        not in this book.
       </p>
       {notice ? <p className="pf__banner">{notice}</p> : null}
       {add ? (
@@ -81,6 +88,24 @@ export default async function PortfolioPage({
         <CsvImportCard />
         <ManualAddForm presetTicker={add} />
       </div>
+
+      {profileLoad.ok ? (
+        <div style={{ marginTop: 16 }}>
+          <EntryTranchesForm
+            isOwner={profileLoad.isOwner}
+            tranches={{
+              tranche_t1_pct: profileLoad.profile.tranche_t1_pct,
+              tranche_t2_pct: profileLoad.profile.tranche_t2_pct,
+              tranche_t3_pct: profileLoad.profile.tranche_t3_pct,
+              tranche_t4_pct: profileLoad.profile.tranche_t4_pct,
+            }}
+          />
+        </div>
+      ) : (
+        <p className={profileLoad.missingTable ? "pf__banner" : "pf__error"}>
+          {profileLoad.error}
+        </p>
+      )}
 
       {rejected.length > 0 ? (
         <div className="pf__reject-box">

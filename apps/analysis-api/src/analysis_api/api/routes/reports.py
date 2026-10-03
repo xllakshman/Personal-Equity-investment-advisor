@@ -16,7 +16,7 @@ from thesis_platform.db import connect
 from thesis_platform.extract import REFUSAL
 from thesis_platform.http import complete_chat
 from thesis_platform.native_llm import LlmError, NATIVE_PROVIDERS, resolve_provider
-from thesis_platform.pack import build_variable_pack
+from thesis_platform.pack import INVESTOR_PROFILE_PACK_COLUMNS, build_variable_pack
 from thesis_platform.prompt import load_promoted_body
 from thesis_platform.sections import parse_sections_json
 from thesis_platform.storage import signed_pdf_url
@@ -312,8 +312,8 @@ def _family_pack(cur, report: dict[str, Any], enrichment: str) -> str:
     )
     evidence = [dict(r) for r in (cur.fetchall() or [])]
     cur.execute(
-        """
-        select cannot_trade_us_options, ltcg_holding_months, concentration_cap_pct
+        f"""
+        select {INVESTOR_PROFILE_PACK_COLUMNS}
           from investor_profiles
          where family_id = %s
         """,

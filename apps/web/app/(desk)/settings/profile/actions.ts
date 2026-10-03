@@ -68,22 +68,10 @@ export async function saveInvestorProfile(
       min: 0.01,
       fallback: d.trim_to_pct,
     }),
-    tranche_t1_pct: parseNumberField(String(formData.get("tranche_t1_pct") ?? ""), {
-      min: 0,
-      fallback: d.tranche_t1_pct,
-    }),
-    tranche_t2_pct: parseNumberField(String(formData.get("tranche_t2_pct") ?? ""), {
-      min: 0,
-      fallback: d.tranche_t2_pct,
-    }),
-    tranche_t3_pct: parseNumberField(String(formData.get("tranche_t3_pct") ?? ""), {
-      min: 0,
-      fallback: d.tranche_t3_pct,
-    }),
-    tranche_t4_pct: parseNumberField(String(formData.get("tranche_t4_pct") ?? ""), {
-      min: 0,
-      fallback: d.tranche_t4_pct,
-    }),
+    tranche_t1_pct: loaded.profile.tranche_t1_pct,
+    tranche_t2_pct: loaded.profile.tranche_t2_pct,
+    tranche_t3_pct: loaded.profile.tranche_t3_pct,
+    tranche_t4_pct: loaded.profile.tranche_t4_pct,
     position_size_min_pct: parseNumberField(
       String(formData.get("position_size_min_pct") ?? ""),
       { min: 0, fallback: d.position_size_min_pct },

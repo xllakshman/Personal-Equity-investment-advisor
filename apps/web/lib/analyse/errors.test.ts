@@ -38,6 +38,7 @@ describe("parseAcceptError", () => {
 
   it("maps THS-LENS-001, empty, and unknown messages", () => {
     assert.match(parseAcceptError("THS-LENS-001"), /at least one check/);
+    assert.match(parseAcceptError("THS-BUSY-001"), /already running/);
     assert.equal(parseAcceptError(""), "Could not queue the analysis.");
     assert.equal(parseAcceptError("nope"), "Could not queue the analysis.");
   });

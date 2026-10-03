@@ -64,6 +64,10 @@ class FakeCur:
                 "cannot_trade_us_options": True,
                 "ltcg_holding_months": 12,
                 "concentration_cap_pct": 25,
+                "tranche_t1_pct": 35,
+                "tranche_t2_pct": 25,
+                "tranche_t3_pct": 25,
+                "tranche_t4_pct": 15,
             }
         return None
 
@@ -268,6 +272,7 @@ def test_refine_pack_loads_holdings_evidence_and_profile() -> None:
     assert "MSFT" in pack
     assert "412.5" in pack
     assert "cannot_trade_us_options" in pack
+    assert "tranche_t1_pct" in pack
     assert "India tax lot" in pack
     assert pack.count('"holdings": []') == 0
 

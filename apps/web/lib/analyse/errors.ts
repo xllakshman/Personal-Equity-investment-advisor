@@ -34,5 +34,8 @@ export function parseAcceptError(message: string): string {
   if (m.includes("THS-LENS-001")) {
     return "Pick at least one check.";
   }
+  if (m.includes("THS-BUSY-001")) {
+    return "Finish the analysis that is already running. Open that wait page — a second Submit is blocked until it is ready or failed.";
+  }
   return "Could not queue the analysis.";
 }

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { tickerSearchTarget } from "@/lib/desk/ticker";
 import { assignNoteVersions } from "@/lib/reports/versions";
 import { isNativeProvider, type CatalogModel } from "./models";
+import { IN_FLIGHT_STATUSES, type InFlightAnalysis } from "./in-flight";
 
 export type HeldLot = {
   ticker: string;
@@ -29,6 +30,13 @@ export type BuilderPayload = {
   ltcgHoldingMonths: number | null;
   ltcgRateBps: number | null;
   stcgRateBps: number | null;
+  entryTranches: {
+    tranche_t1_pct: number;
+    tranche_t2_pct: number;
+    tranche_t3_pct: number;
+    tranche_t4_pct: number;
+  } | null;
+  inFlight: InFlightAnalysis | null;
   priorNotes: PriorNote[];
   latestNote: LatestBuilderNote | null;
 };
@@ -133,8 +141,19 @@ export async function loadAnalyseBuilder(
 
   const { data: profile } = await supabase
     .from("investor_profiles")
-    .select("ltcg_holding_months, ltcg_rate_bps, stcg_rate_bps")
+    .select(
+      "ltcg_holding_months, ltcg_rate_bps, stcg_rate_bps, tranche_t1_pct, tranche_t2_pct, tranche_t3_pct, tranche_t4_pct",
+    )
     .eq("family_id", familyId)
+    .maybeSingle();
+
+  const { data: busyRow } = await supabase
+    .from("analysis_requests")
+    .select("id, ticker, status")
+    .eq("family_id", familyId)
+    .in("status", [...IN_FLIGHT_STATUSES])
+    .order("accepted_at", { ascending: false })
+    .limit(1)
     .maybeSingle();
 
   const { data: reportRows } = await supabase
@@ -205,6 +224,21 @@ export async function loadAnalyseBuilder(
       profile?.ltcg_holding_months == null ? null : Number(profile.ltcg_holding_months),
     ltcgRateBps: profile?.ltcg_rate_bps == null ? null : Number(profile.ltcg_rate_bps),
     stcgRateBps: profile?.stcg_rate_bps == null ? null : Number(profile.stcg_rate_bps),
+    entryTranches: profile
+      ? {
+          tranche_t1_pct: Number(profile.tranche_t1_pct ?? 35),
+          tranche_t2_pct: Number(profile.tranche_t2_pct ?? 25),
+          tranche_t3_pct: Number(profile.tranche_t3_pct ?? 25),
+          tranche_t4_pct: Number(profile.tranche_t4_pct ?? 15),
+        }
+      : null,
+    inFlight: busyRow?.id
+      ? {
+          id: String(busyRow.id),
+          ticker: String(busyRow.ticker),
+          status: String(busyRow.status),
+        }
+      : null,
     priorNotes,
     latestNote,
   };

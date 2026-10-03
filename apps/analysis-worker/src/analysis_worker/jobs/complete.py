@@ -16,7 +16,7 @@ from thesis_platform.native_llm import (
     resolve_provider,
 )
 
-from thesis_platform.pack import build_variable_pack
+from thesis_platform.pack import INVESTOR_PROFILE_PACK_COLUMNS, build_variable_pack
 from thesis_platform.prompt import load_promoted_body
 from thesis_platform.sections import (
     SectionsError,
@@ -233,8 +233,8 @@ def _context(cur, request: dict[str, Any]) -> dict[str, Any]:
 
 def _profile(cur, family_id: UUID | str) -> dict[str, Any]:
     cur.execute(
-        """
-        select cannot_trade_us_options, ltcg_holding_months, concentration_cap_pct
+        f"""
+        select {INVESTOR_PROFILE_PACK_COLUMNS}
           from investor_profiles
          where family_id = %s
         """,

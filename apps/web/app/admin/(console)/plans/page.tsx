@@ -1,3 +1,4 @@
+import { ModelClassForm } from "@/components/features/admin/ModelClassForm";
 import { PlanEditForm } from "@/components/features/admin/PlanEditForm";
 import { RefreshLabModelsForm } from "@/components/features/admin/RefreshLabModelsForm";
 import { NOTICE_PCTS } from "@/lib/admin/plan-edit";
@@ -76,15 +77,12 @@ export default async function AdminPlansPage() {
                       <td>{String(m.label)}</td>
                       <td>{String(m.provider)}</td>
                       <td>
-                        <span
-                          className={
-                            m.thesis_class === "frontier"
-                              ? "admin__chip admin__chip--ok"
-                              : "admin__chip admin__chip--muted"
+                        <ModelClassForm
+                          modelId={String(m.id)}
+                          thesisClass={
+                            m.thesis_class === "frontier" ? "frontier" : "quick"
                           }
-                        >
-                          {m.thesis_class === "frontier" ? "Frontier" : "Quick"}
-                        </span>
+                        />
                       </td>
                       <td className="admin__mono">{String(m.provider_model_id)}</td>
                     </tr>

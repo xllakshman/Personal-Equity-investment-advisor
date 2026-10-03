@@ -26,8 +26,8 @@
 | Maya seed | ✅ `maya@thesis.demo` · 5 lots · 2 reports (1 sample) |
 | Storage bucket `report-pdfs` | ✅ private |
 | Analysis API / worker | ✅ 2026-09-14 — `apps/analysis-api` :8091, `apps/analysis-worker`; Docker compose in `infra/docker` |
-| Next.js desk | ✅ 2026-10-03 — Header Analyse GET/push opens `/analyse?ticker=`. Admin console uses the same desk shell (`/admin/accounts` sidebar). `/admin/prompt` upload/review/download/Promote. `/admin/plans` Fetch latest lab models via analysis-api `POST /admin/models/refresh`. Desk Sign out goes to marketing `/`. |
-| Prod schema | ✅ 2026-10-03 — **001–023** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. |
+| Next.js desk | ✅ 2026-10-03 — Header Analyse GET/push opens `/analyse?ticker=`. Admin console uses the same desk shell (`/admin/accounts` sidebar). `/admin/prompt` upload/review/download/Promote. `/admin/plans` Class Frontier/Quick writes `model_catalog.thesis_class`; Fetch latest models needs analysis-api, not Vercel. Entry tranches on `/portfolio` (`investor_profiles.tranche_t*`). Analyse wait page shows progress + investing copy. One Submit at a time (`THS-BUSY-001`). Desk Sign out goes to marketing `/`. |
+| Prod schema | ✅ 2026-10-03 — **001–024** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. |
 | Prod Vercel | ✅ 2026-10-03 — Production deploy aliased to **`https://eqveste.com`**. Anon URL+key + Resend only. No service role or lab keys. |
 | Tests | ✅ unit + web tests for 4–9. Live two-JWT CI still skips without a second family JWT. |
 | Weekly holdings email | 🟡 **P8-02** table + opt-in + job; **send** blocked until a provider is named |
@@ -231,9 +231,9 @@ Env template: [`.env.example`](.env.example).
 
 ## 6. Database status
 
-**Applied on `cmksomahsfmsjufakryw` (DEV):** migrations **001–023**. Seed `supabase/seed/001_maya_desk.sql` was applied earlier. Do not re-run unless §25 fails.
+**Applied on `cmksomahsfmsjufakryw` (DEV):** migrations **001–024**. Seed `supabase/seed/001_maya_desk.sql` was applied earlier. Do not re-run unless §25 fails.
 
-**PROD `ndgvglcrkbygovlszxze`:** **001–023 applied** (`CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`; 023 on 2026-10-03). `select count(*) from holdings` = **0**. Maya seed not run. `report-pdfs` bucket exists. Do not copy Maya (`maya@thesis.demo`) onto prod unless you name `supabase/seed/001_maya_desk.sql`.
+**PROD `ndgvglcrkbygovlszxze`:** **001–024 applied** (`CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`; 024 on 2026-10-03). `select count(*) from holdings` = **0**. Maya seed not run. `report-pdfs` bucket exists. Do not copy Maya (`maya@thesis.demo`) onto prod unless you name `supabase/seed/001_maya_desk.sql`.
 
 Demo desk: `maya@thesis.demo` / `ThesisMaya!2026` (Auth email+password). Google/Phone flags must still be turned on in the Supabase Auth dashboard.
 
@@ -326,7 +326,7 @@ See `.cursor/rules/web-ui-maintenance.mdc`. Marketing vs desk palettes must not 
 
 ## 18. Next steps
 
-Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P10-02** droplet. **021** and **022** applied on DEV 2026-10-03. Worker LLM is native labs (D39). **019** applied on DEV and PROD. Local `.env` lab keys are set; never put them on Vercel. `/analyse` wait panel stays `queued` on prod until the droplet worker runs. Local **3100** stays DEV.
+Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P10-02** droplet. **024** in git (`THS-BUSY-001`). Worker LLM is native labs (D39). Local `.env` lab keys are set; never put them on Vercel. `/analyse` wait panel stays `queued` on prod until the droplet worker runs. Local **3100** stays DEV.
 
 ---
 

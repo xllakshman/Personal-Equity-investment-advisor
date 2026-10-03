@@ -4,7 +4,15 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import type { QueuedRequest } from "@/lib/analyse/load-request";
-import { waitHeadline, waitLede, waitStatusLabel, waitStepIndex } from "@/lib/analyse/wait-status";
+import {
+  WAIT_STEPS,
+  investingWaitMessage,
+  waitHeadline,
+  waitLede,
+  waitProgressPct,
+  waitStatusLabel,
+  waitStepIndex,
+} from "@/lib/analyse/wait-status";
 import { ReportNoteBody } from "@/components/features/report/ReportNoteBody";
 import { createClient } from "@/lib/supabase/client";
 import { versionLabel } from "@/lib/reports/versions";
@@ -17,17 +25,17 @@ type NotePreview = {
   sections: Record<string, unknown>;
 };
 
-const STEPS = [
-  "Queued — waiting for the worker",
-  "Reading your position and limits",
-  "Getting results, prices and news",
-  "Checking it all against your risk limit",
-  "Drafting the note",
-];
-
 export function WaitPanel({ initial }: { initial: QueuedRequest }) {
   const [row, setRow] = useState(initial);
   const [note, setNote] = useState<NotePreview | null>(null);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setTick((n) => n + 1);
+    }, 7000);
+    return () => window.clearInterval(id);
+  }, []);
 
   useEffect(() => {
     const supabase = createClient();
@@ -93,6 +101,13 @@ export function WaitPanel({ initial }: { initial: QueuedRequest }) {
   const headline = waitHeadline(row.status);
   const step = waitStepIndex(row.status);
   const lede = waitLede(row.status);
+  const pct = waitProgressPct(row.status);
+  const quote =
+    headline === "working"
+      ? investingWaitMessage(tick)
+      : headline === "ready"
+        ? "The note below is the saved row on Reports."
+        : "This run stopped. Saved notes were not rewritten.";
 
   return (
     <div className="bld__wait">
@@ -101,10 +116,24 @@ export function WaitPanel({ initial }: { initial: QueuedRequest }) {
       <div className="bld__wait-card">
         <div className="bld__spin-row">
           {headline === "working" ? <span className="bld__spin" aria-hidden /> : null}
-          <p>{waitStatusLabel(row.status)}</p>
+          <p>
+            {waitStatusLabel(row.status)}
+            {headline === "working" ? ` · ${pct}%` : ""}
+          </p>
         </div>
+        <div
+          className="bld__wait-progress"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={pct}
+          aria-label="Analysis progress"
+        >
+          <span className="bld__wait-fill" style={{ width: `${pct}%` }} />
+        </div>
+        <p className="bld__wait-quote">{quote}</p>
         <div className="bld__wait-steps">
-          {STEPS.map((label, i) => (
+          {WAIT_STEPS.map((label, i) => (
             <p key={label} className={i === step ? "bld__step--cur" : "bld__step"}>
               {label}
             </p>

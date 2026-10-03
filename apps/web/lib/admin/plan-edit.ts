@@ -112,3 +112,11 @@ export function parsePlanEdit(form: FormData, catalogIds: readonly string[]): Pl
     },
   };
 }
+
+export function parseThesisClass(
+  raw: string,
+): { ok: true; value: "frontier" | "quick" } | { ok: false; error: string } {
+  const v = raw.trim().toLowerCase();
+  if (v === "frontier" || v === "quick") return { ok: true, value: v };
+  return { ok: false, error: "Class must be Frontier or Quick." };
+}
