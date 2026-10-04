@@ -2,8 +2,9 @@ import { CsvImportCard } from "@/components/features/portfolio/CsvImportCard";
 import { DisplayCurrencyCard } from "@/components/features/portfolio/DisplayCurrencyCard";
 import { EntryTranchesForm } from "@/components/features/portfolio/EntryTranchesForm";
 import { ManualAddForm } from "@/components/features/portfolio/ManualAddForm";
-import { AllocationTable } from "@/components/features/desk/AllocationTable";
+import { PortfolioHoldingsGrid } from "@/components/features/portfolio/PortfolioHoldingsGrid";
 import { normalizeTicker } from "@/lib/desk/ticker";
+import { canWriteFamily, requireDeskSession } from "@/lib/desk/session";
 import {
   loadHoldingsGrid,
   loadPortfolioSettings,
@@ -12,7 +13,6 @@ import {
 import { displayRateThisLoad, fetchUsdInrRate } from "@/lib/portfolio/fx-live";
 import { SupportGrantForm } from "@/components/features/portfolio/SupportGrantForm";
 import { loadInvestorProfile } from "@/lib/profile/load";
-import { requireDeskSession } from "@/lib/desk/session";
 
 function banner(sp: {
   ok?: string;
@@ -35,6 +35,15 @@ function banner(sp: {
   }
   if (sp.ok === "tranches") {
     return "Entry tranches saved. The next Analyse Submit sends T1–T4 with the pack.";
+  }
+  if (sp.ok === "edit" && sp.ticker) {
+    return `Updated ${sp.ticker}. Stored costs were not converted.`;
+  }
+  if (sp.ok === "deleted") {
+    return "Removed that name. Saved notes stay on Reports.";
+  }
+  if (sp.ok === "denied") {
+    return "Viewers can read this book but cannot change lots.";
   }
   return null;
 }
@@ -120,7 +129,10 @@ export default async function PortfolioPage({
         </div>
       ) : null}
 
-      <AllocationTable holdings={holdings} />
+      <PortfolioHoldingsGrid
+        holdings={holdings}
+        canWrite={canWriteFamily(session)}
+      />
       {session.memberRole === "owner" ? <SupportGrantForm /> : null}
     </div>
   );

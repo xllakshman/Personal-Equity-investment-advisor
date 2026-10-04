@@ -10,7 +10,7 @@ import { asDisplayCurrency } from "@/lib/portfolio/grid";
 import { roundUsdInr } from "@/lib/portfolio/fx";
 import { loadPortfolioSettings } from "@/lib/portfolio/load";
 import { loadInvestorProfile } from "@/lib/profile/load";
-import { parseLotId, parseLotWrite } from "@/lib/portfolio/lot-write";
+import { parseLotId, parseLotEdit, parseLotKey, parseLotWrite } from "@/lib/portfolio/lot-write";
 import { parseEntryTranches } from "@/lib/profile/tranches";
 import { type PortfolioActionState } from "@/lib/portfolio/action-state";
 import { createClient } from "@/lib/supabase/server";
@@ -247,6 +247,96 @@ export async function deleteHoldingLot(formData: FormData) {
     .delete()
     .eq("id", lotId)
     .eq("family_id", session.familyId);
+  revalidateDesk();
+  redirect(`${back}?ok=deleted`);
+}
+
+export async function updateHoldingTicker(
+  _prev: PortfolioActionState,
+  formData: FormData,
+): Promise<PortfolioActionState> {
+  const session = await requireDeskSession();
+  if (!canWriteFamily(session)) {
+    return { error: VIEWER_WRITE_ERROR, notice: null };
+  }
+  const key = parseLotKey(formData);
+  if (!key) {
+    return { error: "That name could not be found.", notice: null };
+  }
+  const parsed = parseLotEdit(formData);
+  if (!parsed.ok) {
+    return { error: parsed.error, notice: null };
+  }
+
+  const supabase = await createClient();
+  const { data: lots, error: readErr } = await supabase
+    .from("holding_lots")
+    .select("id, portfolio_id")
+    .eq("family_id", session.familyId)
+    .eq("ticker", key.ticker)
+    .eq("exchange", key.exchange)
+    .eq("native_currency", key.native)
+    .order("created_at", { ascending: true });
+  if (readErr || !lots?.length) {
+    return { error: "That name could not be found.", notice: null };
+  }
+
+  const keepId = String(lots[0].id);
+  const extraIds = lots.slice(1).map((row) => String(row.id));
+  const exchange =
+    parsed.value.ticker === key.ticker ? key.exchange : parsed.value.exchange;
+
+  const { data, error } = await supabase
+    .from("holding_lots")
+    .update({
+      ticker: parsed.value.ticker,
+      exchange,
+      company_name: parsed.value.company,
+      qty: parsed.value.qty,
+      cost_per_share: parsed.value.cost,
+      native_currency: parsed.value.native,
+    })
+    .eq("id", keepId)
+    .eq("family_id", session.familyId)
+    .select("id")
+    .maybeSingle();
+  if (error || !data?.id) {
+    return { error: "Could not save that position.", notice: null };
+  }
+  if (extraIds.length > 0) {
+    const { error: delErr } = await supabase
+      .from("holding_lots")
+      .delete()
+      .eq("family_id", session.familyId)
+      .in("id", extraIds);
+    if (delErr) {
+      return { error: "Could not save that position.", notice: null };
+    }
+  }
+
+  revalidateDesk();
+  const back = safeReturnPath(String(formData.get("returnTo") ?? "/portfolio"));
+  redirect(`${back}?ok=edit&ticker=${encodeURIComponent(parsed.value.ticker)}`);
+}
+
+export async function deleteHoldingTicker(formData: FormData) {
+  const session = await requireDeskSession();
+  const back = safeReturnPath(String(formData.get("returnTo") ?? "/portfolio"));
+  if (!canWriteFamily(session)) {
+    redirect(`${back}?ok=denied`);
+  }
+  const key = parseLotKey(formData);
+  if (!key) {
+    redirect(`${back}?ok=missing`);
+  }
+  const supabase = await createClient();
+  await supabase
+    .from("holding_lots")
+    .delete()
+    .eq("family_id", session.familyId)
+    .eq("ticker", key.ticker)
+    .eq("exchange", key.exchange)
+    .eq("native_currency", key.native);
   revalidateDesk();
   redirect(`${back}?ok=deleted`);
 }

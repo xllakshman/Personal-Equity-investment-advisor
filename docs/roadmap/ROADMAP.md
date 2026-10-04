@@ -20,8 +20,8 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 
 | Field | Value |
 |-------|--------|
-| **Build next** | **P11-03** — Admin chrome: operator language |
-| Last done | **P11-02** `/admin/prompt` Remove on eqveste.com (`721a01b` + 026). User confirmed Remove on prod 2026-10-04. |
+| **Build next** | **P11-05** — Desk typeface Calibri |
+| Last done | **P11-04** `/portfolio` Edit/Delete (`holding_lots` write; view `holdings` read). User asked local commit + **dev** + **prod** 2026-10-04. |
 | Blocked on you | P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
@@ -865,7 +865,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 
 ### P11-03 — Admin chrome: operator language
 
-- **Status:** 🟡 2026-10-04
+- **Status:** ✅ 2026-10-04
 - **Depends on:** P11-02
 - **Direction:** Every `/admin/*` page: replace table/RPC jargon in kickers, ledes, notices, and errors with what the operator does and what the desk then shows. Keep `code` table names only where the operator must run SQL. Do not restyle desk.
 - **Writes:** none.
@@ -876,7 +876,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 
 ### P11-04 — Review Portfolio: edit and delete a name
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-10-04
 - **Depends on:** P11-03, P2-02
 - **Direction:** `/portfolio` grid: Edit (qty, cost per share, company) and Delete on a ticker. Writes `holding_lots` (update/delete lots for that ticker+exchange+currency). View `holdings` is what the grid and Desk read. Owner/member; viewer cannot. Does not call Analyse.
 - **Writes:** `holding_lots`.
@@ -986,6 +986,8 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | P10-02 | 2026-09-14 | ⬜ compose + DigitalOcean notes in git; no droplet |
 | P11-01 | 2026-10-04 | ✅ typeset note + Download PDF on eqveste.com (`6399d3e`). User confirmed Download PDF. |
 | P11-02 | 2026-10-04 | ✅ `/admin/prompt` plain in-use labels + Remove (`721a01b`, 026 on DEV and PROD). User confirmed Remove on prod. |
+| P11-03 | 2026-10-04 | ✅ `/admin/*` operator language on eqveste.com (`c127448`). User confirmed. |
+| P11-04 | 2026-10-04 | ✅ `/portfolio` Edit/Delete writes `holding_lots`; grid and Desk read view `holdings`. Viewer has no write buttons. User asked commit + **dev** + **prod**. |
 
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.
