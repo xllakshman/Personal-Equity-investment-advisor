@@ -21,7 +21,7 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 | Field | Value |
 |-------|--------|
 | **Build next** | **P6-03** — merchant unnamed (blocked) |
-| Last done | **P10-02** FastAPI + worker on droplet `157.245.102.243`. `GET https://api.eqveste.com/health` `{"status":"ok"}`. User named **prod** 2026-10-04. |
+| Last done | **P11-08** Desk chrome + Home / Analyse / Reports / Contact match `App.dc.html` (SF Pro stack, header Sign out, hover). Local **3100**. |
 | Blocked on you | P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
@@ -907,6 +907,28 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 - **UI today:** dense `bld__pos` / `pf__row` on those steps.
 - **Success:** Step 3–5: each control has visible padding; dropdown text is not clipped into the label.
 
+### P11-07 — Desk typeface IBM Plex Sans
+
+- **Status:** ✅ 2026-10-05
+- **Depends on:** P11-05
+- **Direction:** User rejected Calibri/Carlito. Desk shell (nav tabs, `/desk`, `/analyse`, `/reports`, `/portfolio`, `/billing`, `/settings/*`, account menu) and `/admin/*` console use **IBM Plex Sans** via `apps/web/lib/desk/font.ts` (`next/font/google`, `--font-ibm-plex-sans`). Do not restyle layout. Marketing `/` and `/login` `/signup` `/reset` stay SF Pro / Helvetica.
+- **Writes:** none.
+- **Reads:** none.
+- **Who:** any desk or admin session.
+- **UI today:** IBM Plex Sans on `.desk` (nav, account menu, settings).
+- **Success:** Computed `font-family` on `/desk`, `/analyse`, `/portfolio`, `/settings/profile`, `/reports` includes IBM Plex Sans. No Calibri/Carlito on those routes. `/login` and marketing `/` still Helvetica/SF Pro.
+
+### P11-08 — Desk visual lock to App.dc.html
+
+- **Status:** ✅ 2026-10-05
+- **Depends on:** P11-07
+- **Direction:** User screenshots of `docs/mock-ui/App.dc.html`. Copy font, spacing, hover on `/desk`, `/analyse`, `/reports`, `/contact` plus shared chrome. Font is `-apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif`. Header: name + plan line + avatar + always-visible Sign out. Nav labels: Portfolio / Reports (Saved notes) / Managers. Home kicker YOUR DESK, four KPI labels from the mock, privacy lock banner, empty-book three steps. Analyse title “What do you want to decide?”; **Run analysis** still `POST` via `acceptAnalysis` → `thesis_accept_analysis`. Reports cards + week/month chips. Contact topic chips + Send message. No new RPC. Gain or loss on Desk is still not a live price (D40).
+- **Writes:** none (contact still `submitContact` / Resend).
+- **Reads:** `/desk` view `holdings` + `reports` + `usage_events`; `/analyse` builder state; `/reports` `reports` + `analysis_requests`; `/contact` session name/email.
+- **Who:** desk owner/member (viewer read-only on Analyse submit).
+- **UI today:** button exists on each of those four routes.
+- **Success:** `/desk` `/analyse` `/reports` `/contact` on port **3100** match App.dc.html type, hover (`translateX(3px)` nav, `translateY(-4px)` cards, Analyse pill lift), and copy. `thesis_accept_analysis` is still the Analyse submit.
+
 ---
 
 ## Out of scope until you add a chunk
@@ -991,6 +1013,8 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | P11-05 | 2026-10-04 | ✅ Desk/report/Analyse face is Calibri, Carlito (web), sans-serif. Marketing `/` and `/login` unchanged. User asked **dev** + **prod**. |
 | P11-06 | 2026-10-04 | ✅ `/analyse` steps 3–5: labels above fields, 46px+ controls, 28px gap. User asked remaining phases **dev** + **prod**. |
 | P1-06 | 2026-10-04 | ✅ `/desk` flags from view `holdings` cost×qty vs `investor_profiles.concentration_cap_pct` and cash min. No max-positions banner. |
+| P11-07 | 2026-10-05 | ✅ IBM Plex Sans on desk tabs, account menu, `/settings/profile`, `/analyse`, `/portfolio`. No Calibri/Carlito. `/login` and marketing `/` stay Helvetica/SF Pro. |
+| P11-08 | 2026-10-05 | ✅ Desk chrome + `/desk` `/analyse` `/reports` `/contact` match App.dc.html (SF Pro stack, header Sign out, hover). User screenshots. Local **3100**. |
 
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.

@@ -3,177 +3,273 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { PdfOpenButton } from "@/components/features/report/PdfOpenButton";
 import {
   inReportPeriod,
   isStaleNote,
   matchesCompany,
   monthKey,
+  monthLabel,
+  noteDateLabel,
+  relativeAge,
   STALE_COPY,
+  verdictTone,
+  weekKey,
+  weekLabel,
+  type ReportGroupBy,
   type ReportPeriod,
 } from "@/lib/reports/age";
 import type { DeskNoteRow } from "@/lib/reports/load";
-import { moneyCents } from "@/lib/reports/sections";
-import { versionLabel } from "@/lib/reports/versions";
+
+function agentLabel(row: DeskNoteRow): string {
+  if (row.kind === "in_progress") return "In progress";
+  const id = row.modelId.toLowerCase();
+  if (/gpt|claude|grok|o3|sonnet|opus|frontier/.test(id)) return "Frontier agent";
+  return "Basic agent";
+}
 
 function shortVerdict(text: string): string {
   const t = text.trim();
   if (!t) return "—";
-  return t.length > 72 ? `${t.slice(0, 72)}…` : t;
-}
-
-function dayKey(iso: string): string {
-  return iso.slice(0, 10);
+  return t.length > 28 ? `${t.slice(0, 28)}…` : t;
 }
 
 export function ReportsDeskView({ rows }: { rows: DeskNoteRow[] }) {
+  const [groupBy, setGroupBy] = useState<ReportGroupBy>("week");
   const [period, setPeriod] = useState<ReportPeriod>("all");
   const [month, setMonth] = useState("");
+  const [week, setWeek] = useState("");
   const [company, setCompany] = useState("");
 
-  const companies = useMemo(
-    () => [...new Set(rows.map((r) => r.ticker))].sort(),
-    [rows],
-  );
+  const own = rows.filter((r) => !r.isLibrarySample);
+  const samples = rows.filter((r) => r.isLibrarySample);
   const months = useMemo(
-    () => [...new Set(rows.map((r) => monthKey(r.lastRun)).filter(Boolean))].sort().reverse(),
-    [rows],
+    () => [...new Set(own.map((r) => monthKey(r.lastRun)).filter(Boolean))].sort().reverse(),
+    [own],
+  );
+  const weeks = useMemo(
+    () => [...new Set(own.map((r) => weekKey(r.lastRun)))].sort().reverse(),
+    [own],
   );
 
-  const filtered = rows.filter((r) => {
+  const filtered = own.filter((r) => {
     if (!inReportPeriod(r.lastRun, period)) return false;
     if (month && monthKey(r.lastRun) !== month) return false;
+    if (week && weekKey(r.lastRun) !== week) return false;
     if (!matchesCompany({ ticker: r.ticker, name: r.name }, company)) return false;
     return true;
   });
 
+  const groups = useMemo(() => {
+    const map = new Map<string, { key: string; label: string; items: DeskNoteRow[] }>();
+    for (const r of filtered) {
+      const key = groupBy === "month" ? monthKey(r.lastRun) : weekKey(r.lastRun);
+      const label = groupBy === "month" ? monthLabel(key) : weekLabel(r.lastRun);
+      const g = map.get(key) ?? { key, label, items: [] };
+      g.items.push(r);
+      map.set(key, g);
+    }
+    return [...map.values()].sort((a, b) => (a.key < b.key ? 1 : -1));
+  }, [filtered, groupBy]);
+
+  const staleCount = own.filter((r) => r.kind === "note" && isStaleNote(r.lastRun)).length;
+
   return (
-    <div>
-      <h1 className="desk__h1">Reports</h1>
-      <p className="desk__lede">
-        Saved research for this book, newest first. Runs still in the queue show as
-        In progress. Notes older than 30 days are marked as possibly obsolete.
+    <div className="desk__screen">
+      <p className="desk__kicker">Reports</p>
+      <h1 className="desk__h1">Your saved notes</h1>
+      <p className="desk__lede" style={{ marginBottom: 22, maxWidth: "64ch" }}>
+        {STALE_COPY}
+      </p>
+      <div className="rpt__filters">
+        <div className="rpt__search-row">
+          <input
+            className="rpt__search"
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+            placeholder="Filter by company or ticker"
+          />
+          <button
+            type="button"
+            className={groupBy === "week" ? "rpt__chip rpt__chip--on" : "rpt__chip"}
+            onClick={() => setGroupBy("week")}
+          >
+            By week
+          </button>
+          <button
+            type="button"
+            className={groupBy === "month" ? "rpt__chip rpt__chip--on" : "rpt__chip"}
+            onClick={() => setGroupBy("month")}
+          >
+            By month
+          </button>
+        </div>
+        <div className="rpt__row">
+          <span className="rpt__row-k">Month</span>
+          <button
+            type="button"
+            className={!month && period !== "month" ? "rpt__chip rpt__chip--on" : "rpt__chip"}
+            onClick={() => {
+              setMonth("");
+              setPeriod("all");
+            }}
+          >
+            All months
+          </button>
+          {months.map((m) => (
+            <button
+              key={m}
+              type="button"
+              className={month === m ? "rpt__chip rpt__chip--on" : "rpt__chip"}
+              onClick={() => {
+                setMonth(m);
+                setPeriod("all");
+              }}
+            >
+              {monthLabel(m)}
+            </button>
+          ))}
+        </div>
+        <div className="rpt__row">
+          <span className="rpt__row-k">Week</span>
+          <button
+            type="button"
+            className={!week && period !== "week" ? "rpt__chip rpt__chip--on" : "rpt__chip"}
+            onClick={() => {
+              setWeek("");
+              setPeriod("all");
+            }}
+          >
+            All weeks
+          </button>
+          <button
+            type="button"
+            className={period === "week" && !week ? "rpt__chip rpt__chip--on" : "rpt__chip"}
+            onClick={() => {
+              setWeek("");
+              setPeriod("week");
+            }}
+          >
+            This week
+          </button>
+          {weeks.map((w) => (
+            <button
+              key={w}
+              type="button"
+              className={week === w ? "rpt__chip rpt__chip--on" : "rpt__chip"}
+              onClick={() => {
+                setWeek(w);
+                setPeriod("all");
+              }}
+            >
+              {weekLabel(`${w}T00:00:00.000Z`)}
+            </button>
+          ))}
+        </div>
+      </div>
+      <p className="rpt__summary">
+        Showing {filtered.length} of {own.length} notes
+        {staleCount > 0 ? ` · ${staleCount} older than 60 days` : ""}
       </p>
       {rows.length === 0 ? (
-        <p className="pf__empty" style={{ marginTop: 22 }}>
+        <p className="pf__empty" style={{ marginTop: 8 }}>
           No saved notes yet.
         </p>
+      ) : filtered.length === 0 ? (
+        <p className="pf__empty">No notes match these filters.</p>
       ) : (
-        <>
-          <div className="rpt__filters" style={{ marginTop: 22 }}>
-            <label className="pf__label">
-              Week
-              <select
-                className="pf__input"
-                value={period === "week" ? "week" : "all"}
-                onChange={(e) =>
-                  setPeriod(e.target.value === "week" ? "week" : "all")
-                }
-              >
-                <option value="all">All weeks</option>
-                <option value="week">This week</option>
-              </select>
-            </label>
-            <label className="pf__label">
-              Month
-              <select
-                className="pf__input"
-                value={period === "month" && !month ? "this" : month}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  if (v === "this") {
-                    setMonth("");
-                    setPeriod("month");
-                    return;
-                  }
-                  if (v === "") {
-                    setMonth("");
-                    if (period === "month") setPeriod("all");
-                    return;
-                  }
-                  setMonth(v);
-                  setPeriod("all");
-                }}
-              >
-                <option value="">All months</option>
-                <option value="this">This month</option>
-                {months.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="pf__label">
-              Company
-              <select
-                className="pf__input"
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-              >
-                <option value="">All companies</option>
-                {companies.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-          <div className="pf__table-wrap">
-            <div className="pf__scroll">
-              <table className="pf__table">
-                <thead>
-                  <tr>
-                    <th>Ticker</th>
-                    <th>Version</th>
-                    <th>Last run</th>
-                    <th>Note</th>
-                    <th>Verdict</th>
-                    <th>Status</th>
-                    <th>Cost</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="pf__empty">
-                        No notes match these filters.
-                      </td>
-                    </tr>
-                  ) : (
-                    filtered.map((r) => {
-                      const stale = r.kind === "note" && isStaleNote(r.lastRun);
-                      return (
-                        <tr key={`${r.kind}-${r.id}`}>
-                          <td className="pf__ticker">{r.ticker}</td>
-                          <td className="pf__muted">
-                            {versionLabel(r.version, r.versionCount)}
-                          </td>
-                          <td className="pf__muted">{dayKey(r.lastRun)}</td>
-                          <td>
-                            <Link href={r.href}>{r.name}</Link>
-                            {r.isLibrarySample ? (
-                              <span className="pf__muted"> · sample</span>
-                            ) : null}
-                            {stale ? (
-                              <p className="rpt__stale">{STALE_COPY}</p>
-                            ) : null}
-                          </td>
-                          <td>{shortVerdict(r.verdict)}</td>
-                          <td>{stale ? "Possibly obsolete" : r.status}</td>
-                          <td>
-                            {r.costCents == null ? "—" : moneyCents(r.costCents)}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
+        groups.map((g) => (
+          <section className="rpt__group" key={g.key}>
+            <div className="rpt__group-h">
+              <h2>{g.label}</h2>
+              <span>
+                {g.items.length} note{g.items.length === 1 ? "" : "s"}
+              </span>
             </div>
+            <div className="rpt__grid">
+              {g.items.map((r) => {
+                const stale = r.kind === "note" && isStaleNote(r.lastRun);
+                const tone = verdictTone(r.verdict);
+                return (
+                  <article className="rpt__card" key={`${r.kind}-${r.id}`}>
+                    <div className="rpt__card-top">
+                      <span className="rpt__card-meta">
+                        {r.ticker} · {noteDateLabel(r.lastRun)}
+                      </span>
+                      <span className={`rpt__verdict rpt__verdict--${tone}`}>
+                        {shortVerdict(r.verdict)}
+                      </span>
+                    </div>
+                    <Link className="rpt__card-name" href={r.href}>
+                      {r.name}
+                    </Link>
+                    {stale ? (
+                      <div className="rpt__outdated">
+                        <span className="bld__intent-dot" aria-hidden />
+                        <p>
+                          <strong>Outdated · {relativeAge(r.lastRun)}.</strong> Run a
+                          fresh analysis before acting on this.
+                        </p>
+                      </div>
+                    ) : null}
+                    <div className="rpt__card-foot">
+                      <span>
+                        {agentLabel(r)} · {relativeAge(r.lastRun)}
+                      </span>
+                      <div className="rpt__card-actions">
+                        {stale ? (
+                          <Link
+                            href={`/analyse?ticker=${encodeURIComponent(r.ticker)}`}
+                            className="rpt__fresh"
+                          >
+                            Run fresh analysis
+                          </Link>
+                        ) : null}
+                        {r.kind === "note" ? (
+                          <PdfOpenButton reportId={r.id} ready={Boolean(r.pdfKey)} />
+                        ) : (
+                          <Link href={r.href} className="rpt__pdf">
+                            Open wait page
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        ))
+      )}
+      {samples.length > 0 ? (
+        <>
+          <div className="rpt__group-h">
+            <h2>Free samples</h2>
+            <span>Read-only, never count against your plan</span>
+          </div>
+          <div className="rpt__grid">
+            {samples.map((r) => (
+              <article className="rpt__card" key={r.id}>
+                <div className="rpt__card-top">
+                  <span className="rpt__card-meta">Sample</span>
+                  <span className={`rpt__verdict rpt__verdict--${verdictTone(r.verdict)}`}>
+                    {shortVerdict(r.verdict)}
+                  </span>
+                </div>
+                <Link className="rpt__card-name" href={r.href}>
+                  {r.name}
+                </Link>
+                <div className="rpt__card-foot">
+                  <span>{agentLabel(r)}</span>
+                  <Link href={r.href} className="rpt__pdf">
+                    Read
+                  </Link>
+                </div>
+              </article>
+            ))}
           </div>
         </>
-      )}
+      ) : null}
     </div>
   );
 }

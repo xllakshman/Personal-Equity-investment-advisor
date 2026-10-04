@@ -4,6 +4,8 @@ import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { DESK_FONT_STACK } from "./font";
+
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../..");
 
 function src(rel: string): string {
@@ -11,7 +13,7 @@ function src(rel: string): string {
 }
 
 describe("desk typeface", () => {
-  it("desk shell loads Carlito and prefers Calibri; marketing and login do not", () => {
+  it("desk shell uses the App.dc.html SF Pro stack; marketing and login stay Helvetica", () => {
     const font = src("lib/desk/font.ts");
     const deskCss = src("app/(desk)/desk.css");
     const shell = src("components/features/desk/AppShell.tsx");
@@ -19,18 +21,27 @@ describe("desk typeface", () => {
     const marketing = src("app/(marketing)/marketing.css");
     const auth = src("app/(auth)/auth.css");
 
-    assert.match(font, /DESK_FONT_STACK = "Calibri, Carlito, sans-serif"/);
-    assert.match(font, /from "next\/font\/google"/);
-    assert.match(font, /Carlito\(/);
+    assert.match(DESK_FONT_STACK, /SF Pro Display/);
+    assert.match(DESK_FONT_STACK, /Helvetica Neue/);
+    assert.equal(font.includes("IBM_Plex_Sans"), false);
+    assert.equal(font.includes("next/font/google"), false);
+    assert.equal(font.includes("Calibri"), false);
+    assert.equal(font.includes("Carlito"), false);
     assert.equal(font.includes("Inter"), false);
     assert.match(
       deskCss,
-      /font-family:\s*Calibri,\s*var\(--font-carlito\),\s*Carlito,\s*sans-serif/,
+      /font-family:\s*-apple-system,\s*"SF Pro Display",\s*"SF Pro Text",\s*"Helvetica Neue",\s*Helvetica,\s*sans-serif/,
     );
-    assert.match(shell, /deskFont\.variable/);
-    assert.match(admin, /deskFont\.variable/);
+    assert.equal(deskCss.includes("IBM Plex Sans"), false);
+    assert.equal(deskCss.includes("Newsreader"), false);
+    assert.equal(deskCss.includes("Calibri"), false);
+    assert.equal(deskCss.includes("Carlito"), false);
+    assert.equal(shell.includes("deskFont"), false);
+    assert.equal(admin.includes("deskFont"), false);
     assert.match(marketing, /Helvetica Neue/);
     assert.match(auth, /Helvetica Neue/);
+    assert.equal(auth.includes("IBM Plex"), false);
+    assert.equal(auth.includes("Newsreader"), false);
     assert.equal(marketing.includes("Calibri"), false);
     assert.equal(auth.includes("Calibri"), false);
     assert.equal(marketing.includes("Carlito"), false);

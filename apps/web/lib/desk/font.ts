@@ -1,11 +1,3 @@
-import { Carlito } from "next/font/google";
-
-/** Desk, report, and Analyse. Marketing / login keep their own stack. */
-export const DESK_FONT_STACK = "Calibri, Carlito, sans-serif";
-
-export const deskFont = Carlito({
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "700"],
-  variable: "--font-carlito",
-});
+/** App.dc.html lock. Desk, report, Analyse, account, admin. Marketing / login keep the same stack. */
+export const DESK_FONT_STACK =
+  '-apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif';

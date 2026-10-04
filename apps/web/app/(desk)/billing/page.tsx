@@ -4,7 +4,7 @@ import { planCardTitle, planLimitLabel } from "@/lib/billing/plan-titles";
 import { requireDeskSession } from "@/lib/desk/session";
 import { createClient } from "@/lib/supabase/server";
 import { loadUsageSnapshot } from "@/lib/usage/load";
-import { planStatusLabel, usageCaption, usageHumanHint } from "@/lib/usage/format";
+import { planStatusLabel, usageBarPct, usageCaption, usageHumanHint } from "@/lib/usage/format";
 
 export default async function BillingPage() {
   const session = await requireDeskSession();
@@ -46,8 +46,9 @@ export default async function BillingPage() {
     : null;
 
   return (
-    <div>
-      <h1 className="desk__h1">Subscription</h1>
+    <div className="desk__screen">
+      <p className="desk__kicker">Subscription</p>
+      <h1 className="desk__h1">Your plan</h1>
       <p className="desk__lede">
         Your plan, analyses this month, and wallet. Subscribe saves a request and
         emails the operator. The plan on this page does not change until they
@@ -68,10 +69,16 @@ export default async function BillingPage() {
         <div className="desk__card">
           <p className="desk__kpi-k">Analyses this month</p>
           <p className="desk__kpi-v">{usageCaption(snap)}</p>
+          <div className="desk__meter-bar" style={{ marginTop: 10 }}>
+            <div
+              className="desk__meter-fill"
+              style={{ width: `${usageBarPct(snap.used, snap.limit)}%` }}
+            />
+          </div>
           <p className="desk__kpi-s">{usageHumanHint(snap)}</p>
         </div>
         <div className="desk__card">
-          <p className="desk__kpi-k">Model spend (this month)</p>
+          <p className="desk__kpi-k">Agent spend this month</p>
           <p className="desk__kpi-v">${(snap.costCents / 100).toFixed(2)}</p>
           <p className="desk__kpi-s">What ran on your book this month</p>
         </div>
@@ -112,6 +119,15 @@ export default async function BillingPage() {
         <WeeklyDigestToggle optedIn={Boolean(family?.weekly_digest_opt_in)} />
       ) : null}
       <PlanCards cards={cards} pendingPlanId={pendingPlanId} />
+      <div className="bld__intent" style={{ marginTop: 8 }}>
+        <span className="bld__intent-dot" aria-hidden />
+        <div>
+          <p>Please run the agent with intent</p>
+          <span>
+            Each run costs us real compute and comes out of your allowance.
+          </span>
+        </div>
+      </div>
     </div>
   );
 }

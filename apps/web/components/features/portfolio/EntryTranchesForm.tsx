@@ -21,15 +21,13 @@ export function EntryTranchesForm({
 
   return (
     <form id="entry-tranches" className="pf__card" action={action}>
-      <p className="pf__card-title">Step · Entry tranches</p>
+      <p className="pf__card-title">Buy in four slices</p>
       <p className="pf__lede">
-        How a new buy is split across four fills. The worker reads{" "}
-        <code>investor_profiles.tranche_t1_pct</code> through{" "}
-        <code>tranche_t4_pct</code> and sends them with the analysis pack. This
-        does not change lots. Only the owner can save.
+        How a new buy is split across four fills. The next analysis uses these
+        shares. This does not change lots. Only the owner can save.
       </p>
       {!isOwner ? (
-        <p className="pf__error">Only the family owner can save entry tranches.</p>
+        <p className="pf__error">Only the family owner can save slice sizes.</p>
       ) : null}
       <div className="pf__row">
         <label className="pf__label" htmlFor="tranche_t1_pct">

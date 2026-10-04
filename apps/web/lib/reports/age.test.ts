@@ -10,11 +10,11 @@ import {
 } from "./age";
 
 describe("isStaleNote", () => {
-  it("flags a note older than 30 days", () => {
+  it("flags a note older than 60 days", () => {
     const now = new Date("2026-10-03T12:00:00Z");
     assert.equal(isStaleNote("2026-09-13T00:00:00Z", now), false);
-    assert.equal(isStaleNote("2026-08-01T00:00:00Z", now), true);
-    assert.match(STALE_COPY, /obsolete/i);
+    assert.equal(isStaleNote("2026-07-01T00:00:00Z", now), true);
+    assert.match(STALE_COPY, /60 days/);
   });
 });
 

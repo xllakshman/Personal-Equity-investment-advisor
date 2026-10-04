@@ -176,6 +176,8 @@ export type DeskNoteRow = {
   isLibrarySample: boolean;
   version: number | null;
   versionCount: number;
+  modelId: string;
+  pdfKey: string | null;
 };
 
 const IN_PROGRESS = ["queued", "gathering", "drafting", "checking", "rendering"];
@@ -186,7 +188,7 @@ export async function loadDeskNotes(familyId: string): Promise<DeskNoteRow[]> {
     supabase
       .from("reports")
       .select(
-        "id, name, ticker, verdict, token_cost_cents, is_library_sample, created_at",
+        "id, name, ticker, verdict, token_cost_cents, is_library_sample, created_at, model_id, pdf_key",
       )
       .eq("family_id", familyId)
       .order("created_at", { ascending: false }),
@@ -211,6 +213,8 @@ export async function loadDeskNotes(familyId: string): Promise<DeskNoteRow[]> {
     isLibrarySample: Boolean(r.is_library_sample),
     version: null,
     versionCount: 0,
+    modelId: String(r.model_id ?? ""),
+    pdfKey: r.pdf_key ? String(r.pdf_key) : null,
   }));
 
   const inProgress: DeskNoteRow[] = (pending ?? []).map((r) => ({
@@ -226,6 +230,8 @@ export async function loadDeskNotes(familyId: string): Promise<DeskNoteRow[]> {
     isLibrarySample: false,
     version: null,
     versionCount: 0,
+    modelId: "",
+    pdfKey: null,
   }));
 
   return assignNoteVersions(

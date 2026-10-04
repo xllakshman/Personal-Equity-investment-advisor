@@ -1,13 +1,11 @@
 import Link from "next/link";
 
-import { EqvesteMark } from "@/components/features/brand/EqvesteMark";
-import { EqvesteWord } from "@/components/features/brand/EqvesteWord";
+import { EqvesteWordmark } from "@/components/features/brand/EqvesteWordmark";
 import { AccountMenu } from "@/components/features/desk/AccountMenu";
 import { CurrencyChip } from "@/components/features/desk/CurrencyChip";
 import { DeskNav } from "@/components/features/desk/DeskNav";
 import { ObservabilityPing } from "@/components/features/desk/ObservabilityPing";
 import { TickerSearch } from "@/components/features/desk/TickerSearch";
-import { deskFont } from "@/lib/desk/font";
 import type { DeskSession } from "@/lib/desk/session";
 import type { NativeCurrency } from "@/lib/portfolio/exchange";
 
@@ -31,17 +29,11 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className={`desk ${deskFont.variable}`}>
-      <div className="desk__blobs" aria-hidden>
-        <span className="desk__blob desk__blob--a" />
-        <span className="desk__blob desk__blob--b" />
-        <span className="desk__blob desk__blob--c" />
-      </div>
+    <div className="desk">
       <ObservabilityPing />
       <header className="desk__top">
         <Link href="/desk" className="desk__brand">
-          <EqvesteMark gid="eqeg-desk" size={28} />
-          <EqvesteWord className="desk__word" />
+          <EqvesteWordmark gid="eqeg-desk" variant="nav" />
         </Link>
         <TickerSearch />
         <div className="desk__right">
@@ -50,11 +42,8 @@ export function AppShell({
               {running.label}
             </Link>
           ) : null}
-          <Link href="/billing" className="desk__plan-chip" title="Open Subscription">
-            Subscription · {planChip}
-          </Link>
           <CurrencyChip currency={displayCurrency} />
-          <AccountMenu fullName={session.fullName} />
+          <AccountMenu fullName={session.fullName} planLine={planChip} />
         </div>
       </header>
       <div className="desk__body">

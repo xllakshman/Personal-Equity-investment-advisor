@@ -7,6 +7,11 @@ import { pctLabel } from "@/lib/research/cagr";
 import { ELITE_INVESTORS } from "@/lib/research/elite-catalog";
 import type { EliteInvestorBook, EliteSnapshot } from "@/lib/research/elite-types";
 import { emptySnapshot } from "@/lib/research/elite-types";
+import {
+  eliteAccent,
+  overlapCopy,
+  topHoldingChips,
+} from "@/lib/research/holding-chips";
 
 function usd(n: number): string {
   if (!Number.isFinite(n)) return "—";
@@ -21,7 +26,13 @@ function shares(n: number): string {
   return n.toLocaleString("en-US", { maximumFractionDigits: 0 });
 }
 
-export function EliteInvestorDesk({ initial }: { initial: EliteSnapshot }) {
+export function EliteInvestorDesk({
+  initial,
+  heldTickers = [],
+}: {
+  initial: EliteSnapshot;
+  heldTickers?: string[];
+}) {
   const [snap, setSnap] = useState<EliteSnapshot>(initial ?? emptySnapshot());
   const [open, setOpen] = useState<string | null>(ELITE_INVESTORS[0]?.slug ?? null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -99,8 +110,14 @@ export function EliteInvestorDesk({ initial }: { initial: EliteSnapshot }) {
           const isOpen = open === row.slug;
           const top = (book?.holdings ?? []).slice(0, 15);
           const rest = Math.max(0, (book?.holdings.length ?? 0) - top.length);
+          const chips = topHoldingChips(book?.holdings ?? [], heldTickers);
+          const accent = eliteAccent(i);
           return (
-            <li key={row.slug} className="desk__card elite__card">
+            <li
+              key={row.slug}
+              className="desk__card elite__card"
+              style={{ ["--elite-accent" as string]: accent }}
+            >
               <button
                 type="button"
                 className="elite__head"
@@ -119,6 +136,38 @@ export function EliteInvestorDesk({ initial }: { initial: EliteSnapshot }) {
                   <span>10y {pctLabel(book?.returns.y10 ?? null)}</span>
                 </span>
               </button>
+              <div className="elite__hold">
+                <p className="elite__hold-k">Top five holdings</p>
+                {chips.length === 0 ? (
+                  <p className="pf__muted" style={{ margin: 0 }}>
+                    Refresh this book to see holdings.
+                  </p>
+                ) : (
+                  <div className="elite__chips">
+                    {chips.map((chip) =>
+                      chip.ticker ? (
+                        <Link
+                          key={`${row.slug}-${chip.label}`}
+                          href={`/analyse?ticker=${encodeURIComponent(chip.ticker)}`}
+                          className={
+                            chip.overlap ? "elite__chip elite__chip--mine" : "elite__chip"
+                          }
+                        >
+                          {chip.label}
+                        </Link>
+                      ) : (
+                        <span
+                          key={`${row.slug}-${chip.label}`}
+                          className="elite__chip"
+                        >
+                          {chip.label}
+                        </span>
+                      ),
+                    )}
+                  </div>
+                )}
+                <p className="elite__overlap">{overlapCopy(chips)}</p>
+              </div>
               {isOpen ? (
                 <div className="elite__body">
                   <p className="pf__lede">{row.vehicleNote}</p>

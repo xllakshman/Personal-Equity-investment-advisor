@@ -12,12 +12,14 @@ export async function submitContact(
   formData: FormData,
 ): Promise<ContactActionState> {
   try {
+    const topic = String(formData.get("topic") ?? "").trim();
+    const rawMessage = String(formData.get("message") ?? "");
     const parsed = parseContactFields({
       fullName: String(formData.get("fullName") ?? ""),
       email: String(formData.get("email") ?? ""),
       phoneCc: String(formData.get("phoneCc") ?? ""),
       phoneNational: String(formData.get("phoneNational") ?? ""),
-      message: String(formData.get("message") ?? ""),
+      message: topic ? `[${topic}] ${rawMessage}` : rawMessage,
     });
     if (!parsed.ok) return { error: parsed.error, notice: null };
 

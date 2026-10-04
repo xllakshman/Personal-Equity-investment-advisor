@@ -30,6 +30,7 @@ export type DeskHome = {
     verdict: string;
     createdAt: string;
   }[];
+  sampleCount: number;
   supportGrant: SupportGrantStatus;
   flags: DeskFlag[];
 };
@@ -57,7 +58,7 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
       .eq("billing_period", period),
     supabase
       .from("reports")
-      .select("id, ticker, name, verdict, created_at")
+      .select("id, ticker, name, verdict, created_at, is_library_sample")
       .eq("family_id", familyId)
       .order("created_at", { ascending: false })
       .limit(8),
@@ -95,6 +96,8 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
 
   const rawHoldings = holdingsRes.data ?? [];
   const reports = reportsRes.data ?? [];
+  const ownReports = reports.filter((r) => !r.is_library_sample);
+  const sampleCount = reports.filter((r) => r.is_library_sample).length;
   const latestByTicker = new Map<string, string>();
   for (const r of reports) {
     const t = String(r.ticker);
@@ -138,13 +141,14 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
     costBasis,
     costCurrency,
     holdings: mappedHoldings,
-    recentNotes: reports.map((r) => ({
+    recentNotes: ownReports.map((r) => ({
       id: String(r.id),
       ticker: String(r.ticker),
       name: String(r.name),
       verdict: String(r.verdict),
       createdAt: String(r.created_at),
     })),
+    sampleCount,
     supportGrant: grantRes.data?.expires_at
       ? { active: true, expiresAt: String(grantRes.data.expires_at) }
       : { active: false, expiresAt: null },

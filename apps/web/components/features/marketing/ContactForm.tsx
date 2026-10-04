@@ -1,10 +1,12 @@
 "use client";
 
-import { useActionState, type ReactNode } from "react";
+import { useActionState, useState, type ReactNode } from "react";
 
 import { submitContact } from "@/lib/contact/submit";
 import { PHONE_COUNTRY_OPTIONS } from "@/lib/auth/signup-fields";
 import { EMPTY_CONTACT_STATE } from "@/lib/contact/parse";
+
+const TOPICS = ["Billing", "A report", "My portfolio", "Something else"] as const;
 
 function Field({
   desk,
@@ -20,7 +22,7 @@ function Field({
   if (desk) {
     return (
       <div>
-        <label className="pf__label" htmlFor={htmlFor}>
+        <label className="ct__label" htmlFor={htmlFor}>
           {label}
         </label>
         {children}
@@ -46,20 +48,109 @@ export function ContactForm({
     submitContact,
     EMPTY_CONTACT_STATE,
   );
+  const [topic, setTopic] = useState<(typeof TOPICS)[number]>("Billing");
   const desk = variant === "desk";
-  const formClass = desk ? "pf__stack" : "mkt__contact";
-  const inputClass = desk ? "pf__input" : "mkt__input mkt__input--box";
-  const phoneClass = desk ? "pf__phone" : "mkt__contact-phone";
-  const msgClass = desk
-    ? "pf__input pf__contact-msg"
-    : "mkt__input mkt__input--box mkt__contact-msg";
-  const btnClass = desk ? "desk__btn" : "mkt__btn mkt__btn--solid";
+  const formClass = desk ? "ct__form" : "mkt__contact";
+  const inputClass = desk ? "ct__input" : "mkt__input mkt__input--box";
+  const msgClass = desk ? "ct__input" : "mkt__input mkt__input--box mkt__contact-msg";
   const errClass = desk
     ? "pf__error"
     : "mkt__contact-banner mkt__contact-banner--err";
   const okClass = desk
     ? "pf__banner"
     : "mkt__contact-banner mkt__contact-banner--ok";
+
+  if (desk) {
+    return (
+      <form className={formClass} action={action}>
+        {state.error ? (
+          <p className={errClass} role="alert">
+            {state.error}
+          </p>
+        ) : null}
+        {state.notice ? (
+          <p className={okClass} role="status">
+            {state.notice}
+          </p>
+        ) : null}
+        <input type="hidden" name="topic" value={topic} />
+        <p className="ct__label">What is it about?</p>
+        <div className="ct__topics">
+          {TOPICS.map((t) => (
+            <button
+              key={t}
+              type="button"
+              className={topic === t ? "ct__topic ct__topic--on" : "ct__topic"}
+              onClick={() => setTopic(t)}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+        <div className="ct__fields">
+          <Field desk htmlFor="contact-name" label="Name">
+            <input
+              id="contact-name"
+              className={inputClass}
+              name="fullName"
+              autoComplete="name"
+              maxLength={120}
+              required
+              defaultValue={defaults?.fullName ?? ""}
+            />
+          </Field>
+          <Field desk htmlFor="contact-email" label="Email">
+            <input
+              id="contact-email"
+              className={inputClass}
+              type="email"
+              name="email"
+              autoComplete="email"
+              maxLength={200}
+              required
+              defaultValue={defaults?.email ?? ""}
+            />
+          </Field>
+        </div>
+        <label className="ct__label" htmlFor="contact-phone">
+          Phone (optional)
+        </label>
+        <span className="ct__phone">
+          <select className={inputClass} name="phoneCc" defaultValue="+91" aria-label="Country code">
+            {PHONE_COUNTRY_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label.replace(" · ", " ")}
+              </option>
+            ))}
+          </select>
+          <input
+            id="contact-phone"
+            className={inputClass}
+            name="phoneNational"
+            autoComplete="tel-national"
+            inputMode="tel"
+            placeholder="Mobile number"
+            maxLength={20}
+          />
+        </span>
+        <label className="ct__label" htmlFor="contact-message">
+          Message
+        </label>
+        <textarea
+          id="contact-message"
+          className={msgClass}
+          name="message"
+          rows={5}
+          maxLength={4000}
+          required
+          placeholder="Tell us what happened, and the stock or report if it's about one."
+        />
+        <button type="submit" className="ct__send" disabled={pending} style={{ marginTop: 16 }}>
+          {pending ? "Sending…" : "Send message"}
+        </button>
+      </form>
+    );
+  }
 
   return (
     <form className={formClass} action={action}>
@@ -73,7 +164,7 @@ export function ContactForm({
           {state.notice}
         </p>
       ) : null}
-      <Field desk={desk} htmlFor="contact-name" label="Name">
+      <Field desk={false} htmlFor="contact-name" label="Name">
         <input
           id="contact-name"
           className={inputClass}
@@ -84,7 +175,7 @@ export function ContactForm({
           defaultValue={defaults?.fullName ?? ""}
         />
       </Field>
-      <Field desk={desk} htmlFor="contact-email" label="Email">
+      <Field desk={false} htmlFor="contact-email" label="Email">
         <input
           id="contact-email"
           className={inputClass}
@@ -96,8 +187,8 @@ export function ContactForm({
           defaultValue={defaults?.email ?? ""}
         />
       </Field>
-      <Field desk={desk} htmlFor="contact-phone" label="Phone">
-        <span className={phoneClass}>
+      <Field desk={false} htmlFor="contact-phone" label="Phone">
+        <span className="mkt__contact-phone">
           <select
             className={inputClass}
             name="phoneCc"
@@ -122,7 +213,7 @@ export function ContactForm({
           />
         </span>
       </Field>
-      <Field desk={desk} htmlFor="contact-message" label="Message">
+      <Field desk={false} htmlFor="contact-message" label="Message">
         <textarea
           id="contact-message"
           className={msgClass}
@@ -132,7 +223,7 @@ export function ContactForm({
           required
         />
       </Field>
-      <button type="submit" className={btnClass} disabled={pending}>
+      <button type="submit" className="mkt__btn mkt__btn--solid" disabled={pending}>
         {pending ? "Sending…" : "Submit"}
       </button>
     </form>

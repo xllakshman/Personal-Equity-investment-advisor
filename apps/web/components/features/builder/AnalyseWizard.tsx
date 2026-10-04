@@ -31,6 +31,7 @@ import {
 import {
   CORE_LENSES,
   isComprehensive,
+  LENS_COLORS,
   LENS_COPY,
   selectedLenses,
   toggleLens,
@@ -47,7 +48,7 @@ import {
 } from "@/lib/analyse/steps";
 import { analyseWaitHref } from "@/lib/analyse/in-flight";
 import { trancheSummary } from "@/lib/profile/tranches";
-import { usageCaption, usageHumanHint } from "@/lib/usage/format";
+import { analyseUsageChip, usageCaption } from "@/lib/usage/format";
 import type { UsageSnapshot } from "@/lib/usage/types";
 import { versionLabel } from "@/lib/reports/versions";
 
@@ -56,6 +57,20 @@ const TAX_RES = [
   { id: "india", label: "India resident" },
   { id: "uae", label: "Non-resident (UAE / no local CGT)" },
   { id: "nri", label: "Non-resident Indian (NRI)" },
+] as const;
+
+const RISK_UI = [
+  { id: "low_0_10", label: "Up to 10% fall" },
+  { id: "medium_11_20", label: "11–20% fall" },
+  { id: "high_21_35", label: "21–35% fall" },
+  { id: "extreme_35_plus", label: "More than 35%" },
+] as const;
+
+const CAGR_UI = [
+  { id: "low_12", label: "Up to 12% a year" },
+  { id: "medium_13_18", label: "13–18%" },
+  { id: "high_18_25", label: "18–25%" },
+  { id: "extreme_25_plus", label: "Above 25%" },
 ] as const;
 
 const LENS_OPTIONS = [
@@ -94,6 +109,9 @@ export function AnalyseWizard({
     news: false,
     tax: false,
   });
+  const [srcMode, setSrcMode] = useState<"any" | "book">(
+    payload.ticker || payload.holdings.length === 0 ? "any" : "book",
+  );
   const [ticker, setTicker] = useState(
     () => payload.ticker || payload.holdings[0]?.ticker || "",
   );
@@ -163,9 +181,14 @@ export function AnalyseWizard({
   const guide = analyseGuide(stepDone);
   const currentStep = firstOpenStep(stepDone);
   const alloc = allocationPct(invested, portfolio);
-  const kindSummary = picked.length
-    ? picked.map((k) => LENS_COPY[k as keyof typeof LENS_COPY]?.label ?? k).join(" · ")
-    : "Nothing picked yet";
+  const coreCount = CORE_LENSES.filter((k) => lenses[k]).length;
+  const kindSummary = `${coreCount} of 4`;
+  const shareGiven = portfolio > 0 && (invested > 0 || intended > 0);
+  const sharePct = allocationPct(invested > 0 ? invested : intended, portfolio);
+  const allocS = shareGiven ? `${sharePct.toFixed(0)}%` : "Not given";
+  const allocNote = shareGiven
+    ? allocationNote(sharePct)
+    : "Optional — tell us what you hold and your total, and we will size the answer";
   const lockedFrontier = groups.frontier.some(
     (m) => !modelOnPlan(m, payload.allowedModelIds, payload.planSlug),
   );
@@ -180,11 +203,11 @@ export function AnalyseWizard({
       return `Finish ${payload.inFlight.ticker} first. Submit stays off until that run is ready or failed.`;
     }
     if (!canWrite) return "Viewers can read notes but cannot start an analysis.";
-    if (!normalizeTicker(ticker)) return "Enter a ticker, or pick one from your book.";
-    if (conflict) return "Fix the risk and return mismatch to continue";
+    if (!normalizeTicker(ticker)) return "Type or pick a stock first";
+    if (conflict) return "Your risk limit and return goal don't match yet";
     if (picked.length === 0) return "Pick at least one check";
     if (!onPlan || !modelId) return "Upgrade your plan to run this agent";
-    return `Runs on ${chosen?.label ?? modelId} · uses 1 note, or ${modelCost(chosen?.cost_cents_per_run ?? 0)}`;
+    return "Uses 1 analysis from your plan";
   }, [canWrite, ticker, conflict, picked.length, onPlan, modelId, chosen, payload.inFlight]);
 
   function setResidency(next: string) {
@@ -212,7 +235,7 @@ export function AnalyseWizard({
           ) : null}
         </div>
       ) : null}
-    <form className="bld" action={action}>
+    <form className="bld desk__screen" action={action}>
       <input type="hidden" name="ticker" value={normalizeTicker(ticker)} />
       <input type="hidden" name="exchange" value={exchange} />
       <input type="hidden" name="invested_currency" value={currency} />
@@ -236,22 +259,20 @@ export function AnalyseWizard({
         <>
           <div className="desk__toolbar">
             <div>
-              <p className="desk__kicker">Research</p>
-              <h1 className="desk__h1">Analyse a stock</h1>
+              <p className="desk__kicker">Analyse a stock</p>
+              <h1 className="desk__h1">What do you want to decide?</h1>
+              <p className="desk__lede">
+                Analyse any stock, or one from your portfolio. Either way it uses one
+                analysis and the note lands in Reports.
+              </p>
             </div>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-              <span className="desk__consume">{usageHumanHint(usage)}</span>
-              <Link href="/billing" className="desk__btn desk__btn--ghost">
-                Upgrade Plan
+              <span className="bld__toolbar-chip">{analyseUsageChip(usage)}</span>
+              <Link href="/billing" className="desk__btn desk__btn--light">
+                Upgrade
               </Link>
             </div>
           </div>
-          <p className="desk__lede">
-            Complete steps 1 to 6. Type any ticker, or pick a name from your book.
-            A holding fills qty and cost; you can still change the numbers for this
-            run. Each run uses one note from this month’s allowance. One Submit at
-            a time — wait until the current run is ready or failed.
-          </p>
           <ol className="bld__rail" aria-label="Analysis steps">
             {ANALYSE_STEPS.map((s, i) => (
               <li key={s.id}>
@@ -289,56 +310,136 @@ export function AnalyseWizard({
           <div className="bld__grid" style={{ marginTop: 18 }}>
               <div className="bld__col">
                 <section className="pf__card" id="analyse-step-1">
-                  <h2 className="bld__h2">Step 1 · Stock to research</h2>
-                  <p className="pf__lede">Your own ticker or a name you already hold.</p>
-                  <label className="pf__label">
-                    Ticker
-                    <TickerLookup value={ticker} onChange={setTicker} />
-                  </label>
-                  {payload.holdings.length > 0 ? (
-                    <label className="pf__label">
-                      From your book
-                      <select
-                        className="pf__input"
-                        value={held ? ticker : ""}
-                        onChange={(e) => {
-                          if (e.target.value) setTicker(e.target.value);
-                        }}
-                      >
-                        <option value="">Type a ticker above, or pick a holding</option>
-                        {payload.holdings.map((h) => (
-                          <option key={`${h.ticker}-${h.exchange}`} value={h.ticker}>
-                            {h.ticker}
-                            {h.company_name ? ` · ${h.company_name}` : ""}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                  <h2 className="bld__h2">1 · Which stock?</h2>
+                  <p className="pf__lede">Type any stock, or pick one you already own.</p>
+                  <div className="bld__src">
+                    <button
+                      type="button"
+                      className={srcMode === "any" ? "bld__src-btn bld__src-btn--on" : "bld__src-btn"}
+                      onClick={() => setSrcMode("any")}
+                    >
+                      Any stock
+                    </button>
+                    <button
+                      type="button"
+                      className={srcMode === "book" ? "bld__src-btn bld__src-btn--on" : "bld__src-btn"}
+                      onClick={() => {
+                        setSrcMode("book");
+                        if (!held && payload.holdings[0]) setTicker(payload.holdings[0].ticker);
+                      }}
+                    >
+                      From my portfolio
+                    </button>
+                  </div>
+                  {srcMode === "any" ? (
+                    <div className="bld__fields">
+                      <label className="pf__label">
+                        Stock
+                        <TickerLookup
+                          value={ticker}
+                          onChange={setTicker}
+                          placeholder="Ticker, e.g. NVDA"
+                        />
+                      </label>
+                      <label className="pf__label">
+                        You hold or plan to put in
+                        <input
+                          className="pf__input"
+                          type="number"
+                          min={0}
+                          step="any"
+                          placeholder="Optional, e.g. 5000"
+                          value={intended || ""}
+                          onChange={(e) => setIntended(Number(e.target.value) || 0)}
+                        />
+                      </label>
+                      <label className="pf__label">
+                        Your total portfolio
+                        <input
+                          className="pf__input"
+                          type="number"
+                          min={0}
+                          step="any"
+                          placeholder="Optional, e.g. 60000"
+                          value={portfolio || ""}
+                          onChange={(e) => setPortfolio(Number(e.target.value) || 0)}
+                        />
+                      </label>
+                    </div>
+                  ) : payload.holdings.length > 0 ? (
+                    <div className="bld__picks">
+                      {payload.holdings.map((h) => (
+                        <button
+                          key={`${h.ticker}-${h.exchange}`}
+                          type="button"
+                          className={ticker === h.ticker ? "bld__src-btn bld__src-btn--on" : "bld__src-btn"}
+                          onClick={() => setTicker(h.ticker)}
+                        >
+                          {h.ticker}
+                        </button>
+                      ))}
+                    </div>
                   ) : (
-                    <p className="pf__lede">
-                      No lots yet. You can still run a note; add holdings on Home if
-                      you want size and cost in the pack.
-                    </p>
+                    <div className="bld__intent" style={{ marginBottom: 14 }}>
+                      <span className="bld__intent-dot" aria-hidden />
+                      <div>
+                        <p>Your portfolio is empty. Add stocks on Home, or analyse any stock now.</p>
+                        <span>
+                          <Link href="/desk">Add stocks</Link>
+                          {" · "}
+                          <button type="button" className="desk__privacy-link" onClick={() => setSrcMode("any")}>
+                            Any stock
+                          </button>
+                        </span>
+                      </div>
+                    </div>
                   )}
+                  <div className="bld__share">
+                    <div>
+                      <p className="bld__share-k">Share of portfolio</p>
+                      <p className="bld__share-v">{allocS}</p>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="bld__track">
+                        <div
+                          className="bld__fill"
+                          style={{ width: `${shareGiven ? Math.min(100, sharePct) : 0}%` }}
+                        />
+                      </div>
+                      <p className="pf__lede">{allocNote}</p>
+                    </div>
+                  </div>
                 </section>
 
                 <section className="pf__card" id="analyse-step-2">
-                  <div className="bld__sec-head">
-                    <h2 className="bld__h2">Step 2 · What to check</h2>
-                    <span className="bld__meta">{kindSummary}</span>
-                  </div>
+                  <h2 className="bld__h2">2 · What should we check?</h2>
                   <p className="pf__lede">
-                    Pick one kind of check, or run them together. This stays open —
-                    it is required before Submit for analysis.
+                    Pick one or all four — it still counts as one analysis.
                   </p>
-                  <div className="bld__kinds" role="group" aria-label="What to check">
-                    {LENS_OPTIONS.map((id) => {
-                      const on =
-                        id === "comprehensive"
-                          ? isComprehensive(lenses)
-                          : id === "tax"
-                            ? lenses.tax
-                            : lenses[id];
+                  <div className="bld__kinds" role="group" aria-label="What should we check">
+                    {CORE_LENSES.map((id) => {
+                      const on = lenses[id];
+                      return (
+                        <button
+                          key={id}
+                          type="button"
+                          className={on ? "bld__kind bld__kind--on" : "bld__kind"}
+                          style={{ ["--lens" as string]: LENS_COLORS[id] }}
+                          aria-pressed={on}
+                          onClick={() => toggleCheck(id)}
+                        >
+                          <span className={on ? "bld__box bld__box--on" : "bld__box"} />
+                          <span>
+                            <strong>{LENS_COPY[id].label}</strong>
+                            <em>{LENS_COPY[id].desc}</em>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="bld__kinds" style={{ marginTop: 10 }}>
+                    {(["comprehensive", "tax"] as const).map((id) => {
+                      const on = id === "comprehensive" ? isComprehensive(lenses) : lenses.tax;
                       return (
                         <button
                           key={id}
@@ -359,7 +460,7 @@ export function AnalyseWizard({
                 </section>
 
                 <section className="pf__card" id="analyse-step-3">
-                  <h2 className="bld__h2">Step 3 · Your position</h2>
+                  <h2 className="bld__h2">Your position</h2>
                   <p className="pf__lede">
                     If this ticker is in your book, qty and cost are filled. Change
                     them for this run only — that does not edit lots on Home.
@@ -474,48 +575,50 @@ export function AnalyseWizard({
                 </section>
 
                 <section className="pf__card" id="analyse-step-4">
-                  <h2 className="bld__h2">Step 4 · Risk and return</h2>
+                  <h2 className="bld__h2">3 · Your limits</h2>
                   <p className="pf__lede">
-                    These two have to match. We check before spending a note.
+                    These two have to match, and we check before spending an analysis.
                   </p>
-                  <div className="bld__two">
-                    <label className="pf__label">
-                      <span>Risk appetite · drawdown you can hold through</span>
-                      <select
-                        className="pf__input"
-                        value={risk}
-                        onChange={(e) =>
-                          setRisk(e.target.value as (typeof RISK_BANDS)[number]["id"])
+                  <p className="pf__lede" style={{ fontWeight: 600, color: "#f5f5f7" }}>
+                    How big a fall can you sit through?
+                  </p>
+                  <div className="bld__pills">
+                    {RISK_UI.map((r) => (
+                      <button
+                        key={r.id}
+                        type="button"
+                        className={
+                          risk === r.id ? "bld__pill bld__pill--risk bld__pill--on" : "bld__pill bld__pill--risk"
                         }
+                        onClick={() => setRisk(r.id)}
                       >
-                        {RISK_BANDS.map((r) => (
-                          <option key={r.id} value={r.id}>
-                            {r.label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="pf__label">
-                      <span>Return target · CAGR you are underwriting</span>
-                      <select
-                        className="pf__input"
-                        value={cagr}
-                        onChange={(e) =>
-                          setCagr(e.target.value as (typeof CAGR_BANDS)[number]["id"])
+                        {r.label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="pf__lede" style={{ fontWeight: 600, color: "#f5f5f7" }}>
+                    What return are you aiming for?
+                  </p>
+                  <div className="bld__pills">
+                    {CAGR_UI.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        className={
+                          cagr === c.id ? "bld__pill bld__pill--cagr bld__pill--on" : "bld__pill bld__pill--cagr"
                         }
+                        onClick={() => setCagr(c.id)}
                       >
-                        {CAGR_BANDS.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                        {c.label}
+                      </button>
+                    ))}
                   </div>
                   {conflict ? (
                     <div className="bld__alert bld__alert--bad">
                       <p>{CONFLICT_TITLE}</p>
-                      <span>{CONFLICT_MSG}</span>
+                      <span>
+                        A return that high comes with bigger falls than you&apos;ve said you can take. Allow a bigger fall, or aim a little lower — we won&apos;t plan for something that can&apos;t happen.
+                      </span>
                     </div>
                   ) : null}
                   {slack ? (
@@ -527,7 +630,7 @@ export function AnalyseWizard({
                 </section>
 
                 <section className="pf__card" id="analyse-step-5">
-                  <h2 className="bld__h2">Step 5 · Tax treatment</h2>
+                  <h2 className="bld__h2">Tax treatment</h2>
                   <p className="pf__lede">
                     Decides how long to hold, and when selling actually makes sense.
                   </p>
@@ -590,8 +693,41 @@ export function AnalyseWizard({
               </div>
 
               <aside className="bld__side">
+                <section className="bld__ready">
+                  <p className="desk__kicker">Ready to run</p>
+                  <div className="bld__kv">
+                    <span>Stock</span>
+                    <b>{normalizeTicker(ticker) || "—"}</b>
+                    <span>Checks</span>
+                    <b>{kindSummary}</b>
+                    <span>Share of portfolio</span>
+                    <b>{allocS}</b>
+                    <span>Agent</span>
+                    <b>{chosen?.label ?? "Basic agent"}</b>
+                  </div>
+                  <button
+                    className="bld__continue"
+                    type="submit"
+                    name="skip_clarify"
+                    value="1"
+                    disabled={!ok || pending || Boolean(state.requestId)}
+                  >
+                    {pending || state.requestId ? "Opening wait page…" : "Run analysis"}
+                  </button>
+                  <p className="bld__run-note">{runNote}</p>
+                </section>
+                <div className="bld__intent">
+                  <span className="bld__intent-dot" aria-hidden />
+                  <div>
+                    <p>Run it with a decision in mind</p>
+                    <span>
+                      Each run costs real compute and uses your allowance. Start one when
+                      you&apos;re ready to buy, add, trim or leave it — and finish knowing which.
+                    </span>
+                  </div>
+                </div>
                 <section className="pf__card" id="analyse-step-6">
-                  <h2 className="bld__h2">Step 6 · Choose your agent</h2>
+                  <h2 className="bld__h2">4 · Choose your agent</h2>
                   <p className="pf__lede">
                     Frontier agents come with Professional and above. Quick agents
                     are on Trial and Basic. Plan: {payload.planName}.{" "}
@@ -616,43 +752,6 @@ export function AnalyseWizard({
                       </Link>
                     </div>
                   ) : null}
-                </section>
-
-                <section className="bld__ready">
-                  <p className="desk__kicker">Ready to run</p>
-                  <div className="bld__kv">
-                    <span>Ticker</span>
-                    <b>{ticker || "—"}</b>
-                    <span>Checks</span>
-                    <b>{kindSummary}</b>
-                    <span>Allocation</span>
-                    <b>{alloc.toFixed(1)}%</b>
-                    <span>I plan to invest</span>
-                    <b>{intended > 0 ? moneyAmount(intended, currency) : "—"}</b>
-                    <span>Model</span>
-                    <b>{chosen?.label ?? "—"}</b>
-                    <span>Cost</span>
-                    <b>{chosen ? modelCost(chosen.cost_cents_per_run) : "—"}</b>
-                  </div>
-                  <button
-                    className="bld__continue"
-                    type="submit"
-                    name="skip_clarify"
-                    value="1"
-                    disabled={!ok || pending || Boolean(state.requestId)}
-                  >
-                    {pending || state.requestId ? "Opening wait page…" : "Submit for analysis"}
-                  </button>
-                  <button
-                    className="pf__ghost"
-                    type="button"
-                    disabled={!ok}
-                    onClick={() => setStep("clarify")}
-                    style={{ marginTop: 8, width: "100%" }}
-                  >
-                    Add three clarifications first
-                  </button>
-                  <p className="bld__run-note">{runNote}</p>
                 </section>
               </aside>
             </div>

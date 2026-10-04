@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { canWriteFamily, requireDeskSession } from "@/lib/desk/session";
+import { parseSupportDays } from "@/lib/desk/support-days";
 import { type FamilyState } from "@/lib/family/action-state";
 import { ELITE_INVESTORS } from "@/lib/research/elite-catalog";
 import { persistEliteBook } from "@/lib/research/elite-store";
@@ -195,7 +196,8 @@ export async function grantSupportAccess(
     .eq("role", "platform_admin")
     .maybeSingle();
   if (!admin?.id) return { error: "That email is not a platform_admin user.", notice: null };
-  const expires = new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString();
+  const days = parseSupportDays(formData.get("days"));
+  const expires = new Date(Date.now() + days * 24 * 3600 * 1000).toISOString();
   const { error } = await supabase.from("support_access_grants").insert({
     family_id: session.familyId,
     granted_by: session.userId,
@@ -208,6 +210,6 @@ export async function grantSupportAccess(
   revalidatePath("/desk");
   return {
     error: null,
-    notice: "Support may SELECT lots until the grant expires on its own.",
+    notice: `Support may SELECT lots for ${days} day${days === 1 ? "" : "s"}. Access ends on its own.`,
   };
 }

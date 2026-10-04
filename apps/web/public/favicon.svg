@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="15" fill="#191f30"/>
+  <defs>
+    <linearGradient id="eq-favicon" x1="12" y1="12" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0a84ff"/>
+      <stop offset="35%" stop-color="#bf5af2"/>
+      <stop offset="68%" stop-color="#ff9f0a"/>
+      <stop offset="100%" stop-color="#30d158"/>
+    </linearGradient>
+  </defs>
+  <path
+    d="M14 32 H50 A18 18 0 1 0 44.73 44.73"
+    fill="none"
+    stroke="url(#eq-favicon)"
+    stroke-width="8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

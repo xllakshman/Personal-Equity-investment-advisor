@@ -72,12 +72,12 @@ export default async function PortfolioPage({
   const profileLoad = await loadInvestorProfile(session.familyId, session.userId);
 
   return (
-    <div>
-      <h1 className="desk__h1">Review Portfolio</h1>
+    <div className="desk__screen">
+      <p className="desk__kicker">Portfolio</p>
+      <h1 className="desk__h1">Your holdings</h1>
       <p className="desk__lede" style={{ maxWidth: "62ch" }}>
-        Optional. Lots change size and tax in the note. Entry tranches (step
-        below) go with the analysis pack. You can still Analyse a ticker that is
-        not in this book.
+        Upload a spreadsheet or add a name. Display currency does not change stored
+        costs. You can still analyse a stock that is not in this book.
       </p>
       {notice ? <p className="pf__banner">{notice}</p> : null}
       {add ? (

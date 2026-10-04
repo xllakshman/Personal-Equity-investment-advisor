@@ -25,7 +25,6 @@ function money(amount: number, ccy: string): string {
 export function DeskHomeView({
   home,
   fullName,
-  todayLabel,
   lots,
   canWrite,
   notice,
@@ -39,26 +38,66 @@ export function DeskHomeView({
 }) {
   const analysesLabel =
     home.analysisLimit != null
-      ? `${home.analysesThisCycle} / ${home.analysisLimit}`
+      ? `${home.analysesThisCycle} of ${home.analysisLimit}`
       : String(home.analysesThisCycle);
   const privacy = deskPrivacyView(home.supportGrant);
+  const emptyBook = home.positions === 0;
+  const portfolioValue = money(home.costBasis, home.costCurrency === "mixed" ? "USD" : home.costCurrency);
 
   return (
-    <div>
+    <div className="desk__screen">
       <div className="desk__hero">
         <div>
-          <p className="desk__kicker">{todayLabel}</p>
+          <p className="desk__kicker">Your desk</p>
           <h1 className="desk__h1">Good morning, {firstName(fullName)}.</h1>
         </div>
         <Link href="/analyse" className="desk__btn">
           Analyse a stock
         </Link>
       </div>
+      <div className="desk__kpis">
+        <div className="desk__card">
+          <p className="desk__kpi-k">Portfolio value</p>
+          <p className="desk__kpi-v">{emptyBook ? "$0" : portfolioValue}</p>
+          <p className="desk__kpi-s">
+            {home.positions} holding{home.positions === 1 ? "" : "s"}
+          </p>
+        </div>
+        <div className="desk__card">
+          <p className="desk__kpi-k">Gain or loss</p>
+          <p className="desk__kpi-v desk__gain">{emptyBook ? "+$0" : "—"}</p>
+          <p className="desk__kpi-s desk__gain">{emptyBook ? "—" : "Not a live price"}</p>
+        </div>
+        <div className="desk__card">
+          <p className="desk__kpi-k">Analyses this month</p>
+          <p className="desk__kpi-v">{analysesLabel}</p>
+          <p className="desk__kpi-s">{analysesThisCycleCaption(home.planName)}</p>
+        </div>
+        <div className="desk__card">
+          <p className="desk__kpi-k">Saved notes</p>
+          <p className="desk__kpi-v">{home.recentNotes.length}</p>
+          <p className="desk__kpi-s">
+            {home.sampleCount > 0 ? `plus ${home.sampleCount} samples` : "Your notes"}
+          </p>
+        </div>
+      </div>
       <section
         className={privacy.shared ? "desk__privacy desk__privacy--shared" : "desk__privacy"}
         aria-labelledby="desk-privacy-title"
       >
-        <div>
+        <div className="desk__privacy-lock" aria-hidden>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#30d158" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="5" y="11" width="14" height="10" rx="2.5" />
+            <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+          </svg>
+        </div>
+        <div className="desk__privacy-copy">
+          <h2 id="desk-privacy-title" className="desk__privacy-h">
+            {privacy.title}
+          </h2>
+          <p>{privacy.detail}</p>
+        </div>
+        <div className="desk__privacy-side">
           <p
             className={
               privacy.shared
@@ -66,20 +105,42 @@ export function DeskHomeView({
                 : "desk__privacy-badge desk__privacy-badge--private"
             }
           >
-            {privacy.badge}
+            {privacy.shared ? "Support access: on" : "Support access: off"}
           </p>
-          <h2 id="desk-privacy-title" className="desk__privacy-h">
-            {privacy.title}
-          </h2>
-          <p>{privacy.detail}</p>
+          <Link href="/portfolio" className="desk__privacy-link">
+            Manage access →
+          </Link>
         </div>
-        <Link href="/portfolio" className="desk__btn desk__btn--ghost">
-          Manage access
-        </Link>
       </section>
+      {emptyBook ? (
+        <div className="desk__steps">
+          <h2>Three steps to your first decision</h2>
+          <p>
+            You can analyse any stock straight away. Add your holdings too, and
+            every answer is sized to your real money.
+          </p>
+          <div className="desk__steps-grid">
+            <Link href="/portfolio" className="desk__step desk__step--hot">
+              <span className="desk__step-k">STEP 1 · OPTIONAL</span>
+              <span className="desk__step-t">Add your holdings below</span>
+              <span className="desk__step-d">Type them in here, or upload a spreadsheet.</span>
+            </Link>
+            <div className="desk__step">
+              <span className="desk__step-k">STEP 2</span>
+              <span className="desk__step-t">Pick a stock and your limits</span>
+              <span className="desk__step-d">How big a fall you can take, and the return you want.</span>
+            </div>
+            <div className="desk__step">
+              <span className="desk__step-k">STEP 3</span>
+              <span className="desk__step-t">Get a clear plan</span>
+              <span className="desk__step-d">How much to buy, when to add, when to sell.</span>
+            </div>
+          </div>
+        </div>
+      ) : null}
       {home.flags.length > 0 ? (
-        <section className="desk__flags" aria-label="We tell you without being asked">
-          <h2 className="desk__flags-h">We tell you without being asked</h2>
+        <section className="desk__flags" aria-label="We'll tell you without being asked">
+          <h2 className="desk__flags-h">We&apos;ll tell you without being asked</h2>
           <ul className="desk__flags-list">
             {home.flags.map((flag) => (
               <li key={flag.kind} className="desk__flag">
@@ -90,32 +151,6 @@ export function DeskHomeView({
           </ul>
         </section>
       ) : null}
-      <div className="desk__kpis">
-        <div className="desk__card">
-          <p className="desk__kpi-k">At last cost</p>
-          <p className="desk__kpi-v">
-            {home.positions === 0 ? "—" : money(home.costBasis, home.costCurrency)}
-          </p>
-          <p className="desk__kpi-s">What you paid × how many shares — not today’s price.</p>
-        </div>
-        <div className="desk__card">
-          <p className="desk__kpi-k">Unrealised P&amp;L</p>
-          <p className="desk__kpi-v">—</p>
-          <p className="desk__kpi-s">Needs a current price. Not shown yet.</p>
-        </div>
-        <div className="desk__card">
-          <p className="desk__kpi-k">Positions</p>
-          <p className="desk__kpi-v">{home.positions}</p>
-          <p className="desk__kpi-s">Names in your book.</p>
-        </div>
-        <div className="desk__card">
-          <p className="desk__kpi-k">Analyses this month</p>
-          <p className="desk__kpi-v">{analysesLabel}</p>
-          <p className="desk__kpi-s">
-            {analysesThisCycleCaption(home.planName)}
-          </p>
-        </div>
-      </div>
       <div className="desk__book-block">
         <AllocationTable holdings={home.holdings} />
       </div>

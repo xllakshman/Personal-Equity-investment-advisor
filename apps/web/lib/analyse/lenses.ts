@@ -18,20 +18,20 @@ export type LensState = {
 export const LENS_COPY: Record<CoreLens | "comprehensive" | "tax", { label: string; desc: string }> =
   {
     fundamental: {
-      label: "Fundamental",
-      desc: "Results, growth, profit margins, and how expensive it is next to rivals",
+      label: "Business",
+      desc: "Results, profit margins, and price versus rivals",
     },
     technical: {
-      label: "Technical",
-      desc: "Price trend, averages, and the levels it keeps bouncing off",
+      label: "Price",
+      desc: "Trend, averages, and levels it keeps bouncing off",
     },
     macro: {
-      label: "Macro",
-      desc: "Interest rates, currency, and where the industry is in its cycle",
+      label: "Economy",
+      desc: "Interest rates, currency, the industry cycle",
     },
     news: {
       label: "News",
-      desc: "Company and industry headlines from the last 90 days",
+      desc: "Company and industry headlines, last 90 days",
     },
     comprehensive: {
       label: "Comprehensive",
@@ -42,6 +42,13 @@ export const LENS_COPY: Record<CoreLens | "comprehensive" | "tax", { label: stri
       desc: "Optional extra lens. Not required for Comprehensive.",
     },
   };
+
+export const LENS_COLORS: Record<CoreLens, string> = {
+  fundamental: "#0a84ff",
+  technical: "#30d158",
+  macro: "#ff9f0a",
+  news: "#bf5af2",
+};
 
 export function isComprehensive(lenses: Pick<LensState, CoreLens>): boolean {
   return CORE_LENSES.every((k) => lenses[k]);

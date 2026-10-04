@@ -7,8 +7,23 @@ export function usageCaption(snap: UsageSnapshot): string {
 
 export function usageHumanHint(snap: UsageSnapshot): string {
   const plan = snap.planName ?? "Trial";
+  const wallet = `$${(snap.walletCents / 100).toFixed(2)}`;
+  return `${plan} plan · wallet ${wallet}`;
+}
+
+export function headerPlanLine(snap: UsageSnapshot): string {
+  const slug = (snap.planSlug ?? "").toLowerCase();
+  if (snap.exhausted) {
+    return `${snap.planName ?? "Trial"} · Allowance used`;
+  }
+  if (slug === "trial" || (snap.planName ?? "Trial") === "Trial") return "Free trial";
+  return snap.planName ?? "Trial";
+}
+
+export function analyseUsageChip(snap: UsageSnapshot): string {
+  const plan = snap.planName ?? "Trial";
   if (snap.limit == null) return `${plan} · analyses this month`;
-  return `${plan} · ${snap.used} of ${snap.limit} analyses this month`;
+  return `${plan} · ${snap.used} of ${snap.limit} analyses used`;
 }
 
 export function planStatusLabel(

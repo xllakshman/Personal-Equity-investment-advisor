@@ -1,7 +1,6 @@
 import Link from "next/link";
 
-import { EqvesteMark } from "@/components/features/brand/EqvesteMark";
-import { EqvesteWord } from "@/components/features/brand/EqvesteWord";
+import { EqvesteWordmark } from "@/components/features/brand/EqvesteWordmark";
 import { ContactForm } from "./ContactForm";
 import { PlanGrid } from "./PlanGrid";
 import { Reveal } from "./Reveal";
@@ -135,11 +134,11 @@ const WHY = [
   ],
   [
     "You choose the agent",
-    "How good a note is depends on which agent runs it, so we show you the price of each one and let you decide. Quick agent for a first look, frontier agent when real money is on the line.",
+    "How good a note is depends on which agent runs it, so we show you the price of each one and let you decide. Basic agent for a first look, frontier agent when real money is on the line.",
   ],
   [
     "Your notes stay yours",
-    "Every analysis is saved as a PDF you can reread, rename and open anywhere. We are not a broker, we never place a trade, and nobody else sees your holdings.",
+    "We can't see your holdings. Only if you ask for help can you let support look, for 3 to 15 days, and access ends on its own. Every note is saved as a PDF you can reread anywhere.",
   ],
 ];
 
@@ -190,6 +189,7 @@ export function HomePage() {
             background:
               "radial-gradient(circle at 50% 50%, rgba(255,159,10,.08), rgba(255,159,10,0) 62%)",
             animation: "thesis-flo2 29s ease-in-out infinite",
+            filter: "blur(34px)",
           }}
         />
         <div
@@ -202,6 +202,7 @@ export function HomePage() {
             background:
               "radial-gradient(circle at 40% 60%, rgba(48,209,88,.10), rgba(48,209,88,0) 62%)",
             animation: "thesis-flo3 38s ease-in-out infinite",
+            filter: "blur(34px)",
           }}
         />
       </div>
@@ -209,17 +210,14 @@ export function HomePage() {
         <header className="mkt__nav-outer">
           <nav className="mkt__nav" aria-label="Marketing">
             <a href="#top" className="mkt__brand">
-              <EqvesteMark gid="eqeg-mkt" size={22} />
-              <EqvesteWord />
+              <EqvesteWordmark gid="eqeg-mkt" variant="nav" />
             </a>
             <div className="mkt__nav-links">
               <a href="#solutions">What it does</a>
               <a href="#method">How it works</a>
               <a href="#frameworks">The rules</a>
               <a href="#whyus">Why us</a>
-              <a href="#privacy">Privacy</a>
               <a href="#pricing">Subscription</a>
-              <a href="#contact">Contact</a>
             </div>
             <div className="mkt__nav-cta">
               <Link href="/login" className="mkt__btn mkt__btn--login">
@@ -249,10 +247,10 @@ export function HomePage() {
               to your money, your risk limit and your return goal.
             </p>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 34 }}>
-              <Link href="/signup" className="mkt__btn mkt__btn--solid">
+              <Link href="/signup" className="mkt__btn mkt__btn--solid mkt__btn--lg">
                 Create a free account
               </Link>
-              <a href="#method" className="mkt__btn mkt__btn--ghost">
+              <a href="#method" className="mkt__btn mkt__btn--ghost mkt__btn--lg">
                 See how it works
               </a>
             </div>
@@ -336,7 +334,38 @@ export function HomePage() {
                 <p style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#f5f5f7" }}>12%</p>
               </div>
             </div>
-            <p style={{ margin: "16px 0 0", fontSize: 12, color: "rgba(245,245,247,.64)" }}>
+            <div
+              className="mkt__bars"
+              aria-hidden
+              style={{
+                display: "flex",
+                gap: 7,
+                alignItems: "flex-end",
+                height: 64,
+                margin: "20px 0 10px",
+              }}
+            >
+              {[
+                ["38%", "#0a84ff"],
+                ["58%", "#0a84ff"],
+                ["46%", "#0a84ff"],
+                ["72%", "#30d158"],
+                ["88%", "#30d158"],
+                ["64%", "#30d158"],
+                ["100%", "#bf5af2"],
+              ].map(([h, c], i) => (
+                <div
+                  key={`${h}-${i}`}
+                  style={{
+                    flex: 1,
+                    height: h,
+                    borderRadius: 6,
+                    background: `linear-gradient(180deg, ${c}, ${c}40)`,
+                  }}
+                />
+              ))}
+            </div>
+            <p style={{ margin: 0, fontSize: 12, color: "rgba(245,245,247,.64)" }}>
               Buying plan · slice 1 done, slice 2 ready, slice 3 if it falls further, slice 4 held back
             </p>
           </div>
@@ -358,39 +387,39 @@ export function HomePage() {
           </p>
         </section>
 
-        <section id="privacy" className="mkt__section">
-          <Reveal className="mkt__privacy">
-            <p className="mkt__kicker">Holdings stay yours</p>
-            <h2 className="mkt__h2">Your portfolio is private. We can&apos;t see it.</h2>
-            <p className="mkt__lede">
-              Nobody at eqveste can see what you own or how much. Only if you ask
-              us for help can you let support look and access ends on its own.
-            </p>
-            <div className="mkt__privacy-grid">
-              <div className="mkt__card">
-                <p className="mkt__privacy-k">Off unless you ask</p>
-                <p>
-                  After you log in, Home and Portfolio show this same rule. Platform
-                  admin cannot SELECT view <code>holdings</code> until the family
-                  owner grants access.
-                </p>
+        <section id="privacy" className="mkt__section" style={{ paddingTop: 56, paddingBottom: 0 }}>
+          <Reveal className="mkt__privacy mkt__privacy--hero">
+            <div>
+              <div className="mkt__privacy-lock" aria-hidden>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#30d158" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="5" y="11" width="14" height="10" rx="2.5" />
+                  <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+                </svg>
               </div>
-              <div className="mkt__card">
-                <p className="mkt__privacy-k">Ends on its own</p>
-                <p>
-                  The owner types a platform admin email on Portfolio. That insert
-                  into <code>support_access_grants</code> lasts seven days, then
-                  SELECT on lots stops. No extra click is required to end it.
-                </p>
-              </div>
-              <div className="mkt__card">
-                <p className="mkt__privacy-k">We never trade or share</p>
-                <p>
-                  eqveste is not a broker. We never place a trade. Notes stay on
-                  Reports for your family. Support never sees report sections or
-                  lot quantities without that grant.
-                </p>
-              </div>
+              <p className="mkt__kicker" style={{ color: "#30d158" }}>Private by default</p>
+              <h2 className="mkt__h2" style={{ fontSize: "clamp(30px, 4vw, 48px)" }}>
+                We can&apos;t see your portfolio.
+              </h2>
+              <p className="mkt__lede" style={{ fontSize: 17, color: "rgba(245,245,247,.78)" }}>
+                Your holdings are yours. Nobody at eqveste — not support, not our engineers —
+                can see what you own or how much. That only changes if you ask us for help
+                and switch access on yourself.
+              </p>
+            </div>
+            <div className="mkt__privacy-rows">
+              {[
+                ["01", "Off unless you ask", "Support access is switched off by default. You turn it on only when you want help."],
+                ["02", "You pick 3 to 15 days", "When the time is up, access switches off on its own. You can also end it any time."],
+                ["03", "We never trade or share", "We are not a broker. We never place orders, and we never sell or share your data."],
+              ].map(([n, t, b]) => (
+                <div key={n} className="mkt__privacy-row">
+                  <span>{n}</span>
+                  <div>
+                    <p className="mkt__privacy-k">{t}</p>
+                    <p>{b}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </Reveal>
         </section>
@@ -558,7 +587,7 @@ export function HomePage() {
           >
             <div>
               <p className="mkt__kicker" style={{ color: "rgba(48,209,88,.95)" }}>
-                Free weekly email
+                Weekly email · Ultra Premium & Unlimited
               </p>
               <h2 className="mkt__h2" style={{ fontSize: "clamp(26px, 3.4vw, 40px)" }}>
                 One email a week, written around the stocks you own.
@@ -671,9 +700,8 @@ export function HomePage() {
         </section>
 
         <footer className="mkt__footer">
-          <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-            <EqvesteMark gid="eqeg-mkt-foot" size={20} />
-            <EqvesteWord />
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <EqvesteWordmark gid="eqeg-mkt-foot" variant="footer" />
           </div>
           <div style={{ display: "flex", gap: 22, flexWrap: "wrap" }}>
             <a href="#solutions">What it does</a>

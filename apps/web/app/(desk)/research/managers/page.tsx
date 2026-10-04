@@ -2,6 +2,7 @@ import { ManagersForms } from "@/components/features/family/ManagersForms";
 import { EliteInvestorDesk } from "@/components/features/research/EliteInvestorDesk";
 import { requireDeskSession } from "@/lib/desk/session";
 import { loadPersistedSnapshot } from "@/lib/research/elite-store";
+import { uniqueHeldTickers } from "@/lib/research/holding-chips";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function ManagersPage() {
@@ -20,24 +21,29 @@ export default async function ManagersPage() {
     .from("holdings")
     .select("ticker")
     .eq("family_id", session.familyId);
-  const heldSet = new Set((held ?? []).map((h) => String(h.ticker)));
+  const heldTickers = uniqueHeldTickers((held ?? []).map((h) => String(h.ticker)));
+  const heldSet = new Set(heldTickers);
   const counts = new Map<string, number>();
   for (const s of snaps ?? []) {
-    const t = String(s.ticker);
+    const t = String(s.ticker ?? "")
+      .trim()
+      .toUpperCase();
+    if (!t) continue;
     counts.set(t, (counts.get(t) ?? 0) + 1);
   }
   const flags = [...counts.entries()].filter(([t, n]) => n >= 3 && !heldSet.has(t));
   const elite = await loadPersistedSnapshot(supabase);
 
   return (
-    <div>
-      <h1 className="desk__h1">Elite Investor Portfolios</h1>
+    <div className="desk__screen">
+      <p className="desk__kicker">Managers</p>
+      <h1 className="desk__h1">What they hold</h1>
       <p className="desk__lede">
         Twenty well-known investors. Company weights come from the filer’s latest
         13F-HR on SEC EDGAR. This is not a broker and not your personal book.
         Filings are often about 45 days old, so they are not for timing a trade.
       </p>
-      <EliteInvestorDesk initial={elite} />
+      <EliteInvestorDesk initial={elite} heldTickers={heldTickers} />
       {(watches ?? []).length === 0 ? null : (
         <ul className="admin__list" style={{ marginTop: 18 }}>
           {(watches ?? []).map((w) => (

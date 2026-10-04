@@ -47,8 +47,13 @@ export function parseContactFields(
   if (!(PHONE_COUNTRY_CODES as readonly string[]).includes(phoneCc)) {
     return { ok: false, error: "Country code must be +91, +1, or +971." };
   }
-  const e164 = toE164(phoneCc, input.phoneNational ?? "");
-  if (!e164.ok) return e164;
+  const national = digitsOnly(input.phoneNational ?? "");
+  let phoneE164 = "";
+  if (national) {
+    const e164 = toE164(phoneCc, input.phoneNational ?? "");
+    if (!e164.ok) return e164;
+    phoneE164 = e164.e164;
+  }
 
   const message = (input.message ?? "").trim();
   if (!message) return { ok: false, error: "Write a short message." };
@@ -60,8 +65,8 @@ export function parseContactFields(
       fullName,
       email,
       phoneCc: phoneCc as PhoneCountryCode,
-      phoneNational: digitsOnly(input.phoneNational ?? ""),
-      phoneE164: e164.e164,
+      phoneNational: national,
+      phoneE164,
       message,
     },
   };

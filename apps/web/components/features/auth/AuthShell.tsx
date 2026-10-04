@@ -1,11 +1,10 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { EqvesteMark } from "@/components/features/brand/EqvesteMark";
-import { EqvesteWord } from "@/components/features/brand/EqvesteWord";
+import { EqvesteWordmark } from "@/components/features/brand/EqvesteWordmark";
 
 const POINTS = [
-  { color: "#0a84ff", text: "Sized to your capital, drawdown tolerance and CAGR target" },
+  { color: "#0a84ff", text: "Sized to your capital, how big a fall you can sit through, and your return goal" },
   { color: "#30d158", text: "Built to disagree with you — never a flattering answer" },
   { color: "#bf5af2", text: "Choose your model — you only pay for what you run" },
 ];
@@ -39,8 +38,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
           aria-hidden
         />
         <Link href="/" className="auth__wordmark">
-          <EqvesteMark gid="eqeg-auth" size={26} />
-          <EqvesteWord />
+          <EqvesteWordmark gid="eqeg-auth" variant="login" />
         </Link>
         <div style={{ position: "relative", maxWidth: 480 }}>
           <p className="auth__pill">

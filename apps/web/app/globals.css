@@ -1,20 +1,74 @@
 @import "tailwindcss";
 
 :root {
+  --bg: #191f30;
+  --text: #f5f5f7;
+  --text-2: rgba(245, 245, 247, 0.72);
+  --text-3: rgba(245, 245, 247, 0.62);
+  --text-ph: rgba(245, 245, 247, 0.42);
+  --on-light: #0b0d14;
+  --blue: #0a84ff;
+  --blue-link: #409cff;
+  --blue-link-hover: #6cb4ff;
+  --green: #30d158;
+  --orange: #ff9f0a;
+  --orange-2: #ffb340;
+  --violet: #bf5af2;
+  --violet-2: #d69bff;
+  --red: #ff453a;
+  --red-2: #ff6961;
+  --cyan: #64d2ff;
+  --pink: #ff375f;
+  --yellow: #ffd60a;
+  --grey: #98989d;
+  --glass: rgba(255, 255, 255, 0.07);
+  --glass-hover: rgba(255, 255, 255, 0.1);
+  --glass-inner: rgba(255, 255, 255, 0.05);
+  --line: rgba(255, 255, 255, 0.12);
+  --line-strong: rgba(255, 255, 255, 0.24);
+  --line-soft: rgba(255, 255, 255, 0.07);
+  --blur: blur(30px) saturate(180%);
+  --blur-strong: blur(40px) saturate(180%);
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.16) inset, 0 26px 60px rgba(0, 0, 0, 0.4);
+  --shadow-hero: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 40px 90px rgba(0, 0, 0, 0.55);
+  --grad-brand: linear-gradient(120deg, #0a84ff, #30d158 38%, #ff9f0a 68%, #bf5af2);
+  --grad-cta: linear-gradient(100deg, #0a84ff, #30d158);
+  --grad-premium: linear-gradient(100deg, #bf5af2, #0a84ff);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --r-pill: 999px;
+  --r-input: 12px;
+  --r-tile: 16px;
+  --r-inner: 20px;
+  --r-card: 24px;
+  --r-hero: 32px;
+  --font: -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
   --paper: #f6f5f2;
   --ink: #1b1a17;
   --forest: #2f5f52;
-  --font-ui: -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
-  --font-ibm-plex-sans: -apple-system, "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
+  --font-ui: var(--font);
+  --font-ibm-plex-sans: var(--font);
   --font-ibm-plex-mono: ui-monospace, "SF Mono", Menlo, monospace;
-  --font-newsreader: Newsreader, "Iowan Old Style", Palatino, Georgia, serif;
+  --font-newsreader: var(--font);
 }
 
 html,
 body {
   margin: 0;
   min-height: 100%;
-  font-family: var(--font-ui);
+  font-family: var(--font);
+  background-color: #191f30;
+  background-image:
+    radial-gradient(1200px 700px at 12% -5%, rgba(10, 132, 255, 0.1), transparent 60%),
+    radial-gradient(1000px 620px at 92% 12%, rgba(191, 90, 242, 0.08), transparent 62%),
+    radial-gradient(1100px 700px at 50% 108%, rgba(48, 209, 88, 0.07), transparent 60%);
+  background-attachment: fixed;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+option {
+  color: #111;
+  background: #fff;
 }
 
 *,
@@ -27,10 +81,143 @@ a {
   text-decoration: none;
 }
 
+::placeholder {
+  color: var(--text-ph);
+}
+
+@keyframes flo1 {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(6vw, -4vh, 0) scale(1.15);
+  }
+}
+@keyframes flo2 {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.1);
+  }
+  50% {
+    transform: translate3d(-7vw, 5vh, 0) scale(0.95);
+  }
+}
+@keyframes flo3 {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(4vw, 6vh, 0) scale(1.2);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 28px;
+  }
+  to {
+    opacity: 1;
+    translate: none;
+  }
+}
+@keyframes appin {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes shim {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+@keyframes mq {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes pulseDot {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+}
+@keyframes sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+@keyframes glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(10, 132, 255, 0.55),
+      0 0 18px 2px rgba(10, 132, 255, 0.35);
+  }
+  50% {
+    box-shadow:
+      0 0 0 8px rgba(10, 132, 255, 0),
+      0 0 30px 6px rgba(10, 132, 255, 0.6);
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+.eqveste-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #f5f5f7;
+}
+
 .eqveste-word {
+  font-family: var(--font);
   font-weight: 700;
   letter-spacing: -0.01em;
   text-transform: none;
+  color: #f5f5f7;
+  line-height: 1;
+}
+
+.eqveste-word--nav {
+  font-size: 19px;
+}
+
+.eqveste-word--footer {
+  font-size: 16px;
+}
+
+.eqveste-word--login {
+  font-size: 21px;
 }
 
 .eqveste-mark {
@@ -40,7 +227,7 @@ a {
 
 .eqveste-word__v {
   display: inline-block;
-  background-image: linear-gradient(120deg, #0a84ff, #30d158 38%, #ff9f0a 68%, #bf5af2);
+  background-image: var(--grad-brand);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

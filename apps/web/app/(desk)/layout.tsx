@@ -4,7 +4,7 @@ import { loadInFlightAnalysis } from "@/lib/analyse/load-inflight";
 import { requireDeskSession } from "@/lib/desk/session";
 import { loadPortfolioSettings } from "@/lib/portfolio/load";
 import { loadUsageSnapshot } from "@/lib/usage/load";
-import { usageBarPct, usageCaption, usageHumanHint, planChipLabel } from "@/lib/usage/format";
+import { usageBarPct, usageCaption, usageHumanHint, headerPlanLine } from "@/lib/usage/format";
 
 import "./desk.css";
 
@@ -24,7 +24,7 @@ export default async function DeskLayout({
       meterLabel={usageCaption(usage)}
       meterHint={usageHumanHint(usage)}
       meterPct={usageBarPct(usage.used, usage.limit)}
-      planChip={planChipLabel(usage)}
+      planChip={headerPlanLine(usage)}
       running={
         running
           ? {

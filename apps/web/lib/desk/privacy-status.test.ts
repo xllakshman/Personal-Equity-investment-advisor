@@ -8,7 +8,7 @@ describe("deskPrivacyView", () => {
     const view = deskPrivacyView({ active: false, expiresAt: null });
     assert.equal(view.shared, false);
     assert.equal(view.badge, "Private");
-    assert.equal(view.title, "Your account view is private");
+    assert.equal(view.title, "Your portfolio is private. We can't see it.");
   });
 
   it("labels an unexpired grant as Shared with admin", () => {

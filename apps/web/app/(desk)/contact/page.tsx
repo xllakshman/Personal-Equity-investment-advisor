@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { ContactForm } from "@/components/features/marketing/ContactForm";
 import { requireDeskSession } from "@/lib/desk/session";
 
@@ -5,13 +7,13 @@ export default async function ContactPage() {
   const session = await requireDeskSession();
 
   return (
-    <div>
-      <h1 className="desk__h1">Contact us</h1>
-      <p className="desk__lede" style={{ maxWidth: "62ch" }}>
-        Name, email, phone, and your question. Submit sends it to the eqveste
-        inbox. We reply to the address you type, usually within 24–48 hours.
+    <div className="desk__screen">
+      <p className="desk__kicker">Contact us</p>
+      <h1 className="desk__h1">How can we help?</h1>
+      <p className="desk__lede" style={{ marginBottom: 24, maxWidth: "58ch" }}>
+        A real person replies to the email you give us, usually within 24 to 48 hours.
       </p>
-      <div className="desk__card" style={{ marginTop: 22, maxWidth: 560 }}>
+      <div className="ct__grid">
         <ContactForm
           variant="desk"
           defaults={{
@@ -19,6 +21,22 @@ export default async function ContactPage() {
             email: session.email ?? "",
           }}
         />
+        <div className="ct__side">
+          <div className="ct__card">
+            <strong>Reply time</strong>
+            <p>24 to 48 hours, Monday to Saturday. Billing questions are answered first.</p>
+          </div>
+          <div className="ct__card">
+            <strong>Question about your holdings?</strong>
+            <p>We can&apos;t see them unless you allow it for 3 to 15 days.</p>
+            <Link href="/portfolio">Allow access in Portfolio →</Link>
+          </div>
+          <div className="ct__card">
+            <strong>Plans and billing</strong>
+            <p>Change plan, add money or switch to yearly any time.</p>
+            <Link href="/billing">Go to Subscription →</Link>
+          </div>
+        </div>
       </div>
     </div>
   );

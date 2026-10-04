@@ -27,7 +27,7 @@ export function TickerSearch() {
         onChange={setValue}
         onPick={go}
         name="ticker"
-        placeholder="Search a stock — MSFT, TSM, HDFCBANK…"
+        placeholder="Search a stock you own — MSFT, TSM, HDFCBANK…"
         ariaLabel="Search a ticker to analyse"
       />
       <button className="desk__search-btn" type="submit">

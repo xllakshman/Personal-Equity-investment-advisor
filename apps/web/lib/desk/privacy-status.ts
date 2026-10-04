@@ -18,15 +18,15 @@ export function deskPrivacyView(grant: SupportGrantStatus): DeskPrivacyView {
     return {
       shared: true,
       badge: "Shared with admin",
-      title: "Shared with admin until it ends on its own",
-      detail: `You asked for help. Platform admin may SELECT view holdings for this family until ${until} UTC. Lot quantities stay hidden after that date. Report sections are never in that grant.`,
+      title: "Your portfolio is private. We can't see it.",
+      detail: `Nobody at eqveste can see what you own or how much. You asked for help — support may look until ${until} UTC, your choice — and access ends on its own.`,
     };
   }
   return {
     shared: false,
     badge: "Private",
-    title: "Your account view is private",
+    title: "Your portfolio is private. We can't see it.",
     detail:
-      "Nobody at eqveste can see what you own or how much. Only if you ask us for help can you let support look, and access ends on its own.",
+      "Nobody at eqveste can see what you own or how much. Only if you ask us for help can you let support look — for 3 to 15 days, your choice — and access ends on its own.",
   };
 }

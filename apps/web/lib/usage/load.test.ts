@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { usageBarPct, usageCaption, planChipLabel, planStatusLabel } from "./format";
+import { usageBarPct, usageCaption, planChipLabel, planStatusLabel, headerPlanLine, usageHumanHint, analyseUsageChip } from "./format";
 import type { UsageSnapshot } from "./types";
 
 function snap(over: Partial<UsageSnapshot> = {}): UsageSnapshot {
@@ -53,6 +53,19 @@ describe("planStatusLabel", () => {
     assert.equal(
       planChipLabel(snap({ exhausted: true })),
       "Professional · Allowance used",
+    );
+    assert.equal(headerPlanLine(snap()), "Professional");
+    assert.equal(
+      headerPlanLine(snap({ planName: "Trial", planSlug: "trial" })),
+      "Free trial",
+    );
+    assert.equal(
+      usageHumanHint(snap({ planName: "Trial", walletCents: 0 })),
+      "Trial plan · wallet $0.00",
+    );
+    assert.equal(
+      analyseUsageChip(snap({ planName: "Trial", used: 0, limit: 3 })),
+      "Trial · 0 of 3 analyses used",
     );
   });
 });

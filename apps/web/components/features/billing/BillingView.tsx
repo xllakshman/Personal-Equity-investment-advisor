@@ -83,30 +83,28 @@ export function PlanCards({
   );
   return (
     <div className="pf__cards" style={{ marginTop: 22 }}>
+      <h2 className="pf__cards-h">Choose a plan</h2>
       {[...cards].sort((a, b) => Number(b.current) - Number(a.current)).map((card) => (
         <div className={card.current ? "pf__card pf__card--current" : "pf__card"} key={card.id}>
-          <p className="pf__card-title">
-            {card.title}
-            {card.current ? " · current" : ""}
-          </p>
+          <p className="pf__card-title">{card.title}</p>
           <p className="desk__kpi-v">${(card.priceCents / 100).toFixed(0)}</p>
           <p className="desk__kpi-s">{card.limitLabel}</p>
           <p className="desk__lede">{card.who}</p>
           <p className="desk__lede">{card.why}</p>
-          <form action={action}>
-            <input type="hidden" name="planId" value={card.id} />
-            <button
-              className={card.current ? "desk__btn desk__btn--ghost" : "desk__btn"}
-              type="submit"
-              disabled={pending || card.current}
-            >
-              {card.current
-                ? "Current plan"
-                : card.id === pendingPlanId
-                  ? "Requested"
-                  : "Subscribe"}
-            </button>
-          </form>
+          {card.current ? (
+            <p className="pf__plan-yours">Your plan</p>
+          ) : (
+            <form action={action}>
+              <input type="hidden" name="planId" value={card.id} />
+              <button
+                className="desk__btn desk__btn--light"
+                type="submit"
+                disabled={pending}
+              >
+                {card.id === pendingPlanId ? "Requested" : "Choose"}
+              </button>
+            </form>
+          )}
         </div>
       ))}
       {state.error ? <p className="pf__error">{state.error}</p> : null}

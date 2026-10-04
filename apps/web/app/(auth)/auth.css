@@ -39,13 +39,13 @@
   0%,
   100% {
     box-shadow:
-      0 0 0 0 rgba(31, 122, 92, 0.5),
-      0 0 18px 2px rgba(31, 122, 92, 0.3);
+      0 0 0 0 rgba(10, 132, 255, 0.55),
+      0 0 18px 2px rgba(10, 132, 255, 0.35);
   }
   50% {
     box-shadow:
-      0 0 0 9px rgba(31, 122, 92, 0),
-      0 0 30px 7px rgba(31, 122, 92, 0.55);
+      0 0 0 8px rgba(10, 132, 255, 0),
+      0 0 30px 6px rgba(10, 132, 255, 0.6);
   }
 }
 
@@ -100,8 +100,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #f5f5f7;
-  font: 700 19px/1 inherit;
+  color: #f5f5f7 !important;
+  font: 700 21px/1 inherit;
   letter-spacing: -0.01em;
   text-transform: none;
 }
@@ -198,21 +198,21 @@
 }
 
 .auth__h2 {
-  font: 400 30px/1.15 Newsreader, "Iowan Old Style", Palatino, Georgia, serif;
+  font: 700 30px/1.15 -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
   margin: 0 0 8px;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   color: #1b1a17;
 }
 
 .auth__sub {
   margin: 0 0 28px;
-  font: 400 14px/1.6 var(--font-ibm-plex-sans), "IBM Plex Sans", sans-serif;
+  font: 400 14px/1.6 -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
   color: #706d66;
 }
 
 .auth__label {
   display: block;
-  font: 500 11px/1 var(--font-ibm-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
+  font: 500 11px/1 -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #706d66;
@@ -224,10 +224,10 @@
   width: 100%;
   padding: 11px 13px;
   border: 1px solid #d8d5cd;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #fff;
   color: #1b1a17;
-  font: 400 14px/1.4 var(--font-ibm-plex-sans), "IBM Plex Sans", sans-serif;
+  font: 400 14px/1.4 -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
 }
 
 .auth__field {
@@ -245,14 +245,14 @@
   border: 0;
   background: transparent;
   cursor: pointer;
-  font: 500 11.5px/1 var(--font-ibm-plex-sans), "IBM Plex Sans", sans-serif;
+  font: 500 11.5px/1 -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
   color: #2f5f52;
   padding: 0;
 }
 
 .auth__hint {
   margin: 7px 0 0;
-  font: 400 11.5px/1.5 var(--font-ibm-plex-sans), "IBM Plex Sans", sans-serif;
+  font: 400 11.5px/1.5 -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
   color: #a3a09a;
 }
 
@@ -260,11 +260,11 @@
   width: 100%;
   padding: 13px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 999px;
   background: #1b1a17;
   color: #f6f5f2;
   cursor: pointer;
-  font: 600 14px/1 var(--font-ibm-plex-sans), "IBM Plex Sans", sans-serif;
+  font: 600 14px/1 -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
   animation: auth-glow 2.6s ease-in-out infinite;
   transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
@@ -282,7 +282,7 @@
   display: flex;
   justify-content: space-between;
   margin: 18px 0 0;
-  font: 400 13px/1 var(--font-ibm-plex-sans), "IBM Plex Sans", sans-serif;
+  font: 400 13px/1 -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
 }
 
 .auth__links a {
@@ -297,7 +297,7 @@
   margin: 0 0 18px;
   padding: 10px 12px;
   border-radius: 8px;
-  font: 500 13px/1.45 var(--font-ibm-plex-sans), "IBM Plex Sans", sans-serif;
+  font: 500 13px/1.45 -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
 }
 
 .auth__banner--error {
@@ -317,17 +317,17 @@
   margin: 12px 0 0;
   padding: 12px;
   border: 1px solid #d8d5cd;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #fff;
   cursor: pointer;
-  font: 500 13.5px/1 var(--font-ibm-plex-sans), "IBM Plex Sans", sans-serif;
+  font: 500 13.5px/1 -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
   color: #1b1a17;
 }
 
 .auth__or {
   margin: 18px 0 0;
   text-align: center;
-  font: 400 12px/1 var(--font-ibm-plex-sans), "IBM Plex Sans", sans-serif;
+  font: 400 12px/1 -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
   color: #a3a09a;
 }
 
@@ -343,7 +343,7 @@
 
 .auth__center {
   margin: 16px 0 0;
-  font: 400 13px/1.5 var(--font-ibm-plex-sans), "IBM Plex Sans", sans-serif;
+  font: 400 13px/1.5 -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
   color: #57544e;
   text-align: center;
 }

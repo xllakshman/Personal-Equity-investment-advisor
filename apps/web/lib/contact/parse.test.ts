@@ -32,6 +32,12 @@ describe("parseContactFields", () => {
     assert.equal(parseContactFields({ ...ok, message: "  " }).ok, false);
   });
 
+  it("accepts an empty phone on the desk form", () => {
+    const got = parseContactFields({ ...ok, phoneNational: "" });
+    assert.equal(got.ok, true);
+    if (got.ok) assert.equal(got.value.phoneE164, "");
+  });
+
   it("rejects a country code outside +91 / +1 / +971", () => {
     const got = parseContactFields({ ...ok, phoneCc: "+44" });
     assert.equal(got.ok, false);
