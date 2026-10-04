@@ -6,6 +6,16 @@ import { redirect } from "next/navigation";
 import { parsePlanEdit, parsePlanShared, parseThesisClass, type PlanEditState } from "@/lib/admin/plan-edit";
 import { type FamilyPlanState } from "@/lib/admin/family-plan";
 import {
+  ACTIVATE_NOTICE,
+  CLASS_SAVED_NOTICE,
+  DEACTIVATE_NOTICE,
+  FETCH_HOST_DOWN,
+  FETCH_MODELS_NOTICE,
+  FETCH_NEEDS_HOST,
+  PLAN_SAVED_NOTICE,
+  PLAN_SHARED_SAVED_NOTICE,
+} from "@/lib/admin/operator-copy";
+import {
   parsePromptRole,
   promptRemoveError,
   promptVersionName,
@@ -65,7 +75,7 @@ export async function savePlan(
   revalidatePath("/billing");
   return {
     error: null,
-    notice: "Saved this plan. Desk Subscription reads price, notes, and why-copy on the next load.",
+    notice: PLAN_SAVED_NOTICE,
   };
 }
 
@@ -106,8 +116,7 @@ export async function savePlanShared(
   revalidatePath("/analyse");
   return {
     error: null,
-    notice:
-      "Saved for every plan. Desk Analyse reads plans.allowed_model_ids; Subscription reads plans.who_copy on the next load.",
+    notice: PLAN_SHARED_SAVED_NOTICE,
   };
 }
 
@@ -147,7 +156,7 @@ export async function stagePrompt(
     return {
       error:
         error.message.includes("permission") || error.code === "42501"
-          ? "Apply migration 023 so this admin session can write prompt_versions."
+          ? "Apply migration 023 so this page can save a version."
           : error.message,
       notice: null,
     };
@@ -203,7 +212,7 @@ export async function setModelClass(
   await requirePlatformAdmin();
   const modelId = String(formData.get("model_id") ?? "").trim();
   if (!modelId) {
-    return { error: "Missing catalog row.", notice: null };
+    return { error: "Pick an agent.", notice: null };
   }
   const parsed = parseThesisClass(String(formData.get("thesis_class") ?? ""));
   if (!parsed.ok) return { error: parsed.error, notice: null };
@@ -220,7 +229,7 @@ export async function setModelClass(
     .maybeSingle();
   if (error) return { error: error.message, notice: null };
   if (!data?.id) {
-    return { error: "That catalog row was not found.", notice: null };
+    return { error: "That agent was not found.", notice: null };
   }
 
   revalidatePath("/admin/plans");
@@ -228,7 +237,7 @@ export async function setModelClass(
   const label = parsed.value === "frontier" ? "Frontier" : "Quick";
   return {
     error: null,
-    notice: `${String(data.label)} is now ${label}. Analyse groups agents from model_catalog.thesis_class on the next load.`,
+    notice: CLASS_SAVED_NOTICE(String(data.label), label),
   };
 }
 
@@ -249,8 +258,7 @@ export async function refreshLabModels(
   const base = analysisApiBase();
   if (process.env.VERCEL && analysisApiLooksLocal(base)) {
     return {
-      error:
-        "Fetch latest models needs analysis-api on the droplet (set ANALYSIS_API_URL), not this Vercel app. You can still change Frontier / Quick on each row below — that writes model_catalog.thesis_class with this admin session.",
+      error: FETCH_NEEDS_HOST,
       notice: null,
     };
   }
@@ -266,7 +274,7 @@ export async function refreshLabModels(
   } catch {
     return {
       error:
-        "analysis-api did not answer. Fetch uses that process (local :8091 or api.eqveste.com), not Vercel. Class on each row below still writes model_catalog.thesis_class without Fetch.",
+        FETCH_HOST_DOWN,
       notice: null,
     };
   }
@@ -290,7 +298,7 @@ export async function refreshLabModels(
   const labs = (payload.providers ?? []).join(", ") || "native labs";
   return {
     error: null,
-    notice: `Updated ${n} model_catalog rows from ${labs}. Frontier vs quick uses the generation gap on this screen. Save Agents and who it is for to offer new agents on Analyse.`,
+    notice: FETCH_MODELS_NOTICE(n, labs),
   };
 }
 
@@ -331,7 +339,7 @@ export async function setFamilyPlan(
   const familyId = String(formData.get("family_id") ?? "").trim();
   const planId = String(formData.get("plan_id") ?? "").trim();
   const intent = String(formData.get("intent") ?? "");
-  if (!familyId) return { error: "Missing family.", notice: null };
+  if (!familyId) return { error: "That account has no family to activate.", notice: null };
   if (intent !== "activate" && intent !== "deactivate") {
     return { error: "Pick Activate or Deactivate.", notice: null };
   }
@@ -352,7 +360,7 @@ export async function setFamilyPlan(
     if (msg.includes("Could not find the function") || msg.includes("schema cache")) {
       return {
         error:
-          "Activate needs supabase/migrations/025_admin_plan_activation.sql applied on this project (CONFIRM_APPLY=1).",
+        "Activate needs migration 025 applied on this project (CONFIRM_APPLY=1).",
         notice: null,
       };
     }
@@ -364,8 +372,6 @@ export async function setFamilyPlan(
   return {
     error: null,
     notice:
-      intent === "activate"
-        ? "Plan is on. Desk Subscription and Analyse read families.plan_id on the next load."
-        : "Plan is off. Family is back on Trial. Desk Subscription reads families.plan_id on the next load.",
+      intent === "activate" ? ACTIVATE_NOTICE : DEACTIVATE_NOTICE,
   };
 }

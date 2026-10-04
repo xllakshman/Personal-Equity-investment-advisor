@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 
 import { stagePrompt } from "@/app/admin/(console)/console-actions";
+import { PROMPT_UPLOAD_HINT } from "@/lib/admin/operator-copy";
 import { EMPTY_PROMPT_STATE } from "@/lib/admin/prompt-name";
 
 export function PromptUploadForm() {
@@ -43,10 +44,7 @@ export function PromptUploadForm() {
         Or paste prompt text
         <textarea id="prompt-body" className="admin__textarea" name="body" rows={8} />
       </label>
-      <p className="admin__hint">
-        Saved name is your label plus IST <code>YYYY-Month-Date: HH:MM:SS</code>.
-        Desk users never see this text. Promote a row to make the worker use it.
-      </p>
+      <p className="admin__hint">{PROMPT_UPLOAD_HINT}</p>
       <button className="admin__btn admin__btn--solid" type="submit" disabled={pending}>
         {pending ? "Saving…" : "Save version"}
       </button>

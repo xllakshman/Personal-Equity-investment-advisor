@@ -33,8 +33,8 @@ export function PlanEditForm({ plan }: { plan: AdminPlanFormValues }) {
       <div>
         <h2 className="admin__h2">{title}</h2>
         <p className="admin__hint">
-          Slug {plan.slug} stays fixed. This card is the {title} row on
-          Subscription. Agents and who-it-is-for sit in the shared block above.
+          This is the {title} card on Subscription. Agents and who-it-is-for sit
+          in the shared block above.
         </p>
       </div>
       <label className="admin__field">

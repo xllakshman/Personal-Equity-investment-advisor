@@ -5,6 +5,15 @@ import {
   splitAdminAccounts,
   type AdminAccountRow,
 } from "@/lib/admin/account-rows";
+import {
+  ACCOUNTS_EXISTING_EMPTY,
+  ACCOUNTS_EXISTING_HINT,
+  ACCOUNTS_LEDE,
+  ACCOUNTS_WAITING_EMPTY,
+  ACCOUNTS_WAITING_HINT,
+  ADMIN_KICKER,
+  billingStatusLabel,
+} from "@/lib/admin/operator-copy";
 import { planCardTitle } from "@/lib/billing/plan-titles";
 import { createClient } from "@/lib/supabase/server";
 import { meterEventCount } from "@/lib/desk/usage-meter";
@@ -34,8 +43,8 @@ function AccountsTable({
             <th>Residency</th>
             <th>Plan</th>
             <th>Requested</th>
-            <th className="admin__num">Searches</th>
-            <th className="admin__num">MTD $</th>
+            <th className="admin__num">Notes</th>
+            <th className="admin__num">Spend this month</th>
             <th className="admin__actions">Actions</th>
           </tr>
         </thead>
@@ -52,7 +61,7 @@ function AccountsTable({
               <td>
                 {r.plan}
                 <p className="admin__email" style={{ margin: "2px 0 0" }}>
-                  {r.billingStatus}
+                  {billingStatusLabel(r.billingStatus)}
                 </p>
               </td>
               <td>{r.pendingTitle ?? "—"}</td>
@@ -187,14 +196,10 @@ export default async function AdminAccountsPage() {
     <div>
       <header className="admin__hero">
         <div>
-          <p className="admin__kicker">Platform administration</p>
+          <p className="admin__kicker">{ADMIN_KICKER}</p>
           <h1 className="admin__h1">Accounts</h1>
           <p className="admin__lede">
-            Waiting for activate is Trial families plus invoices.status = pending
-            from Subscription Subscribe. Existing is subscribed or cancelled with
-            no pending invoice. Activate writes families.plan_id and
-            billing_status = subscribed. Deactivate puts the family on Trial.
-            Lot quantities are not on this table.
+            {ACCOUNTS_LEDE}
           </p>
         </div>
       </header>
@@ -202,28 +207,26 @@ export default async function AdminAccountsPage() {
         <div className="admin__table-head">
           <h2 className="admin__h2">Waiting for activate</h2>
           <p className="admin__hint">
-            New signups still on Trial, and Subscribe requests you have not
-            Activated.
+            {ACCOUNTS_WAITING_HINT}
           </p>
         </div>
         <AccountsTable
           rows={waiting}
           plans={plans}
-          empty="No Trial signups or pending Subscribe invoices."
+          empty={ACCOUNTS_WAITING_EMPTY}
         />
       </section>
       <section className="admin__card admin__card--table" style={{ marginTop: 16 }}>
         <div className="admin__table-head">
           <h2 className="admin__h2">Existing accounts</h2>
           <p className="admin__hint">
-            families.billing_status is subscribed or cancelled, and there is no
-            pending invoice.
+            {ACCOUNTS_EXISTING_HINT}
           </p>
         </div>
         <AccountsTable
           rows={existing}
           plans={plans}
-          empty="No activated or cancelled families yet."
+          empty={ACCOUNTS_EXISTING_EMPTY}
         />
       </section>
     </div>

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 
+import { LOGIN_NOT_ADMIN } from "@/lib/admin/operator-copy";
 import { EMPTY_AUTH_STATE, type AuthFormState } from "@/lib/auth/form-state";
 import { loginEmailError } from "@/lib/auth/signup-fields";
 import { createClient } from "@/lib/supabase/server";
@@ -31,7 +32,7 @@ export async function adminSignIn(
     const current = (existing.user.email ?? "").toLowerCase();
     if (incoming === current) {
       return {
-        error: "This is not a platform admin account. Use /login for the research desk.",
+        error: LOGIN_NOT_ADMIN,
         notice: null,
       };
     }
@@ -56,7 +57,7 @@ export async function adminSignIn(
   if (profile?.role !== "platform_admin") {
     await supabase.auth.signOut();
     return {
-      error: "This is not a platform admin account. Use /login for the research desk.",
+      error: LOGIN_NOT_ADMIN,
       notice: null,
     };
   }

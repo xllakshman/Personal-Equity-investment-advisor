@@ -2,6 +2,7 @@ import { ModelClassForm } from "@/components/features/admin/ModelClassForm";
 import { PlanEditForm } from "@/components/features/admin/PlanEditForm";
 import { PlanSharedForm } from "@/components/features/admin/PlanSharedForm";
 import { RefreshLabModelsForm } from "@/components/features/admin/RefreshLabModelsForm";
+import { ADMIN_KICKER, LAB_MODELS_EMPTY, PLANS_LEDE } from "@/lib/admin/operator-copy";
 import { NOTICE_PCTS, sharedPlanDefaults } from "@/lib/admin/plan-edit";
 import { requirePlatformAdmin } from "@/lib/admin/session";
 import { isNativeProvider } from "@/lib/analyse/models";
@@ -51,16 +52,9 @@ export default async function AdminPlansPage() {
     <div>
       <header className="admin__hero">
         <div>
-          <p className="admin__kicker">Platform administration</p>
+          <p className="admin__kicker">{ADMIN_KICKER}</p>
           <h1 className="admin__h1">Plans and limits</h1>
-          <p className="admin__lede">
-            Five subscription rows: Trial, Basic, Professional, Professional +,
-            Ultra. Agents and who-it-is-for are one shared save for every plan.
-            Price, monthly notes, weekly email cap, why-copy, and 60 / 80 / 90 /
-            100 notices stay per plan and write to <code>plans</code> and{" "}
-            <code>plan_notice_thresholds</code>. Desk Subscription and Analyse
-            read those tables. This does not charge a card.
-          </p>
+          <p className="admin__lede">{PLANS_LEDE}</p>
         </div>
       </header>
       <section className="admin__card" style={{ marginBottom: 16 }}>
@@ -73,14 +67,14 @@ export default async function AdminPlansPage() {
                 <th>Agent</th>
                 <th>Lab</th>
                 <th>Class</th>
-                <th>API id</th>
+                <th>Lab model id</th>
               </tr>
             </thead>
             <tbody>
               {agents.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="admin__muted">
-                    No active native rows in model_catalog.
+                    {LAB_MODELS_EMPTY}
                   </td>
                 </tr>
               ) : (

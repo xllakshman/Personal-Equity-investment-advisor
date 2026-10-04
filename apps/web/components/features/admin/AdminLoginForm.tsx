@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { adminSignIn } from "@/app/admin/actions";
 import { ErrorBanner } from "@/components/features/auth/ErrorBanner";
 import { PasswordField } from "@/components/features/auth/PasswordField";
+import { LOGIN_SUB } from "@/lib/admin/operator-copy";
 import { EMPTY_AUTH_STATE } from "@/lib/auth/form-state";
 
 export function AdminLoginForm() {
@@ -12,7 +13,7 @@ export function AdminLoginForm() {
   return (
     <div>
       <h2 className="auth__h2">Platform admin</h2>
-      <p className="auth__sub">Not the research desk. Desk owners use /login.</p>
+      <p className="auth__sub">{LOGIN_SUB}</p>
       <ErrorBanner error={state.error} />
       <form action={action}>
         <div className="auth__field">

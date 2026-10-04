@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 
 import { savePlanShared } from "@/app/admin/(console)/console-actions";
+import { PLAN_SHARED_HINT } from "@/lib/admin/operator-copy";
 import {
   EMPTY_PLAN_EDIT,
   type AdminPlanCatalogRow,
@@ -25,12 +26,7 @@ export function PlanSharedForm({
     <form action={action} className="admin__card admin__form" style={{ marginBottom: 16 }}>
       <div>
         <h2 className="admin__h2">Agents and who it is for</h2>
-        <p className="admin__hint">
-          One save writes the same agent list and audience copy to every plan.
-          Desk Analyse reads <code>plans.allowed_model_ids</code>. Subscription
-          cards read <code>plans.who_copy</code>. Trial and Basic still cannot
-          run Frontier agents.
-        </p>
+        <p className="admin__hint">{PLAN_SHARED_HINT}</p>
       </div>
       <fieldset className="admin__checkset">
         <legend>Agents on the plans</legend>

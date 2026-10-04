@@ -1,6 +1,7 @@
 import { promotePrompt } from "@/app/admin/(console)/console-actions";
 import { PromptUploadForm } from "@/components/features/admin/PromptUploadForm";
 import { RemovePromptButton } from "@/components/features/admin/RemovePromptButton";
+import { ADMIN_KICKER, PROMPT_LEDE, PROMPT_NONE_IN_USE } from "@/lib/admin/operator-copy";
 import {
   canRemovePrompt,
   formatPromptDate,
@@ -97,7 +98,7 @@ export default async function AdminPromptPage({
       bodyError =
         bodyError ??
         (error.message.includes("permission") || error.code === "42501"
-          ? "Apply migration 023 so this admin session can read prompt_versions.body."
+          ? "Apply migration 023 so this page can read the prompt text."
           : error.message);
     } else {
       body = data?.body ? String(data.body) : null;
@@ -109,13 +110,9 @@ export default async function AdminPromptPage({
     <div>
       <header className="admin__hero">
         <div>
-          <p className="admin__kicker">Platform administration</p>
+          <p className="admin__kicker">{ADMIN_KICKER}</p>
           <h1 className="admin__h1">Prompt</h1>
-          <p className="admin__lede">
-            Upload a version, read it here, download any previous file, then
-            Promote. Analyse uses the In use Stock notes row. Desk clients never
-            receive the body.
-          </p>
+          <p className="admin__lede">{PROMPT_LEDE}</p>
         </div>
       </header>
 
@@ -133,8 +130,7 @@ export default async function AdminPromptPage({
         </section>
       ) : (
         <p className="admin__error" style={{ marginBottom: 16 }}>
-          No prompt in use. Promote a Stock notes row or Submit on Analyse has
-          nothing new to load.
+          {PROMPT_NONE_IN_USE}
         </p>
       )}
 

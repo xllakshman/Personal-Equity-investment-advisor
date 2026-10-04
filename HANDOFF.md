@@ -3,7 +3,7 @@
 > **Version:** 0.1 · **Date:** 2026-09-13  
 > **Workspace:** `/Users/lakshmanyeluri/Documents/personalEquity_Advisor`  
 > **Reference layout:** `/Users/lakshmanyeluri/Documents/activePieces-docker/invoice-processing`  
-> **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P11-02**  
+> **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P11-03**  
 > **Latest session:** [`docs/handoff/SESSION-2026-10-03-analyse-elite.md`](docs/handoff/SESSION-2026-10-03-analyse-elite.md)  
 > **Mock UI:** [`docs/mock-ui/`](docs/mock-ui/README.md)  
 > **GitHub (empty):** `xllakshman/Personal-Equity-investment-advisor` · branch `main`
@@ -27,14 +27,14 @@
 | Storage bucket `report-pdfs` | ✅ private |
 | Analysis API / worker | ✅ 2026-09-14 — `apps/analysis-api` :8091, `apps/analysis-worker`; Docker compose in `infra/docker` |
 | Next.js desk | ✅ 2026-10-04 — `/reports/[id]` typeset document; **Download PDF** redirects to signed `GET /reports/:id/pdf`. `/admin/accounts` Activate/Deactivate calls `thesis_admin_set_family_plan`. Analyse wait page is `/analyse/[id]`. |
-| Prod schema | ✅ 2026-10-04 — **001–025** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. `thesis_admin_set_family_plan` on `/admin/accounts`. |
+| Prod schema | ✅ 2026-10-04 — **001–026** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. `thesis_admin_set_family_plan` on `/admin/accounts`. `thesis_admin_remove_prompt` on `/admin/prompt`. |
 | Prod Vercel | ✅ 2026-10-03 — Production deploy aliased to **`https://eqveste.com`**. Anon URL+key + Resend only. No service role or lab keys. |
 | Tests | ✅ unit + web tests for 4–9. Live two-JWT CI still skips without a second family JWT. |
 | Weekly holdings email | 🟡 **P8-02** table + opt-in + job; **send** blocked until a provider is named |
 | Analysis CSAT | ✅ **P5-05** `analysis_feedback` + **P7-10** admin tab |
 | Requirements vs mock/brief | ✅ Gap review 2026-09-13 — D27–D42 |
 
-**Build next:** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P11-02** — `/admin/prompt` plain in-use labels + Remove (migration **026**, not applied until named). Dev URL is **http://127.0.0.1:3100/**.
+**Build next:** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P11-03** — `/admin/*` operator language. Dev URL is **http://127.0.0.1:3100/**.
 
 ---
 
@@ -231,9 +231,9 @@ Env template: [`.env.example`](.env.example).
 
 ## 6. Database status
 
-**Applied on `cmksomahsfmsjufakryw` (DEV):** migrations **001–025**. **026** is in git (`thesis_admin_remove_prompt`); do not apply until named + `CONFIRM_APPLY=1`. Seed `supabase/seed/001_maya_desk.sql` was applied earlier. Do not re-run unless §25 fails.
+**Applied on `cmksomahsfmsjufakryw` (DEV):** migrations **001–026**. Seed `supabase/seed/001_maya_desk.sql` was applied earlier. Do not re-run unless §25 fails.
 
-**PROD `ndgvglcrkbygovlszxze`:** **001–025 applied** (`CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`; 025 on 2026-10-04). **026** not applied. `select count(*) from holdings` = **0**. Maya seed not run. `report-pdfs` bucket exists. Do not copy Maya (`maya@thesis.demo`) onto prod unless you name `supabase/seed/001_maya_desk.sql`.
+**PROD `ndgvglcrkbygovlszxze`:** **001–026 applied** (`CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`; 026 on 2026-10-04). `select count(*) from holdings` = **0**. Maya seed not run. `report-pdfs` bucket exists. Do not copy Maya (`maya@thesis.demo`) onto prod unless you name `supabase/seed/001_maya_desk.sql`.
 
 Demo desk: `maya@thesis.demo` / `ThesisMaya!2026` (Auth email+password). Google/Phone flags must still be turned on in the Supabase Auth dashboard.
 
@@ -326,7 +326,7 @@ See `.cursor/rules/web-ui-maintenance.mdc`. Marketing vs desk palettes must not 
 
 ## 18. Next steps
 
-Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P11-02**. Migration **026** is in git; do not apply until the user names **dev** or **prod**, the file, and `CONFIRM_APPLY=1`. Worker LLM is native labs (D39). Local `.env` lab keys are set; never put them on Vercel. Local **3100** stays DEV.
+Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P11-03**. **026** is on DEV and PROD. Worker LLM is native labs (D39). Local `.env` lab keys are set; never put them on Vercel. Local **3100** stays DEV.
 
 ---
 

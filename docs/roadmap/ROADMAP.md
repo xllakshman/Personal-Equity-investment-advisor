@@ -20,13 +20,13 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 
 | Field | Value |
 |-------|--------|
-| **Build next** | **P11-02** — Prompt list: archive old rows + plain labels |
-| Last done | **P11-01** typeset note + Download PDF on eqveste.com (`6399d3e`). User confirmed Download PDF works 2026-10-04. |
-| Blocked on you | P11-02 Remove needs migration **026** named + `CONFIRM_APPLY=1` (DEV then prod). P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
+| **Build next** | **P11-03** — Admin chrome: operator language |
+| Last done | **P11-02** `/admin/prompt` Remove on eqveste.com (`721a01b` + 026). User confirmed Remove on prod 2026-10-04. |
+| Blocked on you | P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
-| DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–025** applied |
-| PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — **001–025 applied 2026-10-04**. `holdings` = 0. Maya seed not run. |
+| DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–026** applied |
+| PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — **001–026 applied 2026-10-04**. `holdings` = 0. Maya seed not run. |
 | PROD web | **`https://eqveste.com`** — Vercel `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`. Next.js only. |
 
 ---
@@ -854,7 +854,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 
 ### P11-02 — Prompt list: archive old rows + plain labels
 
-- **Status:** 🟡 2026-10-04
+- **Status:** ✅ 2026-10-04
 - **Depends on:** P11-01, P7-02
 - **Direction:** `/admin/prompt`. “Currently used by Analyse” shows human copy, e.g. **Stock notes — in use since 4 Oct 2026** and **Follow-up check — in use since 14 Sep 2026** (map `advisor` / `refine_gate`). **Remove** on Previous / Not promoted rows: RPC archives or deletes only if `promoted_at` is null or `superseded_at` is set **and** the row is not the live Analyse/gate prompt. In-use row cannot be removed (append-only lock: never delete the promoted advisor body). Button exists; `platform_admin` only.
 - **Writes:** `prompt_versions` archive/delete of superseded rows. Not `prompt_versions.body` of the live row.
@@ -865,7 +865,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 
 ### P11-03 — Admin chrome: operator language
 
-- **Status:** ⬜
+- **Status:** 🟡 2026-10-04
 - **Depends on:** P11-02
 - **Direction:** Every `/admin/*` page: replace table/RPC jargon in kickers, ledes, notices, and errors with what the operator does and what the desk then shows. Keep `code` table names only where the operator must run SQL. Do not restyle desk.
 - **Writes:** none.
@@ -985,6 +985,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | P10-01 | 2026-09-15 | 🟡 Vercel Production env (anon URL+key only) + deploy READY. `eqveste.com` 404 until Porkbun A → `76.76.21.21`. |
 | P10-02 | 2026-09-14 | ⬜ compose + DigitalOcean notes in git; no droplet |
 | P11-01 | 2026-10-04 | ✅ typeset note + Download PDF on eqveste.com (`6399d3e`). User confirmed Download PDF. |
+| P11-02 | 2026-10-04 | ✅ `/admin/prompt` plain in-use labels + Remove (`721a01b`, 026 on DEV and PROD). User confirmed Remove on prod. |
 
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.

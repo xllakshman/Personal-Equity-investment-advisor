@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 
 const ADMIN_NAV = [
   { href: "/admin/accounts", label: "Accounts", hint: "Customers", dot: "#0a84ff" },
-  { href: "/admin/plans", label: "Plans", hint: "Limits & agents", dot: "#ff9f0a" },
-  { href: "/admin/prompt", label: "Prompt", hint: "Advisor versions", dot: "#30d158" },
-  { href: "/admin/observability", label: "Observability", hint: "Usage watches", dot: "#bf5af2" },
+  { href: "/admin/plans", label: "Plans", hint: "Limits and agents", dot: "#ff9f0a" },
+  { href: "/admin/prompt", label: "Prompt", hint: "What Analyse writes", dot: "#30d158" },
+  { href: "/admin/observability", label: "Observability", hint: "Calls and watches", dot: "#bf5af2" },
 ] as const;
 
 export function AdminConsoleNav() {

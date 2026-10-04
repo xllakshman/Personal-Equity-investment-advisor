@@ -1,4 +1,11 @@
 import { saveWatchLimit } from "@/app/admin/(console)/console-actions";
+import {
+  ADMIN_KICKER,
+  OBS_TAB_LABEL,
+  OBSERVABILITY_LEDE,
+  OBSERVABILITY_WHO,
+} from "@/lib/admin/operator-copy";
+import { formatPromptDate } from "@/lib/admin/prompt-name";
 import { requirePlatformAdmin } from "@/lib/admin/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -45,12 +52,9 @@ export default async function ObservabilityPage({
     <div>
       <header className="admin__hero">
         <div>
-          <p className="admin__kicker">Platform administration</p>
+          <p className="admin__kicker">{ADMIN_KICKER}</p>
           <h1 className="admin__h1">Observability</h1>
-          <p className="admin__lede">
-            Colours on this screen only. No email. Prompt body and report
-            sections are not stored.
-          </p>
+          <p className="admin__lede">{OBSERVABILITY_LEDE}</p>
         </div>
       </header>
       <nav className="admin__subnav" aria-label="Observability tabs">
@@ -60,7 +64,7 @@ export default async function ObservabilityPage({
             href={`/admin/observability?tab=${t}`}
             className={tab === t ? "admin__tab admin__tab--on" : "admin__tab"}
           >
-            {t === "feedback" ? "Customer Feedback" : t}
+            {OBS_TAB_LABEL[t] ?? t}
           </a>
         ))}
       </nav>
@@ -96,7 +100,7 @@ export default async function ObservabilityPage({
                   <th>Route</th>
                   <th className="admin__num">Calls</th>
                   <th className="admin__num">Failed</th>
-                  <th className="admin__num">Avg ms</th>
+                  <th className="admin__num">Avg time (ms)</th>
                 </tr>
               </thead>
               <tbody>
@@ -120,10 +124,7 @@ export default async function ObservabilityPage({
         </section>
       ) : null}
       {tab === "who" ? (
-        <p className="admin__hint">
-          Rows come from usage by person and product. Signing in as admin is not
-          counted as desk use.
-        </p>
+        <p className="admin__hint">{OBSERVABILITY_WHO}</p>
       ) : null}
       {tab === "feedback" ? (
         <section className="admin__card admin__card--table">
@@ -148,7 +149,7 @@ export default async function ObservabilityPage({
                     <th>Ticker</th>
                     <th>Model</th>
                     <th>Helpful</th>
-                    <th>Dims</th>
+                    <th>Scores</th>
                     <th>Comment</th>
                   </tr>
                 </thead>
@@ -156,7 +157,8 @@ export default async function ObservabilityPage({
                   {(feedback ?? []).map((f, i) => (
                     <tr key={i}>
                       <td className="admin__muted">
-                        {String(f.created_at).slice(0, 16)}
+                        {formatPromptDate(String(f.created_at)) ||
+                          String(f.created_at).slice(0, 16)}
                       </td>
                       <td className="admin__mono">{String(f.ticker)}</td>
                       <td>{String(f.model_id)}</td>
