@@ -1,7 +1,8 @@
 import { ModelClassForm } from "@/components/features/admin/ModelClassForm";
 import { PlanEditForm } from "@/components/features/admin/PlanEditForm";
+import { PlanSharedForm } from "@/components/features/admin/PlanSharedForm";
 import { RefreshLabModelsForm } from "@/components/features/admin/RefreshLabModelsForm";
-import { NOTICE_PCTS } from "@/lib/admin/plan-edit";
+import { NOTICE_PCTS, sharedPlanDefaults } from "@/lib/admin/plan-edit";
 import { requirePlatformAdmin } from "@/lib/admin/session";
 import { isNativeProvider } from "@/lib/analyse/models";
 import { createClient } from "@/lib/supabase/server";
@@ -37,6 +38,15 @@ export default async function AdminPlansPage() {
       thesis_class: m.thesis_class === "frontier" ? ("frontier" as const) : ("quick" as const),
     }));
 
+  const shared = sharedPlanDefaults(
+    (plans ?? []).map((p) => ({
+      allowedModelIds: Array.isArray(p.allowed_model_ids)
+        ? p.allowed_model_ids.map((id) => String(id))
+        : [],
+      whoCopy: String(p.who_copy ?? ""),
+    })),
+  );
+
   return (
     <div>
       <header className="admin__hero">
@@ -45,8 +55,9 @@ export default async function AdminPlansPage() {
           <h1 className="admin__h1">Plans and limits</h1>
           <p className="admin__lede">
             Five subscription rows: Trial, Basic, Professional, Professional +,
-            Ultra. Price, monthly notes, agents, weekly email cap, and 60 / 80 /
-            90 / 100 notices write to <code>plans</code> and{" "}
+            Ultra. Agents and who-it-is-for are one shared save for every plan.
+            Price, monthly notes, weekly email cap, why-copy, and 60 / 80 / 90 /
+            100 notices stay per plan and write to <code>plans</code> and{" "}
             <code>plan_notice_thresholds</code>. Desk Subscription and Analyse
             read those tables. This does not charge a card.
           </p>
@@ -95,6 +106,11 @@ export default async function AdminPlansPage() {
           </table>
         </div>
       </section>
+      <PlanSharedForm
+        catalog={agents}
+        allowedModelIds={shared.allowedModelIds}
+        whoCopy={shared.whoCopy}
+      />
       <div className="admin__grid">
         {(plans ?? []).map((p) => {
           const planNotices = NOTICE_PCTS.map((pct) => {
@@ -106,7 +122,6 @@ export default async function AdminPlansPage() {
           return (
             <PlanEditForm
               key={p.id}
-              catalog={agents}
               plan={{
                 id: String(p.id),
                 slug: String(p.slug),
@@ -115,10 +130,6 @@ export default async function AdminPlansPage() {
                 priceCents: Number(p.price_cents ?? 0),
                 weeklyDigestTickerLimit: Number(p.weekly_digest_ticker_limit ?? 3),
                 isActive: p.is_active !== false,
-                allowedModelIds: Array.isArray(p.allowed_model_ids)
-                  ? p.allowed_model_ids.map((id) => String(id))
-                  : [],
-                whoCopy: String(p.who_copy ?? ""),
                 whyCopy: String(p.why_copy ?? ""),
                 notices: planNotices,
               }}

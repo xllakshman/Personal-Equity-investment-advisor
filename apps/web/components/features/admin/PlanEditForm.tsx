@@ -2,9 +2,7 @@
 
 import { useActionState } from "react";
 
-import {
-  savePlan,
-} from "@/app/admin/(console)/console-actions";
+import { savePlan } from "@/app/admin/(console)/console-actions";
 import {
   EMPTY_PLAN_EDIT,
   limitChoices,
@@ -12,12 +10,6 @@ import {
   weeklyTickerChoices,
 } from "@/lib/admin/plan-edit";
 import { planCardTitle } from "@/lib/billing/plan-titles";
-
-export type AdminPlanCatalogRow = {
-  id: string;
-  label: string;
-  thesis_class: "frontier" | "quick";
-};
 
 export type AdminPlanFormValues = {
   id: string;
@@ -27,23 +19,13 @@ export type AdminPlanFormValues = {
   priceCents: number;
   weeklyDigestTickerLimit: number;
   isActive: boolean;
-  allowedModelIds: string[];
-  whoCopy: string;
   whyCopy: string;
   notices: { pct: number; message: string }[];
 };
 
-export function PlanEditForm({
-  plan,
-  catalog,
-}: {
-  plan: AdminPlanFormValues;
-  catalog: AdminPlanCatalogRow[];
-}) {
+export function PlanEditForm({ plan }: { plan: AdminPlanFormValues }) {
   const [state, action, pending] = useActionState(savePlan, EMPTY_PLAN_EDIT);
   const title = planCardTitle(plan.slug, plan.name);
-  const frontier = catalog.filter((m) => m.thesis_class === "frontier");
-  const quick = catalog.filter((m) => m.thesis_class === "quick");
 
   return (
     <form action={action} className="admin__card admin__form">
@@ -52,7 +34,7 @@ export function PlanEditForm({
         <h2 className="admin__h2">{title}</h2>
         <p className="admin__hint">
           Slug {plan.slug} stays fixed. This card is the {title} row on
-          Subscription.
+          Subscription. Agents and who-it-is-for sit in the shared block above.
         </p>
       </div>
       <label className="admin__field">
@@ -107,50 +89,6 @@ export function PlanEditForm({
           <option value="true">Yes — families can pick this plan</option>
           <option value="false">No — hidden on the desk</option>
         </select>
-      </label>
-      <fieldset className="admin__checkset">
-        <legend>Agents on this plan</legend>
-        <p className="admin__hint">
-          Tick who Analyse may run. Hidden labs (Gemini, Kimi) are not listed.
-        </p>
-        {quick.length > 0 ? (
-          <p className="admin__check-k">Quick agents</p>
-        ) : null}
-        {quick.map((m) => (
-          <label key={m.id} className="admin__check">
-            <input
-              type="checkbox"
-              name="model_id"
-              value={m.id}
-              defaultChecked={plan.allowedModelIds.includes(m.id)}
-            />
-            {m.label}
-          </label>
-        ))}
-        {frontier.length > 0 ? (
-          <p className="admin__check-k">Frontier agents</p>
-        ) : null}
-        {frontier.map((m) => (
-          <label key={m.id} className="admin__check">
-            <input
-              type="checkbox"
-              name="model_id"
-              value={m.id}
-              defaultChecked={plan.allowedModelIds.includes(m.id)}
-            />
-            {m.label}
-          </label>
-        ))}
-      </fieldset>
-      <label className="admin__field">
-        Who it is for
-        <textarea
-          className="admin__textarea"
-          name="who_copy"
-          rows={3}
-          defaultValue={plan.whoCopy}
-          required
-        />
       </label>
       <label className="admin__field">
         Why the price

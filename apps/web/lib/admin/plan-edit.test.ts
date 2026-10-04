@@ -1,7 +1,14 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { parsePlanEdit, parseThesisClass, priceUsdChoices, limitChoices } from "./plan-edit";
+import {
+  parsePlanEdit,
+  parsePlanShared,
+  parseThesisClass,
+  priceUsdChoices,
+  limitChoices,
+  sharedPlanDefaults,
+} from "./plan-edit";
 
 const CATALOG = ["gpt56m", "opus5"];
 
@@ -15,7 +22,7 @@ function form(pairs: Record<string, string | string[]>): FormData {
 }
 
 describe("parsePlanEdit", () => {
-  it("accepts the five locked fields and converts USD to cents", () => {
+  it("accepts the per-plan fields and converts USD to cents", () => {
     const parsed = parsePlanEdit(
       form({
         planId: "plan-basic",
@@ -23,25 +30,22 @@ describe("parsePlanEdit", () => {
         price_usd: "19",
         weekly_digest_ticker_limit: "3",
         is_active: "true",
-        model_id: ["gpt56m"],
-        who_copy: "A few names, checked properly.",
         why_copy: "Quick agents only. Five full notes a month.",
         notice_60: "60%",
         notice_80: "80%",
         notice_90: "90%",
         notice_100: "100%",
       }),
-      CATALOG,
     );
     assert.equal(parsed.ok, true);
     if (!parsed.ok) return;
     assert.equal(parsed.value.monthlyAnalysisLimit, 6);
     assert.equal(parsed.value.priceCents, 1900);
-    assert.deepEqual(parsed.value.allowedModelIds, ["gpt56m"]);
     assert.equal(parsed.value.isActive, true);
+    assert.equal(parsed.value.whyCopy.startsWith("Quick"), true);
   });
 
-  it("rejects empty ticker-less model list and unknown catalog ids", () => {
+  it("rejects missing why-copy and notices", () => {
     const none = parsePlanEdit(
       form({
         planId: "plan-basic",
@@ -49,39 +53,61 @@ describe("parsePlanEdit", () => {
         price_usd: "19",
         weekly_digest_ticker_limit: "3",
         is_active: "true",
-        who_copy: "Who",
-        why_copy: "Why",
         notice_60: "60",
         notice_80: "80",
         notice_90: "90",
         notice_100: "100",
       }),
-      CATALOG,
     );
     assert.equal(none.ok, false);
-    const ghost = parsePlanEdit(
-      form({
-        planId: "plan-basic",
-        monthly_analysis_limit: "5",
-        price_usd: "19",
-        weekly_digest_ticker_limit: "3",
-        is_active: "true",
-        model_id: ["gemini31p"],
-        who_copy: "Who",
-        why_copy: "Why",
-        notice_60: "60",
-        notice_80: "80",
-        notice_90: "90",
-        notice_100: "100",
-      }),
-      CATALOG,
-    );
-    assert.equal(ghost.ok, false);
   });
 
   it("keeps a current limit that is not in the preset list", () => {
     assert.deepEqual(limitChoices(7).includes(7), true);
     assert.deepEqual(priceUsdChoices(1900).includes(19), true);
+  });
+});
+
+describe("parsePlanShared", () => {
+  it("accepts agents and who-copy for every plan", () => {
+    const parsed = parsePlanShared(
+      form({
+        model_id: ["gpt56m", "opus5"],
+        who_copy: "A few names, checked properly.",
+      }),
+      CATALOG,
+    );
+    assert.equal(parsed.ok, true);
+    if (!parsed.ok) return;
+    assert.deepEqual(parsed.value.allowedModelIds, ["gpt56m", "opus5"]);
+    assert.equal(parsed.value.whoCopy, "A few names, checked properly.");
+  });
+
+  it("rejects empty agent list, unknown catalog ids, and blank who-copy", () => {
+    const none = parsePlanShared(form({ who_copy: "Who" }), CATALOG);
+    assert.equal(none.ok, false);
+    const ghost = parsePlanShared(
+      form({ model_id: ["gemini31p"], who_copy: "Who" }),
+      CATALOG,
+    );
+    assert.equal(ghost.ok, false);
+    const blankWho = parsePlanShared(form({ model_id: ["gpt56m"], who_copy: "  " }), CATALOG);
+    assert.equal(blankWho.ok, false);
+  });
+});
+
+describe("sharedPlanDefaults", () => {
+  it("unions agent ids and takes the first who-copy", () => {
+    const shared = sharedPlanDefaults([
+      { allowedModelIds: ["gpt56m"], whoCopy: "Judge the notes before you pay." },
+      { allowedModelIds: ["gpt56m", "opus5"], whoCopy: "A working book." },
+    ]);
+    assert.deepEqual(shared.allowedModelIds, ["gpt56m", "opus5"]);
+    assert.equal(shared.whoCopy, "Judge the notes before you pay.");
+  });
+
+  it("returns empty agents and who-copy when there are no plans", () => {
+    assert.deepEqual(sharedPlanDefaults([]), { allowedModelIds: [], whoCopy: "" });
   });
 });
 

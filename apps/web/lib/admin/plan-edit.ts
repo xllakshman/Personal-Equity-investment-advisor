@@ -13,16 +13,25 @@ export const NOTICE_PCTS = [60, 80, 90, 100] as const;
 export type PlanEditState = { error: string | null; notice: string | null };
 export const EMPTY_PLAN_EDIT: PlanEditState = { error: null, notice: null };
 
+export type AdminPlanCatalogRow = {
+  id: string;
+  label: string;
+  thesis_class: "frontier" | "quick";
+};
+
 export type PlanEditInput = {
   planId: string;
   monthlyAnalysisLimit: number;
   priceCents: number;
   weeklyDigestTickerLimit: number;
   isActive: boolean;
-  allowedModelIds: string[];
-  whoCopy: string;
   whyCopy: string;
   notices: { pct: number; message: string }[];
+};
+
+export type PlanSharedInput = {
+  allowedModelIds: string[];
+  whoCopy: string;
 };
 
 export type PlanEditResult =
@@ -51,7 +60,7 @@ export function weeklyTickerChoices(current: number): number[] {
   return withCurrent(WEEKLY_TICKER_OPTIONS, current);
 }
 
-export function parsePlanEdit(form: FormData, catalogIds: readonly string[]): PlanEditResult {
+export function parsePlanEdit(form: FormData): PlanEditResult {
   const planId = String(form.get("planId") ?? "").trim();
   if (!planId) return { ok: false, error: "Missing plan." };
 
@@ -75,18 +84,9 @@ export function parsePlanEdit(form: FormData, catalogIds: readonly string[]): Pl
     return { ok: false, error: "Choose whether this plan is listed on Subscription." };
   }
 
-  const allowedModelIds = form
-    .getAll("model_id")
-    .map((v) => String(v))
-    .filter((id) => catalogIds.includes(id));
-  if (allowedModelIds.length === 0) {
-    return { ok: false, error: "Pick at least one agent this plan may run." };
-  }
-
-  const whoCopy = String(form.get("who_copy") ?? "").trim();
   const whyCopy = String(form.get("why_copy") ?? "").trim();
-  if (!whoCopy || !whyCopy) {
-    return { ok: false, error: "Who it is for and why the price both need copy." };
+  if (!whyCopy) {
+    return { ok: false, error: "Why the price needs copy." };
   }
 
   const notices = NOTICE_PCTS.map((pct) => ({
@@ -105,12 +105,45 @@ export function parsePlanEdit(form: FormData, catalogIds: readonly string[]): Pl
       priceCents: priceUsd * 100,
       weeklyDigestTickerLimit,
       isActive: listed === "true",
-      allowedModelIds,
-      whoCopy,
       whyCopy,
       notices,
     },
   };
+}
+
+export type PlanSharedResult =
+  | { ok: true; value: PlanSharedInput }
+  | { ok: false; error: string };
+
+export function parsePlanShared(
+  form: FormData,
+  catalogIds: readonly string[],
+): PlanSharedResult {
+  const allowedModelIds = form
+    .getAll("model_id")
+    .map((v) => String(v))
+    .filter((id) => catalogIds.includes(id));
+  if (allowedModelIds.length === 0) {
+    return { ok: false, error: "Pick at least one agent every plan may run." };
+  }
+  const whoCopy = String(form.get("who_copy") ?? "").trim();
+  if (!whoCopy) {
+    return { ok: false, error: "Who it is for needs copy." };
+  }
+  return { ok: true, value: { allowedModelIds, whoCopy } };
+}
+
+export function sharedPlanDefaults(
+  plans: readonly { allowedModelIds: readonly string[]; whoCopy: string }[],
+): PlanSharedInput {
+  const ids: string[] = [];
+  for (const plan of plans) {
+    for (const id of plan.allowedModelIds) {
+      if (id && !ids.includes(id)) ids.push(id);
+    }
+  }
+  const whoCopies = plans.map((p) => p.whoCopy.trim()).filter(Boolean);
+  return { allowedModelIds: ids, whoCopy: whoCopies[0] ?? "" };
 }
 
 export function parseThesisClass(

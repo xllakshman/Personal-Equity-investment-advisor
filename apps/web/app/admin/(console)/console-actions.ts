@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { parsePlanEdit, parseThesisClass, type PlanEditState } from "@/lib/admin/plan-edit";
+import { parsePlanEdit, parsePlanShared, parseThesisClass, type PlanEditState } from "@/lib/admin/plan-edit";
 import { type FamilyPlanState } from "@/lib/admin/family-plan";
 import {
   parsePromptRole,
@@ -21,14 +21,7 @@ export async function savePlan(
 ): Promise<PlanEditState> {
   await requirePlatformAdmin();
   const supabase = await createClient();
-  const { data: catalog } = await supabase
-    .from("model_catalog")
-    .select("id, provider")
-    .eq("is_active", true);
-  const catalogIds = (catalog ?? [])
-    .filter((m) => isNativeProvider(String(m.provider)))
-    .map((m) => String(m.id));
-  const parsed = parsePlanEdit(formData, catalogIds);
+  const parsed = parsePlanEdit(formData);
   if (!parsed.ok) return { error: parsed.error, notice: null };
 
   const { error } = await supabase
@@ -38,8 +31,6 @@ export async function savePlan(
       price_cents: parsed.value.priceCents,
       weekly_digest_ticker_limit: parsed.value.weeklyDigestTickerLimit,
       is_active: parsed.value.isActive,
-      allowed_model_ids: parsed.value.allowedModelIds,
-      who_copy: parsed.value.whoCopy,
       why_copy: parsed.value.whyCopy,
     })
     .eq("id", parsed.value.planId);
@@ -73,8 +64,49 @@ export async function savePlan(
   revalidatePath("/billing");
   return {
     error: null,
+    notice: "Saved this plan. Desk Subscription reads price, notes, and why-copy on the next load.",
+  };
+}
+
+export async function savePlanShared(
+  _prev: PlanEditState,
+  formData: FormData,
+): Promise<PlanEditState> {
+  await requirePlatformAdmin();
+  const supabase = await createClient();
+  const { data: catalog } = await supabase
+    .from("model_catalog")
+    .select("id, provider")
+    .eq("is_active", true);
+  const catalogIds = (catalog ?? [])
+    .filter((m) => isNativeProvider(String(m.provider)))
+    .map((m) => String(m.id));
+  const parsed = parsePlanShared(formData, catalogIds);
+  if (!parsed.ok) return { error: parsed.error, notice: null };
+
+  const { data: rows, error: listError } = await supabase.from("plans").select("id");
+  if (listError) return { error: listError.message, notice: null };
+  const ids = (rows ?? []).map((r) => String(r.id)).filter(Boolean);
+  if (ids.length === 0) {
+    return { error: "No plan rows to update.", notice: null };
+  }
+
+  const { error } = await supabase
+    .from("plans")
+    .update({
+      allowed_model_ids: parsed.value.allowedModelIds,
+      who_copy: parsed.value.whoCopy,
+    })
+    .in("id", ids);
+  if (error) return { error: error.message, notice: null };
+
+  revalidatePath("/admin/plans");
+  revalidatePath("/billing");
+  revalidatePath("/analyse");
+  return {
+    error: null,
     notice:
-      "Saved. Desk Subscription and Analyse agent lists read these rows on the next load.",
+      "Saved for every plan. Desk Analyse reads plans.allowed_model_ids; Subscription reads plans.who_copy on the next load.",
   };
 }
 
@@ -240,7 +272,7 @@ export async function refreshLabModels(
   const labs = (payload.providers ?? []).join(", ") || "native labs";
   return {
     error: null,
-    notice: `Updated ${n} model_catalog rows from ${labs}. Frontier vs quick uses the generation gap on this screen. Save each plan card to offer new agents on Analyse.`,
+    notice: `Updated ${n} model_catalog rows from ${labs}. Frontier vs quick uses the generation gap on this screen. Save Agents and who it is for to offer new agents on Analyse.`,
   };
 }
 
