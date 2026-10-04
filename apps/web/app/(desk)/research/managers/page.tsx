@@ -36,8 +36,8 @@ export default async function ManagersPage() {
 
   return (
     <div className="desk__screen">
-      <p className="desk__kicker">Managers</p>
-      <h1 className="desk__h1">What they hold</h1>
+      <p className="desk__kicker">Research</p>
+      <h1 className="desk__h1">Elite Investors Holdings</h1>
       <p className="desk__lede">
         Twenty well-known investors. Company weights come from the filer’s latest
         13F-HR on SEC EDGAR. This is not a broker and not your personal book.

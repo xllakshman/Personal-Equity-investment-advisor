@@ -73,8 +73,8 @@ export default async function PortfolioPage({
 
   return (
     <div className="desk__screen">
-      <p className="desk__kicker">Portfolio</p>
-      <h1 className="desk__h1">Your holdings</h1>
+      <p className="desk__kicker">Your holdings</p>
+      <h1 className="desk__h1">Review Portfolio</h1>
       <p className="desk__lede" style={{ maxWidth: "62ch" }}>
         Upload a spreadsheet or add a name. Display currency does not change stored
         costs. You can still analyse a stock that is not in this book.

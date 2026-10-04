@@ -125,7 +125,7 @@ export function EliteInvestorDesk({
                 onClick={() => setOpen(isOpen ? null : row.slug)}
               >
                 <span className="elite__n">{String(i + 1).padStart(2, "0")}</span>
-                <span>
+                <span className="elite__who">
                   <span className="elite__name">{row.name}</span>
                   <span className="elite__firm">{row.firm}</span>
                 </span>
@@ -187,19 +187,19 @@ export function EliteInvestorDesk({
                       : " · not refreshed yet"}
                   </p>
                   <div className="elite__rets">
-                    <div>
+                    <div className="elite__ret-cell">
                       <p className="desk__kicker">1 year</p>
                       <p className="elite__pct">{pctLabel(book?.returns.y1 ?? null)}</p>
                     </div>
-                    <div>
+                    <div className="elite__ret-cell">
                       <p className="desk__kicker">3 year ann.</p>
                       <p className="elite__pct">{pctLabel(book?.returns.y3 ?? null)}</p>
                     </div>
-                    <div>
+                    <div className="elite__ret-cell">
                       <p className="desk__kicker">5 year ann.</p>
                       <p className="elite__pct">{pctLabel(book?.returns.y5 ?? null)}</p>
                     </div>
-                    <div>
+                    <div className="elite__ret-cell">
                       <p className="desk__kicker">10 year ann.</p>
                       <p className="elite__pct">{pctLabel(book?.returns.y10 ?? null)}</p>
                     </div>
@@ -222,7 +222,7 @@ export function EliteInvestorDesk({
                   {top.length === 0 ? (
                     <p className="pf__empty">No holdings in cache. Refresh this book.</p>
                   ) : (
-                    <div className="pf__table-wrap" style={{ marginTop: 12 }}>
+                    <div className="pf__table-wrap elite__table-wrap">
                       <table className="pf__table">
                         <thead>
                           <tr>

@@ -41,16 +41,21 @@ describe("eqveste LogoMark", () => {
     assert.match(css, /--grad-brand:/);
   });
 
-  it("favicon svg is the continuous e on a rounded navy tile, no globe", () => {
+  it("favicon svg is the continuous e with a transparent background, no globe", () => {
     const fav = src("public/favicon.svg");
+    const mock = src("../../docs/mock-ui/favicon.svg");
     const layout = src("app/layout.tsx");
     assert.match(fav, /viewBox="0 0 64 64"/);
-    assert.match(fav, /rx="15" fill="#191f30"/);
     assert.match(fav, /M14 32 H50 A18 18 0 1 0 44\.73 44\.73/);
     assert.match(fav, /stroke-width="8"/);
+    assert.equal(fav.includes('rx="15"'), false);
+    assert.equal(fav.includes("#191f30"), false);
+    assert.equal(fav.includes("<rect"), false);
     assert.equal(fav.includes('r="13.5"'), false);
     assert.equal(fav.includes("<circle"), false);
     assert.equal(fav.includes("<ellipse"), false);
+    assert.equal(mock.includes("<rect"), false);
+    assert.equal(mock.includes("#191f30"), false);
     assert.match(layout, /url: "\/favicon\.svg"/);
     assert.match(layout, /url: "\/favicon-32\.png"/);
     assert.match(layout, /url: "\/favicon-180\.png"/);

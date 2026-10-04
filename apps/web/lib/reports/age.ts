@@ -8,6 +8,11 @@ export const STALE_COPY =
 export type ReportPeriod = "all" | "week" | "month";
 export type ReportGroupBy = "week" | "month";
 
+export type ReportFilterOption = {
+  value: string;
+  label: string;
+};
+
 export function daysOld(iso: string, now = new Date()): number {
   const then = new Date(iso);
   if (Number.isNaN(then.getTime())) return 0;
@@ -63,11 +68,70 @@ export function weekKey(iso: string): string {
   return weekStartUtc(iso).toISOString().slice(0, 10);
 }
 
-export function weekLabel(iso: string, now = new Date()): string {
+export function weekLabel(iso: string, _now = new Date()): string {
   const start = weekStartUtc(iso);
-  const thisStart = weekStartUtc(now.toISOString());
-  if (start.getTime() === thisStart.getTime()) return "This week";
-  return `Week of ${start.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" })}`;
+  return `Week of ${start.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  })}`;
+}
+
+export function distinctCompanyOptions(
+  rows: { ticker: string; name: string }[],
+): ReportFilterOption[] {
+  const seen = new Set<string>();
+  const out: ReportFilterOption[] = [];
+  for (const row of rows) {
+    const ticker = String(row.ticker ?? "")
+      .trim()
+      .toUpperCase();
+    const name = String(row.name ?? "").trim();
+    const value = ticker || name;
+    if (!value || seen.has(value)) continue;
+    seen.add(value);
+    const label = ticker && name && !name.toUpperCase().startsWith(ticker)
+      ? `${ticker} · ${name}`
+      : ticker || name;
+    out.push({ value, label });
+  }
+  return out.sort((a, b) => a.label.localeCompare(b.label));
+}
+
+export function distinctMonthOptions(isos: string[]): ReportFilterOption[] {
+  const keys = [
+    ...new Set(
+      isos
+        .map((iso) => monthKey(iso))
+        .filter((key) => /^\d{4}-\d{2}$/.test(key)),
+    ),
+  ].sort().reverse();
+  return keys.map((value) => ({ value, label: monthLabel(value) }));
+}
+
+export function distinctWeekOptions(
+  isos: string[],
+  now = new Date(),
+): ReportFilterOption[] {
+  const seen = new Set<string>();
+  const out: ReportFilterOption[] = [];
+  const sorted = [...isos].sort((a, b) => weekKey(b).localeCompare(weekKey(a)));
+  for (const iso of sorted) {
+    const value = weekKey(iso);
+    if (!value || seen.has(value)) continue;
+    seen.add(value);
+    out.push({ value, label: weekLabel(`${value}T00:00:00.000Z`, now) });
+  }
+  const counts = new Map<string, number>();
+  for (const row of out) {
+    counts.set(row.label, (counts.get(row.label) ?? 0) + 1);
+  }
+  return out.map((row) =>
+    (counts.get(row.label) ?? 0) > 1
+      ? { value: row.value, label: `${row.label} · ${row.value}` }
+      : row,
+  );
 }
 
 export function inReportPeriod(

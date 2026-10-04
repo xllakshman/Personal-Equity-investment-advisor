@@ -70,8 +70,8 @@ describe("managers desk copy", () => {
   it("keeps all twenty investors, reads holdings, and still refreshes via the API", () => {
     const page = src("app/(desk)/research/managers/page.tsx");
     const desk = src("components/features/research/EliteInvestorDesk.tsx");
-    assert.match(page, /className="desk__kicker">Managers</);
-    assert.match(page, /<h1 className="desk__h1">What they hold<\/h1>/);
+    assert.match(page, /className="desk__kicker">Research</);
+    assert.match(page, /<h1 className="desk__h1">Elite Investors Holdings<\/h1>/);
     assert.match(page, /\.from\("holdings"\)/);
     assert.match(page, /heldTickers=\{heldTickers\}/);
     assert.match(desk, /ELITE_INVESTORS\.map/);

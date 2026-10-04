@@ -5,7 +5,9 @@ import { useMemo, useState } from "react";
 
 import { PdfOpenButton } from "@/components/features/report/PdfOpenButton";
 import {
-  inReportPeriod,
+  distinctCompanyOptions,
+  distinctMonthOptions,
+  distinctWeekOptions,
   isStaleNote,
   matchesCompany,
   monthKey,
@@ -17,7 +19,6 @@ import {
   weekKey,
   weekLabel,
   type ReportGroupBy,
-  type ReportPeriod,
 } from "@/lib/reports/age";
 import type { DeskNoteRow } from "@/lib/reports/load";
 
@@ -36,24 +37,27 @@ function shortVerdict(text: string): string {
 
 export function ReportsDeskView({ rows }: { rows: DeskNoteRow[] }) {
   const [groupBy, setGroupBy] = useState<ReportGroupBy>("week");
-  const [period, setPeriod] = useState<ReportPeriod>("all");
   const [month, setMonth] = useState("");
   const [week, setWeek] = useState("");
   const [company, setCompany] = useState("");
 
   const own = rows.filter((r) => !r.isLibrarySample);
+  const notes = own.filter((r) => r.kind === "note");
   const samples = rows.filter((r) => r.isLibrarySample);
+  const companies = useMemo(
+    () => distinctCompanyOptions(notes.map((r) => ({ ticker: r.ticker, name: r.name }))),
+    [notes],
+  );
   const months = useMemo(
-    () => [...new Set(own.map((r) => monthKey(r.lastRun)).filter(Boolean))].sort().reverse(),
-    [own],
+    () => distinctMonthOptions(notes.map((r) => r.lastRun)),
+    [notes],
   );
   const weeks = useMemo(
-    () => [...new Set(own.map((r) => weekKey(r.lastRun)))].sort().reverse(),
-    [own],
+    () => distinctWeekOptions(notes.map((r) => r.lastRun)),
+    [notes],
   );
 
   const filtered = own.filter((r) => {
-    if (!inReportPeriod(r.lastRun, period)) return false;
     if (month && monthKey(r.lastRun) !== month) return false;
     if (week && weekKey(r.lastRun) !== week) return false;
     if (!matchesCompany({ ticker: r.ticker, name: r.name }, company)) return false;
@@ -82,13 +86,54 @@ export function ReportsDeskView({ rows }: { rows: DeskNoteRow[] }) {
         {STALE_COPY}
       </p>
       <div className="rpt__filters">
+        <div className="rpt__fields">
+          <label className="rpt__field">
+            <span className="rpt__row-k">Company name</span>
+            <select
+              className="rpt__select"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+            >
+              <option value="">All companies</option>
+              {companies.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="rpt__field">
+            <span className="rpt__row-k">Month</span>
+            <select
+              className="rpt__select"
+              value={month}
+              onChange={(e) => setMonth(e.target.value)}
+            >
+              <option value="">All months</option>
+              {months.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="rpt__field">
+            <span className="rpt__row-k">Week</span>
+            <select
+              className="rpt__select"
+              value={week}
+              onChange={(e) => setWeek(e.target.value)}
+            >
+              <option value="">All weeks</option>
+              {weeks.map((w) => (
+                <option key={w.value} value={w.value}>
+                  {w.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
         <div className="rpt__search-row">
-          <input
-            className="rpt__search"
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
-            placeholder="Filter by company or ticker"
-          />
           <button
             type="button"
             className={groupBy === "week" ? "rpt__chip rpt__chip--on" : "rpt__chip"}
@@ -103,68 +148,6 @@ export function ReportsDeskView({ rows }: { rows: DeskNoteRow[] }) {
           >
             By month
           </button>
-        </div>
-        <div className="rpt__row">
-          <span className="rpt__row-k">Month</span>
-          <button
-            type="button"
-            className={!month && period !== "month" ? "rpt__chip rpt__chip--on" : "rpt__chip"}
-            onClick={() => {
-              setMonth("");
-              setPeriod("all");
-            }}
-          >
-            All months
-          </button>
-          {months.map((m) => (
-            <button
-              key={m}
-              type="button"
-              className={month === m ? "rpt__chip rpt__chip--on" : "rpt__chip"}
-              onClick={() => {
-                setMonth(m);
-                setPeriod("all");
-              }}
-            >
-              {monthLabel(m)}
-            </button>
-          ))}
-        </div>
-        <div className="rpt__row">
-          <span className="rpt__row-k">Week</span>
-          <button
-            type="button"
-            className={!week && period !== "week" ? "rpt__chip rpt__chip--on" : "rpt__chip"}
-            onClick={() => {
-              setWeek("");
-              setPeriod("all");
-            }}
-          >
-            All weeks
-          </button>
-          <button
-            type="button"
-            className={period === "week" && !week ? "rpt__chip rpt__chip--on" : "rpt__chip"}
-            onClick={() => {
-              setWeek("");
-              setPeriod("week");
-            }}
-          >
-            This week
-          </button>
-          {weeks.map((w) => (
-            <button
-              key={w}
-              type="button"
-              className={week === w ? "rpt__chip rpt__chip--on" : "rpt__chip"}
-              onClick={() => {
-                setWeek(w);
-                setPeriod("all");
-              }}
-            >
-              {weekLabel(`${w}T00:00:00.000Z`)}
-            </button>
-          ))}
         </div>
       </div>
       <p className="rpt__summary">

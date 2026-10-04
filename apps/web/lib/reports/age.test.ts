@@ -2,11 +2,16 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  distinctCompanyOptions,
+  distinctMonthOptions,
+  distinctWeekOptions,
   inReportPeriod,
   isStaleNote,
   matchesCompany,
   monthKey,
   STALE_COPY,
+  weekKey,
+  weekLabel,
 } from "./age";
 
 describe("isStaleNote", () => {
@@ -40,5 +45,47 @@ describe("matchesCompany", () => {
 
   it("monthKey is YYYY-MM", () => {
     assert.equal(monthKey("2026-09-13T10:00:00Z"), "2026-09");
+  });
+});
+
+describe("report filter options", () => {
+  it("lists distinct companies, months, and unique week labels by ISO key", () => {
+    const now = new Date("2026-10-05T12:00:00Z");
+    const companies = distinctCompanyOptions([
+      { ticker: "MSFT", name: "MSFT — accumulate on weakness" },
+      { ticker: "msft", name: "MSFT follow-up" },
+      { ticker: "AAPL", name: "AAPL — hold" },
+      { ticker: "", name: "" },
+    ]);
+    assert.deepEqual(
+      companies.map((c) => c.value),
+      ["AAPL", "MSFT"],
+    );
+    const months = distinctMonthOptions([
+      "2026-10-01T00:00:00Z",
+      "2026-10-12T00:00:00Z",
+      "2026-09-13T00:00:00Z",
+    ]);
+    assert.deepEqual(
+      months.map((m) => m.value),
+      ["2026-10", "2026-09"],
+    );
+    const weeks = distinctWeekOptions(
+      [
+        "2026-10-05T10:00:00Z",
+        "2026-10-06T10:00:00Z",
+        "2026-09-29T10:00:00Z",
+        "2025-10-06T10:00:00Z",
+      ],
+      now,
+    );
+    const keys = weeks.map((w) => w.value);
+    assert.equal(new Set(keys).size, keys.length);
+    const labels = weeks.map((w) => w.label);
+    assert.equal(new Set(labels).size, labels.length);
+    assert.equal(labels.includes("This week"), false);
+    assert.equal(weekKey("2026-10-05T10:00:00Z"), "2026-10-05");
+    assert.match(weekLabel("2026-10-05T10:00:00Z", now), /2026/);
+    assert.match(weekLabel("2025-10-06T10:00:00Z", now), /2025/);
   });
 });
