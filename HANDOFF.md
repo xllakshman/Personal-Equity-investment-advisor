@@ -3,7 +3,7 @@
 > **Version:** 0.1 · **Date:** 2026-09-13  
 > **Workspace:** `/Users/lakshmanyeluri/Documents/personalEquity_Advisor`  
 > **Reference layout:** `/Users/lakshmanyeluri/Documents/activePieces-docker/invoice-processing`  
-> **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P10-02**  
+> **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P11-01**  
 > **Latest session:** [`docs/handoff/SESSION-2026-10-03-analyse-elite.md`](docs/handoff/SESSION-2026-10-03-analyse-elite.md)  
 > **Mock UI:** [`docs/mock-ui/`](docs/mock-ui/README.md)  
 > **GitHub (empty):** `xllakshman/Personal-Equity-investment-advisor` · branch `main`
@@ -34,7 +34,7 @@
 | Analysis CSAT | ✅ **P5-05** `analysis_feedback` + **P7-10** admin tab |
 | Requirements vs mock/brief | ✅ Gap review 2026-09-13 — D27–D42 |
 
-**Build next:** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P10-02** — FastAPI + worker on droplet `157.245.102.243`. Next.js does not start `apps/analysis-worker`. Dev URL is **http://127.0.0.1:3100/**.
+**Build next:** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P11-01** — typeset note + PDF download. Dev URL is **http://127.0.0.1:3100/**.
 
 ---
 

@@ -20,9 +20,9 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 
 | Field | Value |
 |-------|--------|
-| **Build next** | **P10-02** — FastAPI + worker on the named droplet |
-| Last done | Admin Plans class editor; entry tranches on `/portfolio`; Analyse wait progress; one Submit (`024`). Operator Subscribe → email + `/admin/accounts` Activate (`025`). **024–025** applied DEV+PROD 2026-10-04. |
-| Blocked on you | P10-02 droplet worker (Submit on prod stays queued until it runs). P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
+| **Build next** | **P11-01** — Typeset note + PDF download |
+| Last done | Prod META note `ready` with `plain_language` (OpenAI fallback). Admin Plans shared agents/who-copy (`01a76a6` on eqveste.com). |
+| Blocked on you | P11-02…P11-06 wait until P11-01 Success. P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
 | DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–025** applied |
@@ -830,6 +830,82 @@ Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do 
   1. `GET https://api.eqveste.com/health` returns `{"status":"ok"}`.
   2. A prod-queued `analysis_requests` row leaves `queued` (at least to `gathering` / `failed`) without changing DEV rows.
   3. Host env has `SUPABASE_URL=https://ndgvglcrkbygovlszxze.supabase.co`. Vercel still has no service role.
+
+---
+
+## Phase 11 — Note layout and desk/admin fixes (named 2026-10-04)
+
+One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30).
+
+### P11-01 — Typeset note + PDF download
+
+- **Status:** 🟡 2026-10-04
+- **Depends on:** P5-02, P5-03, P4-03
+- **Direction:** `/reports/[id]` and `/analyse/[id]` (when `analysis_requests.status = ready`) show **one** document: cover (ticker, verdict, date), KEY DATA from `reports` + `analysis_evidence` step 0 (close if present), body typeset from `reports.sections.plain_language` (escaped headings/paragraphs — never model HTML). Remove Beginner/Expert and empty section tabs from the main read. Refine stays below as an append (`refinements`). **Download PDF:** `downloadReportPdf` must `redirect` to the signed URL from `GET /reports/:id/pdf` on `https://api.eqveste.com` (desk JWT). Do not catch Next.js `redirect()`. Playwright `render_pdf_html` uses the same cover + KEY DATA + typeset body (not a Georgia `<pre>` dump).
+- **Writes:** none on Postgres. Re-upload PDF only if the worker is redeployed and a job re-renders; existing `reports.pdf_key` objects stay until a new run.
+- **Reads:** `reports.sections`, `reports.charts`, `analysis_evidence`, Storage `report-pdfs`.
+- **Who:** owner/member (viewer can read + PDF).
+- **UI today:** tabbed `<pre>` dump; Download click is swallowed by `try/catch` around `redirect()`.
+- **Success:**
+  1. Open a `ready` note: one scrolling document with THE BOTTOM LINE as a heading, not a `.txt` dump. No empty Moat/Tax tabs.
+  2. **Download PDF** opens a signed `report-pdfs/...pdf` (not “analysis-api is not running on 8091”).
+  3. PDF HTML contains heading tags for THE BOTTOM LINE and no `<script>` from sections.
+- **Testing:** typeset unit tests (empty prose, script tags escaped, heading split). PDF HTML test. Pass 3: formatted display.
+
+### P11-02 — Prompt list: archive old rows + plain labels
+
+- **Status:** ⬜
+- **Depends on:** P11-01, P7-02
+- **Direction:** `/admin/prompt`. “Currently used by Analyse” shows human copy, e.g. **Stock notes — in use since 4 Oct 2026** and **Follow-up check — in use since 14 Sep 2026** (map `advisor` / `refine_gate`). **Remove** on Previous / Not promoted rows: RPC archives or deletes only if `promoted_at` is null or `superseded_at` is set **and** the row is not the live Analyse/gate prompt. In-use row cannot be removed (append-only lock: never delete the promoted advisor body). Button exists; `platform_admin` only.
+- **Writes:** `prompt_versions` archive/delete of superseded rows. Not `prompt_versions.body` of the live row.
+- **Reads:** `prompt_versions_meta`.
+- **Who:** `platform_admin` at `/admin/login`.
+- **UI today:** Review + Download only.
+- **Success:** In-use blurb has no `semver · advisor · promoted UTC` dump. Remove on an old row hides it from the list. Remove on the in-use row is refused.
+
+### P11-03 — Admin chrome: operator language
+
+- **Status:** ⬜
+- **Depends on:** P11-02
+- **Direction:** Every `/admin/*` page: replace table/RPC jargon in kickers, ledes, notices, and errors with what the operator does and what the desk then shows. Keep `code` table names only where the operator must run SQL. Do not restyle desk.
+- **Writes:** none.
+- **Reads:** existing admin queries.
+- **Who:** `platform_admin`.
+- **UI today:** mix of `plans.allowed_model_ids`, UTC stamps, role slugs.
+- **Success:** Prompt, Plans, Accounts, Observability, login: a non-engineer can say what the button did without reading a table name in the headline.
+
+### P11-04 — Review Portfolio: edit and delete a name
+
+- **Status:** ⬜
+- **Depends on:** P11-03, P2-02
+- **Direction:** `/portfolio` grid: Edit (qty, cost per share, company) and Delete on a ticker. Writes `holding_lots` (update/delete lots for that ticker+exchange+currency). View `holdings` is what the grid and Desk read. Owner/member; viewer cannot. Does not call Analyse.
+- **Writes:** `holding_lots`.
+- **Reads:** view `holdings`.
+- **Who:** owner/member.
+- **UI today:** CSV + add position only; no edit/delete on the grid.
+- **Success:** Change qty → grid and Desk match `holdings`. Delete ticker → row gone. Viewer sees no write buttons.
+
+### P11-05 — Desk typeface Calibri
+
+- **Status:** ⬜
+- **Depends on:** P11-04
+- **Direction:** Desk + report + Analyse builder face is Calibri, with Carlito (web) then `sans-serif`. `apps/web/lib/desk/font.ts` (today Inter). Marketing `/` and `/login` stay as they are.
+- **Writes:** none.
+- **Reads:** none.
+- **Who:** any desk session.
+- **UI today:** Inter on the desk shell.
+- **Success:** `/desk`, `/analyse`, `/reports/[id]`, `/portfolio` computed font-family includes Calibri or Carlito. Login/marketing unchanged.
+
+### P11-06 — Analyse steps 3–5 spacing
+
+- **Status:** ⬜
+- **Depends on:** P11-05
+- **Direction:** `/analyse` Step 3 (position), Step 4 (risk/return), Step 5 (tax): labels above fields, taller controls, gap between quantity / cost / portfolio / tax pair so dropdowns are not cramped (screenshot 2026-10-04).
+- **Writes:** none.
+- **Reads:** builder state only.
+- **Who:** owner/member.
+- **UI today:** dense `bld__pos` / `pf__row` on those steps.
+- **Success:** Step 3–5: each control has visible padding; dropdown text is not clipped into the label.
 
 ---
 

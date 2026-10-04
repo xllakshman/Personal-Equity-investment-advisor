@@ -40,4 +40,6 @@ def test_pdf_html_prints_plain_language_note() -> None:
     )
     assert "THE BOTTOM LINE" in html
     assert "Meta at $728" in html
+    assert "<h3>" in html
+    assert "<pre>" not in html
     assert "<script>" not in html

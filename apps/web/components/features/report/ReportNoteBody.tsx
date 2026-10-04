@@ -1,16 +1,5 @@
-import { pickSection, sectionText, BEGINNER_KEYS, isProgressKey, isFinishedNote, noteDocument } from "@/lib/reports/sections";
-
-const SECTION_TITLE: Record<string, string> = {
-  verdict: "Verdict",
-  step0: "What we checked",
-  evidence: "Evidence",
-  moat: "Moat",
-  execution: "Execution",
-  sizing: "Sizing",
-  scenarios: "Scenarios",
-  tax: "Tax",
-  news: "News",
-};
+import { ReportDocument } from "@/components/features/report/ReportDocument";
+import { isFinishedNote } from "@/lib/reports/sections";
 
 export type NoteBody = {
   name: string;
@@ -19,7 +8,7 @@ export type NoteBody = {
   sections: Record<string, unknown>;
 };
 
-/** Fixed section order for Analyse wait + Reports. Never render HTML from the model. */
+/** Wait page + Reports share the same typeset document. Never render HTML from the model. */
 export function ReportNoteBody({
   note,
   kicker = "Analysis",
@@ -27,21 +16,15 @@ export function ReportNoteBody({
   note: NoteBody;
   kicker?: string;
 }) {
-  const document = isFinishedNote(note.sections) ? noteDocument(note.sections) : "";
-  const keys = BEGINNER_KEYS.filter(
-    (k) => (k === "verdict" || k in note.sections) && !isProgressKey(k),
-  );
-  if (document.length >= 200) {
+  if (isFinishedNote(note.sections)) {
     return (
       <section className="bld__wait-note" aria-label="Analysis output">
-        <p className="desk__kicker">{kicker}</p>
-        <h2 className="desk__h1">{note.name}</h2>
-        <p className="desk__lede">
-          {note.ticker} · Verdict {note.verdict}
-        </p>
-        <article className="desk__card bld__wait-sec">
-          <pre className="report__pre">{document}</pre>
-        </article>
+        <ReportDocument
+          name={note.name}
+          ticker={note.ticker}
+          verdict={note.verdict}
+          sections={note.sections}
+        />
       </section>
     );
   }
@@ -50,22 +33,9 @@ export function ReportNoteBody({
       <p className="desk__kicker">{kicker}</p>
       <h2 className="desk__h1">{note.name}</h2>
       <p className="desk__lede">
-        {note.ticker} · Verdict {note.verdict}
+        {note.ticker} · Verdict {note.verdict}. The finished note is not on this
+        row yet.
       </p>
-      {keys.map((key) => {
-        const raw =
-          key === "verdict"
-            ? pickSection(note.sections, ["verdict"]) ?? note.verdict
-            : pickSection(note.sections, [key]);
-        const text = sectionText(raw);
-        if (!text) return null;
-        return (
-          <article key={key} className="desk__card bld__wait-sec">
-            <h3>{SECTION_TITLE[key] ?? key.replaceAll("_", " ")}</h3>
-            <p>{text}</p>
-          </article>
-        );
-      })}
     </section>
   );
 }

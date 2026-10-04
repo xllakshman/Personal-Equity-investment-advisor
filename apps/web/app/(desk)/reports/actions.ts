@@ -42,6 +42,7 @@ export async function downloadReportPdf(
   const reportId = String(formData.get("reportId") ?? "");
   const token = await accessToken();
   if (!token) return { error: "Sign in again.", notice: null };
+  let url = "";
   try {
     const res = await analysisApiFetch(`/reports/${reportId}/pdf`, token);
     if (res.status === 404) {
@@ -52,14 +53,14 @@ export async function downloadReportPdf(
     }
     const body = (await res.json()) as { url?: string };
     if (!body.url) return { error: "PDF URL missing.", notice: null };
-    redirect(body.url);
+    url = body.url;
   } catch {
     return {
-      error:
-        "analysis-api is not running on 8091. Start it, or wait until the worker sets reports.pdf_key.",
+      error: "Could not open the PDF. Try again in a moment.",
       notice: null,
     };
   }
+  redirect(url);
 }
 
 export async function submitAnalysisFeedback(
