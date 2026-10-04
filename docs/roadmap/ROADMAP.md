@@ -21,7 +21,7 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 | Field | Value |
 |-------|--------|
 | **Build next** | **P6-03** — merchant unnamed (blocked) |
-| Last done | **P11-08** Desk chrome + Home / Analyse / Reports / Contact match `App.dc.html` (SF Pro stack, stroke-only e, no Earth). Local → **dev** (`217f7cb`) → **prod** `https://eqveste.com`. |
+| Last done | Desk name menu (Profile / Sign out, no LY); Review Portfolio / Elite Investors Holdings; Reports company/month/week dropdowns; favicon stroke-only e with no navy tile. Local → **dev** (`1a55227`) → **prod** `https://eqveste.com` (`dpl_BS8Md8FtMipvmrFwixrSeQtzHdhF`). |
 | Blocked on you | P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
