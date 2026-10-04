@@ -20,9 +20,9 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 
 | Field | Value |
 |-------|--------|
-| **Build next** | **P11-01** — Typeset note + PDF download |
-| Last done | Prod META note `ready` with `plain_language` (OpenAI fallback). Admin Plans shared agents/who-copy (`01a76a6` on eqveste.com). |
-| Blocked on you | P11-02…P11-06 wait until P11-01 Success. P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
+| **Build next** | **P11-02** — Prompt list: archive old rows + plain labels |
+| Last done | **P11-01** typeset note + Download PDF on eqveste.com (`6399d3e`). User confirmed Download PDF works 2026-10-04. |
+| Blocked on you | P11-02 Remove needs migration **026** named + `CONFIRM_APPLY=1` (DEV then prod). P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
 | DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–025** applied |
@@ -839,7 +839,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 
 ### P11-01 — Typeset note + PDF download
 
-- **Status:** 🟡 2026-10-04
+- **Status:** ✅ 2026-10-04
 - **Depends on:** P5-02, P5-03, P4-03
 - **Direction:** `/reports/[id]` and `/analyse/[id]` (when `analysis_requests.status = ready`) show **one** document: cover (ticker, verdict, date), KEY DATA from `reports` + `analysis_evidence` step 0 (close if present), body typeset from `reports.sections.plain_language` (escaped headings/paragraphs — never model HTML). Remove Beginner/Expert and empty section tabs from the main read. Refine stays below as an append (`refinements`). **Download PDF:** `downloadReportPdf` must `redirect` to the signed URL from `GET /reports/:id/pdf` on `https://api.eqveste.com` (desk JWT). Do not catch Next.js `redirect()`. Playwright `render_pdf_html` uses the same cover + KEY DATA + typeset body (not a Georgia `<pre>` dump).
 - **Writes:** none on Postgres. Re-upload PDF only if the worker is redeployed and a job re-renders; existing `reports.pdf_key` objects stay until a new run.
@@ -854,7 +854,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 
 ### P11-02 — Prompt list: archive old rows + plain labels
 
-- **Status:** ⬜
+- **Status:** 🟡 2026-10-04
 - **Depends on:** P11-01, P7-02
 - **Direction:** `/admin/prompt`. “Currently used by Analyse” shows human copy, e.g. **Stock notes — in use since 4 Oct 2026** and **Follow-up check — in use since 14 Sep 2026** (map `advisor` / `refine_gate`). **Remove** on Previous / Not promoted rows: RPC archives or deletes only if `promoted_at` is null or `superseded_at` is set **and** the row is not the live Analyse/gate prompt. In-use row cannot be removed (append-only lock: never delete the promoted advisor body). Button exists; `platform_admin` only.
 - **Writes:** `prompt_versions` archive/delete of superseded rows. Not `prompt_versions.body` of the live row.
@@ -984,6 +984,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | 019 | 2026-09-15 | ✅ native labs catalog on DEV and PROD; Gemini/Kimi `is_active = false` |
 | P10-01 | 2026-09-15 | 🟡 Vercel Production env (anon URL+key only) + deploy READY. `eqveste.com` 404 until Porkbun A → `76.76.21.21`. |
 | P10-02 | 2026-09-14 | ⬜ compose + DigitalOcean notes in git; no droplet |
+| P11-01 | 2026-10-04 | ✅ typeset note + Download PDF on eqveste.com (`6399d3e`). User confirmed Download PDF. |
 
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.

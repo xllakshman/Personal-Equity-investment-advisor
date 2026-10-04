@@ -1,5 +1,13 @@
 import { promotePrompt } from "@/app/admin/(console)/console-actions";
 import { PromptUploadForm } from "@/components/features/admin/PromptUploadForm";
+import { RemovePromptButton } from "@/components/features/admin/RemovePromptButton";
+import {
+  canRemovePrompt,
+  formatPromptDate,
+  promptInUseLine,
+  promptRoleLabel,
+  promptRoleOutcome,
+} from "@/lib/admin/prompt-name";
 import { requirePlatformAdmin } from "@/lib/admin/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -28,6 +36,7 @@ type PromptMeta = {
   promoted_at: string | null;
   superseded_at: string | null;
   created_at: string | null;
+  archived_at: string | null;
 };
 
 export default async function AdminPromptPage({
@@ -40,25 +49,39 @@ export default async function AdminPromptPage({
   const supabase = await createClient();
   const first = await supabase
     .from("prompt_versions_meta")
-    .select("id, semver, role, submitted_by, promoted_at, superseded_at, created_at")
+    .select(
+      "id, semver, role, submitted_by, promoted_at, superseded_at, created_at, archived_at",
+    )
+    .is("archived_at", null)
     .order("created_at", { ascending: false })
     .limit(50);
   const listed = first.error
     ? await supabase
         .from("prompt_versions_meta")
-        .select("id, semver, submitted_by, promoted_at, superseded_at, created_at")
+        .select("id, semver, role, submitted_by, promoted_at, superseded_at, created_at")
         .order("created_at", { ascending: false })
         .limit(50)
     : first;
-  const rows: PromptMeta[] = (listed.data ?? []).map((r) => ({
-    id: String(r.id),
-    semver: String(r.semver),
-    role: "role" in r ? String(r.role ?? "advisor") : "advisor",
-    submitted_by: r.submitted_by ? String(r.submitted_by) : null,
-    promoted_at: r.promoted_at ? String(r.promoted_at) : null,
-    superseded_at: r.superseded_at ? String(r.superseded_at) : null,
-    created_at: r.created_at ? String(r.created_at) : null,
-  }));
+  const fallbackListed = listed.error
+    ? await supabase
+        .from("prompt_versions_meta")
+        .select("id, semver, submitted_by, promoted_at, superseded_at, created_at")
+        .order("created_at", { ascending: false })
+        .limit(50)
+    : listed;
+  const rows: PromptMeta[] = (fallbackListed.data ?? [])
+    .map((r) => ({
+      id: String(r.id),
+      semver: String(r.semver),
+      role: "role" in r ? String(r.role ?? "advisor") : "advisor",
+      submitted_by: r.submitted_by ? String(r.submitted_by) : null,
+      promoted_at: r.promoted_at ? String(r.promoted_at) : null,
+      superseded_at: r.superseded_at ? String(r.superseded_at) : null,
+      created_at: r.created_at ? String(r.created_at) : null,
+      archived_at:
+        "archived_at" in r && r.archived_at ? String(r.archived_at) : null,
+    }))
+    .filter((r) => !r.archived_at);
 
   const inUse = rows.filter((r) => r.promoted_at && !r.superseded_at);
   const viewId = sp.view || (inUse[0] ? inUse[0].id : rows[0]?.id || "");
@@ -90,10 +113,8 @@ export default async function AdminPromptPage({
           <h1 className="admin__h1">Prompt</h1>
           <p className="admin__lede">
             Upload a version, read it here, download any previous file, then
-            Promote. The worker reads the promoted advisor row from{" "}
-            <code>prompt_versions</code> (<code>promoted_at</code> set,{" "}
-            <code>superseded_at</code> empty). Desk clients never receive the
-            body.
+            Promote. Analyse uses the In use Stock notes row. Desk clients never
+            receive the body.
           </p>
         </div>
       </header>
@@ -104,20 +125,16 @@ export default async function AdminPromptPage({
           <ul className="admin__list">
             {inUse.map((r) => (
               <li key={String(r.id)}>
-                <strong>{String(r.semver)}</strong>
-                {" · "}
-                {rowRole(r)}
-                {" · promoted "}
-                {r.promoted_at ? String(r.promoted_at).replace("T", " ").slice(0, 19) : "—"}{" "}
-                UTC
+                <strong>{promptInUseLine(rowRole(r), r.promoted_at)}</strong>
+                <div className="admin__muted">{promptRoleOutcome(rowRole(r))}</div>
               </li>
             ))}
           </ul>
         </section>
       ) : (
         <p className="admin__error" style={{ marginBottom: 16 }}>
-          No promoted prompt. Submit on Analyse uses the last promoted advisor
-          row; until you Promote one, the worker has nothing new to load.
+          No prompt in use. Promote a Stock notes row or Submit on Analyse has
+          nothing new to load.
         </p>
       )}
 
@@ -132,7 +149,7 @@ export default async function AdminPromptPage({
           {viewed ? (
             <>
               <p className="admin__lede" style={{ margin: "0 0 12px" }}>
-                {String(viewed.semver)} · {rowRole(viewed)} ·{" "}
+                {String(viewed.semver)} · {promptRoleLabel(rowRole(viewed))} ·{" "}
                 {statusLabel(viewed).label}
               </p>
               <pre className="admin__prompt-body">{body ?? "—"}</pre>
@@ -150,6 +167,12 @@ export default async function AdminPromptPage({
                     </button>
                   </form>
                 )}
+                {canRemovePrompt(viewed) ? (
+                  <RemovePromptButton
+                    promptId={viewId}
+                    label={String(viewed.semver)}
+                  />
+                ) : null}
               </p>
             </>
           ) : (
@@ -162,16 +185,16 @@ export default async function AdminPromptPage({
         <div className="admin__scroll">
           <table className="admin__table">
             <colgroup>
-              <col style={{ width: "38%" }} />
+              <col style={{ width: "32%" }} />
+              <col style={{ width: "16%" }} />
               <col style={{ width: "14%" }} />
-              <col style={{ width: "16%" }} />
-              <col style={{ width: "16%" }} />
-              <col style={{ width: "16%" }} />
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "26%" }} />
             </colgroup>
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Role</th>
+                <th>Used for</th>
                 <th>Saved</th>
                 <th>Status</th>
                 <th className="admin__actions"> </th>
@@ -190,11 +213,9 @@ export default async function AdminPromptPage({
                 return (
                   <tr key={id}>
                     <td className="admin__mono">{String(r.semver)}</td>
-                    <td>{rowRole(r)}</td>
+                    <td>{promptRoleLabel(rowRole(r))}</td>
                     <td className="admin__muted">
-                      {r.created_at
-                        ? String(r.created_at).replace("T", " ").slice(0, 19)
-                        : "—"}
+                      {formatPromptDate(r.created_at) || "—"}
                     </td>
                     <td>
                       <span className={chip}>{status.label}</span>
@@ -206,6 +227,15 @@ export default async function AdminPromptPage({
                       <a className="admin__btn" href={`/admin/prompt/${id}/download`}>
                         Download
                       </a>
+                      {canRemovePrompt(r) ? (
+                        <>
+                          {" "}
+                          <RemovePromptButton
+                            promptId={id}
+                            label={String(r.semver)}
+                          />
+                        </>
+                      ) : null}
                     </td>
                   </tr>
                 );

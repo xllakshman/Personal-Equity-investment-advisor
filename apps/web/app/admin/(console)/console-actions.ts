@@ -7,6 +7,7 @@ import { parsePlanEdit, parsePlanShared, parseThesisClass, type PlanEditState } 
 import { type FamilyPlanState } from "@/lib/admin/family-plan";
 import {
   parsePromptRole,
+  promptRemoveError,
   promptVersionName,
   type PromptActionState,
 } from "@/lib/admin/prompt-name";
@@ -170,6 +171,23 @@ export async function promotePrompt(formData: FormData) {
   }
   revalidatePath("/admin/prompt");
   redirect(`/admin/prompt?view=${promptId}`);
+}
+
+export async function removePrompt(formData: FormData) {
+  await requirePlatformAdmin();
+  const promptId = String(formData.get("promptId") ?? "");
+  if (!promptId) return;
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("thesis_admin_remove_prompt", {
+    p_id: promptId,
+  });
+  if (error) {
+    redirect(
+      `/admin/prompt?view=${promptId}&err=${encodeURIComponent(promptRemoveError(error.message))}`,
+    );
+  }
+  revalidatePath("/admin/prompt");
+  redirect("/admin/prompt");
 }
 
 async function accessToken(): Promise<string | null> {

@@ -12,11 +12,11 @@ export function PromptUploadForm() {
       {state.error ? <p className="admin__error">{state.error}</p> : null}
       {state.notice ? <p className="admin__notice">{state.notice}</p> : null}
       <label className="admin__field" htmlFor="prompt-role">
-        Role
+        Used for
         <select id="prompt-role" className="admin__input" name="role" defaultValue="advisor">
-          <option value="advisor">Advisor (Analyse Submit)</option>
-          <option value="refine_gate">Refine gate</option>
-          <option value="weekly_digest">Weekly digest</option>
+          <option value="advisor">Stock notes (Analyse Submit)</option>
+          <option value="refine_gate">Follow-up check</option>
+          <option value="weekly_digest">Weekly email</option>
         </select>
       </label>
       <label className="admin__field" htmlFor="prompt-semver">

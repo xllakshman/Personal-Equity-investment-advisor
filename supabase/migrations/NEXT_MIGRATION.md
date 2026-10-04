@@ -11,4 +11,4 @@ See `HANDOFF.md` §6.
 
 ## Next on DEV / PROD
 
-None in git after **025**. Further schema needs a new numbered file.
+**026** `026_admin_prompt_remove.sql` is in git. Not applied. Needs named env + `CONFIRM_APPLY=1`. Adds `prompt_versions.archived_at` and `thesis_admin_remove_prompt` (refuses the In use row).
