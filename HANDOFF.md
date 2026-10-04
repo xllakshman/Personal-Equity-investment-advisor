@@ -3,7 +3,7 @@
 > **Version:** 0.1 · **Date:** 2026-09-13  
 > **Workspace:** `/Users/lakshmanyeluri/Documents/personalEquity_Advisor`  
 > **Reference layout:** `/Users/lakshmanyeluri/Documents/activePieces-docker/invoice-processing`  
-> **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P11-06**  
+> **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P1-06**  
 > **Latest session:** [`docs/handoff/SESSION-2026-10-03-analyse-elite.md`](docs/handoff/SESSION-2026-10-03-analyse-elite.md)  
 > **Mock UI:** [`docs/mock-ui/`](docs/mock-ui/README.md)  
 > **GitHub (empty):** `xllakshman/Personal-Equity-investment-advisor` · branch `main`
@@ -26,7 +26,7 @@
 | Maya seed | ✅ `maya@thesis.demo` · 5 lots · 2 reports (1 sample) |
 | Storage bucket `report-pdfs` | ✅ private |
 | Analysis API / worker | ✅ 2026-09-14 — `apps/analysis-api` :8091, `apps/analysis-worker`; Docker compose in `infra/docker` |
-| Next.js desk | ✅ 2026-10-04 — desk/report/Analyse face is Calibri then Carlito (web) then sans-serif. `/portfolio` Your book Edit/Delete writes `holding_lots`; grid and Desk read view `holdings`. `/reports/[id]` typeset document; **Download PDF** redirects to signed `GET /reports/:id/pdf`. `/admin/accounts` Activate/Deactivate calls `thesis_admin_set_family_plan`. Analyse wait page is `/analyse/[id]`. |
+| Next.js desk | ✅ 2026-10-04 — desk/report/Analyse face is Calibri then Carlito (web) then sans-serif. `/analyse` steps 3–5 labels sit above 46px+ fields. `/portfolio` Your book Edit/Delete writes `holding_lots`; grid and Desk read view `holdings`. `/reports/[id]` typeset document; **Download PDF** redirects to signed `GET /reports/:id/pdf`. `/admin/accounts` Activate/Deactivate calls `thesis_admin_set_family_plan`. Analyse wait page is `/analyse/[id]`. |
 | Prod schema | ✅ 2026-10-04 — **001–026** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. `thesis_admin_set_family_plan` on `/admin/accounts`. `thesis_admin_remove_prompt` on `/admin/prompt`. |
 | Prod Vercel | ✅ 2026-10-03 — Production deploy aliased to **`https://eqveste.com`**. Anon URL+key + Resend only. No service role or lab keys. |
 | Tests | ✅ unit + web tests for 4–9. Live two-JWT CI still skips without a second family JWT. |
@@ -34,7 +34,7 @@
 | Analysis CSAT | ✅ **P5-05** `analysis_feedback` + **P7-10** admin tab |
 | Requirements vs mock/brief | ✅ Gap review 2026-09-13 — D27–D42 |
 
-**Build next:** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P11-06** — `/analyse` steps 3–5 spacing. Dev URL is **http://127.0.0.1:3100/**.
+**Build next:** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P1-06** — unprompted desk flags. Dev URL is **http://127.0.0.1:3100/**.
 
 ---
 
@@ -326,7 +326,7 @@ See `.cursor/rules/web-ui-maintenance.mdc`. Marketing vs desk palettes must not 
 
 ## 18. Next steps
 
-Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P11-06**. **026** is on DEV and PROD. Worker LLM is native labs (D39). Local `.env` lab keys are set; never put them on Vercel. Local **3100** stays DEV.
+Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P1-06**. **026** is on DEV and PROD. Worker LLM is native labs (D39). Local `.env` lab keys are set; never put them on Vercel. Local **3100** stays DEV.
 
 ---
 

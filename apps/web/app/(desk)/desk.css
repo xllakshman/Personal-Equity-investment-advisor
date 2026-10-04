@@ -1433,6 +1433,42 @@ button.pf__ghost[type="submit"]:hover {
   gap: 14px;
 }
 
+#analyse-step-3 .bld__pos,
+#analyse-step-3 .bld__two,
+#analyse-step-4 .bld__two,
+#analyse-step-5 .bld__two {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 22px 28px;
+  align-items: start;
+}
+
+#analyse-step-3 .pf__label,
+#analyse-step-4 .pf__label,
+#analyse-step-5 .pf__label {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin: 0;
+  min-width: 0;
+}
+
+#analyse-step-3 .pf__input,
+#analyse-step-4 .pf__input,
+#analyse-step-5 .pf__input {
+  padding: 13px 14px;
+  min-height: 46px;
+  font: 400 14px/1.45 var(--font-ibm-plex-sans), sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+#analyse-step-3 select.pf__input,
+#analyse-step-4 select.pf__input,
+#analyse-step-5 select.pf__input {
+  min-height: 48px;
+}
+
 .bld__mono {
   font-family: var(--font-ibm-plex-mono), "IBM Plex Mono", monospace;
 }

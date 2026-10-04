@@ -370,7 +370,7 @@ export function AnalyseWizard({
                   </p>
                   <div className="bld__pos">
                     <label className="pf__label">
-                      Quantity
+                      <span>Quantity</span>
                       <input
                         className="pf__input bld__mono"
                         type="number"
@@ -381,7 +381,7 @@ export function AnalyseWizard({
                       />
                     </label>
                     <label className="pf__label">
-                      Cost per share
+                      <span>Cost per share</span>
                       <input
                         className="pf__input bld__mono"
                         type="number"
@@ -392,12 +392,14 @@ export function AnalyseWizard({
                       />
                     </label>
                     <div>
-                      <p className="pf__label">Current value</p>
+                      <p className="pf__label">
+                        <span>Current value</span>
+                      </p>
                       <p className="bld__alloc">{moneyAmount(invested, currency)}</p>
                       <p className="pf__lede">Quantity × cost, in {currency}.</p>
                     </div>
                     <label className="pf__label">
-                      Total portfolio size
+                      <span>Total portfolio size</span>
                       <input
                         className="pf__input bld__mono"
                         type="number"
@@ -407,7 +409,9 @@ export function AnalyseWizard({
                       <span className="bld__meta">{moneyAmount(portfolio, currency)}</span>
                     </label>
                     <div>
-                      <p className="pf__label">Share of the book</p>
+                      <p className="pf__label">
+                        <span>Share of the book</span>
+                      </p>
                       <p className="bld__alloc">{alloc.toFixed(1)}%</p>
                       <div className="bld__track">
                         <div
@@ -418,7 +422,7 @@ export function AnalyseWizard({
                       <p className="pf__lede">{allocationNote(alloc)}</p>
                     </div>
                     <label className="pf__label">
-                      I plan to invest
+                      <span>I plan to invest</span>
                       <input
                         className="pf__input bld__mono"
                         type="number"
@@ -435,7 +439,7 @@ export function AnalyseWizard({
                   </div>
                   <div className="bld__two">
                     <label className="pf__label">
-                      Intent
+                      <span>Intent</span>
                       <select
                         className="pf__input"
                         value={intent}
@@ -451,7 +455,7 @@ export function AnalyseWizard({
                       </select>
                     </label>
                     <label className="pf__label">
-                      Willing to average down
+                      <span>Willing to average down</span>
                       <select
                         className="pf__input"
                         value={avgDown}
@@ -476,7 +480,7 @@ export function AnalyseWizard({
                   </p>
                   <div className="bld__two">
                     <label className="pf__label">
-                      Risk appetite · drawdown you can hold through
+                      <span>Risk appetite · drawdown you can hold through</span>
                       <select
                         className="pf__input"
                         value={risk}
@@ -492,7 +496,7 @@ export function AnalyseWizard({
                       </select>
                     </label>
                     <label className="pf__label">
-                      Return target · CAGR you are underwriting
+                      <span>Return target · CAGR you are underwriting</span>
                       <select
                         className="pf__input"
                         value={cagr}
@@ -529,7 +533,7 @@ export function AnalyseWizard({
                   </p>
                   <div className="bld__two">
                     <label className="pf__label">
-                      Residency for tax
+                      <span>Residency for tax</span>
                       <select
                         className="pf__input"
                         value={taxResidency}
@@ -544,9 +548,11 @@ export function AnalyseWizard({
                     </label>
                     {showSlab ? (
                       <label className="pf__label">
-                        {taxResidency === "india"
-                          ? "Income slab"
-                          : "Federal marginal bracket"}
+                        <span>
+                          {taxResidency === "india"
+                            ? "Income slab"
+                            : "Federal marginal bracket"}
+                        </span>
                         <select
                           className="pf__input"
                           value={taxSlab}
