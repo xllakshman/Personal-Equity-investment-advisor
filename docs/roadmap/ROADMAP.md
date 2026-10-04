@@ -20,8 +20,8 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 
 | Field | Value |
 |-------|--------|
-| **Build next** | **P1-06** — Unprompted desk flags (leftover ⬜) |
-| Last done | **P11-06** `/analyse` steps 3–5 labels above taller fields. User asked remaining phases **dev** + **prod** 2026-10-04. |
+| **Build next** | **P10-02** — FastAPI analysis-api + worker host |
+| Last done | **P1-06** Desk flags from `holdings` weights and `investor_profiles` cash min. User asked remaining phases **dev** + **prod** 2026-10-04. |
 | Blocked on you | P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
@@ -199,7 +199,7 @@ Visual lock: paper desk (Newsreader + IBM Plex) for authenticated routes. Market
 
 ### P1-06 — Unprompted desk flags (F4/F5)
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-10-04
 - **Depends on:** P1-04, P1-05, P2-01
 - **Direction:** Desk banner list, no click required: cash reserve below profile min; any `holdings` weight > concentration cap. Copy from marketing “we tell you without being asked”. No live price required (use cost×qty weights). No position-count cap (`max_positions` was dropped).
 - **Writes:** none.
@@ -990,6 +990,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | P11-04 | 2026-10-04 | ✅ `/portfolio` Edit/Delete writes `holding_lots`; grid and Desk read view `holdings`. Viewer has no write buttons. User asked commit + **dev** + **prod**. |
 | P11-05 | 2026-10-04 | ✅ Desk/report/Analyse face is Calibri, Carlito (web), sans-serif. Marketing `/` and `/login` unchanged. User asked **dev** + **prod**. |
 | P11-06 | 2026-10-04 | ✅ `/analyse` steps 3–5: labels above fields, 46px+ controls, 28px gap. User asked remaining phases **dev** + **prod**. |
+| P1-06 | 2026-10-04 | ✅ `/desk` flags from view `holdings` cost×qty vs `investor_profiles.concentration_cap_pct` and cash min. No max-positions banner. |
 
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.

@@ -77,6 +77,19 @@ export function DeskHomeView({
           Manage access
         </Link>
       </section>
+      {home.flags.length > 0 ? (
+        <section className="desk__flags" aria-label="We tell you without being asked">
+          <h2 className="desk__flags-h">We tell you without being asked</h2>
+          <ul className="desk__flags-list">
+            {home.flags.map((flag) => (
+              <li key={flag.kind} className="desk__flag">
+                <span className="desk__flag-dot" aria-hidden />
+                <p>{flag.text}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
       <div className="desk__kpis">
         <div className="desk__card">
           <p className="desk__kpi-k">At last cost</p>

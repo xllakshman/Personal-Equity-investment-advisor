@@ -1,4 +1,6 @@
+import { parseOutsideBook } from "@/lib/profile/defaults";
 import { planCardTitle } from "@/lib/billing/plan-titles";
+import { deskFlags, type DeskFlag } from "@/lib/desk/flags";
 import {
   allocationWeights,
   costBasisNative,
@@ -29,6 +31,7 @@ export type DeskHome = {
     createdAt: string;
   }[];
   supportGrant: SupportGrantStatus;
+  flags: DeskFlag[];
 };
 
 function monthStartUtc(now = new Date()): string {
@@ -40,7 +43,8 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
   const period = monthStartUtc();
 
   const nowIso = new Date().toISOString();
-  const [holdingsRes, usageRes, reportsRes, familyRes, grantRes] = await Promise.all([
+  const [holdingsRes, usageRes, reportsRes, familyRes, grantRes, profileRes] =
+    await Promise.all([
     supabase
       .from("holdings")
       .select("ticker, company_name, qty, cost_per_share, native_currency, exchange")
@@ -65,6 +69,11 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
       .gt("expires_at", nowIso)
       .order("expires_at", { ascending: false })
       .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("investor_profiles")
+      .select("cash_reserve_pct_min, concentration_cap_pct, outside_book")
+      .eq("family_id", familyId)
       .maybeSingle(),
   ]);
 
@@ -107,6 +116,17 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
 
   const currencies = new Set(holdings.map((h) => h.native_currency));
   const costCurrency = currencies.size === 1 ? [...currencies][0] : "mixed";
+  const costBasis = costBasisNative(holdings);
+  const mappedHoldings = holdings.map((h) => ({
+    ...h,
+    weightPct: weightMap.get(h.ticker) ?? 0,
+    lastChecked: lastCheckedLabel(h.last_checked_at),
+  }));
+  const cashMinPct = Number(profileRes.data?.cash_reserve_pct_min ?? 10);
+  const concentrationCapPct = Number(
+    profileRes.data?.concentration_cap_pct ?? 15,
+  );
+  const cash = parseOutsideBook(profileRes.data?.outside_book).cash;
 
   return {
     positions: holdings.length,
@@ -115,13 +135,9 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
     ),
     analysisLimit,
     planName,
-    costBasis: costBasisNative(holdings),
+    costBasis,
     costCurrency,
-    holdings: holdings.map((h) => ({
-      ...h,
-      weightPct: weightMap.get(h.ticker) ?? 0,
-      lastChecked: lastCheckedLabel(h.last_checked_at),
-    })),
+    holdings: mappedHoldings,
     recentNotes: reports.map((r) => ({
       id: String(r.id),
       ticker: String(r.ticker),
@@ -132,5 +148,12 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
     supportGrant: grantRes.data?.expires_at
       ? { active: true, expiresAt: String(grantRes.data.expires_at) }
       : { active: false, expiresAt: null },
+    flags: deskFlags({
+      costBasis,
+      cash,
+      cashMinPct,
+      concentrationCapPct,
+      holdings: mappedHoldings,
+    }),
   };
 }
