@@ -21,7 +21,7 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 | Field | Value |
 |-------|--------|
 | **Build next** | **P6-03** — merchant unnamed (blocked) |
-| Last done | **P11-08** Desk chrome + Home / Analyse / Reports / Contact match `App.dc.html` (SF Pro stack, header Sign out, hover). Local **3100**. |
+| Last done | **P11-08** Desk chrome + Home / Analyse / Reports / Contact match `App.dc.html` (SF Pro stack, stroke-only e, no Earth). Local → **dev** (`217f7cb`) → **prod** `https://eqveste.com`. **
 | Blocked on you | P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
@@ -1014,7 +1014,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | P11-06 | 2026-10-04 | ✅ `/analyse` steps 3–5: labels above fields, 46px+ controls, 28px gap. User asked remaining phases **dev** + **prod**. |
 | P1-06 | 2026-10-04 | ✅ `/desk` flags from view `holdings` cost×qty vs `investor_profiles.concentration_cap_pct` and cash min. No max-positions banner. |
 | P11-07 | 2026-10-05 | ✅ IBM Plex Sans on desk tabs, account menu, `/settings/profile`, `/analyse`, `/portfolio`. No Calibri/Carlito. `/login` and marketing `/` stay Helvetica/SF Pro. |
-| P11-08 | 2026-10-05 | ✅ Desk chrome + `/desk` `/analyse` `/reports` `/contact` match App.dc.html (SF Pro stack, header Sign out, hover). User screenshots. Local **3100**. |
+| P11-08 | 2026-10-05 | ✅ Desk chrome + `/desk` `/analyse` `/reports` `/contact` match App.dc.html (SF Pro stack, stroke-only e, no Earth). User named **dev** + **prod**. SHA `217f7cb` on GitHub `dev`; Vercel Production aliased to eqveste.com. |
 
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.
