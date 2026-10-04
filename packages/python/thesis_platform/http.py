@@ -55,7 +55,7 @@ def complete_chat(
     try:
         resp = http.post(url, json=payload, headers=headers)
         if resp.status_code >= 300:
-            raise LlmError(f"{provider} http {resp.status_code}")
+            raise LlmError(f"{provider} http {resp.status_code}: {_http_error_detail(resp)}")
         try:
             body: Any = resp.json()
         except ValueError as exc:
@@ -64,3 +64,19 @@ def complete_chat(
     finally:
         if owns:
             http.close()
+
+
+def _http_error_detail(resp: httpx.Response) -> str:
+    """Lab error message only. Never include request prompt or report body."""
+    try:
+        data: Any = resp.json()
+    except ValueError:
+        return (resp.text or "")[:120]
+    err = data.get("error") if isinstance(data, dict) else None
+    if isinstance(err, dict):
+        return str(err.get("message") or err.get("type") or "")[:180]
+    if isinstance(err, str):
+        return err[:180]
+    if isinstance(data, dict) and data.get("message"):
+        return str(data["message"])[:180]
+    return (resp.text or "")[:120]

@@ -13,6 +13,7 @@ from thesis_platform.native_llm import (
     NATIVE_PROVIDERS,
     ChatResult,
     LlmError,
+    available_providers,
     is_truncated,
     resolve_provider,
 )
@@ -91,8 +92,16 @@ def complete_request(
     )
     intent = str(request.get("intent") or "")
     user = pack + "\n" + FINAL_NOTE_SUFFIX
-    result = _run_chat(
-        runner, provider=provider, model=native_id, system=system, user=user
+    result, provider, native_id, used_model_id = _run_chat_or_fallback(
+        runner,
+        cur,
+        settings,
+        model=dict(model),
+        provider=provider,
+        native_id=native_id,
+        used_model_id=used_model_id,
+        system=system,
+        user=user,
     )
     sections = _try_parse(result.content)
     if (
@@ -206,7 +215,7 @@ def _run_chat(
             model=model,
             system=system,
             user=user
-            + "\nContinue the JSON object from the last character. Do not restart.\nSo far:\n"
+            + "\nContinue the note from the last character. Do not restart.\nSo far:\n"
             + "".join(chunks)[-12000:],
         )
         chunks.append(last.content)
@@ -217,6 +226,56 @@ def _run_chat(
         raw=last.raw,
         stop_reason=last.stop_reason,
     )
+
+
+def _lab_unavailable(exc: BaseException) -> bool:
+    msg = str(exc).lower()
+    return any(
+        token in msg
+        for token in ("credit", "billing", "quota", "insufficient", "balance is too low")
+    )
+
+
+def _run_chat_or_fallback(
+    runner: CompleteFn,
+    cur,
+    settings: Settings,
+    *,
+    model: dict[str, Any],
+    provider: str,
+    native_id: str,
+    used_model_id: str,
+    system: str,
+    user: str,
+) -> tuple[ChatResult, str, str, str]:
+    try:
+        return (
+            _run_chat(
+                runner, provider=provider, model=native_id, system=system, user=user
+            ),
+            provider,
+            native_id,
+            used_model_id,
+        )
+    except LlmError as exc:
+        if not _lab_unavailable(exc):
+            raise
+        thesis_class = str(model.get("thesis_class") or "quick")
+        for other in available_providers(settings):
+            if other == provider:
+                continue
+            row = _catalog_for_provider(cur, other, thesis_class)
+            if not row:
+                continue
+            out = _run_chat(
+                runner,
+                provider=str(row["provider"]),
+                model=str(row["provider_model_id"]),
+                system=system,
+                user=user,
+            )
+            return out, str(row["provider"]), str(row["provider_model_id"]), str(row["id"])
+        raise
 
 
 def _try_parse(raw: str) -> dict[str, Any] | None:

@@ -96,8 +96,7 @@ def openai_compat_payload(*, model: str, system: str, user: str) -> dict[str, An
             {"role": "system", "content": system},
             {"role": "user", "content": user},
         ],
-        "response_format": {"type": "json_object"},
-        "max_tokens": ANTHROPIC_MAX_TOKENS,
+        "max_tokens": 16384,
     }
 
 
