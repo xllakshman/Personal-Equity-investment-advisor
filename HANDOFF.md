@@ -3,8 +3,8 @@
 > **Version:** 0.1 · **Date:** 2026-09-13  
 > **Workspace:** `/Users/lakshmanyeluri/Documents/personalEquity_Advisor`  
 > **Reference layout:** `/Users/lakshmanyeluri/Documents/activePieces-docker/invoice-processing`  
-> **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P10-02**  
-> **Latest session:** [`docs/handoff/SESSION-2026-10-03-analyse-elite.md`](docs/handoff/SESSION-2026-10-03-analyse-elite.md)  
+> **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P6-03** (merchant unnamed)  
+> **Latest session:** [`docs/handoff/SESSION-2026-10-04-p10-02.md`](docs/handoff/SESSION-2026-10-04-p10-02.md)  
 > **Mock UI:** [`docs/mock-ui/`](docs/mock-ui/README.md)  
 > **GitHub (empty):** `xllakshman/Personal-Equity-investment-advisor` · branch `main`
 
@@ -25,7 +25,7 @@
 | SQL 019 native labs | ✅ **applied** 2026-09-15 on DEV and PROD — Gemini/Kimi `is_active = false` |
 | Maya seed | ✅ `maya@thesis.demo` · 5 lots · 2 reports (1 sample) |
 | Storage bucket `report-pdfs` | ✅ private |
-| Analysis API / worker | ✅ 2026-09-14 — `apps/analysis-api` :8091, `apps/analysis-worker`; Docker compose in `infra/docker` |
+| Analysis API / worker | ✅ 2026-10-04 — prod host droplet `157.245.102.243` `/opt/eqveste`; public **`https://api.eqveste.com`**. Local laptop still `:8091` + DEV `.env`. |
 | Next.js desk | ✅ 2026-10-04 — `/desk` flags read view `holdings` and `investor_profiles` (no click). Desk/report/Analyse face is Calibri then Carlito (web) then sans-serif. `/analyse` steps 3–5 labels sit above 46px+ fields. `/portfolio` Your book Edit/Delete writes `holding_lots`; grid and Desk read view `holdings`. `/reports/[id]` typeset document; **Download PDF** redirects to signed `GET /reports/:id/pdf`. `/admin/accounts` Activate/Deactivate calls `thesis_admin_set_family_plan`. Analyse wait page is `/analyse/[id]`. |
 | Prod schema | ✅ 2026-10-04 — **001–026** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. `thesis_admin_set_family_plan` on `/admin/accounts`. `thesis_admin_remove_prompt` on `/admin/prompt`. |
 | Prod Vercel | ✅ 2026-10-03 — Production deploy aliased to **`https://eqveste.com`**. Anon URL+key + Resend only. No service role or lab keys. |
@@ -34,7 +34,7 @@
 | Analysis CSAT | ✅ **P5-05** `analysis_feedback` + **P7-10** admin tab |
 | Requirements vs mock/brief | ✅ Gap review 2026-09-13 — D27–D42 |
 
-**Build next:** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P10-02** — analysis-api + worker on the named droplet. **P6-03** still needs a merchant. Dev URL is **http://127.0.0.1:3100/**.
+**Build next:** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P6-03** — merchant unnamed. **P10-02** is on the droplet (`https://api.eqveste.com`). Local **3100** stays DEV.
 
 ---
 
@@ -177,7 +177,7 @@ Do not re-ask until the named chunk. Defaults locked 2026-09-13: poll (D37), Pla
 | P8-02 / P7-09 | Email **provider** (Resend / Postmark / SES + from-address) before any Sunday send or red-watch mail. Digest **rows** and `/desk` card do not wait on this. |
 | P4-02 | Paste the lab key for models you will run (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `XAI_API_KEY`, `DEEPSEEK_API_KEY`) in gitignored `.env` for local worker. Catalog **009** and **019** are on DEV and PROD. Prod `.env.prod` already has all four lab keys. |
 | P0-04 | Fill gitignored **`.env.prod`** anytime (`cp .env.prod.example .env.prod`). Do not paste keys here. |
-| P10-02 | **Host named:** existing OptimAI DigitalOcean droplet `157.245.102.243` (`ssh optimai-vps`). Same box as ActivePieces/MCP/Caddy. Separate Thesis compose + `.env.prod`. Not Vercel. Not started until you name **prod**. |
+| P10-02 | **Done 2026-10-04.** Compose on `157.245.102.243` `/opt/eqveste`. Health `https://api.eqveste.com/health`. |
 | Anytime | Push/deploy only when you name **dev** or **prod** this turn. |
 
 Operator leftover: rotate or delete `readme.rtf` (password file still in the workspace). Google/Phone Auth: turn on in Authentication → Providers when you want them.
@@ -195,7 +195,7 @@ Operator leftover: rotate or delete `readme.rtf` (password file still in the wor
 | Local `.env` / `apps/web/.env.local` | **DEV only.** |
 | Prod secrets file | gitignored `.env.prod` (copy [`.env.prod.example`](.env.prod.example)). You paste keys. Agents read it only when you name **prod**. |
 | PROD Next.js (Vercel) | Project ID `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`. Public site: **`https://eqveste.com`** (DNS A still needed). Working alias: `https://equity-investment-advisor-prod.vercel.app`. Production env: `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` only. Never service role. Root directory: `apps/web`. Auth Site URL / redirect allowlist on prod Supabase: `https://eqveste.com` (dashboard; no script). |
-| analysis-api / worker prod host | **P10-02.** Existing OptimAI droplet `157.245.102.243` (Caddy + ActivePieces + MCP). Thesis compose in `infra/docker` with gitignored `.env.prod`. Hostname **`api.eqveste.com`** (do not reuse `api.optimai.in`). Not Vercel. |
+| analysis-api / worker prod host | **P10-02 done.** Droplet `157.245.102.243` `/opt/eqveste`. Caddy **`api.eqveste.com`** → `thesis-analysis-api:8091`. `.env.prod` on the box. Not Vercel. |
 | P10-00 apply | Default **dry-run**: `./tools/db/apply_prod.sh` compares DEV vs PROD schema (read-only). Writes: `CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`. No Maya seed. |
 | Anon / service keys | **Present** in gitignored `.env` for **DEV** (2026-09-13). Values never pasted in chat or HANDOFF. |
 | Local secrets file `readme.rtf` | Gitignored. **Rotate** — it was sitting in the workspace. |
@@ -326,7 +326,7 @@ See `.cursor/rules/web-ui-maintenance.mdc`. Marketing vs desk palettes must not 
 
 ## 18. Next steps
 
-Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P10-02**. **P6-03** merchant unnamed. **026** is on DEV and PROD. Worker LLM is native labs (D39). Local `.env` lab keys are set; never put them on Vercel. Local **3100** stays DEV.
+Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P6-03** when a merchant is named. **P10-02** is on the droplet. **026** is on DEV and PROD. Worker LLM is native labs (D39). Never put lab keys on Vercel. Local **3100** stays DEV.
 
 ---
 

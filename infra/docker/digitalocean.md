@@ -65,6 +65,4 @@ Playwright Chromium in `Dockerfile.worker` plus ActivePieces + MCP + validation 
 
 Vercel Production env stays **only** `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` until a desk route `fetch`es the API; then add `ANALYSIS_API_URL=https://api.eqveste.com` (server) or `NEXT_PUBLIC_ANALYSIS_API_URL` if the browser calls it. Never `SUPABASE_SERVICE_KEY`, `SUPABASE_DB_PASSWORD`, or lab LLM keys on Vercel.
 
-Until the worker process runs against prod, `https://eqveste.com/analyse/[id]` still shows `queued` and `/reports` gains no new ready row.
-
-Local port **3100** keeps using DEV `.env`. Do not retarget it.
+`https://eqveste.com/analyse/[id]` polls prod `analysis_requests`. The droplet worker claims `queued` rows. Local port **3100** keeps using DEV `.env`. Do not retarget it.

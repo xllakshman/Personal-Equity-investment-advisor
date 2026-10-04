@@ -20,14 +20,14 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 
 | Field | Value |
 |-------|--------|
-| **Build next** | **P10-02** — FastAPI analysis-api + worker host |
-| Last done | **P1-06** Desk flags from `holdings` weights and `investor_profiles` cash min. User asked remaining phases **dev** + **prod** 2026-10-04. |
+| **Build next** | **P6-03** — merchant unnamed (blocked) |
+| Last done | **P10-02** FastAPI + worker on droplet `157.245.102.243`. `GET https://api.eqveste.com/health` `{"status":"ok"}`. User named **prod** 2026-10-04. |
 | Blocked on you | P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
 | DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–026** applied |
 | PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — **001–026 applied 2026-10-04**. `holdings` = 0. Maya seed not run. |
-| PROD web | **`https://eqveste.com`** — Vercel `prj_mX7Fv5k7h6Rb3YC35FQvpzEJHch4`. Next.js only. |
+| PROD web | **`https://eqveste.com`** — Vercel Next.js. FastAPI/worker **`https://api.eqveste.com`** on droplet `157.245.102.243`. |
 
 ---
 
@@ -819,13 +819,13 @@ Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do 
 
 ### P10-02 — FastAPI analysis-api + worker host
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-10-04
 - **Depends on:** P0-04, P4-00, P10-00, P10-01. **Host named (2026-09-15):** existing OptimAI DigitalOcean droplet `157.245.102.243` (`ssh optimai-vps`). Same box as ActivePieces, validation `:8090`, MCP `:3100`, Caddy on 80/443. Not Vercel. Do not create a second droplet.
 - **Direction:** `infra/docker` compose (plus `docker-compose.droplet.yml`): `analysis-api` (container **8091**) and `analysis-worker` (long-running). `env_file: .env.prod` — **not** OptimAI’s `.env`. FastAPI CORS allowlist `THESIS_CORS_ORIGINS` = `https://eqveste.com` and `https://www.eqveste.com`. Public URL **`https://api.eqveste.com`** via existing Caddy (`Caddyfile.eqveste.snippet`); do not reuse `api.optimai.in`. Worker: native lab keys (D39), `thesis_consume_quota_for_provider`, Yahoo previous close, Playwright Chromium. Thesis Postgres is prod Supabase, not ActivePieces postgres. Next.js does not start these processes. If the desk calls the API, add `NEXT_PUBLIC_ANALYSIS_API_URL` on Vercel **only** when a browser route actually `fetch`es it (refine / PDF). Until then, wait panel keeps polling `analysis_requests` via the anon client. Droplet default size is `s-2vcpu-4gb`; resize if Chromium OOMs.
 - **Writes:** `analysis_requests.status`, `analysis_evidence`, `reports`, `report-pdfs` objects — on **prod** Postgres/storage.
 - **Reads:** same tables the worker already uses on DEV.
 - **Who:** operator starts compose on the named host. No desk button.
-- **UI today:** no prod API/worker. Vercel `/analyse/[id]` stays `queued` and `/reports` gains no new ready row until this process runs against prod.
+- **UI today:** `thesis-analysis-api` / `thesis-analysis-worker` on `/opt/eqveste`. Caddy `api.eqveste.com` → container **8091**. `/analyse` **Submit** on eqveste.com still inserts `analysis_requests` (`queued`) via `thesis_accept_analysis`; the droplet worker then writes `analysis_evidence` / `reports`. No desk button starts those processes.
 - **Success:**
   1. `GET https://api.eqveste.com/health` returns `{"status":"ok"}`.
   2. A prod-queued `analysis_requests` row leaves `queued` (at least to `gathering` / `failed`) without changing DEV rows.
@@ -983,7 +983,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | P10-01 | 2026-09-15 | 🟡 Vercel Production env (anon URL+key only) + deploy READY. `eqveste.com` HTTPS 200. |
 | 019 | 2026-09-15 | ✅ native labs catalog on DEV and PROD; Gemini/Kimi `is_active = false` |
 | P10-01 | 2026-09-15 | 🟡 Vercel Production env (anon URL+key only) + deploy READY. `eqveste.com` 404 until Porkbun A → `76.76.21.21`. |
-| P10-02 | 2026-09-14 | ⬜ compose + DigitalOcean notes in git; no droplet |
+| P10-02 | 2026-10-04 | ✅ droplet compose `/opt/eqveste`; `GET https://api.eqveste.com/health` `{"status":"ok"}`. Prod `analysis_requests` META `3707dcc2` `queued` → `ready` + `reports` `8224385e`. DEV BRK.B `b2c3880a` stayed `queued`. Vercel Production env: anon URL+key, Resend, `ANALYSIS_API_URL` — no service role. |
 | P11-01 | 2026-10-04 | ✅ typeset note + Download PDF on eqveste.com (`6399d3e`). User confirmed Download PDF. |
 | P11-02 | 2026-10-04 | ✅ `/admin/prompt` plain in-use labels + Remove (`721a01b`, 026 on DEV and PROD). User confirmed Remove on prod. |
 | P11-03 | 2026-10-04 | ✅ `/admin/*` operator language on eqveste.com (`c127448`). User confirmed. |
