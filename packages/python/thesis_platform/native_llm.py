@@ -18,7 +18,7 @@ ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
 XAI_URL = "https://api.x.ai/v1/chat/completions"
 DEEPSEEK_URL = "https://api.deepseek.com/v1/chat/completions"
 ANTHROPIC_VERSION = "2023-06-01"
-ANTHROPIC_MAX_TOKENS = 8192
+ANTHROPIC_MAX_TOKENS = 32768
 
 
 class LlmError(RuntimeError):
@@ -31,6 +31,7 @@ class ChatResult:
     response_model: str
     cost_cents: int | None
     raw: dict[str, Any]
+    stop_reason: str | None = None
 
 
 def api_key_for_provider(settings: Settings, provider: str) -> tuple[str, str]:
@@ -96,6 +97,7 @@ def openai_compat_payload(*, model: str, system: str, user: str) -> dict[str, An
             {"role": "user", "content": user},
         ],
         "response_format": {"type": "json_object"},
+        "max_tokens": ANTHROPIC_MAX_TOKENS,
     }
 
 
@@ -111,7 +113,9 @@ def anthropic_payload(*, model: str, system: str, user: str) -> dict[str, Any]:
                 "cache_control": {"type": "ephemeral"},
             }
         ],
-        "messages": [{"role": "user", "content": user}],
+        "messages": [
+            {"role": "user", "content": user},
+        ],
     }
 
 
@@ -149,11 +153,15 @@ def parse_openai_compat(body: dict[str, Any], expected: str) -> ChatResult:
     content = message.get("content")
     if not isinstance(content, str) or not content.strip():
         raise LlmError("empty llm response")
+    finish = ""
+    if isinstance(choices[0], dict):
+        finish = str(choices[0].get("finish_reason") or "")
     return ChatResult(
         content=content,
         response_model=returned,
         cost_cents=_usage_cost_cents(body.get("usage")),
         raw=body,
+        stop_reason=finish or None,
     )
 
 
@@ -177,7 +185,13 @@ def parse_anthropic(body: dict[str, Any], expected: str) -> ChatResult:
         response_model=returned,
         cost_cents=None,
         raw=body,
+        stop_reason=str(body.get("stop_reason") or "") or None,
     )
+
+
+def is_truncated(result: ChatResult) -> bool:
+    reason = (result.stop_reason or "").lower()
+    return reason in {"max_tokens", "length"}
 
 
 def parse_response(provider: str, body: dict[str, Any], expected: str) -> ChatResult:

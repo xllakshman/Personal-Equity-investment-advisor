@@ -6,4 +6,5 @@ RUN pip install --no-cache-dir pydantic psycopg2-binary python-dotenv httpx play
 COPY packages/python /app/packages/python
 COPY apps/analysis-worker /app/apps/analysis-worker
 ENV PYTHONPATH=/app/packages/python:/app/apps/analysis-worker/src
+ENV PYTHONUNBUFFERED=1
 CMD ["python", "apps/analysis-worker/src/analysis_worker/main.py"]

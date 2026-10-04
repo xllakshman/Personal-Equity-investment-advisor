@@ -1,4 +1,4 @@
-import { pickSection, sectionText, BEGINNER_KEYS } from "@/lib/reports/sections";
+import { pickSection, sectionText, BEGINNER_KEYS, isProgressKey, isFinishedNote, noteDocument } from "@/lib/reports/sections";
 
 const SECTION_TITLE: Record<string, string> = {
   verdict: "Verdict",
@@ -27,9 +27,24 @@ export function ReportNoteBody({
   note: NoteBody;
   kicker?: string;
 }) {
+  const document = isFinishedNote(note.sections) ? noteDocument(note.sections) : "";
   const keys = BEGINNER_KEYS.filter(
-    (k) => k === "verdict" || k in note.sections,
+    (k) => (k === "verdict" || k in note.sections) && !isProgressKey(k),
   );
+  if (document.length >= 200) {
+    return (
+      <section className="bld__wait-note" aria-label="Analysis output">
+        <p className="desk__kicker">{kicker}</p>
+        <h2 className="desk__h1">{note.name}</h2>
+        <p className="desk__lede">
+          {note.ticker} · Verdict {note.verdict}
+        </p>
+        <article className="desk__card bld__wait-sec">
+          <pre className="report__pre">{document}</pre>
+        </article>
+      </section>
+    );
+  }
   return (
     <section className="bld__wait-note" aria-label="Analysis output">
       <p className="desk__kicker">{kicker}</p>

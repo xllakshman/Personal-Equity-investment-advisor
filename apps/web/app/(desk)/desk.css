@@ -1837,8 +1837,12 @@ button.pf__ghost[type="submit"]:hover {
 
 .report__pre {
   white-space: pre-wrap;
-  font: 400 13.5px/1.55 var(--font-ibm-plex-sans), sans-serif;
+  font: 400 14px/1.65 var(--font-newsreader), "Newsreader", Georgia, serif;
   margin: 0;
+}
+
+.report__doc {
+  max-width: 46rem;
 }
 
 .report__toggle {

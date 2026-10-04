@@ -42,6 +42,9 @@ def test_opus5_posts_anthropic_native_id() -> None:
     assert "/" not in payload["model"]
     assert payload["model"] != "openrouter/auto"
     assert payload["system"][0]["cache_control"]["type"] == "ephemeral"
+    assert payload["messages"][0]["role"] == "user"
+    assert len(payload["messages"]) == 1
+    assert payload["max_tokens"] >= 16384
 
 
 def test_openai_xai_deepseek_use_compat_urls() -> None:

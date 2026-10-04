@@ -1,19 +1,19 @@
 """One queued job: consume quota → gather → complete → PDF."""
 from __future__ import annotations
 
+import logging
 from typing import Any, Callable
 
 from psycopg2.extensions import connection
 
 from thesis_platform.config import Settings
-from thesis_platform.native_llm import LlmError
-from thesis_platform.sections import SectionsError
-from thesis_platform.yahoo import YahooError
 
 from analysis_worker.jobs.claim import claim_queued, mark_failed, set_status
 from analysis_worker.jobs.complete import complete_request
 from analysis_worker.jobs.gather import gather_step0
 from analysis_worker.jobs.pdf import attach_pdf
+
+logger = logging.getLogger("analysis_worker")
 
 
 def process_one(
@@ -51,8 +51,8 @@ def process_one(
         cur.close()
         return {"request_id": str(rid), "report_id": str(report_id)}
     except Exception as exc:  # noqa: BLE001 — job must fail closed, not crash the loop
-        if isinstance(exc, (YahooError, LlmError, SectionsError, RuntimeError)):
-            mark_failed(conn, rid, str(exc))
-        else:
-            mark_failed(conn, rid, "worker error")
+        logger.exception("analysis job failed request_id=%s", rid)
+        # WaitPanel reads analysis_requests.error_text. Never swallow as "worker error"
+        # — KeyError from RealDictCursor and httpx errors are not RuntimeError.
+        mark_failed(conn, rid, f"{type(exc).__name__}: {exc}")
         return {"request_id": str(rid), "error": str(exc)[:500]}

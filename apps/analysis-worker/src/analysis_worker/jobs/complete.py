@@ -13,6 +13,7 @@ from thesis_platform.native_llm import (
     NATIVE_PROVIDERS,
     ChatResult,
     LlmError,
+    is_truncated,
     resolve_provider,
 )
 
@@ -21,15 +22,26 @@ from thesis_platform.prompt import load_promoted_body
 from thesis_platform.sections import (
     SectionsError,
     adherence_failures,
-    assert_comprehensive,
+    assert_finished_note,
+    is_inflight_sections,
     mentions_us_options,
-    parse_sections_json,
+    missing_comprehensive_keys,
+    parse_note_payload,
+    strip_progress_keys,
 )
 
 from analysis_worker.jobs.claim import set_status
 from analysis_worker.jobs.gather import _lenses
 
 CompleteFn = Callable[..., ChatResult]
+
+FINAL_NOTE_SUFFIX = (
+    "Write the finished investor note. Include LAYER 1 plain language "
+    "(THE BOTTOM LINE, what the company does, business quality, cash, price, "
+    "what could go wrong) through END OF ANALYSIS. "
+    "Do not return stage_status, retrieval_*, PENDING, or IN_PROGRESS. "
+    "If you include a machine-readable JSON block, put it at the end."
+)
 
 
 def complete_request(
@@ -77,30 +89,45 @@ def complete_request(
             user=kw["user"],
         )
     )
-    result = runner(
-        provider=provider,
-        model=native_id,
-        system=system,
-        user=pack,
+    intent = str(request.get("intent") or "")
+    user = pack + "\n" + FINAL_NOTE_SUFFIX
+    result = _run_chat(
+        runner, provider=provider, model=native_id, system=system, user=user
     )
-    sections = parse_sections_json(result.content)
-    lenses = _lenses(request.get("lenses"))
-    if set(lenses) >= {"fundamental", "technical", "macro", "news"}:
-        assert_comprehensive(sections, str(request.get("intent") or ""))
+    sections = _try_parse(result.content)
+    if (
+        sections is None
+        or is_inflight_sections(sections)
+        or missing_comprehensive_keys(sections, intent)
+    ):
+        set_status(conn, request["id"], "checking")
+        result = _run_chat(
+            runner,
+            provider=provider,
+            model=native_id,
+            system=system,
+            user=pack
+            + "\n"
+            + FINAL_NOTE_SUFFIX
+            + "\nThe previous output was a progress dump or incomplete. "
+            "Write the finished LAYER 1 note, not retrieval status.",
+        )
+        sections = parse_note_payload(result.content)
+    sections = strip_progress_keys(sections)
+    assert_finished_note(sections, intent)
 
     fails = adherence_failures(sections)
     if fails:
         set_status(conn, request["id"], "checking")
-        redo_user = pack + "\nREDO sections with adherence NO: " + ",".join(fails)
-        result = runner(
+        result = _run_chat(
+            runner,
             provider=provider,
             model=native_id,
             system=system,
-            user=redo_user,
+            user=pack + "\nREDO sections with adherence NO: " + ",".join(fails),
         )
-        sections = parse_sections_json(result.content)
-        if set(lenses) >= {"fundamental", "technical", "macro", "news"}:
-            assert_comprehensive(sections, str(request.get("intent") or ""))
+        sections = strip_progress_keys(parse_note_payload(result.content))
+        assert_finished_note(sections, intent)
         fails = adherence_failures(sections)
         if fails:
             raise SectionsError("adherence still NO: " + ",".join(fails))
@@ -121,6 +148,15 @@ def complete_request(
           %s, %s, %s, %s, %s, %s,
           %s, '{}'::jsonb, %s, %s, %s
         )
+        on conflict (request_id) do update set
+          name = excluded.name,
+          ticker = excluded.ticker,
+          verdict = excluded.verdict,
+          sections = excluded.sections,
+          prompt_version_id = excluded.prompt_version_id,
+          model_id = excluded.model_id,
+          token_cost_cents = excluded.token_cost_cents,
+          updated_at = now()
         returning id
         """,
         (
@@ -148,6 +184,46 @@ def complete_request(
         )
     cur.close()
     return report_id
+
+
+def _run_chat(
+    runner: CompleteFn,
+    *,
+    provider: str,
+    model: str,
+    system: str,
+    user: str,
+) -> ChatResult:
+    """Call the lab and continue if output was cut off at max_tokens."""
+    result = runner(provider=provider, model=model, system=system, user=user)
+    chunks = [result.content]
+    last = result
+    for _ in range(2):
+        if not is_truncated(last):
+            break
+        last = runner(
+            provider=provider,
+            model=model,
+            system=system,
+            user=user
+            + "\nContinue the JSON object from the last character. Do not restart.\nSo far:\n"
+            + "".join(chunks)[-12000:],
+        )
+        chunks.append(last.content)
+    return ChatResult(
+        content="".join(chunks),
+        response_model=last.response_model,
+        cost_cents=last.cost_cents,
+        raw=last.raw,
+        stop_reason=last.stop_reason,
+    )
+
+
+def _try_parse(raw: str) -> dict[str, Any] | None:
+    try:
+        return parse_note_payload(raw)
+    except SectionsError:
+        return None
 
 
 def _lab_for_request(

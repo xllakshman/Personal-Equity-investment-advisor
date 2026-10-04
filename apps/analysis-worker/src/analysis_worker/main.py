@@ -1,6 +1,7 @@
 """Long-running analysis worker. Next.js does not start this process."""
 from __future__ import annotations
 
+import logging
 import os
 import sys
 import time
@@ -22,6 +23,12 @@ from analysis_worker.jobs.run import process_one  # noqa: E402
 
 
 def main() -> None:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s %(message)s",
+        stream=sys.stdout,
+        force=True,
+    )
     settings = Settings.from_env()
     interval = float(os.environ.get("WORKER_POLL_SECONDS", "2"))
     while True:
@@ -31,6 +38,8 @@ def main() -> None:
             conn.commit()
             if result is None:
                 time.sleep(interval)
+            else:
+                logging.getLogger("analysis_worker").info("process_one %s", result)
         except Exception:
             conn.rollback()
             raise

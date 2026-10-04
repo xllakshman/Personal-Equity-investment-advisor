@@ -50,7 +50,7 @@ def complete_chat(
         headers = {**headers, "x-api-key": key}
     else:
         headers = {**headers, "Authorization": f"Bearer {key}"}
-    http = client or httpx.Client(timeout=120.0)
+    http = client or httpx.Client(timeout=300.0)
     owns = client is None
     try:
         resp = http.post(url, json=payload, headers=headers)

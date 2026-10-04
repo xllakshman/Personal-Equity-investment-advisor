@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { parseCharts } from "@/lib/reports/charts";
-import { pickSection, sectionText, visibleSectionKeys, type ReportTab, TAB_KEYS } from "@/lib/reports/sections";
+import { pickSection, sectionText, visibleSectionKeys, isFinishedNote, noteDocument, type ReportTab, TAB_KEYS } from "@/lib/reports/sections";
 import { isStaleNote, STALE_COPY } from "@/lib/reports/age";
 import type { EvidenceRow, RefineRow, ReportDetail } from "@/lib/reports/load";
 import { ExpertToggle } from "@/components/features/report/ExpertToggle";
@@ -13,7 +13,7 @@ import { RefinePanel } from "@/components/features/report/RefinePanel";
 import { ReportCharts } from "@/components/features/report/ReportCharts";
 
 const TAB_LABEL: Record<ReportTab, string> = {
-  verdict: "Verdict",
+  verdict: "Note",
   evidence: "Evidence",
   moat: "Moat",
   execution: "Execution",
@@ -40,6 +40,8 @@ export function ReportReader({
   const [expert, setExpert] = useState(false);
   const { charts, dropped } = useMemo(() => parseCharts(report.charts), [report.charts]);
   const visible = visibleSectionKeys(report.sections, expert);
+  const finished = isFinishedNote(report.sections);
+  const document = noteDocument(report.sections);
 
   return (
     <div>
@@ -78,12 +80,19 @@ export function ReportReader({
         ))}
       </div>
       <div className="desk__card" style={{ marginTop: 16 }}>
-        {tab === "verdict" ? (
-          <pre className="report__pre">
-            {sectionText(pickSection(report.sections, ["verdict"])) || report.verdict}
-          </pre>
+        {!finished ? (
+          <p className="pf__lede">
+            This saved row is not a finished note. The worker is still collecting
+            or the last run stored a progress dump. Refresh after the wait page
+            shows the note is ready.
+          </p>
         ) : null}
-        {tab === "evidence" ? (
+        {finished && tab === "verdict" ? (
+          <article className="report__doc">
+            <pre className="report__pre">{document || sectionText(pickSection(report.sections, ["verdict"])) || report.verdict}</pre>
+          </article>
+        ) : null}
+        {finished && tab === "evidence" ? (
           evidence.length === 0 ? (
             <pre className="report__pre">
               {sectionText(
@@ -111,29 +120,31 @@ export function ReportReader({
             </table>
           )
         ) : null}
-        {tab === "moat" ? (
+        {finished && tab === "moat" ? (
           <pre className="report__pre">
             {sectionText(pickSection(report.sections, ["moat"])) || "—"}
           </pre>
         ) : null}
-        {tab === "execution" ? (
+        {finished && tab === "execution" ? (
           <pre className="report__pre">
             {sectionText(
               pickSection(report.sections, ["execution", "sizing", "tranches"]),
             ) || "—"}
           </pre>
         ) : null}
-        {tab === "scenarios" ? (
+        {finished && tab === "scenarios" ? (
           <pre className="report__pre">
-            {sectionText(pickSection(report.sections, ["scenarios"])) || "—"}
+            {sectionText(
+              pickSection(report.sections, ["scenarios", "construction", "pre_buy"]),
+            ) || "—"}
           </pre>
         ) : null}
-        {tab === "tax" ? (
+        {finished && tab === "tax" ? (
           <pre className="report__pre">
             {sectionText(pickSection(report.sections, ["tax"])) || "—"}
           </pre>
         ) : null}
-        {tab === "news" ? (
+        {finished && tab === "news" ? (
           <pre className="report__pre">
             {sectionText(pickSection(report.sections, ["news"])) || "—"}
           </pre>
@@ -146,7 +157,7 @@ export function ReportReader({
             refinements={refinements}
           />
         ) : null}
-        {expert && tab !== "refine" ? (
+        {expert && finished && tab !== "refine" ? (
           <div style={{ marginTop: 18 }}>
             <h2>Expert keys</h2>
             {visible

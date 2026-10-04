@@ -81,3 +81,33 @@ def test_unheld_ticker_still_gathers() -> None:
         gather.assert_called_once()
         complete.assert_called_once()
         failed.assert_not_called()
+
+
+def test_keyerror_persists_real_message_not_generic_worker_error() -> None:
+    """RealDictCursor KeyError: 1 used to become error_text='worker error'."""
+    conn = MagicMock()
+    request = {
+        "id": "aaaaaaaa-1111-4111-8111-111111111111",
+        "family_id": "f1",
+        "ticker": "META",
+        "lenses": ["fundamental", "technical"],
+        "model_id": "haiku45",
+        "created_by": "u1",
+    }
+    with (
+        patch("analysis_worker.jobs.run.claim_queued", return_value=request),
+        patch("analysis_worker.jobs.run.gather_step0"),
+        patch(
+            "analysis_worker.jobs.run.complete_request",
+            side_effect=KeyError(1),
+        ),
+        patch("analysis_worker.jobs.run.mark_failed") as failed,
+        patch("analysis_worker.jobs.run.set_status"),
+    ):
+        out = process_one(conn, SETTINGS)
+    assert out is not None
+    assert "error" in out
+    failed.assert_called_once()
+    persisted = failed.call_args[0][2]
+    assert persisted != "worker error"
+    assert "KeyError" in persisted

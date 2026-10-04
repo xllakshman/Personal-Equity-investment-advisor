@@ -17,6 +17,7 @@ import {
 import { ReportNoteBody } from "@/components/features/report/ReportNoteBody";
 import { createClient } from "@/lib/supabase/client";
 import { versionLabel } from "@/lib/reports/versions";
+import { isFinishedNote } from "@/lib/reports/sections";
 
 type NotePreview = {
   id: string;
@@ -151,7 +152,7 @@ export function WaitPanel({
         </p>
         {row.errorText ? <p className="pf__error">{row.errorText}</p> : null}
         <div className="bld__actions" style={{ marginTop: 18 }}>
-          {row.reportId ? (
+          {row.reportId && note && isFinishedNote(note.sections) ? (
             <Link href={`/reports/${row.reportId}`} className="desk__btn">
               Open this note
             </Link>
@@ -164,7 +165,7 @@ export function WaitPanel({
           <Link href="/desk">Back to Home</Link>
         </div>
       </div>
-      {note ? (
+      {note && isFinishedNote(note.sections) ? (
         <ReportNoteBody
           note={note}
           kicker={
