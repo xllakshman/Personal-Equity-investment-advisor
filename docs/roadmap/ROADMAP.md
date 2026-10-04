@@ -20,8 +20,8 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 
 | Field | Value |
 |-------|--------|
-| **Build next** | **P11-05** — Desk typeface Calibri |
-| Last done | **P11-04** `/portfolio` Edit/Delete (`holding_lots` write; view `holdings` read). User asked local commit + **dev** + **prod** 2026-10-04. |
+| **Build next** | **P11-06** — Analyse steps 3–5 spacing |
+| Last done | **P11-05** desk face Calibri then Carlito then sans-serif. User asked **dev** + **prod** 2026-10-04. |
 | Blocked on you | P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
@@ -887,7 +887,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 
 ### P11-05 — Desk typeface Calibri
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-10-04
 - **Depends on:** P11-04
 - **Direction:** Desk + report + Analyse builder face is Calibri, with Carlito (web) then `sans-serif`. `apps/web/lib/desk/font.ts` (today Inter). Marketing `/` and `/login` stay as they are.
 - **Writes:** none.
@@ -988,6 +988,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | P11-02 | 2026-10-04 | ✅ `/admin/prompt` plain in-use labels + Remove (`721a01b`, 026 on DEV and PROD). User confirmed Remove on prod. |
 | P11-03 | 2026-10-04 | ✅ `/admin/*` operator language on eqveste.com (`c127448`). User confirmed. |
 | P11-04 | 2026-10-04 | ✅ `/portfolio` Edit/Delete writes `holding_lots`; grid and Desk read view `holdings`. Viewer has no write buttons. User asked commit + **dev** + **prod**. |
+| P11-05 | 2026-10-04 | ✅ Desk/report/Analyse face is Calibri, Carlito (web), sans-serif. Marketing `/` and `/login` unchanged. User asked **dev** + **prod**. |
 
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.

@@ -23,7 +23,7 @@
     radial-gradient(720px 420px at 70% 40%, rgba(255, 159, 10, 0.08), transparent 62%);
   background-attachment: fixed;
   color: var(--desk-ink);
-  font-family: inherit;
+  font-family: Calibri, var(--font-carlito), Carlito, sans-serif;
   font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
