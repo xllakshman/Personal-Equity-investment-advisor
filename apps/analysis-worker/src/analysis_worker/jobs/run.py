@@ -54,5 +54,6 @@ def process_one(
         logger.exception("analysis job failed request_id=%s", rid)
         # WaitPanel reads analysis_requests.error_text. Never swallow as "worker error"
         # — KeyError from RealDictCursor and httpx errors are not RuntimeError.
+        conn.rollback()
         mark_failed(conn, rid, f"{type(exc).__name__}: {exc}")
         return {"request_id": str(rid), "error": str(exc)[:500]}

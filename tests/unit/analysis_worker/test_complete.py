@@ -87,3 +87,59 @@ def test_credit_error_falls_back_to_next_lab() -> None:
     assert used == "gpt56m"
     assert "THE BOTTOM LINE" in out.content
     assert calls == ["anthropic", "openai"]
+
+
+def test_keep_or_drop_deletes_initiated_dump() -> None:
+    from analysis_worker.jobs.complete import _keep_or_drop_report
+
+    dump = {
+        "status": "ANALYSIS_INITIATED",
+        "ticker": "META",
+        "message": "analysis initiated",
+    }
+    finished = {
+        "plain_language": (
+            "LAYER 1\nTHE BOTTOM LINE\n"
+            + ("Meta capex is the question. " * 40)
+            + "\nWHAT THIS COMPANY DOES\nAds.\nEND OF ANALYSIS"
+        ),
+        "verdict": "Hold",
+        "moat": "see note",
+        "pre_buy": {"bear_case": "capex"},
+        "step0": "ads",
+        "sizing": "",
+        "profit_booking": "",
+        "construction": "",
+    }
+    deleted: list[str] = []
+
+    class Cur:
+        def __init__(self, row):
+            self.row = row
+
+        def execute(self, sql, params=None):
+            self.sql = sql
+            if "delete from reports" in sql.lower():
+                deleted.append(str(params[0]))
+
+        def fetchone(self):
+            return self.row
+
+    assert (
+        _keep_or_drop_report(
+            Cur({"id": "rep-garbage", "sections": dump}),
+            "req-1",
+            "long_term",
+        )
+        is None
+    )
+    assert deleted == ["rep-garbage"]
+    assert (
+        _keep_or_drop_report(
+            Cur({"id": "rep-good", "sections": finished}),
+            "req-1",
+            "long_term",
+        )
+        == "rep-good"
+    )
+    assert deleted == ["rep-garbage"]

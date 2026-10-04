@@ -40,6 +40,7 @@ def test_empty_yahoo_marks_failed() -> None:
         assert "error" in out
         failed.assert_called_once()
         complete.assert_not_called()
+        conn.rollback.assert_called()
 
 
 def test_claim_quota_reject_does_not_complete() -> None:
@@ -111,3 +112,4 @@ def test_keyerror_persists_real_message_not_generic_worker_error() -> None:
     persisted = failed.call_args[0][2]
     assert persisted != "worker error"
     assert "KeyError" in persisted
+    conn.rollback.assert_called()

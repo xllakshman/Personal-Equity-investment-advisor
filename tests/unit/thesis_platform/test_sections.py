@@ -81,6 +81,19 @@ def test_inflight_stage_status_is_not_a_finished_note() -> None:
     assert_finished_note(COMPREHENSIVE, "long_term")
 
 
+def test_analysis_initiated_dump_is_inflight() -> None:
+    dump = {
+        "error": None,
+        "market": "US",
+        "status": "ANALYSIS_INITIATED",
+        "ticker": "META",
+        "message": "Meta Platforms (META) analysis initiated. Current price: $728",
+    }
+    assert is_inflight_sections(dump) is True
+    with pytest.raises(SectionsError, match="inflight"):
+        assert_finished_note(dump, "long_term")
+
+
 def test_longform_plain_language_is_a_finished_note() -> None:
     raw = (
         "LAYER 1  —  PLAIN LANGUAGE\n"

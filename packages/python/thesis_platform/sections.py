@@ -51,9 +51,15 @@ def is_inflight_sections(sections: dict[str, Any]) -> bool:
         return False
     if any(is_progress_key(str(k)) for k in sections):
         return True
-    missing = missing_comprehensive_keys(sections, "long_term")
     blob = json.dumps(sections).lower()
-    if missing and ("in_progress" in blob or '"status": "pending"' in blob or '"status":"pending"' in blob):
+    if (
+        "analysis_initiated" in blob
+        or "in_progress" in blob
+        or '"status": "pending"' in blob
+        or '"status":"pending"' in blob
+    ):
+        return True
+    if missing_comprehensive_keys(sections, "long_term"):
         return True
     return False
 

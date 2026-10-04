@@ -77,6 +77,10 @@ def complete_request(
         }
 
     used_model_id = str(model["id"])
+    intent = str(request.get("intent") or "")
+    existing_id = _keep_or_drop_report(cur, request["id"], intent)
+    if existing_id:
+        return existing_id
     prompt_id, system = load_promoted_body(cur, "advisor")
     pack = build_variable_pack(_context(cur, request))
 
@@ -90,7 +94,6 @@ def complete_request(
             user=kw["user"],
         )
     )
-    intent = str(request.get("intent") or "")
     user = pack + "\n" + FINAL_NOTE_SUFFIX
     result, provider, native_id, used_model_id = _run_chat_or_fallback(
         runner,
@@ -157,15 +160,6 @@ def complete_request(
           %s, %s, %s, %s, %s, %s,
           %s, '{}'::jsonb, %s, %s, %s
         )
-        on conflict (request_id) do update set
-          name = excluded.name,
-          ticker = excluded.ticker,
-          verdict = excluded.verdict,
-          sections = excluded.sections,
-          prompt_version_id = excluded.prompt_version_id,
-          model_id = excluded.model_id,
-          token_cost_cents = excluded.token_cost_cents,
-          updated_at = now()
         returning id
         """,
         (
@@ -193,6 +187,23 @@ def complete_request(
         )
     cur.close()
     return report_id
+
+
+def _keep_or_drop_report(cur, request_id: UUID | str, intent: str) -> str | None:
+    """Keep a finished note. Drop inflight/garbage so a requeue can insert."""
+    cur.execute(
+        "select id, sections from reports where request_id = %s",
+        (request_id,),
+    )
+    row = cur.fetchone()
+    if not row:
+        return None
+    try:
+        assert_finished_note(row["sections"] or {}, intent)
+    except SectionsError:
+        cur.execute("delete from reports where id = %s", (row["id"],))
+        return None
+    return str(row["id"])
 
 
 def _run_chat(
