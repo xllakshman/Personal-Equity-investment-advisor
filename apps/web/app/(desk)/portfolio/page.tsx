@@ -94,7 +94,7 @@ export default async function PortfolioPage({
           liveRate={fxThisLoad.rate}
           rateSource={fxThisLoad.source}
         />
-        <CsvImportCard />
+        <CsvImportCard canWrite={canWriteFamily(session)} />
         <ManualAddForm presetTicker={add} />
       </div>
 

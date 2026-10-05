@@ -4,7 +4,7 @@
 > **Workspace:** `/Users/lakshmanyeluri/Documents/personalEquity_Advisor`  
 > **Reference layout:** `/Users/lakshmanyeluri/Documents/activePieces-docker/invoice-processing`  
 > **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P6-03** (merchant unnamed)  
-> **Latest session:** [`docs/handoff/SESSION-2026-10-04-p10-02.md`](docs/handoff/SESSION-2026-10-04-p10-02.md)  
+> **Latest session:** [`docs/handoff/SESSION-2026-10-05-p11-10.md`](docs/handoff/SESSION-2026-10-05-p11-10.md)  
 > **Mock UI:** [`docs/mock-ui/`](docs/mock-ui/README.md)  
 > **GitHub (empty):** `xllakshman/Personal-Equity-investment-advisor` · branch `main`
 
@@ -26,7 +26,7 @@
 | Maya seed | ✅ `maya@thesis.demo` · 5 lots · 2 reports (1 sample) |
 | Storage bucket `report-pdfs` | ✅ private |
 | Analysis API / worker | ✅ 2026-10-04 — prod host droplet `157.245.102.243` `/opt/eqveste`; public **`https://api.eqveste.com`**. Local laptop still `:8091` + DEV `.env`. |
-| Next.js desk | ✅ 2026-10-05 — **P11-09:** `/reports/[id]` SELECT `reports` for the session `family_id`; hides MACHINE-READABLE JSON; KEY DATA / slice / scorecard tables from `sections.machine`. Ready `/analyse/[id]` uses the same `ReportDocument`. **Download PDF** on `/reports/[id]` still `redirect`s to the signed URL from `GET /reports/:id/pdf` on `https://api.eqveste.com`; that GET re-renders Playwright HTML from current `reports.sections` and upserts Storage `report-pdfs` at `pdf_key` (note jsonb unchanged). Header name still opens **Profile** / **Sign out**. `/analyse` **Run analysis** still `thesis_accept_analysis`. |
+| Next.js desk | ✅ 2026-10-05 — **P11-10:** `/portfolio` CSV posts the `File` blob (`name="file"`) into `holding_lots` / `portfolio_import_rows` and offers **Download CSV template** (`ticker,company_name,cost_per_share,total_purchased`). `/desk` SELECT view `holdings` only (no Add stock / CSV, no Yahoo). Notes widget is latest own `reports` row; **All Reports** → `/reports`. `/analyse` agent labels are **1.5 credits** / **1 credit** (no `$`); Professional/premium/ultra can pick Quick and Frontier. **Change Plan** → `/billing`. Choose still inserts `invoices.status=pending`; `families.plan_id` unchanged until Admin Activate. Desk chrome is light paper + dark ink. `/analyse` **Run analysis** still `thesis_accept_analysis`. **Download PDF** still `GET /reports/:id/pdf`. Header name still **Profile** / **Sign out**. **027** is in git, not applied — each Analyse search still counts as one `usage_events` row. |
 | Prod schema | ✅ 2026-10-04 — **001–026** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. `thesis_admin_set_family_plan` on `/admin/accounts`. `thesis_admin_remove_prompt` on `/admin/prompt`. |
 | Prod Vercel | ✅ 2026-10-05 — Production deploy `dpl_BS8Md8FtMipvmrFwixrSeQtzHdhF` aliased to **`https://eqveste.com`**. Anon URL+key + Resend + `ANALYSIS_API_URL`. No service role or lab keys. |
 | Tests | ✅ unit + web tests for 4–9. Live two-JWT CI still skips without a second family JWT. |

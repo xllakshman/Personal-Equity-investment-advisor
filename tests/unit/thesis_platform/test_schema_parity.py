@@ -72,9 +72,9 @@ def test_assert_env_hosts_rejects_empty_prod_password() -> None:
 
 def test_empty_prod_pending_is_every_git_file() -> None:
     git = list_git_migrations(ROOT / "supabase/migrations")
-    assert [mid for mid, _ in git] == list(range(1, 27))
+    assert [mid for mid, _ in git] == list(range(1, 28))
     pending = pending_migration_files(git, set())
-    assert [p.name[:3] for p in pending] == [f"{n:03d}" for n in range(1, 27)]
+    assert [p.name[:3] for p in pending] == [f"{n:03d}" for n in range(1, 28)]
 
 
 def test_pending_skips_already_applied() -> None:
@@ -110,7 +110,7 @@ def test_empty_prod_gate_passes_and_does_not_apply_maya() -> None:
     assert report.seed_would_apply is False
     assert MAYA_SEED_RELPATH not in report.pending_files
     assert report.pending_files[0].startswith("001_")
-    assert report.pending_files[-1].startswith("026_")
+    assert report.pending_files[-1].startswith("027_")
     assert report.tables_only_dev == ("holding_lots", "users")
     assert report.row_counts_dev["holdings"] == 5
     text = format_report(report)

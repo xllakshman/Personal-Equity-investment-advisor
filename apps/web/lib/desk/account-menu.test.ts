@@ -25,6 +25,11 @@ describe("AccountMenu", () => {
     assert.match(menu, /aria-haspopup="menu"/);
     assert.match(menu, /Escape/);
     assert.match(menu, /usePathname/);
+    const css = src("app/(desk)/desk.css");
+    assert.match(css, /desk-glass-in/);
+    assert.match(css, /backdrop-filter: blur\(28px\)/);
+    assert.match(css, /--desk-paper: #fafafa/);
+    assert.match(css, /--desk-ink: #1d1d1f/);
 
     assert.match(signOut, /from "@\/app\/\(auth\)\/actions"/);
     assert.match(signOut, /await signOut\(\)/);

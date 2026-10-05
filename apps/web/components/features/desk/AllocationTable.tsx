@@ -1,7 +1,4 @@
-"use client";
-
 import { BookTable } from "@/components/features/desk/BookTable";
-import { useQuotes } from "@/lib/market/use-quotes";
 
 export type AllocationHolding = {
   ticker: string;
@@ -14,23 +11,16 @@ export type AllocationHolding = {
 
 export function AllocationTable({
   holdings,
-  title = "Allocation",
+  title = "Your holdings",
 }: {
   holdings: AllocationHolding[];
   title?: string;
 }) {
-  const { quotes, status } = useQuotes(
-    holdings.map((h) => ({ ticker: h.ticker, exchange: h.exchange })),
-  );
   return (
     <div className="desk__card">
       <h2>{title}</h2>
       <BookTable
-        caption={
-          status === "loading"
-            ? "Loading previous close…"
-            : "% of portfolio uses current value when every name has a close, otherwise last cost."
-        }
+        caption="Cost and quantity from your book. Current price and P&L stay — on Home (not a live price). Change lots on Review Portfolio."
         rows={holdings.map((h) => ({
           key: h.ticker,
           stock: h.company_name ?? h.ticker,
@@ -38,7 +28,7 @@ export function AllocationTable({
           qty: h.qty,
           costPerShare: h.cost_per_share,
           currency: h.native_currency,
-          quote: quotes[h.ticker],
+          quote: null,
         }))}
       />
     </div>

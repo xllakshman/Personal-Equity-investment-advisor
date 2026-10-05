@@ -61,6 +61,9 @@ describe("DESK_NAV", () => {
     const managers = src("app/(desk)/research/managers/page.tsx");
     assert.match(css, /\.desk__nav-label \{[\s\S]*?font-weight: 700;/);
     assert.match(css, /\.desk__nav-hint \{[\s\S]*?font-weight: 400;/);
+    const nav = src("components/features/desk/DeskNav.tsx");
+    assert.match(nav, /Change Plan/);
+    assert.equal(nav.includes("Upgrade plan"), false);
     assert.match(portfolio, /<h1 className="desk__h1">Review Portfolio<\/h1>/);
     assert.match(managers, /<h1 className="desk__h1">Elite Investors Holdings<\/h1>/);
     assert.equal(managers.includes('className="desk__kicker">Managers<'), false);

@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { parsePortfolioCsv } from "./csv";
+import {
+  PORTFOLIO_CSV_COLUMNS,
+  csvTemplateText,
+  csvTextFromFormData,
+  detectCsvDelimiter,
+  parsePortfolioCsv,
+} from "./csv";
 
 const FIVE = `ticker,company_name,cost_per_share,total_purchased
 AAA,Alpha,10,100
@@ -60,6 +66,61 @@ HDFCBANK.NS,HDFC Bank,1500,150000
   it("rejects empty input", () => {
     const parsed = parsePortfolioCsv("   ");
     assert.equal(parsed.ok, false);
+  });
+
+  it("accepts spaced headers and semicolon files that still use the four columns", () => {
+    const spaced = `Ticker,Company Name,Cost Per Share,Total Purchased
+MSFT,Microsoft,400,4000
+`;
+    const parsed = parsePortfolioCsv(spaced, "auto");
+    assert.equal(parsed.ok, true);
+    if (!parsed.ok) return;
+    assert.equal(parsed.rows[0].accepted, true);
+    assert.equal(parsed.rows[0].ticker, "MSFT");
+    assert.equal(parsed.rows[0].qty, 10);
+
+    const semi = `ticker;company_name;cost_per_share;total_purchased
+AAA;Alpha;10;100
+`;
+    assert.equal(detectCsvDelimiter(semi.split("\n")[0]), ";");
+    const semiParsed = parsePortfolioCsv(semi, "auto");
+    assert.equal(semiParsed.ok, true);
+    if (!semiParsed.ok) return;
+    assert.equal(semiParsed.rows[0].ticker, "AAA");
+    assert.equal(semiParsed.rows[0].qty, 10);
+  });
+
+  it("rejects a bad header without inventing columns", () => {
+    const parsed = parsePortfolioCsv("foo,bar\n1,2\n");
+    assert.equal(parsed.ok, false);
+    if (parsed.ok) return;
+    assert.match(parsed.error, /Missing: ticker, company_name, cost_per_share, total_purchased/);
+  });
+
+  it("template header matches the parser columns", () => {
+    const text = csvTemplateText();
+    assert.equal(text.split("\n")[0], PORTFOLIO_CSV_COLUMNS.join(","));
+    const parsed = parsePortfolioCsv(text, "auto");
+    assert.equal(parsed.ok, true);
+    if (!parsed.ok) return;
+    assert.equal(parsed.rows.length, 1);
+    assert.equal(parsed.rows[0].accepted, true);
+    assert.equal(parsed.rows[0].ticker, "MSFT");
+  });
+
+  it("reads the File blob from the form, not a one-line hidden field", async () => {
+    const fd = new FormData();
+    fd.set(
+      "file",
+      new File(
+        [`ticker,company_name,cost_per_share,total_purchased\nAAA,Alpha,10,100\n`],
+        "lots.csv",
+        { type: "text/csv" },
+      ),
+    );
+    fd.set("csv", "ticker,company_name,cost_per_share,total_purchased");
+    const text = await csvTextFromFormData(fd);
+    assert.match(text, /AAA,Alpha,10,100/);
   });
 
   it("rejects cost 0", () => {

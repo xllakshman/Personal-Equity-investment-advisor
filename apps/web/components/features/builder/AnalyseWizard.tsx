@@ -25,7 +25,6 @@ import { AVG_DOWN, INTENTS, IN_SLABS, US_SLABS } from "@/lib/analyse/errors";
 import {
   allocationNote,
   allocationPct,
-  modelCost,
   moneyAmount,
 } from "@/lib/analyse/format";
 import {
@@ -38,7 +37,7 @@ import {
   type LensState,
 } from "@/lib/analyse/lenses";
 import type { BuilderPayload, HeldLot } from "@/lib/analyse/load-builder";
-import { canContinue, defaultModelId, groupModels, modelOnPlan } from "@/lib/analyse/models";
+import { canContinue, defaultModelId, groupModels, modelOnPlan, agentCreditLabel } from "@/lib/analyse/models";
 import {
   ANALYSE_STEPS,
   analyseGuide,
@@ -206,7 +205,7 @@ export function AnalyseWizard({
     if (!normalizeTicker(ticker)) return "Type or pick a stock first";
     if (conflict) return "Your risk limit and return goal don't match yet";
     if (picked.length === 0) return "Pick at least one check";
-    if (!onPlan || !modelId) return "Upgrade your plan to run this agent";
+    if (!onPlan || !modelId) return "Change your plan to run this agent";
     return "Uses 1 analysis from your plan";
   }, [canWrite, ticker, conflict, picked.length, onPlan, modelId, chosen, payload.inFlight]);
 
@@ -269,7 +268,7 @@ export function AnalyseWizard({
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
               <span className="bld__toolbar-chip">{analyseUsageChip(usage)}</span>
               <Link href="/billing" className="desk__btn desk__btn--light">
-                Upgrade
+                Change Plan
               </Link>
             </div>
           </div>
@@ -383,9 +382,9 @@ export function AnalyseWizard({
                     <div className="bld__intent" style={{ marginBottom: 14 }}>
                       <span className="bld__intent-dot" aria-hidden />
                       <div>
-                        <p>Your portfolio is empty. Add stocks on Home, or analyse any stock now.</p>
+                        <p>Your portfolio is empty. Add stocks on Review Portfolio, or analyse any stock now.</p>
                         <span>
-                          <Link href="/desk">Add stocks</Link>
+                          <Link href="/portfolio">Review Portfolio</Link>
                           {" · "}
                           <button type="button" className="desk__privacy-link" onClick={() => setSrcMode("any")}>
                             Any stock
@@ -579,7 +578,7 @@ export function AnalyseWizard({
                   <p className="pf__lede">
                     These two have to match, and we check before spending an analysis.
                   </p>
-                  <p className="pf__lede" style={{ fontWeight: 600, color: "#f5f5f7" }}>
+                  <p className="pf__lede" style={{ fontWeight: 600 }}>
                     How big a fall can you sit through?
                   </p>
                   <div className="bld__pills">
@@ -596,7 +595,7 @@ export function AnalyseWizard({
                       </button>
                     ))}
                   </div>
-                  <p className="pf__lede" style={{ fontWeight: 600, color: "#f5f5f7" }}>
+                  <p className="pf__lede" style={{ fontWeight: 600 }}>
                     What return are you aiming for?
                   </p>
                   <div className="bld__pills">
@@ -729,8 +728,8 @@ export function AnalyseWizard({
                 <section className="pf__card" id="analyse-step-6">
                   <h2 className="bld__h2">4 · Choose your agent</h2>
                   <p className="pf__lede">
-                    Frontier agents come with Professional and above. Quick agents
-                    are on Trial and Basic. Plan: {payload.planName}.{" "}
+                    Ultra, Professional, and Professional + can run Quick and Frontier
+                    agents. Trial does not run Frontier. Plan: {payload.planName}.{" "}
                     {usageCaption(usage)} used this cycle.
                   </p>
                   <AgentPicker
@@ -748,7 +747,7 @@ export function AnalyseWizard({
                         extra evidence layers. On this model the note will be shorter.
                       </span>
                       <Link href="/billing" className="desk__btn" style={{ marginTop: 8 }}>
-                        Upgrade Plan
+                        Change Plan
                       </Link>
                     </div>
                   ) : null}
@@ -819,7 +818,7 @@ export function AnalyseWizard({
             <button className="desk__btn" type="submit" disabled={pending || !ok || Boolean(state.requestId)}>
               {pending || state.requestId
                 ? "Opening wait page…"
-                : `Run analysis · ${chosen ? modelCost(chosen.cost_cents_per_run) : ""}`}
+                : `Run analysis · ${chosen ? agentCreditLabel(chosen.thesis_class) : ""}`}
             </button>
             <button
               className="pf__ghost"

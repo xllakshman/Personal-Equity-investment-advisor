@@ -21,9 +21,8 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 | Field | Value |
 |-------|--------|
 | **Build next** | **P6-03** — merchant unnamed (blocked) |
-| Queued after P6-03 | — |
-| Last done | **P11-09 PDF** — Download PDF (`GET /reports/:id/pdf`) re-renders current typeset onto the existing `report-pdfs` object so ready notes match `/reports/[id]` without running Analyse again. No prompt change. |
-| Blocked on you | P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
+| Last done | **P11-10** — desk pass: `/portfolio` CSV File + four-column template; `/desk` read-only `holdings`; notes widget + Change Plan; agent credits copy; light desk. **027** written, not applied. |
+| Blocked on you | P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. Apply **027** only when you name DEV + file + `CONFIRM_APPLY=1`. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
 | DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–026** applied |
@@ -836,7 +835,7 @@ Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do 
 
 ## Phase 11 — Note layout and desk/admin fixes (named 2026-10-04)
 
-One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30). **Build next** is **P6-03**.
+One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30). **Build next** is **P6-03** (merchant unnamed). **P11-10** is done.
 
 ### P11-01 — Typeset note + PDF download
 
@@ -954,6 +953,26 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
   - Pass 2: empty `plain_language`, missing `machine`, `{}` charts, invalid chart type, sample `is_library_sample`, store/retrieve = same `reports.sections` keys the screen reads (no new write).
   - Pass 3: formatted money/dates; wait copy still tracks `analysis_requests.status`; machine JSON hidden; headings ≠ body weight.
 
+### P11-10 — Desk pass: CSV, Home book, credits, plans, Change Plan, light chrome
+
+- **Status:** ✅ 2026-10-05 — user-named this turn. Do not start P6-03.
+- **Depends on:** P11-04, P11-08, P11-09, P6-01
+- **Direction:** One pass, items in order. `/portfolio` CSV actually inserts `holding_lots` (fix the real upload bug) plus **Download CSV template** matching parser columns `ticker,company_name,cost_per_share,total_purchased`. `/desk` shows view `holdings` read-only (same book as Review Portfolio); remove Home Add stock / CSV; no Yahoo P&L on Desk load (D40). Notes widget: latest non-sample `reports` row (`created_at` desc, limit 1); **All Reports** → `/reports`. `/analyse` agent dropdown: hide `$`; Frontier **1.5 credits**, Quick **1 credit**. Ultra / Professional / Professional+ (`premium`) can select Quick and Frontier; Trial stays off Frontier. Mid-month Choose must match real checkout (`invoices` pending; `families.plan_id` unchanged until Admin Activate) — do not claim next-month if the schema cannot defer. Rename user-visible **Upgrade Plan** / **Upgrade plan** to **Change Plan**. Account menu liquid-glass hover. Desk background light / closer to white with readable ink (retune `.note-doc*` if the page lightens).
+- **Writes:** `holding_lots` and `portfolio_import_rows` from `/portfolio` CSV/manual (owner/member). Billing **Choose** still inserts `invoices` (`status = pending`) only. Quota 1.5 needs `supabase/migrations/027_*.sql` — **do not apply** until the user names DEV + file + `CONFIRM_APPLY=1`.
+- **Reads:** `/desk` and `/portfolio` grid: view `holdings`. `/analyse` picker: `model_catalog` + `plans.allowed_model_ids` / plan slug. Desk KPI: `usage_events` kinds `search` / `refine` / `refine_gate` via `meterEventCount` (same as `thesis_family_meter_count`). Notes widget: `reports` for session `family_id`.
+- **Who:** owner/member write lots and Analyse; viewer reads `holdings` / `reports`, cannot upload CSV or `thesis_accept_analysis`.
+- **UI today:** `/portfolio` File upload + **Download CSV template**; `/desk` read-only `holdings`; agent dropdown credits (no `$`); **Change Plan** → `/billing`; light desk paper.
+- **Success:**
+  1. Owner/member on `/portfolio` downloads the four-column template and uploads a CSV that inserts `holding_lots`; grid reads `holdings`. Viewer has no upload. Empty file / bad header shows an error, not a crash. FX helpers do not write converted amounts.
+  2. `/desk` holdings list is the same `holdings` rows as `/portfolio`. No Add stock / CSV on Home. No Yahoo fetch on Desk load.
+  3. Home notes widget shows one latest own `reports` row; All Reports opens `/reports`.
+  4. Agent dropdown has no `$`. Credit copy is 1.5 / 1. Live 1.5 consumption only after 027 is applied; until then each Analyse search still inserts one `usage_events` row counted as 1.
+  5. Ultra / Professional / Professional+ can submit Quick and Frontier. Trial cannot submit Frontier. No Gemini/Kimi. HTTP `model` remains `model_catalog.provider_model_id`.
+  6. `/billing` message matches Choose → pending `invoices`; plan column does not change until Activate.
+  7. User-visible Upgrade Plan / Upgrade plan buttons read **Change Plan**; `/billing` hrefs still work.
+  8–9. Name menu is liquid glass; desk chrome is light with dark ink; `/reports/[id]` typeset stays readable; Download PDF unchanged.
+- **Testing:** three passes (testing.mdc). `npm test` in `apps/web`; `./tools/test/run_tests.sh` if Python/quota SQL is added; `npm run build` in `apps/web`. Browser smoke on port **3100**: `/desk` `/portfolio` `/analyse` `/reports` `/billing`.
+
 ---
 
 ## Out of scope until you add a chunk
@@ -1042,6 +1061,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | P11-08 | 2026-10-05 | ✅ Desk chrome + `/desk` `/analyse` `/reports` `/contact` match App.dc.html (SF Pro stack, stroke-only e, no Earth). User named **dev** + **prod**. SHA `217f7cb` on GitHub `dev`; Vercel Production aliased to eqveste.com. |
 | P11-09 | 2026-10-05 | ✅ `/reports/[id]` SELECT `reports` for session `family_id`; machine JSON hidden; KEY DATA / slice / scorecard tables from `sections.machine`. No prompt change. User asked commit + **dev** + **prod**. |
 | P11-09 PDF | 2026-10-05 | ✅ Download PDF on `/reports/[id]` calls `GET /reports/:id/pdf`; analysis-api Playwright re-renders from current `reports.sections` and upserts Storage `report-pdfs` at `pdf_key`. Existing ready notes (stale objects) match the screen without Analyse again. D4: note jsonb unchanged. No prompt change. |
+| P11-10 | 2026-10-05 | ✅ `/portfolio` CSV File + template; `/desk` read-only `holdings` (no Yahoo); notes widget + **Change Plan**; agent 1.5/1 credits copy; light desk. **027** in git, not applied. No commit/push. |
 
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.

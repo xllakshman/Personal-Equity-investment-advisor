@@ -16,11 +16,11 @@ Sources:
 | # | Brief | Mock | ROADMAP | Gap |
 |---|--------|------|---------|-----|
 | 1 | Signup/login/reset; **show password if they choose**; name, tax residency, email, phone + **IN/US/UAE** codes | Toggle + those fields | P1-02 success row 6 | Covered |
-| 2.1 | Optional CSV ticker, name, cost, total purchased | `/portfolio` | P2-00 | Covered |
+| 2.1 | Optional CSV ticker, name, cost, total purchased | `/portfolio` | P2-00, **P11-10** File blob + four-column template | Covered |
 | 2.2 | Header **search** + lenses: fundamental, technical, macro, news, **comprehensive** | Header Analyse + four ticks; comprehensive = all four | P1-03b + P3-00 | Covered |
 | 2.3 | Invested, book size, %; swing vs long-term; average down; 4 risk bands; 4 CAGR; **conflict messages** | Builder + unused-risk slack | P3-00 conflict **and** slack | Covered |
 | 2.4 | LTCG/STCG India **or** US; non-residents; slabs | Residency-conditional copy | P1-05 months/rates; builder copy | Covered once 009 exists |
-| 5 | Model picker; charge by model | Model rail | P3-00 Frontier/Quick; P4-00a + **009 applied**; worker **native labs** D39 | `/analyse` reads `model_catalog` labels |
+| 5 | Model picker; charge by model | Model rail | P3-00 Frontier/Quick; P4-00a + **009 applied**; worker **native labs** D39; **P11-10** 1.5/1 credits copy (live 1.5 needs **027**) | `/analyse` reads `model_catalog` labels. Professional/premium/ultra get Quick+Frontier in the picker. Trial/Basic stay off Frontier. |
 | 6 | Clarify then run | Clarify screen | P3-02 | Covered |
 | 7 | Arrange **tables + graphs**; **support dynamic HTML the model returns** | Fixed report tabs + SVG | P5-02 no innerHTML; **P5-04 allowlist (locked)**; **P11-09** (hierarchy, KEY DATA table, hide machine JSON — React typeset, not model HTML) | Brief HTML rejected; charts jsonb only. Worker still inserts `reports.charts = {}`. Desk and PDF HTML hide MACHINE-READABLE JSON; tables from existing `sections.machine`. |
 | Sub | Trial, Basic, Professional, **Professional +**; X searches **configurable in admin**; wallet USD; 60/80/90; trial sample PDFs | Plans + wallet + samples; mock also Ultra | P6 dual meter; P7-01; five rows including **Ultra** | Covered — Ultra kept as fifth tier |

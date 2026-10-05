@@ -30,6 +30,7 @@ export type DeskHome = {
     verdict: string;
     createdAt: string;
   }[];
+  savedNotesCount: number;
   sampleCount: number;
   supportGrant: SupportGrantStatus;
   flags: DeskFlag[];
@@ -60,8 +61,7 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
       .from("reports")
       .select("id, ticker, name, verdict, created_at, is_library_sample")
       .eq("family_id", familyId)
-      .order("created_at", { ascending: false })
-      .limit(8),
+      .order("created_at", { ascending: false }),
     supabase.from("families").select("plan_id").eq("id", familyId).maybeSingle(),
     supabase
       .from("support_access_grants")
@@ -141,13 +141,14 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
     costBasis,
     costCurrency,
     holdings: mappedHoldings,
-    recentNotes: ownReports.map((r) => ({
+    recentNotes: ownReports.slice(0, 1).map((r) => ({
       id: String(r.id),
       ticker: String(r.ticker),
       name: String(r.name),
       verdict: String(r.verdict),
       createdAt: String(r.created_at),
     })),
+    savedNotesCount: ownReports.length,
     sampleCount,
     supportGrant: grantRes.data?.expires_at
       ? { active: true, expiresAt: String(grantRes.data.expires_at) }

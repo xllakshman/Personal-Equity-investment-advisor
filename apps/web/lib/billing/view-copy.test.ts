@@ -19,9 +19,8 @@ describe("billing subscription copy", () => {
     assert.equal(view.includes("Current plan"), false);
     assert.match(view, /requestCheckout/);
     assert.match(view, /UPI_VPA/);
-    assert.match(page, /Please run the agent with intent/);
-    assert.match(page, /Each run costs us real compute and comes out of your allowance/);
-    assert.match(page, /WeeklyDigestToggle/);
-    assert.match(page, /usageBarPct/);
+    assert.match(page, /Choose saves a payment request/);
+    assert.match(page, /not a next-month switch/);
+    assert.match(page, /Admin → Accounts Activate/);
   });
 });

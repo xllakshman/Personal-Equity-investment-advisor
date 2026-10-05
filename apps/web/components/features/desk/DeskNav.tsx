@@ -56,7 +56,7 @@ export function DeskNav({
         </div>
         <p className="desk__kpi-s">{meterHint}</p>
         <Link href="/billing" className="desk__upgrade">
-          Upgrade plan
+          Change Plan
         </Link>
       </div>
     </nav>

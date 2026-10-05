@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { canWriteFamily, requireDeskSession } from "@/lib/desk/session";
-import { parsePortfolioCsv } from "@/lib/portfolio/csv";
+import { csvTextFromFormData, parsePortfolioCsv } from "@/lib/portfolio/csv";
 import { parseCurrencyOverride } from "@/lib/portfolio/exchange";
 import { asDisplayCurrency } from "@/lib/portfolio/grid";
 import { roundUsdInr } from "@/lib/portfolio/fx";
@@ -65,7 +65,7 @@ export async function commitCsvImport(
   formData: FormData,
 ): Promise<PortfolioActionState> {
   const session = await requireDeskSession();
-  const csv = String(formData.get("csv") ?? "");
+  const csv = await csvTextFromFormData(formData);
   const override = parseCurrencyOverride(String(formData.get("currency") ?? "auto"));
   const replace = String(formData.get("replace") ?? "") === "1";
 

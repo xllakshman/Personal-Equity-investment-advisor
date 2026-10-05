@@ -95,7 +95,7 @@ export function BookTable({
             {rows.length === 0 ? (
               <tr>
                 <td colSpan={cols} className="pf__empty">
-                  No stocks yet. Add a lot below, or upload a CSV on Portfolio.
+                  No stocks yet. Add a name or upload a CSV on Review Portfolio.
                 </td>
               </tr>
             ) : (

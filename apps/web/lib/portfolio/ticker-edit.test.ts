@@ -52,7 +52,11 @@ describe("ticker edit write gate", () => {
     assert.equal(deskGrid.includes("deleteHoldingTicker"), false);
     assert.equal(deskGrid.includes("Edit"), false);
     assert.match(deskHome, /AllocationTable/);
-    assert.match(deskHome, /HomeBook/);
+    assert.equal(deskHome.includes("HomeBook"), false);
+    assert.equal(deskHome.includes("Add stock"), false);
+    assert.equal(deskHome.includes("Upload CSV"), false);
+    assert.equal(deskHome.includes("useQuotes"), false);
+    assert.match(deskHome, /All Reports/);
     assert.equal(deskHome.includes("PortfolioHoldingsGrid"), false);
   });
 });

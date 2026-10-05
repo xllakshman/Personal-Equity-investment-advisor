@@ -14,6 +14,12 @@ export const PORTFOLIO_CSV_COLUMNS = [
   "total_purchased",
 ] as const;
 
+export const PORTFOLIO_CSV_TEMPLATE_FILENAME = "eqveste-holdings-template.csv";
+
+export function csvTemplateText(): string {
+  return `${PORTFOLIO_CSV_COLUMNS.join(",")}\nMSFT,Microsoft,400,4000\n`;
+}
+
 export type ParsedImportRow = {
   line: number;
   raw: Record<string, string>;
@@ -32,7 +38,37 @@ export type CsvParseResult =
   | { ok: true; rows: ParsedImportRow[] }
   | { ok: false; error: string };
 
-function splitCsvLine(line: string): string[] {
+function normalizeHeader(h: string): string {
+  return h.trim().toLowerCase().replace(/\s+/g, "_");
+}
+
+/** Header line only — quoted commas must not flip the delimiter. */
+export function detectCsvDelimiter(headerLine: string): "," | ";" | "\t" {
+  let commas = 0;
+  let semis = 0;
+  let tabs = 0;
+  let inQuotes = false;
+  for (let i = 0; i < headerLine.length; i++) {
+    const ch = headerLine[i];
+    if (ch === '"') {
+      if (inQuotes && headerLine[i + 1] === '"') {
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+    if (inQuotes) continue;
+    if (ch === ",") commas += 1;
+    else if (ch === ";") semis += 1;
+    else if (ch === "\t") tabs += 1;
+  }
+  if (tabs > commas && tabs > semis) return "\t";
+  if (semis > commas) return ";";
+  return ",";
+}
+
+function splitCsvLine(line: string, delimiter: string): string[] {
   const out: string[] = [];
   let cur = "";
   let inQuotes = false;
@@ -45,7 +81,7 @@ function splitCsvLine(line: string): string[] {
       } else {
         inQuotes = !inQuotes;
       }
-    } else if ((ch === "," && !inQuotes) || (ch === "\t" && !inQuotes)) {
+    } else if (ch === delimiter && !inQuotes) {
       out.push(cur);
       cur = "";
     } else {
@@ -59,9 +95,17 @@ function splitCsvLine(line: string): string[] {
 function headerIndex(headers: string[]): Map<string, number> {
   const map = new Map<string, number>();
   headers.forEach((h, i) => {
-    map.set(h.trim().toLowerCase(), i);
+    map.set(normalizeHeader(h), i);
   });
   return map;
+}
+
+export async function csvTextFromFormData(formData: FormData): Promise<string> {
+  const file = formData.get("file");
+  if (file instanceof Blob && file.size > 0 && typeof file.text === "function") {
+    return file.text();
+  }
+  return String(formData.get("csv") ?? "");
 }
 
 export function parsePortfolioCsv(
@@ -78,7 +122,8 @@ export function parsePortfolioCsv(
     return { ok: false, error: "CSV needs a header row and at least one data row." };
   }
 
-  const headers = splitCsvLine(lines[0]).map((h) => h.toLowerCase());
+  const delimiter = detectCsvDelimiter(lines[0]);
+  const headers = splitCsvLine(lines[0], delimiter).map(normalizeHeader);
   const idx = headerIndex(headers);
   const missing = PORTFOLIO_CSV_COLUMNS.filter((c) => !idx.has(c));
   if (missing.length > 0) {
@@ -90,7 +135,7 @@ export function parsePortfolioCsv(
 
   const rows: ParsedImportRow[] = [];
   for (let i = 1; i < lines.length; i++) {
-    const cells = splitCsvLine(lines[i]);
+    const cells = splitCsvLine(lines[i], delimiter);
     const raw: Record<string, string> = {};
     for (const col of PORTFOLIO_CSV_COLUMNS) {
       raw[col] = cells[idx.get(col)!] ?? "";

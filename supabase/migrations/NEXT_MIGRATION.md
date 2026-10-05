@@ -11,4 +11,4 @@ See `HANDOFF.md` §6.
 
 ## Next on DEV / PROD
 
-None in git after **026**. Further schema needs a new numbered file.
+**027** `027_search_credit_quantity.sql` is in git, **not applied**. Frontier search `usage_events.quantity = 1.5` vs Quick `1`. Do not apply until the user names DEV or PROD, the file, and `CONFIRM_APPLY=1`.

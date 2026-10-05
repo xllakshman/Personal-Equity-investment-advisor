@@ -1,0 +1,39 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../..");
+
+function src(rel: string): string {
+  return readFileSync(join(ROOT, rel), "utf8");
+}
+
+describe("Home book and notes widget", () => {
+  it("reads view holdings, not a second lots book, and does not fetch Yahoo", () => {
+    const page = src("app/(desk)/desk/page.tsx");
+    const home = src("lib/desk/load-home.ts");
+    const view = src("components/features/desk/DeskHomeView.tsx");
+    const alloc = src("components/features/desk/AllocationTable.tsx");
+    assert.match(page, /loadDeskHome/);
+    assert.equal(page.includes("loadHoldingLots"), false);
+    assert.match(home, /from\("holdings"\)/);
+    assert.match(view, /AllocationTable holdings=\{home\.holdings\}/);
+    assert.equal(view.includes("Add stock"), false);
+    assert.equal(view.includes("HomeBook"), false);
+    assert.equal(alloc.includes("useQuotes"), false);
+    assert.match(alloc, /quote: null/);
+  });
+
+  it("shows only the latest own report and links All Reports to /reports", () => {
+    const home = src("lib/desk/load-home.ts");
+    const view = src("components/features/desk/DeskHomeView.tsx");
+    assert.match(home, /ownReports\.slice\(0, 1\)/);
+    assert.match(home, /is_library_sample/);
+    assert.match(home, /savedNotesCount: ownReports\.length/);
+    assert.match(view, /href="\/reports"/);
+    assert.match(view, /All Reports/);
+    assert.match(view, /home\.recentNotes/);
+  });
+});

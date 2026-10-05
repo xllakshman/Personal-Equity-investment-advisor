@@ -1,7 +1,6 @@
-import { DeskHomeView } from "@/components/features/desk/DeskHomeView";
+import { requireDeskSession } from "@/lib/desk/session";
 import { loadDeskHome } from "@/lib/desk/load-home";
-import { canWriteFamily, requireDeskSession } from "@/lib/desk/session";
-import { loadHoldingLots } from "@/lib/portfolio/load";
+import { DeskHomeView } from "@/components/features/desk/DeskHomeView";
 
 function deskNotice(sp: { ok?: string; ticker?: string }): string | null {
   if (sp.ok === "manual" && sp.ticker) {
@@ -26,24 +25,11 @@ export default async function DeskPage({
 }) {
   const session = await requireDeskSession();
   const sp = await searchParams;
-  const [home, lots] = await Promise.all([
-    loadDeskHome(session.familyId),
-    loadHoldingLots(session.familyId),
-  ]);
-  const todayLabel = new Intl.DateTimeFormat("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(new Date());
+  const home = await loadDeskHome(session.familyId);
   return (
     <DeskHomeView
       home={home}
       fullName={session.fullName}
-      todayLabel={todayLabel}
-      lots={lots}
-      canWrite={canWriteFamily(session)}
       notice={deskNotice(sp)}
     />
   );

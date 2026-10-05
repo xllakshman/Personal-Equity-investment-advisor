@@ -1,7 +1,7 @@
 "use client";
 
-import { modelCost } from "@/lib/analyse/format";
 import {
+  agentCreditLabel,
   agentEligibility,
   type CatalogModel,
 } from "@/lib/analyse/models";
@@ -31,8 +31,8 @@ export function AgentPicker({
   return (
     <div className="bld__agents">
       <p className="pf__lede">
-        {planName}: names marked On plan can be submitted. Upgrade your plan for
-        locked Frontier agents.
+        Frontier agents cost 1.5 credits. Quick agents cost 1 credit. {planName}:
+        names marked On plan can be submitted.
       </p>
       <label className="pf__label">
         Agent
@@ -49,7 +49,7 @@ export function AgentPicker({
             const el = agentEligibility(m, allowedIds, planSlug);
             return (
               <option key={m.id} value={m.id}>
-                {m.label} · {modelCost(m.cost_cents_per_run)} · {el.badge}
+                {m.label} · {agentCreditLabel(m.thesis_class)} · {el.badge}
               </option>
             );
           })}
@@ -57,7 +57,7 @@ export function AgentPicker({
             const el = agentEligibility(m, allowedIds, planSlug);
             return (
               <option key={m.id} value={m.id} disabled>
-                {m.label} · {el.badge}
+                {m.label} · {agentCreditLabel(m.thesis_class)} · {el.badge}
               </option>
             );
           })}

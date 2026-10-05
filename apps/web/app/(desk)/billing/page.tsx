@@ -50,9 +50,10 @@ export default async function BillingPage() {
       <p className="desk__kicker">Subscription</p>
       <h1 className="desk__h1">Your plan</h1>
       <p className="desk__lede">
-        Your plan, analyses this month, and wallet. Subscribe saves a request and
-        emails the operator. The plan on this page does not change until they
-        Activate it. Pay UPI to the VPA below.
+        Your plan, analyses this month, and wallet. Choose saves a payment request
+        and emails the operator. The plan name on this page does not change until
+        they Activate it — it is not a next-month switch, and Choose does not
+        rewrite your current plan. Pay UPI to the VPA below.
       </p>
 
       <section className="desk__card desk__current-plan" style={{ marginTop: 22 }}>
@@ -91,7 +92,8 @@ export default async function BillingPage() {
       {pendingTitle ? (
         <p className="pf__banner" style={{ marginTop: 16 }}>
           Requested {pendingTitle}. Pay the UPI VPA below. This page still shows
-          your current plan until Admin → Accounts Activate.
+          your current plan until Admin → Accounts Activate. Choose did not wait
+          for next month and did not change the live plan.
         </p>
       ) : null}
       {snap.exhausted ? (

@@ -17,6 +17,8 @@ import {
   modelOnPlan,
   agentEligibility,
   nativeCatalogModels,
+  agentCreditCost,
+  agentCreditLabel,
 } from "./models";
 
 const base: LensState = {
@@ -108,17 +110,27 @@ describe("model picker", () => {
     const quick = agentEligibility(models[2], trial, "trial");
     assert.equal(frontier.band, "Frontier agents");
     assert.equal(frontier.allowed, false);
-    assert.equal(frontier.badge, "Upgrade your plan");
+    assert.equal(frontier.badge, "Change your plan");
     assert.equal(quick.band, "Quick agents");
     assert.equal(quick.allowed, true);
     assert.equal(quick.badge, "On plan");
     const astraOnTrial = agentEligibility(models[1], trial, "trial");
     assert.equal(astraOnTrial.allowed, false);
-    assert.equal(astraOnTrial.badge, "Upgrade your plan");
+    assert.equal(astraOnTrial.badge, "Change your plan");
     assert.equal(modelOnPlan(models[1], trial, "trial"), false);
     const pro = agentEligibility(models[0], ["opus5", "gpt56m"], "professional");
     assert.equal(pro.allowed, true);
     assert.equal(pro.badge, "On plan");
+  });
+
+  it("lets Ultra, Professional, and Professional+ run Quick even if allowed_model_ids omitted them", () => {
+    assert.equal(modelOnPlan(models[2], [], "professional"), true);
+    assert.equal(modelOnPlan(models[2], [], "premium"), true);
+    assert.equal(modelOnPlan(models[2], [], "ultra"), true);
+    assert.equal(modelOnPlan(models[0], [], "professional"), true);
+    assert.equal(modelOnPlan(models[0], ["opus5"], "trial"), false);
+    assert.equal(modelOnPlan(models[0], ["opus5"], "basic"), false);
+    assert.equal(defaultModelId(models, [], "ultra"), "opus5");
   });
 
   it("hides Gemini and Kimi from the picker", () => {
@@ -147,6 +159,13 @@ describe("model picker", () => {
     assert.equal(shown.some((m) => m.provider === "google"), false);
     assert.equal(shown.some((m) => m.provider === "moonshot"), false);
     assert.equal(shown.some((m) => m.id === "opus5"), true);
+  });
+
+  it("names Frontier 1.5 credits and Quick 1 credit", () => {
+    assert.equal(agentCreditCost("frontier"), 1.5);
+    assert.equal(agentCreditCost("quick"), 1);
+    assert.equal(agentCreditLabel("frontier"), "1.5 credits");
+    assert.equal(agentCreditLabel("quick"), "1 credit");
   });
 
   it("prefills invested as qty times cost (Maya MSFT 28 × 402.5)", () => {

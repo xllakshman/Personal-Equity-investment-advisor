@@ -3,11 +3,9 @@ import Link from "next/link";
 import type { DeskHome } from "@/lib/desk/load-home";
 import { analysesThisCycleCaption } from "@/lib/desk/usage-meter";
 import { RecheckForm } from "@/components/features/desk/RecheckForm";
-import { HomeBook } from "@/components/features/desk/HomeBook";
 import { AllocationTable } from "@/components/features/desk/AllocationTable";
 import { deskPrivacyView } from "@/lib/desk/privacy-status";
-import { firstName } from "@/lib/desk/session";
-import type { HoldingLotRow } from "@/lib/portfolio/load";
+import { firstName } from "@/lib/desk/identity";
 
 function money(amount: number, ccy: string): string {
   if (ccy === "mixed") return amount.toFixed(0);
@@ -25,15 +23,10 @@ function money(amount: number, ccy: string): string {
 export function DeskHomeView({
   home,
   fullName,
-  lots,
-  canWrite,
   notice,
 }: {
   home: DeskHome;
   fullName: string;
-  todayLabel: string;
-  lots: HoldingLotRow[];
-  canWrite: boolean;
   notice: string | null;
 }) {
   const analysesLabel =
@@ -65,8 +58,8 @@ export function DeskHomeView({
         </div>
         <div className="desk__card">
           <p className="desk__kpi-k">Gain or loss</p>
-          <p className="desk__kpi-v desk__gain">{emptyBook ? "+$0" : "—"}</p>
-          <p className="desk__kpi-s desk__gain">{emptyBook ? "—" : "Not a live price"}</p>
+          <p className="desk__kpi-v">{emptyBook ? "+$0" : "—"}</p>
+          <p className="desk__kpi-s">{emptyBook ? "—" : "Not a live price"}</p>
         </div>
         <div className="desk__card">
           <p className="desk__kpi-k">Analyses this month</p>
@@ -75,7 +68,7 @@ export function DeskHomeView({
         </div>
         <div className="desk__card">
           <p className="desk__kpi-k">Saved notes</p>
-          <p className="desk__kpi-v">{home.recentNotes.length}</p>
+          <p className="desk__kpi-v">{home.savedNotesCount}</p>
           <p className="desk__kpi-s">
             {home.sampleCount > 0 ? `plus ${home.sampleCount} samples` : "Your notes"}
           </p>
@@ -116,14 +109,14 @@ export function DeskHomeView({
         <div className="desk__steps">
           <h2>Three steps to your first decision</h2>
           <p>
-            You can analyse any stock straight away. Add your holdings too, and
-            every answer is sized to your real money.
+            You can analyse any stock straight away. Add your holdings on Review
+            Portfolio, and every answer is sized to your real money.
           </p>
           <div className="desk__steps-grid">
             <Link href="/portfolio" className="desk__step desk__step--hot">
               <span className="desk__step-k">STEP 1 · OPTIONAL</span>
-              <span className="desk__step-t">Add your holdings below</span>
-              <span className="desk__step-d">Type them in here, or upload a spreadsheet.</span>
+              <span className="desk__step-t">Add your holdings on Review Portfolio</span>
+              <span className="desk__step-d">Type them in, or upload a spreadsheet there.</span>
             </Link>
             <div className="desk__step">
               <span className="desk__step-k">STEP 2</span>
@@ -153,6 +146,10 @@ export function DeskHomeView({
       ) : null}
       <div className="desk__book-block">
         <AllocationTable holdings={home.holdings} />
+        <p className="desk__lede" style={{ marginTop: 10 }}>
+          <Link href="/portfolio">Review Portfolio</Link>
+          {" — add, edit, delete, or upload a CSV. Home only shows this book."}
+        </p>
       </div>
       <div className="desk__split">
         <div className="desk__card">
@@ -165,8 +162,8 @@ export function DeskHomeView({
             }}
           >
             <h2 style={{ margin: 0 }}>Recent notes</h2>
-            <Link href="/reports" style={{ color: "#9ecbff", fontSize: 12, fontWeight: 500 }}>
-              All reports
+            <Link href="/reports" className="desk__privacy-link">
+              All Reports
             </Link>
           </div>
           {home.recentNotes.length === 0 ? (
@@ -191,20 +188,6 @@ export function DeskHomeView({
         </div>
       </div>
       {notice ? <p className="pf__banner" style={{ marginTop: 16 }}>{notice}</p> : null}
-      <HomeBook lots={lots} canWrite={canWrite} />
-      <div className="desk__cta">
-        <div style={{ flex: 1, minWidth: 240 }}>
-          <p style={{ margin: "0 0 5px", fontWeight: 600 }}>
-            CSV upload still lives on Portfolio
-          </p>
-          <p style={{ color: "rgba(245,245,247,.66)", fontSize: 12.5, lineHeight: 1.6 }}>
-            Use Portfolio for a bulk file. Tickers you type on Analyse do not have
-            to be in this book. Both paths use one note from this month’s
-            allowance. Viewers can open saved notes on Reports.
-          </p>
-        </div>
-        <Link href="/portfolio">Upload CSV</Link>
-      </div>
       <RecheckForm tickers={home.holdings.map((h) => h.ticker)} />
       <p className="desk__lede" style={{ marginTop: 18 }}>
         <Link href="/settings/family">Family</Link>
