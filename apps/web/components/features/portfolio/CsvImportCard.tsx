@@ -63,6 +63,7 @@ export function CsvImportCard({ canWrite }: { canWrite: boolean }) {
       <p className="pf__lede">
         Required: ticker, company_name, cost_per_share, total_purchased.
         Optional: lot_kind (retail or esop; blank or missing means retail).
+        Currency is chosen below, not a CSV column. Lines starting with # are ignored.
       </p>
       <button className="pf__ghost" type="button" onClick={downloadTemplate}>
         Download CSV template

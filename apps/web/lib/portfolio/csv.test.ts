@@ -71,6 +71,23 @@ HDFCBANK.NS,HDFC Bank,1500,150000
     assert.equal(parsed.ok, false);
   });
 
+  it("ignores # comment lines before the header and between rows", () => {
+    const csv = `# note
+ticker,company_name,cost_per_share,total_purchased,lot_kind
+# skip this row
+MSFT,Microsoft,400,4000,retail
+# another
+AAPL,Apple,100,1000,
+`;
+    const parsed = parsePortfolioCsv(csv, "auto");
+    assert.equal(parsed.ok, true);
+    if (!parsed.ok) return;
+    assert.equal(parsed.rows.length, 2);
+    assert.equal(parsed.rows[0].ticker, "MSFT");
+    assert.equal(parsed.rows[1].ticker, "AAPL");
+    assert.equal(parsed.rows[1].lot_kind, "retail");
+  });
+
   it("accepts spaced headers and semicolon files that still use the four columns", () => {
     const spaced = `Ticker,Company Name,Cost Per Share,Total Purchased
 MSFT,Microsoft,400,4000
@@ -104,7 +121,9 @@ AAA;Alpha;10;100
     const text = csvTemplateText();
     assert.equal(csvTemplateHeader(), `${PORTFOLIO_CSV_COLUMNS.join(",")},lot_kind`);
     assert.deepEqual([...PORTFOLIO_CSV_OPTIONAL_COLUMNS], ["lot_kind"]);
-    assert.match(text, /# Optional columns: lot_kind \(lot_kind blank = retail\)/);
+    assert.match(text, /# Required: ticker, company_name, cost_per_share, total_purchased/);
+    assert.match(text, /# Optional: lot_kind \(lot_kind blank = retail\)/);
+    assert.match(text, /Lines starting with # are ignored/);
     assert.match(text, new RegExp(`^${csvTemplateHeader()}$`, "m"));
     const parsed = parsePortfolioCsv(text, "auto");
     assert.equal(parsed.ok, true);

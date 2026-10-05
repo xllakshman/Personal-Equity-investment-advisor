@@ -56,9 +56,12 @@ describe("ticker edit write gate", () => {
     assert.match(grid, /htmlFor="edit-ticker"[\s\S]*?>\s*Ticker\s*</);
     assert.match(grid, /htmlFor="edit-company"[\s\S]*?>\s*Company name\s*</);
     assert.match(grid, /htmlFor="edit-cost"[\s\S]*?>\s*Cost \/ share\s*</);
+    assert.match(grid, /htmlFor="edit-total"[\s\S]*?>\s*Total purchased\s*</);
     assert.match(grid, /htmlFor="edit-currency"[\s\S]*?>\s*Currency\s*</);
+    assert.match(grid, /name="total_purchased"/);
+    assert.equal(grid.includes('name="qty"'), false);
     assert.match(grid, /defaultValue=\{editing\.ticker\}/);
-    assert.match(grid, /defaultValue=\{String\(editing\.qty\)\}/);
+    assert.match(grid, /totalPurchasedDisplay/);
     assert.match(grid, /defaultValue=\{String\(editing\.cost_per_share\)\}/);
     assert.match(grid, /defaultValue=\{editing\.native_currency\}/);
 

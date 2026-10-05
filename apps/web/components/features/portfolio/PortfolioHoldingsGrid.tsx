@@ -17,6 +17,7 @@ import {
   splitByLotKind,
   type LotKind,
 } from "@/lib/portfolio/lot-kind";
+import { totalPurchasedDisplay } from "@/lib/portfolio/qty";
 import {
   aggregateUnrealizedPct,
   formatPnlPct,
@@ -179,76 +180,75 @@ export function PortfolioHoldingsGrid({
           <p className="pf__card-title">
             Edit {editing.ticker} ({LOT_KIND_LABEL[editing.lot_kind]})
           </p>
-          <div className="pf__row">
-            <div className="pf__field">
-              <label className="pf__label" htmlFor="edit-ticker">
-                Ticker
-              </label>
-              <input
-                id="edit-ticker"
-                className="pf__input"
-                name="ticker"
-                defaultValue={editing.ticker}
-                autoCapitalize="characters"
-                required
-              />
-            </div>
-            <div className="pf__field">
-              <label className="pf__label" htmlFor="edit-company">
-                Company name
-              </label>
-              <input
-                id="edit-company"
-                className="pf__input"
-                name="company_name"
-                defaultValue={editing.company_name ?? ""}
-                placeholder="e.g. Microsoft"
-              />
-            </div>
+          <div className="pf__field">
+            <label className="pf__label" htmlFor="edit-ticker">
+              Ticker
+            </label>
+            <input
+              id="edit-ticker"
+              className="pf__input"
+              name="ticker"
+              defaultValue={editing.ticker}
+              autoCapitalize="characters"
+              required
+            />
           </div>
-          <div className="pf__row">
-            <div className="pf__field">
-              <label className="pf__label" htmlFor="edit-qty">
-                Qty
-              </label>
-              <input
-                id="edit-qty"
-                className="pf__input"
-                name="qty"
-                defaultValue={String(editing.qty)}
-                placeholder="e.g. 10"
-                inputMode="decimal"
-                required
-              />
-            </div>
-            <div className="pf__field">
-              <label className="pf__label" htmlFor="edit-cost">
-                Cost / share
-              </label>
-              <input
-                id="edit-cost"
-                className="pf__input"
-                name="cost_per_share"
-                defaultValue={String(editing.cost_per_share)}
-                placeholder="e.g. 400"
-                inputMode="decimal"
-                required
-              />
-            </div>
-            <div className="pf__field">
-              <label className="pf__label" htmlFor="edit-currency">
-                Currency
-              </label>
-              <select
-                id="edit-currency"
-                className="pf__input"
-                name="currency"
-                defaultValue={editing.native_currency}
-              >
-                <option value="USD">USD</option>
-                <option value="INR">INR</option>
-              </select>
-            </div>
+          <div className="pf__field">
+            <label className="pf__label" htmlFor="edit-company">
+              Company name
+            </label>
+            <input
+              id="edit-company"
+              className="pf__input"
+              name="company_name"
+              defaultValue={editing.company_name ?? ""}
+              placeholder="e.g. Microsoft"
+            />
+          </div>
+          <div className="pf__field">
+            <label className="pf__label" htmlFor="edit-cost">
+              Cost / share
+            </label>
+            <input
+              id="edit-cost"
+              className="pf__input"
+              name="cost_per_share"
+              defaultValue={String(editing.cost_per_share)}
+              placeholder="e.g. 400"
+              inputMode="decimal"
+              required
+            />
+          </div>
+          <div className="pf__field">
+            <label className="pf__label" htmlFor="edit-total">
+              Total purchased
+            </label>
+            <input
+              id="edit-total"
+              className="pf__input"
+              name="total_purchased"
+              defaultValue={totalPurchasedDisplay(
+                editing.qty,
+                editing.cost_per_share,
+              )}
+              placeholder="e.g. 4000"
+              inputMode="decimal"
+              required
+            />
+          </div>
+          <div className="pf__field">
+            <label className="pf__label" htmlFor="edit-currency">
+              Currency
+            </label>
+            <select
+              id="edit-currency"
+              className="pf__input"
+              name="currency"
+              defaultValue={editing.native_currency}
+            >
+              <option value="USD">USD</option>
+              <option value="INR">INR</option>
+            </select>
           </div>
           <LotKindFields defaultValue={editing.lot_kind} />
           <div className="pf__row">

@@ -39,5 +39,6 @@ describe("CSV import UI", () => {
     assert.equal(add.includes('placeholder="Ticker"'), false);
     assert.match(card, /Required: ticker, company_name, cost_per_share, total_purchased/);
     assert.match(card, /Optional: lot_kind/);
+    assert.match(card, /Lines starting with # are ignored/);
   });
 });

@@ -59,33 +59,31 @@ export function ManualAddForm({
                 placeholder="e.g. Microsoft"
               />
             </div>
-            <div className="pf__row">
-              <div className="pf__field">
-                <label className="pf__label" htmlFor="manual-cost">
-                  Cost / share
-                </label>
-                <input
-                  id="manual-cost"
-                  className="pf__input"
-                  name="cost_per_share"
-                  placeholder="e.g. 400"
-                  inputMode="decimal"
-                  required
-                />
-              </div>
-              <div className="pf__field">
-                <label className="pf__label" htmlFor="manual-total">
-                  Total purchased
-                </label>
-                <input
-                  id="manual-total"
-                  className="pf__input"
-                  name="total_purchased"
-                  placeholder="e.g. 4000"
-                  inputMode="decimal"
-                  required
-                />
-              </div>
+            <div className="pf__field">
+              <label className="pf__label" htmlFor="manual-cost">
+                Cost / share
+              </label>
+              <input
+                id="manual-cost"
+                className="pf__input"
+                name="cost_per_share"
+                placeholder="e.g. 400"
+                inputMode="decimal"
+                required
+              />
+            </div>
+            <div className="pf__field">
+              <label className="pf__label" htmlFor="manual-total">
+                Total purchased
+              </label>
+              <input
+                id="manual-total"
+                className="pf__input"
+                name="total_purchased"
+                placeholder="e.g. 4000"
+                inputMode="decimal"
+                required
+              />
             </div>
             <div className="pf__field">
               <label className="pf__label" htmlFor="manual-currency">

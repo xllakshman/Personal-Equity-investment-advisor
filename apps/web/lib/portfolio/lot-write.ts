@@ -97,25 +97,42 @@ export function parseLotKey(form: FormData): LotKey | null {
   return { ticker, exchange, native: nativeRaw, lotKind: kind.value };
 }
 
-/** Grid Edit: qty + cost per share + company. Does not apply FX. */
+/** Grid Edit: same fields as Add (total purchased + cost). Does not apply FX. */
 export function parseLotEdit(form: FormData):
   | { ok: true; value: LotWriteFields }
   | { ok: false; error: string } {
   const rawTicker = String(form.get("ticker") ?? "");
   const company = String(form.get("company_name") ?? "").trim();
   const cost = parseMoney(String(form.get("cost_per_share") ?? ""));
-  const qty = parseMoney(String(form.get("qty") ?? ""));
+  const totalField = String(form.get("total_purchased") ?? "").trim();
+  const qtyField = String(form.get("qty") ?? "").trim();
   const override = parseCurrencyOverride(String(form.get("currency") ?? "auto"));
 
   const ticker = canonicalTicker(rawTicker);
   if (!ticker) {
     return { ok: false, error: "Enter a ticker." };
   }
-  if (qty === null || qty <= 0) {
-    return { ok: false, error: "Quantity must be greater than 0." };
-  }
   if (cost === null || cost <= 0) {
     return { ok: false, error: "Cost per share must be greater than 0." };
+  }
+
+  let qty: number | null;
+  let total: number | null;
+  if (totalField) {
+    total = parseMoney(totalField);
+    if (total === null || total <= 0) {
+      return { ok: false, error: "Total purchased must be greater than 0." };
+    }
+    qty = qtyFromTotals(total, cost);
+    if (qty === null) {
+      return { ok: false, error: "Cannot derive qty from total purchased / cost." };
+    }
+  } else {
+    qty = parseMoney(qtyField);
+    if (qty === null || qty <= 0) {
+      return { ok: false, error: "Quantity must be greater than 0." };
+    }
+    total = qty * cost;
   }
 
   const exchange = guessExchange(rawTicker);
@@ -126,7 +143,7 @@ export function parseLotEdit(form: FormData):
     exchange,
     native,
     cost,
-    total: qty * cost,
+    total,
     qty,
     currencyOverride: override,
   });

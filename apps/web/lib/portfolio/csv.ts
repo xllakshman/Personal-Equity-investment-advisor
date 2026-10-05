@@ -26,7 +26,9 @@ export function csvTemplateHeader(): string {
 
 export function csvTemplateText(): string {
   return [
-    `# Optional columns: ${PORTFOLIO_CSV_OPTIONAL_COLUMNS.join(", ")} (lot_kind blank = retail)`,
+    `# Required: ${PORTFOLIO_CSV_COLUMNS.join(", ")}`,
+    `# Optional: ${PORTFOLIO_CSV_OPTIONAL_COLUMNS.join(", ")} (lot_kind blank = retail)`,
+    `# Lines starting with # are ignored. Currency is the upload control, not a column.`,
     csvTemplateHeader(),
     "MSFT,Microsoft,400,4000,retail",
     "INFY.NS,Infosys,1500,150000,",

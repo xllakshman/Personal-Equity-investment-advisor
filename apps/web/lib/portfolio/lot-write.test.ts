@@ -71,7 +71,28 @@ describe("parseLotWrite", () => {
 });
 
 describe("parseLotEdit", () => {
-  it("keeps typed qty and cost without FX", () => {
+  it("derives qty from total purchased and cost without FX", () => {
+    const got = parseLotEdit(
+      form({
+        ticker: "msft",
+        company_name: "Microsoft",
+        total_purchased: "12090",
+        cost_per_share: "403",
+        currency: "USD",
+      }),
+    );
+    assert.equal(got.ok, true);
+    if (got.ok) {
+      assert.equal(got.value.ticker, "MSFT");
+      assert.equal(got.value.qty, 30);
+      assert.equal(got.value.cost, 403);
+      assert.equal(got.value.total, 12090);
+      assert.equal(got.value.company, "Microsoft");
+      assert.equal(got.value.lotKind, "retail");
+    }
+  });
+
+  it("still accepts a qty field when total purchased is absent", () => {
     const got = parseLotEdit(
       form({
         ticker: "msft",
@@ -83,11 +104,8 @@ describe("parseLotEdit", () => {
     );
     assert.equal(got.ok, true);
     if (got.ok) {
-      assert.equal(got.value.ticker, "MSFT");
       assert.equal(got.value.qty, 30);
-      assert.equal(got.value.cost, 403);
-      assert.equal(got.value.company, "Microsoft");
-      assert.equal(got.value.lotKind, "retail");
+      assert.equal(got.value.total, 12090);
     }
   });
 
