@@ -1,4 +1,4 @@
-"""Step 0 gather — Yahoo 1y chart (D40) + SEC EDGAR headlines for US names."""
+"""Step 0 gather — Yahoo 1y chart (D40) + SEC EDGAR headlines/facts/8-K exhibit for US names."""
 from __future__ import annotations
 
 import json
@@ -10,12 +10,18 @@ from psycopg2.extensions import connection
 
 from thesis_platform.config import Settings
 from thesis_platform.derived import pct_below_52w_high
-from thesis_platform.edgar import NOT_COVERED
-from thesis_platform.status import FOUND, INPUTS_MISSING, SOURCE_ERROR, normalize_status
-from thesis_platform.http import fetch_edgar_companyfacts, fetch_edgar_headlines, fetch_yahoo_chart_pack
+from thesis_platform.edgar import NOT_COVERED, empty_exhibit
+from thesis_platform.status import FOUND, INPUTS_MISSING, NOT_DISCLOSED, SOURCE_ERROR, normalize_status
+from thesis_platform.http import (
+    fetch_edgar_companyfacts,
+    fetch_edgar_earnings_exhibit,
+    fetch_edgar_headlines,
+    fetch_yahoo_chart_pack,
+)
 from thesis_platform.xbrl import COMPANYFACTS_URL, empty_fundamentals
 from thesis_platform.pack import required_step0
 from thesis_platform.quotes import get_cached_close, put_cached_close
+from thesis_platform.valuation import fy_end_closes
 from thesis_platform.yahoo import (
     DailyClose,
     PreviousClose,
@@ -31,6 +37,8 @@ FetchClose = Callable[[Settings, str], PreviousClose]
 FetchChart = Callable[[Settings, str], YahooChartPack]
 FetchEdgar = Callable[[Settings, str, str | None], dict[str, Any]]
 FetchFacts = Callable[[Settings, str, str | None], dict[str, Any]]
+FetchExhibit = Callable[[Settings, str, str | None], dict[str, Any]]
+FetchHistory = Callable[[Settings, str], YahooChartPack]
 
 
 def gather_step0(
@@ -42,6 +50,8 @@ def gather_step0(
     fetch_chart: FetchChart | None = None,
     fetch_edgar: FetchEdgar | None = None,
     fetch_facts: FetchFacts | None = None,
+    fetch_exhibit: FetchExhibit | None = None,
+    fetch_history: FetchHistory | None = None,
 ) -> PreviousClose:
     ticker = str(request["ticker"])
     exchange = request.get("exchange")
@@ -61,24 +71,17 @@ def gather_step0(
         fetch_close=fetch_close,
     )
     cached = pack.previous
-
-    excerpt = json_excerpt(pack)
-    cur.execute(
-        """
-        insert into analysis_evidence (
-          request_id, family_id, step0_number, query, source_url, excerpt
-        ) values (%s, %s, 1, %s, %s, %s)
-        """,
-        (
-            request["id"],
-            request["family_id"],
-            f"yahoo previous close {symbol}",
-            f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range=1y&interval=1d",
-            excerpt,
-        ),
+    us = is_us_listed(ticker, str(exchange) if exchange else None)
+    history_daily = _load_history(
+        settings,
+        symbol,
+        pack,
+        us=us,
+        fetch_history=fetch_history,
+        injected=fetch_close is not None or fetch_chart is not None,
     )
 
-    if not is_us_listed(ticker, str(exchange) if exchange else None):
+    if not us:
         news = {"status": NOT_COVERED, "filings": []}
     else:
         if fetch_edgar is not None:
@@ -101,7 +104,7 @@ def gather_step0(
     )
 
     facts: dict[str, Any]
-    if not is_us_listed(ticker, str(exchange) if exchange else None):
+    if not us:
         facts = empty_fundamentals()
     else:
         if fetch_facts is not None:
@@ -121,6 +124,47 @@ def gather_step0(
         source_url=_facts_url(facts),
         payload=_facts_excerpt(facts),
         store=_should_store_facts(facts),
+    )
+
+    exhibit: dict[str, Any]
+    if not us:
+        exhibit = empty_exhibit(NOT_COVERED)
+    else:
+        if fetch_exhibit is not None:
+            exhibit_fn = fetch_exhibit
+        elif fetch_close is None and fetch_chart is None:
+            exhibit_fn = lambda s, t, ex: fetch_edgar_earnings_exhibit(s, t, ex)
+        else:
+            exhibit_fn = lambda _s, _t, _ex: empty_exhibit(NOT_COVERED)
+        try:
+            exhibit = exhibit_fn(settings, ticker, str(exchange) if exchange else None)
+        except Exception:  # noqa: BLE001 — exhibit miss must not fail the job
+            exhibit = empty_exhibit(SOURCE_ERROR)
+    _store_item2(
+        cur,
+        request,
+        query=f"sec edgar 8k exhibit 99.1 {ticker}",
+        source_url=str(exhibit.get("url") or "https://www.sec.gov/Archives/edgar/data/"),
+        payload=_exhibit_excerpt(exhibit),
+        store=_should_store_exhibit(exhibit),
+    )
+
+    years = facts.get("years") if isinstance(facts.get("years"), list) else []
+    fy_closes = fy_end_closes(history_daily, years)
+    excerpt = json_excerpt(pack, fy_closes=fy_closes)
+    cur.execute(
+        """
+        insert into analysis_evidence (
+          request_id, family_id, step0_number, query, source_url, excerpt
+        ) values (%s, %s, 1, %s, %s, %s)
+        """,
+        (
+            request["id"],
+            request["family_id"],
+            f"yahoo previous close {symbol}",
+            f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range=1y&interval=1d",
+            excerpt,
+        ),
     )
 
     have = {1}
@@ -185,7 +229,7 @@ def _load_chart(
     )
 
 
-def json_excerpt(pack: YahooChartPack) -> str:
+def json_excerpt(pack: YahooChartPack, fy_closes: list[dict[str, Any]] | None = None) -> str:
     prev = pack.previous
     monthly = monthly_closes(pack.daily_closes)
     return json.dumps(
@@ -200,6 +244,7 @@ def json_excerpt(pack: YahooChartPack) -> str:
             "monthly_closes": [
                 {"date": str(p.quote_date), "close": p.close} for p in monthly
             ],
+            "fy_closes": fy_closes or [],
         }
     )
 
@@ -214,6 +259,55 @@ def _should_store_facts(facts: Any) -> bool:
     if not isinstance(facts, dict):
         return False
     return normalize_status(facts.get("status")) in (FOUND, INPUTS_MISSING, SOURCE_ERROR)
+
+
+def _should_store_exhibit(exhibit: Any) -> bool:
+    if not isinstance(exhibit, dict):
+        return False
+    return normalize_status(exhibit.get("status")) in (
+        FOUND,
+        SOURCE_ERROR,
+        NOT_DISCLOSED,
+    )
+
+
+def _exhibit_excerpt(exhibit: Any) -> dict[str, Any]:
+    if not isinstance(exhibit, dict):
+        return empty_exhibit(SOURCE_ERROR)
+    status = normalize_status(exhibit.get("status")) or SOURCE_ERROR
+    text = str(exhibit.get("text") or "") if status == FOUND else ""
+    return {
+        "status": status,
+        "accession": exhibit.get("accession"),
+        "filed": exhibit.get("filed"),
+        "url": exhibit.get("url"),
+        "text": text[:60000],
+    }
+
+
+def _load_history(
+    settings: Settings,
+    symbol: str,
+    pack: YahooChartPack,
+    *,
+    us: bool,
+    fetch_history: FetchHistory | None,
+    injected: bool,
+) -> tuple[DailyClose, ...]:
+    if not us:
+        return pack.daily_closes
+    if fetch_history is not None:
+        try:
+            return fetch_history(settings, symbol).daily_closes
+        except Exception:  # noqa: BLE001
+            return pack.daily_closes
+    if injected:
+        return pack.daily_closes
+    try:
+        hist = fetch_yahoo_chart_pack(settings, symbol, range="5y")
+        return hist.daily_closes or pack.daily_closes
+    except Exception:  # noqa: BLE001 — 5y miss must not fail the job
+        return pack.daily_closes
 
 
 def _headlines_excerpt(news: Any) -> dict[str, Any]:

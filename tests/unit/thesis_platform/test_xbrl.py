@@ -229,3 +229,53 @@ def test_derived_empty_and_not_covered() -> None:
     assert empty["roic_incremental_direction"] is None
     assert derived_from_fundamentals({})["roic_years_available"] == 0
     assert derived_from_fundamentals(None)["roic_years_available"] == 0
+
+
+def _q_eps(fy: int, fp: str, val: float, end: str, start: str, frame: str) -> dict:
+    return {
+        "fy": fy,
+        "fp": fp,
+        "form": "10-Q" if fp != "Q4" else "10-K",
+        "val": val,
+        "filed": end,
+        "end": end,
+        "start": start,
+        "frame": frame,
+    }
+
+
+def test_annual_eps_diluted_and_ttm_sum() -> None:
+    payload = _facts(
+        Revenues=[_usd(2024, 100)],
+        EarningsPerShareDiluted=[
+            {**_usd(2024, 6.0), "end": "2024-12-31"},
+            {**_usd(2023, 5.0), "end": "2023-12-31"},
+        ],
+    )
+    payload["facts"]["us-gaap"]["EarningsPerShareDiluted"]["units"]["USD"].extend(
+        [
+            _q_eps(2025, "Q1", 1.1, "2025-03-31", "2025-01-01", "CY2025Q1"),
+            _q_eps(2025, "Q2", 1.2, "2025-06-30", "2025-04-01", "CY2025Q2"),
+            _q_eps(2025, "Q3", 1.3, "2025-09-30", "2025-07-01", "CY2025Q3"),
+            _q_eps(2024, "Q4", 1.4, "2024-12-31", "2024-10-01", "CY2024Q4"),
+        ]
+    )
+    got = parse_companyfacts(payload, "0000789019")
+    by_fy = {y["fy"]: y for y in got["years"]}
+    assert by_fy[2024]["eps_diluted"] == 6.0
+    assert by_fy[2024]["period_end"] == "2024-12-31"
+    assert got["ttm_diluted_eps"] == round(1.1 + 1.2 + 1.3 + 1.4, 6)
+    assert got["ttm_status"] == "FOUND"
+    assert got["field_status"]["eps_diluted"] == "FOUND"
+
+
+def test_ttm_missing_without_four_quarters() -> None:
+    payload = _facts(
+        EarningsPerShareDiluted=[
+            _q_eps(2025, "Q1", 1.1, "2025-03-31", "2025-01-01", "CY2025Q1"),
+            _q_eps(2025, "Q2", 1.2, "2025-06-30", "2025-04-01", "CY2025Q2"),
+        ]
+    )
+    got = parse_companyfacts(payload, "1")
+    assert got["ttm_diluted_eps"] is None
+    assert got["ttm_status"] == "INPUTS_MISSING"

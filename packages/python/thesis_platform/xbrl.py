@@ -1,6 +1,8 @@
 """SEC companyfacts annual resolver (P11-14). Never stores full XBRL."""
 from __future__ import annotations
 
+import re
+from datetime import date
 from typing import Any
 
 from thesis_platform.derived import excerpt_payload
@@ -58,6 +60,7 @@ CONCEPTS: dict[str, tuple[str, ...]] = {
         "StockholdersEquity",
         "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
     ),
+    "eps_diluted": ("EarningsPerShareDiluted",),
 }
 
 DEBT_PARTS: tuple[str, ...] = (
@@ -70,6 +73,8 @@ DEBT_PARTS: tuple[str, ...] = (
 
 MONEY_UNITS = ("USD", "US$", "USD/shares")
 SHARE_UNITS = ("shares", "pure")
+_QUARTER_FRAME = re.compile(r"^CY\d{4}Q[1-4]$")
+Q_FORMS = frozenset({"10-Q", "10-Q/A", "10-K", "10-K/A", "20-F", "20-F/A", "40-F", "40-F/A"})
 
 
 def empty_fundamentals(status: str = NOT_COVERED) -> dict[str, Any]:
@@ -82,6 +87,8 @@ def empty_fundamentals(status: str = NOT_COVERED) -> dict[str, Any]:
         "concepts_used": {},
         "field_status": {name: field_st for name in (*CONCEPTS, "fcf")},
         "years": [],
+        "ttm_diluted_eps": None,
+        "ttm_status": field_st,
     }
 
 
@@ -213,6 +220,7 @@ def parse_companyfacts(payload: Any, cik: str) -> dict[str, Any]:
     used: dict[str, str] = {}
     series: dict[str, dict[int, float]] = {}
     filed_by_fy: dict[int, str] = {}
+    period_end_by_fy: dict[int, str] = {}
 
     for field, aliases in CONCEPTS.items():
         units = SHARE_UNITS if field == "shares" else MONEY_UNITS
@@ -227,6 +235,11 @@ def parse_companyfacts(payload: Any, cik: str) -> dict[str, Any]:
             filed = str(row.get("filed") or "")
             if filed and filed >= filed_by_fy.get(fy, ""):
                 filed_by_fy[fy] = filed
+            end = str(row.get("end") or "")[:10]
+            if len(end) == 10 and (field == "eps_diluted" or fy not in period_end_by_fy):
+                period_end_by_fy[fy] = end
+
+    ttm, ttm_status = _ttm_diluted_eps(facts)
 
     filer = _filer_type_from_facts(facts)
     fys = sorted({fy for vals in series.values() for fy in vals}, reverse=True)
@@ -235,11 +248,13 @@ def parse_companyfacts(payload: Any, cik: str) -> dict[str, Any]:
         out["cik"] = cik
         out["entity"] = str(payload.get("entityName") or "")[:200] or None
         out["filer_type"] = filer
+        out["ttm_diluted_eps"] = ttm
+        out["ttm_status"] = ttm_status
         return out
 
     years: list[dict[str, Any]] = []
     for fy in fys[:MAX_YEARS]:
-        row = _year_row(fy, series, filed_by_fy.get(fy, ""))
+        row = _year_row(fy, series, filed_by_fy.get(fy, ""), period_end_by_fy.get(fy, ""))
         years.append(row)
 
     field_status = {name: FOUND if name in used else INPUTS_MISSING for name in CONCEPTS}
@@ -256,6 +271,8 @@ def parse_companyfacts(payload: Any, cik: str) -> dict[str, Any]:
         "concepts_used": used,
         "field_status": field_status,
         "years": years,
+        "ttm_diluted_eps": ttm,
+        "ttm_status": ttm_status,
     }
 
 
@@ -290,6 +307,7 @@ def _year_row(
     fy: int,
     series: dict[str, dict[int, float]],
     filed: str,
+    period_end: str = "",
 ) -> dict[str, Any]:
     revenue = series.get("revenue", {}).get(fy)
     gp = series.get("gross_profit", {}).get(fy)
@@ -301,10 +319,12 @@ def _year_row(
     cash = series.get("cash", {}).get(fy)
     shares = series.get("shares", {}).get(fy)
     equity = series.get("equity", {}).get(fy)
+    eps = series.get("eps_diluted", {}).get(fy)
     fcf = _fcf(ocf, capex)
     return {
         "fy": fy,
         "filed": filed or None,
+        "period_end": period_end or None,
         "revenue": revenue,
         "gross_profit": gp,
         "operating_income": opinc,
@@ -315,6 +335,7 @@ def _year_row(
         "cash": cash,
         "shares": shares,
         "equity": equity,
+        "eps_diluted": eps,
         "fcf": fcf,
         "gp_margin": _ratio(gp, revenue),
         "op_margin": _ratio(opinc, revenue),
@@ -473,5 +494,66 @@ def _annual_by_fy(rows: list[Any]) -> dict[int, dict[str, Any]]:
                 "filed": filed,
                 "form": form,
                 "rank": rank,
+                "end": str(row.get("end") or "")[:10],
             }
     return best
+
+
+def _ttm_diluted_eps(facts: dict[str, Any]) -> tuple[float | None, str]:
+    for ns in ("us-gaap", "ifrs-full"):
+        bucket = facts.get(ns)
+        if not isinstance(bucket, dict):
+            continue
+        concept = bucket.get("EarningsPerShareDiluted")
+        rows = _unit_rows(concept, MONEY_UNITS)
+        ttm = _ttm_from_quarter_rows(rows)
+        if ttm is not None:
+            return ttm, FOUND
+    return None, INPUTS_MISSING
+
+
+def _ttm_from_quarter_rows(rows: list[Any]) -> float | None:
+    best: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        if not isinstance(row, dict) or not _is_quarter_eps(row):
+            continue
+        end = str(row.get("end") or "")[:10]
+        if len(end) != 10:
+            continue
+        try:
+            val = float(row.get("val"))
+        except (TypeError, ValueError):
+            continue
+        if val != val:
+            continue
+        filed = str(row.get("filed") or "")
+        prev = best.get(end)
+        if prev is None or filed >= str(prev.get("filed") or ""):
+            best[end] = {"end": end, "val": val, "filed": filed}
+    ordered = sorted(best.values(), key=lambda item: str(item["end"]), reverse=True)
+    if len(ordered) < 4:
+        return None
+    total = sum(float(item["val"]) for item in ordered[:4])
+    return round(total, 6)
+
+
+def _is_quarter_eps(row: dict[str, Any]) -> bool:
+    frame = str(row.get("frame") or "")
+    if _QUARTER_FRAME.match(frame):
+        return True
+    fp = str(row.get("fp") or "").upper()
+    if fp not in {"Q1", "Q2", "Q3", "Q4"}:
+        return False
+    form = str(row.get("form") or "").upper()
+    if form not in Q_FORMS:
+        return False
+    start = str(row.get("start") or "")[:10]
+    end = str(row.get("end") or "")[:10]
+    if len(start) == 10 and len(end) == 10:
+        try:
+            days = (date.fromisoformat(end) - date.fromisoformat(start)).days
+        except ValueError:
+            return False
+        if days > 100:
+            return False
+    return True

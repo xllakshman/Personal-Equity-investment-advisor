@@ -50,6 +50,7 @@ def test_fetch_edgar_mock_http_and_non_us() -> None:
     import thesis_platform.http as http_mod
 
     http_mod._TICKER_MAP_CACHE = None
+    http_mod._SUBMISSIONS_CACHE = {}
 
     def handler(request: httpx.Request) -> httpx.Response:
         url = str(request.url)
@@ -93,6 +94,7 @@ def test_fetch_companyfacts_mock_http_computes_fcf_and_skips_nse() -> None:
     from thesis_platform.http import fetch_edgar_companyfacts
 
     http_mod._TICKER_MAP_CACHE = None
+    http_mod._SUBMISSIONS_CACHE = {}
 
     def handler(request: httpx.Request) -> httpx.Response:
         url = str(request.url)
@@ -169,6 +171,7 @@ def test_edgar_timeout_is_source_error_not_no_news() -> None:
     import thesis_platform.http as http_mod
 
     http_mod._TICKER_MAP_CACHE = None
+    http_mod._SUBMISSIONS_CACHE = {}
 
     def handler(request: httpx.Request) -> httpx.Response:
         url = str(request.url)
@@ -190,6 +193,7 @@ def test_successful_empty_headlines_is_found_absence() -> None:
     import thesis_platform.http as http_mod
 
     http_mod._TICKER_MAP_CACHE = None
+    http_mod._SUBMISSIONS_CACHE = {}
 
     def handler(request: httpx.Request) -> httpx.Response:
         url = str(request.url)
@@ -222,3 +226,102 @@ def test_successful_empty_headlines_is_found_absence() -> None:
     assert got["filings"] == []
     assert got["filer_type"] == "Accelerated filer"
     assert news_is_absent(got) is True
+
+
+def test_latest_8k_prefers_item_202_and_strips_html() -> None:
+    from thesis_platform.edgar import (
+        exhibit_99_1_name,
+        latest_earnings_8k,
+        strip_filing_html,
+    )
+
+    payload = {
+        "filings": {
+            "recent": {
+                "form": ["8-K", "8-K"],
+                "filingDate": ["2026-09-02", "2026-09-01"],
+                "accessionNumber": ["000-dir", "000-earn"],
+                "primaryDocument": ["dir.htm", "earn.htm"],
+                "primaryDocDescription": ["Director resignation", "Results of operations"],
+                "items": ["5.02", "2.02,9.01"],
+            }
+        }
+    }
+    row = latest_earnings_8k(payload, "0000789019")
+    assert row is not None
+    assert row["accession"] == "000-earn"
+    assert "2.02" in row["items"]
+    index = {
+        "directory": {
+            "item": [
+                {"name": "earn.htm", "type": "8-K"},
+                {"name": "ex99-1.htm", "type": "EX-99.1"},
+            ]
+        }
+    }
+    assert exhibit_99_1_name(index) == "ex99-1.htm"
+    text = strip_filing_html("<html><script>x</script><p>EPS of $6.50 to $6.80</p></html>")
+    assert "6.50" in text
+    assert "<p>" not in text
+    assert "script" not in text.lower()
+
+
+def test_fetch_earnings_exhibit_mock_and_nse() -> None:
+    import thesis_platform.http as http_mod
+    from thesis_platform.http import fetch_edgar_earnings_exhibit
+    from thesis_platform.status import NOT_DISCLOSED
+
+    http_mod._TICKER_MAP_CACHE = None
+    http_mod._SUBMISSIONS_CACHE = {}
+    http_mod._SUBMISSIONS_CACHE = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        url = str(request.url)
+        assert "stockanalysis.com" not in url
+        assert "finnhub" not in url
+        if "company_tickers" in url:
+            return httpx.Response(
+                200,
+                json={"0": {"cik_str": 789019, "ticker": "MSFT", "title": "Microsoft"}},
+            )
+        if "data.sec.gov/submissions" in url:
+            return httpx.Response(
+                200,
+                json={
+                    "filings": {
+                        "recent": {
+                            "form": ["8-K"],
+                            "filingDate": ["2026-09-01"],
+                            "accessionNumber": ["0000789019-26-000001"],
+                            "primaryDocument": ["msft-8k.htm"],
+                            "primaryDocDescription": ["Results of operations"],
+                            "items": ["2.02,9.01"],
+                        }
+                    }
+                },
+            )
+        if "index.json" in url:
+            return httpx.Response(
+                200,
+                json={
+                    "directory": {
+                        "item": [{"name": "ex99-1.htm", "type": "EX-99.1"}]
+                    }
+                },
+            )
+        if "ex99-1.htm" in url:
+            return httpx.Response(
+                200,
+                text="<html><body>We expect diluted EPS of $6.50 to $6.80</body></html>",
+            )
+        return httpx.Response(404)
+
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    got = fetch_edgar_earnings_exhibit(SETTINGS, "MSFT", "NASDAQ", client=client)
+    assert got["status"] == "FOUND"
+    assert "6.50" in got["text"]
+    assert "<html" not in got["text"].lower()
+    skipped = fetch_edgar_earnings_exhibit(SETTINGS, "HDFCBANK", "NSE", client=client)
+    assert skipped["status"] == "NOT_COVERED"
+    assert skipped["text"] == ""
+    assert NOT_DISCLOSED not in str(skipped)

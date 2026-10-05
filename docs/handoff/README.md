@@ -5,6 +5,7 @@ Point-in-time agent bootstrap docs. **HANDOFF.md** remains canonical for product
 | Session | Date | Focus | Status |
 |---------|------|-------|--------|
 | [**ROADMAP.md**](../roadmap/ROADMAP.md) | 2026-09-13 | Chunked requirements / progress | **Read first for what to build** |
+| [SESSION-2026-10-06-p11-16.md](SESSION-2026-10-06-p11-16.md) | 2026-10-06 | Guidance P/E + trailing P/E vs history | **P11-16** |
 | [SESSION-2026-10-06-p11-20.md](SESSION-2026-10-06-p11-20.md) | 2026-10-06 | Home equity + cash + total KPIs | **P11-20** |
 | [SESSION-2026-10-06-p11-19.md](SESSION-2026-10-06-p11-19.md) | 2026-10-06 | Silent integrity repair (price/ROIC) | **P11-19** |
 | [SESSION-2026-10-06-p11-18.md](SESSION-2026-10-06-p11-18.md) | 2026-10-06 | ChartBlock captions + View data | **P11-18** |

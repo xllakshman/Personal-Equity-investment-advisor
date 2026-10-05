@@ -20,9 +20,9 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 
 | Field | Value |
 |-------|--------|
-| **Build next** | **P6-03** — UPI/card merchant (queued; unnamed). **P11-16** blocked (forward P/E vendor unnamed). |
-| Last done | **P11-20** — `/desk` Equity portfolio value + Profile cash chip + Total Portfolio (local; no SQL). **P11-19** same-model silent integrity repair. **P11-18** ChartBlock. **P11-17** absence + integrity. |
-| Blocked on you | **P11-16** forward P/E (no vendor; Yahoo chart v8 has no estimates). P6-03 merchant. Step 0 items 3–7 still unnamed. P8-02 email **send**. |
+| **Build next** | **P6-03** — UPI/card merchant (queued; unnamed). |
+| Last done | **P11-16** — guidance P/E from 8-K Exhibit 99.1 + trailing P/E vs history; consensus NOT_COVERED. **P11-20** Home equity + cash. |
+| Blocked on you | P6-03 merchant. Step 0 items 3–7 still unnamed. P8-02 email **send**. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
 | DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–028** applied. |
@@ -835,7 +835,7 @@ Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do 
 
 ## Phase 11 — Note layout and desk/admin fixes (named 2026-10-04)
 
-One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30). **Build next** is **P6-03** (queued; merchant unnamed). **P11-16** is blocked (forward P/E vendor unnamed). **P11-20** and **P11-19** are done locally.
+One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30). **Build next** is **P6-03** (queued; merchant unnamed). **P11-16** is done.
 
 ### P11-01 — Typeset note + PDF download
 
@@ -1059,17 +1059,20 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
   3. NSE note with close and NOT_COVERED facts: no fake ROIC chart. PDF matches the screen allowlist.
 - **Testing:** three passes. Unit: ratio maths; empty years; chart validator. `./tools/test/run_tests.sh`. `npm run build` in `apps/web`. Browser `/reports/[id]` on **3100** if up.
 
-### P11-16 — Valuation / estimates
+### P11-16 — Forward valuation without licensed consensus
 
-- **Status:** ⬜ **blocked on you** — forward P/E vendor unnamed.
-- **Depends on:** P11-14
-- **Direction:** Add forward P/E, EPS estimates, or target price **only** if Yahoo chart v8 (already used) or another **already-in-repo** feed supplies the number with no new paid vendor. Today the Yahoo 1y pack stores close, 52w closing high, monthly closes — **not** forward P/E. Do not invent. Do not enable stockanalysis.com. Do not add Finnhub/Alpha Vantage without a named key.
-- **Writes:** none until a vendor is named.
-- **Reads:** none.
-- **Who:** n/a until unblocked.
-- **UI today:** notes do not show a product forward P/E chip from a licensed feed.
-- **Success:** skipped until you name a source. If you name Yahoo quote-summary (still unofficial) or a paid API, rewrite this chunk before build.
-- **Testing:** n/a while blocked.
+- **Status:** ✅ 2026-10-06 — no new SQL. Guidance P/E from latest 8-K Exhibit 99.1 + worker JSON extract; trailing P/E vs history from TTM diluted EPS + Yahoo year-end closes; `consensus_forward_pe` always NOT_COVERED. Did not start P6-03. Did not scrape Finnhub/AV/FMP/stockanalysis.
+- **Depends on:** P11-14, P11-13
+- **Direction:** Worker `gather_step0` (US only) GETs `data.sec.gov` submissions + archive Exhibit 99.1 (User-Agent, ≤10 req/s) and stores stripped text on `analysis_evidence` (`step0_number = 2`, query `sec edgar 8k exhibit 99.1 {ticker}`). Yahoo chart v8 `range=5y` year-end closes go on the item-1 excerpt (`fy_closes`). `complete_request` calls the **same** `model_catalog` row with worker-internal JSON instructions (not `prompt_versions.body`) to extract `{low, high, basis, fiscal_year, source_accession, quote}`. Code validates quote contains both numbers and `low <= high`; else drop. No EPS guidance → **NOT_DISCLOSED**. Never fill from Yahoo/analysts. Label **exactly** `Guidance P/E ({GAAP|non-GAAP} FY{year})` — never the words “Forward P/E” for this number. Trailing P/E = previous close ÷ TTM diluted EPS (`us-gaap:EarningsPerShareDiluted` companyfacts). Five prior FY P/Es = Yahoo year-end close ÷ that year’s diluted EPS. Pack includes `guidance_pe` when valid, else `trailing_pe_vs_history`, plus reverse DCF table from guided EPS (discount 9%/10%, exit P/E 20x/25x) or INPUTS_MISSING. `consensus_forward_pe` OPTIONAL, always NOT_COVERED. New `reports.charts` `trailing_pe_history` bar only. NSE: NOT_COVERED for guidance and trailing; job still `ready` if Yahoo close exists. Missing close still fails the job. Silent integrity repair unchanged. Native labs only.
+- **Writes:** new `analysis_evidence` excerpts (exhibit text + `fy_closes`); new `reports.charts.trailing_pe_history` and pack JSON on **new** reports only. `UPDATE usage_events.cost_cents` on the existing `search` row if extract tokens are added. Never a second `usage_events` insert. Never `prompt_versions.body`. Never lots. Never old reports.
+- **Reads:** `analysis_evidence`; companyfacts / Yahoo already gathered; `/reports/[id]` SELECT `reports.charts` for session `family_id`.
+- **Who:** owner/member Run analysis (`thesis_accept_analysis`). Viewer cannot enqueue. Worker uses service_role / postgres.
+- **UI today:** `/analyse` **Run analysis** still inserts `analysis_requests` (`queued`) + one `usage_events.kind = search`. Wait page polls `analysis_requests.status`. New ready note on `/reports/[id]` may show **Trailing P/E vs history** via existing ChartBlock (allowlisted bar). No consensus Forward P/E chart. No button for exhibit fetch.
+- **Success:**
+  1. US ready note pack has `guidance_pe` FOUND with label `Guidance P/E (… FY…)` when 8-K Exhibit 99.1 yields a validated range; otherwise NOT_DISCLOSED — never a guessed EPS.
+  2. Trailing P/E uses TTM diluted EPS and close; history years omitted rather than invented; INPUTS_MISSING if EPS or close missing.
+  3. `consensus_forward_pe.status` is always NOT_COVERED. NSE note: guidance + trailing NOT_COVERED; job `ready` if close exists. Chart is trailing history only (no “Forward P/E”). One `search` `usage_events` row.
+- **Testing:** three passes. Mock 8-K + quote containing both numbers; fail if quote missing a number; no guidance → NOT_DISCLOSED; trailing PE maths; consensus always NOT_COVERED; no extra usage_events insert. `./tools/test/run_tests.sh`. Web parseCharts for trailing_pe_history. `npm run build`.
 
 ### P11-17 — Absence status + integrity_warnings + filer_type
 
@@ -1228,7 +1231,8 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | P11-17 | 2026-10-06 | ✅ Typed Step 0 / fundamentals status; EDGAR timeout is SOURCE_ERROR (not “no news”); NSE NOT_COVERED not NOT_DISCLOSED; missing capex INPUTS_MISSING with no fake FCF; new `reports.sections` filer_type / coverage / integrity_warnings; `/reports/[id]` KEY DATA + collapsible panel. Silent repair still one `search` row. No SQL. **Build next: P11-18**. P11-16 blocked. P6-03 queued. |
 | P11-18 | 2026-10-06 | ✅ `/reports/[id]` ChartBlock captions (source/as_of), View data, line spark from allowlisted numbers, CSS bars; pie/html/svg dropped (no segment mix on evidence). PDF `render_pdf_html` same series as bars/tables. Old `{labels, values}` still parses. No UPDATE of old `reports.charts`. No SQL. **Build next: P11-19**. P11-16 blocked. P6-03 queued. |
 | P11-19 | 2026-10-06 | ✅ Same-model silent repair when note JSON price/ROIC disagree with the pack; one extra lab call; `UPDATE usage_events.cost_cents` on the existing `search` row; no second meter insert; no provider swap. json_schema helper is OpenAI-only and not sent on Analyse. Draft `docs/prompts/p11-19-integrity-repair.md` not promoted. No SQL. **Build next: P6-03**. P11-16 blocked. |
-| P11-20 | 2026-10-06 | ✅ `/desk` Equity portfolio value + Profile cash chip + Total Portfolio (USD add; unset cash → —). No SQL. No `holding_lots` write. **Build next: P6-03**. P11-16 blocked. |
+| P11-20 | 2026-10-06 | ✅ `/desk` Equity portfolio value + Profile cash chip + Total Portfolio (USD add; unset cash → —). No SQL. No `holding_lots` write. **Build next: P6-03**. |
+| P11-16 | 2026-10-06 | ✅ Guidance P/E from latest 8-K Exhibit 99.1 (worker JSON extract, same `model_catalog` row, UPDATE existing `search` `cost_cents`); trailing P/E vs history from TTM diluted EPS + Yahoo year-end closes; reverse DCF from guided EPS or INPUTS_MISSING; `consensus_forward_pe` always NOT_COVERED. New `trailing_pe_history` bar. NSE NOT_COVERED. No SQL. No stockanalysis. **Build next: P6-03**. |
 
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.

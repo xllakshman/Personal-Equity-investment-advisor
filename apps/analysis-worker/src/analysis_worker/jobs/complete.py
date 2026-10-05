@@ -28,6 +28,17 @@ from thesis_platform.integrity import (
 from thesis_platform.xbrl import derived_from_fundamentals, fundamentals_from_evidence
 from thesis_platform.pack import INVESTOR_PROFILE_PACK_COLUMNS, build_variable_pack
 from thesis_platform.prompt import load_promoted_body
+from thesis_platform.status import NOT_DISCLOSED, SOURCE_ERROR, is_found, normalize_status
+from thesis_platform.valuation import (
+    GUIDANCE_EXTRACT_SYSTEM,
+    apply_guidance_extraction,
+    empty_guidance,
+    exhibit_from_evidence,
+    extract_guidance_user,
+    pick_q5,
+    reverse_dcf_from_guidance,
+    valuation_from_ctx,
+)
 from thesis_platform.sections import (
     SectionsError,
     adherence_failures,
@@ -157,8 +168,7 @@ def complete_request(
         **derived_from_fundamentals(ctx["fundamentals_annual"]),
     }
     ctx["item2_news"] = item2_news_pack(ctx)
-    pack = build_variable_pack(ctx)
-    charts = system_charts_from_ctx(ctx, ctx["derived"])
+    ctx.update(valuation_from_ctx(ctx))
 
     set_status(conn, request["id"], "drafting")
     runner = complete_fn or (
@@ -170,6 +180,16 @@ def complete_request(
             user=kw["user"],
         )
     )
+    extract_cost = _maybe_extract_guidance(runner, ctx, provider, native_id)
+    ctx["reverse_dcf"] = reverse_dcf_from_guidance(ctx.get("guidance_pe"))
+    ctx["q5_valuation"] = pick_q5(
+        ctx.get("guidance_pe") if isinstance(ctx.get("guidance_pe"), dict) else {},
+        ctx.get("trailing_pe_vs_history")
+        if isinstance(ctx.get("trailing_pe_vs_history"), dict)
+        else {},
+    )
+    pack = build_variable_pack(ctx)
+    charts = system_charts_from_ctx(ctx, ctx["derived"])
     user = pack + "\n" + FINAL_NOTE_SUFFIX
     result, provider, native_id, used_model_id = _run_chat_or_fallback(
         runner,
@@ -207,6 +227,14 @@ def complete_request(
     fails = adherence_failures(sections)
     if fails:
         raise SectionsError("adherence still NO: " + ",".join(fails))
+
+    result = ChatResult(
+        content=result.content,
+        response_model=result.response_model,
+        cost_cents=combine_cost_cents(extract_cost, result.cost_cents),
+        raw=result.raw,
+        stop_reason=result.stop_reason,
+    )
 
     profile = _profile(cur, request["family_id"])
     if profile.get("cannot_trade_us_options") and mentions_us_options(sections):
@@ -465,3 +493,33 @@ def _verdict(sections: dict[str, Any]) -> str:
             if raw.get(key):
                 return str(raw[key])[:80]
     return "Hold"
+
+
+def _maybe_extract_guidance(
+    runner: CompleteFn,
+    ctx: dict[str, Any],
+    provider: str,
+    native_id: str,
+) -> int | None:
+    """Same model_catalog row. Never a second usage_events insert. Drop on invalid JSON."""
+    exhibit = exhibit_from_evidence(ctx.get("evidence") if isinstance(ctx.get("evidence"), list) else [])
+    text = str(exhibit.get("text") or "").strip()
+    status = normalize_status(exhibit.get("status"))
+    if not text or status in (None, SOURCE_ERROR) or not is_found(status):
+        return None
+    derived = ctx.get("derived") if isinstance(ctx.get("derived"), dict) else {}
+    close = derived.get("close")
+    try:
+        extracted = runner(
+            provider=provider,
+            model=native_id,
+            system=GUIDANCE_EXTRACT_SYSTEM,
+            user=extract_guidance_user(exhibit),
+        )
+    except LlmError:
+        ctx["guidance_pe"] = empty_guidance(NOT_DISCLOSED)
+        return None
+    ctx["guidance_pe"] = apply_guidance_extraction(
+        extracted.content, exhibit, close if isinstance(close, (int, float)) else None
+    )
+    return extracted.cost_cents

@@ -33,6 +33,14 @@ def _evidence_calls(conn: MagicMock) -> list:
     ]
 
 
+def _excerpt_for(conn: MagicMock, needle: str) -> str:
+    for c in _evidence_calls(conn):
+        params = c[0][1]
+        if needle in str(params[2]) or needle in str(params[4]):
+            return str(params[4])
+    raise AssertionError(f"no evidence matching {needle}")
+
+
 def test_stores_close_not_lot_cost() -> None:
     conn = _conn()
     quote = PreviousClose("MSFT", 412.5, "USD", date(2026, 9, 13))
@@ -108,12 +116,11 @@ def test_us_edgar_inserts_step2_headlines_only() -> None:
     )
     calls = _evidence_calls(conn)
     assert len(calls) == 2
-    item2 = calls[1][0][0]
-    assert "step0_number" in item2
-    excerpt = calls[1][0][1][4]
-    assert "8-K" in excerpt
+    excerpt = _excerpt_for(conn, "8-K")
     assert "Results of operations" in excerpt
     assert "<html" not in excerpt.lower()
+    yahoo = _excerpt_for(conn, "yahoo previous close")
+    assert "412.5" in yahoo
 
 
 def test_us_edgar_timeout_stores_source_error_not_absence() -> None:
@@ -134,7 +141,7 @@ def test_us_edgar_timeout_stores_source_error_not_absence() -> None:
     )
     calls = _evidence_calls(conn)
     assert len(calls) == 2
-    excerpt = calls[1][0][1][4]
+    excerpt = _excerpt_for(conn, "SOURCE_ERROR")
     assert "SOURCE_ERROR" in excerpt
     assert "NOT_COVERED" not in excerpt
     assert "no news" not in excerpt.lower()
@@ -202,8 +209,10 @@ def test_us_companyfacts_inserts_citation_without_lots() -> None:
     assert facts_called["n"] == 1
     calls = _evidence_calls(conn)
     assert len(calls) == 2
-    query = calls[1][0][1][2]
-    excerpt = calls[1][0][1][4]
+    query = next(
+        c[0][1][2] for c in calls if "companyfacts" in str(c[0][1][2])
+    )
+    excerpt = _excerpt_for(conn, "companyfacts")
     assert "companyfacts" in query
     assert "2024" in excerpt
     assert "holding_lots" not in str(conn.cursor.return_value.execute.call_args_list)
@@ -237,6 +246,56 @@ def test_nse_does_not_call_companyfacts() -> None:
     )
     assert called["facts"] is False
     assert len(_evidence_calls(conn)) == 1
+
+
+def test_us_exhibit_stores_text_without_html() -> None:
+    conn = _conn()
+    quote = PreviousClose("MSFT", 412.5, "USD", date(2026, 9, 13))
+    exhibit = {
+        "status": "FOUND",
+        "accession": "0000789019-26-000001",
+        "filed": "2026-09-01",
+        "url": "https://www.sec.gov/Archives/edgar/data/789019/000/ex99-1.htm",
+        "text": "We expect full-year diluted EPS of $6.50 to $6.80",
+    }
+    gather_step0(
+        conn,
+        SETTINGS,
+        {
+            "id": "r1",
+            "family_id": "f1",
+            "ticker": "MSFT",
+            "exchange": "NASDAQ",
+            "lenses": ["fundamental"],
+        },
+        fetch_close=lambda *_: quote,
+        fetch_exhibit=lambda *_: exhibit,
+    )
+    excerpt = _excerpt_for(conn, "exhibit 99.1")
+    assert "6.50" in excerpt
+    assert "<html" not in excerpt.lower()
+    assert "0000789019-26-000001" in excerpt
+
+
+def test_us_exhibit_not_disclosed_when_no_guidance_filing() -> None:
+    conn = _conn()
+    quote = PreviousClose("MSFT", 412.5, "USD", date(2026, 9, 13))
+    gather_step0(
+        conn,
+        SETTINGS,
+        {
+            "id": "r1",
+            "family_id": "f1",
+            "ticker": "MSFT",
+            "exchange": "NASDAQ",
+            "lenses": ["fundamental"],
+        },
+        fetch_close=lambda *_: quote,
+        fetch_exhibit=lambda *_: {"status": "NOT_DISCLOSED", "text": "", "accession": None},
+    )
+    excerpt = _excerpt_for(conn, "exhibit 99.1")
+    assert "NOT_DISCLOSED" in excerpt
+    assert "6.50" not in excerpt
 
 
 def test_empty_yahoo_raises() -> None:

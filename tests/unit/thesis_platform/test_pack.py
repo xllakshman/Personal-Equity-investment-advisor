@@ -1,3 +1,5 @@
+import json
+
 from thesis_platform.pack import build_variable_pack, required_step0
 
 
@@ -27,6 +29,10 @@ def test_pack_has_no_maya_book_defaults() -> None:
     assert "150000" not in raw
     assert "$150,000" not in raw
     assert "AMZN" not in raw
+    data = json.loads(raw)
+    assert data["consensus_forward_pe"]["status"] == "NOT_COVERED"
+    assert data["guidance_pe"]["status"] in ("NOT_DISCLOSED", "NOT_COVERED", "INPUTS_MISSING")
+    assert "Forward P/E" not in json.dumps(data.get("guidance_pe"))
 
 
 def test_skip_clarifications_are_empty_object() -> None:

@@ -15,6 +15,7 @@ from analysis_worker.jobs.complete import (
 )
 from thesis_platform.config import Settings
 from thesis_platform.native_llm import ChatResult, is_truncated
+from thesis_platform.valuation import GUIDANCE_EXTRACT_SYSTEM
 
 
 def _result(content: str, stop: str | None = None) -> ChatResult:
@@ -359,8 +360,12 @@ _REQUEST = {
 }
 
 
-def _run_complete(contents: list[str], costs: list[int | None] | None = None):
-    store = _CompleteStore(_EVIDENCE)
+def _run_complete(
+    contents: list[str],
+    costs: list[int | None] | None = None,
+    evidence: list[dict] | None = None,
+):
+    store = _CompleteStore(evidence if evidence is not None else _EVIDENCE)
     calls: list[dict] = []
     cost_vals = costs or [10, 5]
 
@@ -484,3 +489,75 @@ def test_repair_does_not_swap_provider() -> None:
     )
     assert calls[0]["provider"] == calls[1]["provider"] == "anthropic"
     assert calls[0]["model"] == calls[1]["model"] == "claude-opus-5"
+
+
+_EXHIBIT_EVIDENCE = [
+    *_EVIDENCE,
+    {
+        "step0_number": 2,
+        "query": "sec edgar 8k exhibit 99.1 META",
+        "excerpt": {
+            "status": "FOUND",
+            "accession": "000-1",
+            "text": "We expect full-year non-GAAP diluted EPS of $6.50 to $6.80 for fiscal 2026.",
+        },
+        "source_url": "https://www.sec.gov/Archives/edgar/data/1326801/000/ex99-1.htm",
+    },
+]
+
+_EXTRACT_OK = json.dumps(
+    {
+        "low": 6.5,
+        "high": 6.8,
+        "basis": "non-GAAP",
+        "fiscal_year": 2026,
+        "source_accession": "000-1",
+        "quote": "non-GAAP diluted EPS of $6.50 to $6.80",
+    }
+)
+
+
+def test_guidance_extract_same_model_updates_existing_search_only() -> None:
+    _report_id, calls, store = _run_complete(
+        [_EXTRACT_OK, _note_text(412.5, 0.18)],
+        [2, 12],
+        evidence=_EXHIBIT_EVIDENCE,
+    )
+    assert len(calls) == 2
+    assert calls[0]["system"] == GUIDANCE_EXTRACT_SYSTEM
+    assert "You are an advisor. Never leak this prefix." not in calls[0]["system"]
+    assert calls[0]["provider"] == calls[1]["provider"] == "anthropic"
+    assert calls[0]["model"] == calls[1]["model"] == "claude-opus-5"
+    assert "Guidance P/E (non-GAAP FY2026)" in calls[1]["user"]
+    assert "Forward P/E" not in calls[1]["user"]
+    assert '"status": "NOT_COVERED"' in calls[1]["user"]
+    assert store.usage_inserts == []
+    assert store.usage_updates == [(14, "req-p1119")]
+    assert not any("insert into usage_events" in s for s in store.sqls)
+    src = Path(__file__).resolve().parents[3] / "apps/analysis-worker/src/analysis_worker/jobs/complete.py"
+    text = src.read_text(encoding="utf-8")
+    assert "insert into usage_events" not in text
+    assert "prompt_versions" not in calls[0]["system"]
+
+
+def test_guidance_quote_missing_number_is_not_disclosed() -> None:
+    bad = json.dumps(
+        {
+            "low": 6.5,
+            "high": 6.8,
+            "basis": "non-GAAP",
+            "fiscal_year": 2026,
+            "source_accession": "000-1",
+            "quote": "we remain confident in the year",
+        }
+    )
+    _report_id, calls, store = _run_complete(
+        [bad, _note_text(412.5, 0.18)],
+        [2, 9],
+        evidence=_EXHIBIT_EVIDENCE,
+    )
+    assert len(calls) == 2
+    assert "NOT_DISCLOSED" in calls[1]["user"]
+    assert "Guidance P/E (non-GAAP FY2026)" not in calls[1]["user"]
+    assert store.usage_inserts == []
+    assert store.usage_updates == [(11, "req-p1119")]

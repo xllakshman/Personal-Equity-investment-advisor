@@ -131,3 +131,40 @@ def test_incomplete_roic_years_do_not_invent_missing_fy() -> None:
     assert "2023" not in charts["roic_history"]["labels"]
     assert "cash_conversion" not in charts
 
+
+def test_trailing_pe_history_bar_not_forward_pe() -> None:
+    from thesis_platform.charts import trailing_pe_history_chart
+
+    chart = trailing_pe_history_chart(
+        {
+            "status": "FOUND",
+            "current_pe": 22.0,
+            "years": [
+                {"fy": 2023, "pe": 18.0},
+                {"fy": 2024, "pe": 20.0},
+            ],
+        }
+    )
+    assert chart is not None
+    assert chart["type"] == "bar"
+    assert chart["title"] == "Trailing P/E vs history"
+    assert "Forward P/E" not in chart["title"]
+    assert chart["labels"] == ["2023", "2024", "TTM"]
+    assert chart["values"] == [18.0, 20.0, 22.0]
+    charts = system_charts_from_ctx(
+        {
+            "trailing_pe_vs_history": {
+                "status": "FOUND",
+                "current_pe": 22.0,
+                "years": [{"fy": 2023, "pe": 18.0}, {"fy": 2024, "pe": 20.0}],
+            },
+            "evidence": [],
+        },
+        derived_levels(close=80, high_52w=100, t1_cost=None),
+    )
+    assert charts["trailing_pe_history"]["type"] == "bar"
+    parsed, dropped = parse_charts(charts)
+    assert dropped == []
+    assert any(c["title"] == "Trailing P/E vs history" for c in parsed)
+    assert trailing_pe_history_chart({"years": []}) is None
+

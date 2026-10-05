@@ -13,6 +13,7 @@ CASH_CONVERSION_REFERENCE_PCT = 80.0
 YAHOO_SOURCE = "Yahoo Finance chart v8"
 YAHOO_COST_SOURCE = "Yahoo Finance chart v8 + book cost"
 SEC_SOURCE = "SEC companyfacts"
+TRAILING_PE_SOURCE = "SEC companyfacts + Yahoo Finance chart v8"
 
 
 def system_charts_from_ctx(
@@ -45,6 +46,10 @@ def system_charts_from_ctx(
     cash = cash_conversion_chart(extras)
     if cash:
         charts["cash_conversion"] = cash
+    trailing = ctx.get("trailing_pe_vs_history") if isinstance(ctx.get("trailing_pe_vs_history"), dict) else None
+    pe_chart = trailing_pe_history_chart(trailing or {})
+    if pe_chart:
+        charts["trailing_pe_history"] = pe_chart
     return charts
 
 
@@ -92,6 +97,50 @@ def cash_conversion_chart(derived: dict[str, Any]) -> dict[str, Any] | None:
         "unit": "%",
         "source": SEC_SOURCE,
         "as_of": f"FY {fys[-1]}",
+    }
+
+
+def trailing_pe_history_chart(trailing: dict[str, Any]) -> dict[str, Any] | None:
+    years = trailing.get("years")
+    if not isinstance(years, list) or not years:
+        return None
+    points: list[tuple[int, float]] = []
+    for row in years:
+        if not isinstance(row, dict):
+            continue
+        try:
+            fy = int(row.get("fy"))
+            pe = float(row.get("pe"))
+        except (TypeError, ValueError):
+            continue
+        if pe != pe or pe <= 0:
+            continue
+        points.append((fy, round(pe, 2)))
+    points.sort(key=lambda item: item[0])
+    labels = [str(fy) for fy, _ in points]
+    values = [pe for _, pe in points]
+    last_fy = labels[-1] if labels else ""
+    current = trailing.get("current_pe")
+    try:
+        cur = float(current) if current is not None else None
+    except (TypeError, ValueError):
+        cur = None
+    if cur is not None and cur == cur and cur > 0:
+        labels.append("TTM")
+        values.append(round(cur, 2))
+    if len(labels) < 2:
+        return None
+    title = "Trailing P/E vs history"
+    assert "Forward P/E" not in title
+    return {
+        "type": "bar",
+        "title": title,
+        "labels": labels,
+        "values": values,
+        "rows": [],
+        "unit": "x",
+        "source": TRAILING_PE_SOURCE,
+        "as_of": f"FY {last_fy}" if last_fy else None,
     }
 
 

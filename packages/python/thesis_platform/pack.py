@@ -7,6 +7,7 @@ from typing import Any
 from thesis_platform.derived import derived_from_ctx, step0_coverage
 from thesis_platform.integrity import item2_news_pack
 from thesis_platform.xbrl import derived_from_fundamentals, fundamentals_from_evidence
+from thesis_platform.valuation import valuation_from_ctx
 
 INVESTOR_PROFILE_PACK_COLUMNS = (
     "cannot_trade_us_options, ltcg_holding_months, concentration_cap_pct, "
@@ -29,6 +30,14 @@ def build_variable_pack(ctx: dict[str, Any]) -> str:
         derived = dict(derived)
     if "roic_years_available" not in derived:
         derived.update(derived_from_fundamentals(fundamentals))
+    valued = valuation_from_ctx(
+        {
+            **ctx,
+            "derived": derived,
+            "fundamentals_annual": fundamentals,
+            "evidence": evidence if isinstance(evidence, list) else [],
+        }
+    )
     payload = {
         "ticker": ctx.get("ticker"),
         "exchange": ctx.get("exchange"),
@@ -57,6 +66,21 @@ def build_variable_pack(ctx: dict[str, Any]) -> str:
         if ctx.get("item2_news") is not None
         else item2_news_pack(ctx if isinstance(ctx, dict) else {}),
         "fundamentals_annual": fundamentals,
+        "guidance_pe": ctx["guidance_pe"]
+        if ctx.get("guidance_pe") is not None
+        else valued["guidance_pe"],
+        "trailing_pe_vs_history": ctx["trailing_pe_vs_history"]
+        if ctx.get("trailing_pe_vs_history") is not None
+        else valued["trailing_pe_vs_history"],
+        "consensus_forward_pe": ctx["consensus_forward_pe"]
+        if ctx.get("consensus_forward_pe") is not None
+        else valued["consensus_forward_pe"],
+        "reverse_dcf": ctx["reverse_dcf"]
+        if ctx.get("reverse_dcf") is not None
+        else valued["reverse_dcf"],
+        "q5_valuation": ctx["q5_valuation"]
+        if "q5_valuation" in ctx
+        else valued["q5_valuation"],
         "investor_profiles": ctx.get("investor_profiles") or {},
         "cannot_trade_us_options": bool(ctx.get("cannot_trade_us_options")),
     }

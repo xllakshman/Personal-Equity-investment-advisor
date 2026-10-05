@@ -92,6 +92,29 @@ describe("parseCharts", () => {
     assert.ok(dropped.includes("pie"));
   });
 
+  it("keeps trailing P/E history bars and never a consensus Forward P/E chart", () => {
+    const { charts, dropped } = parseCharts({
+      trailing_pe_history: {
+        type: "bar",
+        title: "Trailing P/E vs history",
+        labels: ["2023", "2024", "TTM"],
+        values: [18, 20, 22],
+        source: "SEC companyfacts + Yahoo Finance chart v8",
+        as_of: "FY 2024",
+      },
+      consensus_forward: {
+        type: "html",
+        title: "Forward P/E",
+        html: "<div>22x</div>",
+      },
+    });
+    assert.equal(charts.length, 1);
+    assert.equal(charts[0].title, "Trailing P/E vs history");
+    assert.equal(charts[0].type, "bar");
+    assert.ok(!charts[0].title.includes("Forward P/E"));
+    assert.ok(dropped.includes("html"));
+  });
+
   it("strips markup and prompt-like source without dropping the series", () => {
     const { charts, dropped } = parseCharts([
       {

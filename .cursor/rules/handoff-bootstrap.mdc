@@ -8,7 +8,8 @@ alwaysApply: true
 Before writing or changing code, read the **latest session handoff** then `HANDOFF.md`.
 
 0. **Roadmap (always):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next** is the only allowed chunk. User revises that file for order/scope. Rule: [`roadmap.mdc`](roadmap.mdc).
-0. **P11-20 Home equity + cash (2026-10-06):** [`docs/handoff/SESSION-2026-10-06-p11-20.md`](docs/handoff/SESSION-2026-10-06-p11-20.md) — `/desk` Equity portfolio value, Profile cash chip, Total Portfolio. **Build next: P6-03**. P11-16 blocked.
+0. **P11-16 forward valuation (2026-10-06):** [`docs/handoff/SESSION-2026-10-06-p11-16.md`](docs/handoff/SESSION-2026-10-06-p11-16.md) — 8-K Exhibit 99.1 guidance P/E + trailing P/E vs history; consensus NOT_COVERED. **Build next: P6-03**.
+0. **P11-20 Home equity + cash (2026-10-06):** [`docs/handoff/SESSION-2026-10-06-p11-20.md`](docs/handoff/SESSION-2026-10-06-p11-20.md) — `/desk` Equity portfolio value, Profile cash chip, Total Portfolio. **Build next: P6-03**.
 0. **P11-19 integrity repair (2026-10-06):** [`docs/handoff/SESSION-2026-10-06-p11-19.md`](docs/handoff/SESSION-2026-10-06-p11-19.md) — same-model repair on price/ROIC mismatch; one `search` usage row. **Build next: P6-03**. P11-16 blocked.
 0. **P11-18 ChartBlock (2026-10-06):** [`docs/handoff/SESSION-2026-10-06-p11-18.md`](docs/handoff/SESSION-2026-10-06-p11-18.md) — captions, View data, pie dropped. **P11-19 done.** P11-16 blocked. P6-03 queued.
 0. **P11-17 absence + integrity (2026-10-06):** [`docs/handoff/SESSION-2026-10-06-p11-17.md`](docs/handoff/SESSION-2026-10-06-p11-17.md) — typed status, filer_type, integrity_warnings on new `reports` only. **P11-18 done.** P11-16 blocked. P6-03 queued.

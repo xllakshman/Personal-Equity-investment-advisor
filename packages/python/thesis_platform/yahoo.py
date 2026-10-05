@@ -155,3 +155,15 @@ def monthly_closes(daily: tuple[DailyClose, ...] | list[DailyClose]) -> list[Dai
         key = point.quote_date.isoformat()[:7]
         by_month[key] = point
     return [by_month[k] for k in sorted(by_month)]
+
+
+def close_on_or_before(
+    daily: tuple[DailyClose, ...] | list[DailyClose],
+    day: date,
+) -> float | None:
+    """Last Yahoo close on or before `day`. Do not invent a print."""
+    last: float | None = None
+    for point in daily:
+        if point.quote_date <= day and point.close == point.close and point.close > 0:
+            last = point.close
+    return last
