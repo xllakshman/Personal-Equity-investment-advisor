@@ -5,6 +5,7 @@ import json
 from typing import Any
 
 from thesis_platform.derived import derived_from_ctx, step0_coverage
+from thesis_platform.xbrl import fundamentals_from_evidence
 
 INVESTOR_PROFILE_PACK_COLUMNS = (
     "cannot_trade_us_options, ltcg_holding_months, concentration_cap_pct, "
@@ -39,6 +40,9 @@ def build_variable_pack(ctx: dict[str, Any]) -> str:
         "step0_coverage": ctx.get("step0_coverage")
         if ctx.get("step0_coverage") is not None
         else step0_coverage(evidence if isinstance(evidence, list) else []),
+        "fundamentals_annual": ctx.get("fundamentals_annual")
+        if ctx.get("fundamentals_annual") is not None
+        else fundamentals_from_evidence(evidence if isinstance(evidence, list) else []),
         "investor_profiles": ctx.get("investor_profiles") or {},
         "cannot_trade_us_options": bool(ctx.get("cannot_trade_us_options")),
     }

@@ -47,9 +47,9 @@ Unknown exchange → fail the job, do not guess.
 
 Key: `yahoo_symbol` + UTC date. Worker reuses `eod_quotes` for later jobs the same day **only as a fallback** if the 1y chart HTTP fails; a cache-only pack does not invent a 52w high from a single print if the live chart succeeded. Never write converted INR into `holding_lots`.
 
-## Derived bands (code, not XBRL)
+**Derived bands (code, not XBRL)** — P11-13: % below 52w; T2/T3/T4; U1/U2 from T1.
 
-From the Yahoo pack + T1 cost on the book (view `holdings` / request cost): % below 52w high; T2 10–15% below high; T3 20–25%; T4 35–40%; U1/U2 from T1 when cost exists. Written into the **user** variable pack (`derived`, `step0_coverage`). Not `prompt_versions.body`. No 10y ROIC / fundamentals in this chunk.
+**Annual fundamentals (P11-14):** US-listed only. GET `https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json` (same User-Agent + 0.11s gap). Concept resolver v1 maps revenue, GP, operating income, NI, OCF, capex, debt, cash, shares (equity only for ROIC). Code computes FCF (`OCF − |capex|`), margins, ROIC (`NOPAT / (equity + debt − cash)` with 21% US statutory tax). Compact JSON on `analysis_evidence` (`step0_number = 2`, query `sec edgar companyfacts {ticker}`) and the user pack `fundamentals_annual`. Never store the full XBRL dump or filing HTML. NSE/BSE: `NOT_COVERED`; job can still `ready` if Yahoo close exists. Missing close still fails the job.
 
 ## Why not Finnhub / Alpha Vantage / stockanalysis.com
 

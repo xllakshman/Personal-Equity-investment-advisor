@@ -82,3 +82,79 @@ def test_fetch_edgar_mock_http_and_non_us() -> None:
     skipped = fetch_edgar_headlines(SETTINGS, "HDFCBANK", "NSE", client=client)
     assert skipped["status"] == "NOT_COVERED"
     assert skipped["filings"] == []
+
+
+def test_fetch_companyfacts_mock_http_computes_fcf_and_skips_nse() -> None:
+    import thesis_platform.http as http_mod
+    from thesis_platform.http import fetch_edgar_companyfacts
+
+    http_mod._TICKER_MAP_CACHE = None
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        url = str(request.url)
+        assert "stockanalysis.com" not in url
+        if "company_tickers" in url:
+            return httpx.Response(
+                200,
+                json={"0": {"cik_str": 789019, "ticker": "MSFT", "title": "Microsoft"}},
+            )
+        if "companyfacts" in url:
+            assert "CIK0000789019" in url
+            return httpx.Response(
+                200,
+                json={
+                    "entityName": "Microsoft",
+                    "facts": {
+                        "us-gaap": {
+                            "Revenues": {
+                                "units": {
+                                    "USD": [
+                                        {
+                                            "fy": 2024,
+                                            "fp": "FY",
+                                            "form": "10-K",
+                                            "val": 100,
+                                            "filed": "2024-08-01",
+                                        }
+                                    ]
+                                }
+                            },
+                            "NetCashProvidedByUsedInOperatingActivities": {
+                                "units": {
+                                    "USD": [
+                                        {
+                                            "fy": 2024,
+                                            "fp": "FY",
+                                            "form": "10-K",
+                                            "val": 40,
+                                            "filed": "2024-08-01",
+                                        }
+                                    ]
+                                }
+                            },
+                            "PaymentsToAcquirePropertyPlantAndEquipment": {
+                                "units": {
+                                    "USD": [
+                                        {
+                                            "fy": 2024,
+                                            "fp": "FY",
+                                            "form": "10-K",
+                                            "val": 10,
+                                            "filed": "2024-08-01",
+                                        }
+                                    ]
+                                }
+                            },
+                        }
+                    },
+                },
+            )
+        return httpx.Response(404)
+
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    got = fetch_edgar_companyfacts(SETTINGS, "MSFT", "NASDAQ", client=client)
+    assert got["status"] == "ok"
+    assert got["years"][0]["fcf"] == 30
+    skipped = fetch_edgar_companyfacts(SETTINGS, "HDFCBANK", "NSE", client=client)
+    assert skipped["status"] == "NOT_COVERED"
+    assert skipped["years"] == []

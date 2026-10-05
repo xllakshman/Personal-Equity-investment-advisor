@@ -20,6 +20,7 @@ from thesis_platform.native_llm import (
 
 from thesis_platform.charts import system_charts_from_ctx
 from thesis_platform.derived import derived_from_ctx, step0_coverage
+from thesis_platform.xbrl import fundamentals_from_evidence
 from thesis_platform.pack import INVESTOR_PROFILE_PACK_COLUMNS, build_variable_pack
 from thesis_platform.prompt import load_promoted_body
 from thesis_platform.sections import (
@@ -114,6 +115,7 @@ def complete_request(
     ctx = _context(cur, request)
     ctx["derived"] = derived_from_ctx(ctx)
     ctx["step0_coverage"] = step0_coverage(ctx.get("evidence") or [])
+    ctx["fundamentals_annual"] = fundamentals_from_evidence(ctx.get("evidence") or [])
     pack = build_variable_pack(ctx)
     charts = system_charts_from_ctx(ctx, ctx["derived"])
 

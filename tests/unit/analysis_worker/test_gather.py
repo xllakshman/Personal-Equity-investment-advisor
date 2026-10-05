@@ -145,6 +145,75 @@ def test_nse_skips_edgar_row() -> None:
     assert len(_evidence_calls(conn)) == 1
 
 
+def test_us_companyfacts_inserts_citation_without_lots() -> None:
+    conn = _conn()
+    quote = PreviousClose("MSFT", 412.5, "USD", date(2026, 9, 13))
+    facts = {
+        "status": "ok",
+        "cik": "0000789019",
+        "entity": "Microsoft",
+        "concepts_used": {"revenue": "Revenues"},
+        "years": [{"fy": 2024, "revenue": 100, "fcf": 30, "roic": None}],
+    }
+    facts_called = {"n": 0}
+
+    def fetch_facts(*_a):
+        facts_called["n"] += 1
+        return facts
+
+    gather_step0(
+        conn,
+        SETTINGS,
+        {
+            "id": "r1",
+            "family_id": "f1",
+            "ticker": "MSFT",
+            "exchange": "NASDAQ",
+            "lenses": ["fundamental"],
+        },
+        fetch_close=lambda *_: quote,
+        fetch_facts=fetch_facts,
+    )
+    assert facts_called["n"] == 1
+    calls = _evidence_calls(conn)
+    assert len(calls) == 2
+    query = calls[1][0][1][2]
+    excerpt = calls[1][0][1][4]
+    assert "companyfacts" in query
+    assert "2024" in excerpt
+    assert "holding_lots" not in str(conn.cursor.return_value.execute.call_args_list)
+    assert "stockanalysis.com" not in str(conn.cursor.return_value.execute.call_args_list)
+
+
+def test_nse_does_not_call_companyfacts() -> None:
+    conn = _conn()
+    quote = PreviousClose("HDFCBANK.NS", 1500.0, "INR", date(2026, 9, 13))
+    called = {"facts": False}
+
+    def facts(*_a):
+        called["facts"] = True
+        return {
+            "status": "ok",
+            "years": [{"fy": 2024, "revenue": 1}],
+        }
+
+    gather_step0(
+        conn,
+        SETTINGS,
+        {
+            "id": "r1",
+            "family_id": "f1",
+            "ticker": "HDFCBANK",
+            "exchange": "NSE",
+            "lenses": ["fundamental"],
+        },
+        fetch_close=lambda *_: quote,
+        fetch_facts=facts,
+    )
+    assert called["facts"] is False
+    assert len(_evidence_calls(conn)) == 1
+
+
 def test_empty_yahoo_raises() -> None:
     conn = _conn()
     request = {

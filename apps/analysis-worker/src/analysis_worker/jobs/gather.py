@@ -11,7 +11,8 @@ from psycopg2.extensions import connection
 from thesis_platform.config import Settings
 from thesis_platform.derived import pct_below_52w_high
 from thesis_platform.edgar import NOT_COVERED
-from thesis_platform.http import fetch_edgar_headlines, fetch_yahoo_chart_pack
+from thesis_platform.http import fetch_edgar_companyfacts, fetch_edgar_headlines, fetch_yahoo_chart_pack
+from thesis_platform.xbrl import COMPANYFACTS_URL, empty_fundamentals
 from thesis_platform.pack import required_step0
 from thesis_platform.quotes import get_cached_close, put_cached_close
 from thesis_platform.yahoo import (
@@ -28,6 +29,7 @@ from thesis_platform.yahoo import (
 FetchClose = Callable[[Settings, str], PreviousClose]
 FetchChart = Callable[[Settings, str], YahooChartPack]
 FetchEdgar = Callable[[Settings, str, str | None], dict[str, Any]]
+FetchFacts = Callable[[Settings, str, str | None], dict[str, Any]]
 
 
 def gather_step0(
@@ -38,6 +40,7 @@ def gather_step0(
     fetch_close: FetchClose | None = None,
     fetch_chart: FetchChart | None = None,
     fetch_edgar: FetchEdgar | None = None,
+    fetch_facts: FetchFacts | None = None,
 ) -> PreviousClose:
     ticker = str(request["ticker"])
     exchange = request.get("exchange")
@@ -111,6 +114,42 @@ def gather_step0(
                     },
                     default=str,
                 ),
+            ),
+        )
+
+    facts: dict[str, Any]
+    if not is_us_listed(ticker, str(exchange) if exchange else None):
+        facts = empty_fundamentals()
+    else:
+        if fetch_facts is not None:
+            facts_fn = fetch_facts
+        elif fetch_close is None and fetch_chart is None:
+            facts_fn = lambda s, t, ex: fetch_edgar_companyfacts(s, t, ex)
+        else:
+            facts_fn = lambda _s, _t, _ex: empty_fundamentals()
+        try:
+            facts = facts_fn(settings, ticker, str(exchange) if exchange else None)
+        except Exception:  # noqa: BLE001 — XBRL miss must not fail the job
+            facts = empty_fundamentals()
+    if (
+        is_us_listed(ticker, str(exchange) if exchange else None)
+        and isinstance(facts, dict)
+        and str(facts.get("status") or "") == "ok"
+        and facts.get("years")
+    ):
+        cik = str(facts.get("cik") or "")
+        cur.execute(
+            """
+            insert into analysis_evidence (
+              request_id, family_id, step0_number, query, source_url, excerpt
+            ) values (%s, %s, 2, %s, %s, %s)
+            """,
+            (
+                request["id"],
+                request["family_id"],
+                f"sec edgar companyfacts {ticker}",
+                COMPANYFACTS_URL.format(cik=cik) if cik else COMPANYFACTS_URL.format(cik=""),
+                json.dumps(facts, default=str),
             ),
         )
 

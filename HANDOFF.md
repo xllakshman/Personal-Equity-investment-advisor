@@ -3,8 +3,8 @@
 > **Version:** 0.1 · **Date:** 2026-09-13  
 > **Workspace:** `/Users/lakshmanyeluri/Documents/personalEquity_Advisor`  
 > **Reference layout:** `/Users/lakshmanyeluri/Documents/activePieces-docker/invoice-processing`  
-> **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P6-03** (merchant unnamed)  
-> **Latest session:** [`docs/handoff/SESSION-2026-10-05-p11-13.md`](docs/handoff/SESSION-2026-10-05-p11-13.md)  
+> **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P11-15**. P6-03 queued (merchant unnamed).  
+> **Latest session:** [`docs/handoff/SESSION-2026-10-06-p11-14.md`](docs/handoff/SESSION-2026-10-06-p11-14.md)  
 > **Mock UI:** [`docs/mock-ui/`](docs/mock-ui/README.md)  
 > **GitHub (empty):** `xllakshman/Personal-Equity-investment-advisor` · branch `main`
 
@@ -25,16 +25,16 @@
 | SQL 019 native labs | ✅ **applied** 2026-09-15 on DEV and PROD — Gemini/Kimi `is_active = false` |
 | Maya seed | ✅ `maya@thesis.demo` · 5 lots · 2 reports (1 sample) |
 | Storage bucket `report-pdfs` | ✅ private |
-| Analysis API / worker | ✅ 2026-10-05 — **P11-13:** worker Step 0 item 1 GET Yahoo chart v8 `range=1y` (previous close + 52w closing high); caches today’s close in `eod_quotes`; never writes lots. Item 2 GET `data.sec.gov` 8-K/10-Q/10-K headlines for US names into `analysis_evidence.step0_number = 2`. NSE skips EDGAR. Silent repair: one extra lab call on the same `model_catalog` row; UPDATE existing `usage_events.cost_cents` (`kind = search`); no second meter insert. New `reports.charts` only (D4). Prod host droplet `157.245.102.243` `/opt/eqveste`; public **`https://api.eqveste.com`**. Local laptop still `:8091` + DEV `.env`. |
-| Next.js desk | ✅ 2026-10-05 — Display currency: `asDisplayCurrency` defaults **USD** (saved INR kept). `/portfolio` labels on add/edit; CSV template lists parser columns (`lot_kind` optional). **P11-12:** `/portfolio` and `/desk` SELECT view `holdings` and split **Retail** vs **ESOP**. Owner/member write `holding_lots`; viewer read-only. Unrealized P&L % from qty × Yahoo previous close; never INSERT/UPDATE lots. Empty book or failed quote = **—**. **027+028 applied DEV and PROD.** `/analyse` **Run analysis** RPC `thesis_accept_analysis`. New ready notes may show `reports.charts` (line + table) on `/reports/[id]`. Old notes unchanged. |
+| Analysis API / worker | ✅ 2026-10-06 — **P11-14:** after Yahoo close, US names GET `data.sec.gov/api/xbrl/companyfacts/CIK….json`; compact `fundamentals_annual` on the user pack + `analysis_evidence` (`step0_number = 2`, query `sec edgar companyfacts`). NSE: NOT_COVERED; job still `ready` if close exists. Missing close still fails. Never writes lots. **P11-13** headlines + silent repair + system charts unchanged. Prod host droplet `157.245.102.243` `/opt/eqveste`; public **`https://api.eqveste.com`**. Local laptop still `:8091` + DEV `.env`. |
+| Next.js desk | ✅ 2026-10-06 — Display default **USD**. `/portfolio` add/edit labels (Ticker, Company name, Cost/share, Total purchased, Currency, Lot type); Edit prefills qty×cost as Total purchased; CSV template lists parser columns and `#` comments. SHA `ef507b7` on Vercel **eqveste.com**. **P11-12** Retail/ESOP. `/analyse` **Run analysis** RPC `thesis_accept_analysis`. New ready notes may show `reports.charts` (line + table). Old notes unchanged. |
+| Prod Vercel | ✅ 2026-10-06 — Production deploy `dpl_HJ8WD1YVRVGLc3NMegwBBEUfZrrT` aliased to **`https://eqveste.com`**. Anon URL+key + Resend + `ANALYSIS_API_URL`. No service role or lab keys. |
 | Prod schema | ✅ 2026-10-05 — **001–028** on `ndgvglcrkbygovlszxze`. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. `thesis_admin_set_family_plan` on `/admin/accounts`. `thesis_admin_remove_prompt` on `/admin/prompt`. |
-| Prod Vercel | ✅ 2026-10-05 — Production deploy `dpl_BS8Md8FtMipvmrFwixrSeQtzHdhF` aliased to **`https://eqveste.com`**. Anon URL+key + Resend + `ANALYSIS_API_URL`. No service role or lab keys. |
-| Tests | ✅ 2026-10-05 — 210 Python unit + 265 web. Live two-JWT CI still skips without a second family JWT. |
+| Tests | ✅ 2026-10-06 — 220 Python unit + 268 web. Live two-JWT CI still skips without a second family JWT. |
 | Weekly holdings email | 🟡 **P8-02** table + opt-in + job; **send** blocked until a provider is named |
 | Analysis CSAT | ✅ **P5-05** `analysis_feedback` + **P7-10** admin tab |
 | Requirements vs mock/brief | ✅ Gap review 2026-09-13 — D27–D42 |
 
-**Build next:** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P6-03** — merchant unnamed. **P10-02** is on the droplet (`https://api.eqveste.com`). Local **3100** stays DEV.
+**Build next:** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P11-15**. **P6-03** stays queued (merchant unnamed). **P10-02** is on the droplet (`https://api.eqveste.com`). Local **3100** stays DEV.
 
 ---
 
@@ -326,7 +326,7 @@ See `.cursor/rules/web-ui-maintenance.mdc`. Marketing vs desk palettes must not 
 
 ## 18. Next steps
 
-Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P6-03** when a merchant is named. **P11-13** is done (Yahoo 1y + EDGAR headlines + derived bands + silent repair). **P10-02** is on the droplet. **027+028 applied DEV and PROD.** Worker LLM is native labs (D39). Never put lab keys on Vercel. Local **3100** stays DEV. Do not scrape stockanalysis.com.
+Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P11-15**. **P11-14** is done (SEC companyfacts → pack `fundamentals_annual`). **P6-03** stays queued until a merchant is named. **P10-02** is on the droplet. **027+028 applied DEV and PROD.** Worker LLM is native labs (D39). Never put lab keys on Vercel. Local **3100** stays DEV. Do not scrape stockanalysis.com.
 
 ---
 

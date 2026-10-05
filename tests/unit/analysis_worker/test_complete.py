@@ -51,6 +51,7 @@ def test_silent_repair_helpers_do_not_double_meter() -> None:
     assert "update usage_events" in text
     assert text.count("_run_chat(") >= 1
     assert "REPAIR_NOTE" in text
+    assert "fundamentals_from_evidence" in text
     assert "openrouter" not in text.lower()
     assert _try_parse("") is None
     assert _try_parse('{"verdict":"Hold"}') == {"verdict": "Hold"}

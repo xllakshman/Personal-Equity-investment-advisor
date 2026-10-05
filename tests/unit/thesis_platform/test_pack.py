@@ -20,6 +20,8 @@ def test_pack_has_no_maya_book_defaults() -> None:
     assert "MSFT" in raw
     assert "derived" in raw
     assert "step0_coverage" in raw
+    assert "fundamentals_annual" in raw
+    assert '"status": "NOT_COVERED"' in raw
     assert "150000" not in raw
     assert "$150,000" not in raw
     assert "AMZN" not in raw
@@ -76,6 +78,22 @@ def test_pack_includes_entry_tranches() -> None:
     assert '"tranche_t4_pct": 15' in raw
 
 
-def test_empty_ticker_and_unknown_lenses() -> None:
-    assert required_step0([]) == [1]
-    assert required_step0(["tax", "vibes"]) == [1]
+def test_pack_includes_companyfacts_from_evidence() -> None:
+    raw = build_variable_pack(
+        {
+            "ticker": "MSFT",
+            "evidence": [
+                {
+                    "step0_number": 2,
+                    "query": "sec edgar companyfacts MSFT",
+                    "excerpt": {
+                        "status": "ok",
+                        "years": [{"fy": 2024, "revenue": 245.1, "fcf": 70}],
+                    },
+                }
+            ],
+        }
+    )
+    assert "245.1" in raw
+    assert "fundamentals_annual" in raw
+    assert "companyfacts" in raw

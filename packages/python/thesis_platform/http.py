@@ -7,6 +7,11 @@ from typing import Any
 import httpx
 
 from .config import Settings
+from .xbrl import (
+    COMPANYFACTS_URL,
+    empty_fundamentals,
+    parse_companyfacts,
+)
 from .edgar import (
     COMPANY_TICKERS_URL,
     NOT_COVERED,
@@ -98,6 +103,46 @@ def fetch_edgar_headlines(
         return {"status": "ok", "filings": filings}
     except httpx.HTTPError:
         return empty_pack(NOT_COVERED)
+    finally:
+        if owns:
+            http.close()
+
+
+def fetch_edgar_companyfacts(
+    settings: Settings,
+    ticker: str,
+    exchange: str | None,
+    *,
+    client: httpx.Client | None = None,
+) -> dict[str, Any]:
+    """US-listed annual XBRL. Miss → NOT_COVERED; never fails the Analyse job."""
+    if not is_us_listed(ticker, exchange):
+        return empty_fundamentals(NOT_COVERED)
+    headers = {
+        "User-Agent": settings.market_data_user_agent,
+        "Accept": "application/json",
+    }
+    http = client or httpx.Client(timeout=20.0)
+    owns = client is None
+    try:
+        mapping = _company_tickers(http, headers)
+        cik = cik_from_tickers_map(mapping, ticker)
+        if not cik:
+            return empty_fundamentals(NOT_COVERED)
+        time.sleep(_EDGAR_GAP_SEC)
+        resp = http.get(COMPANYFACTS_URL.format(cik=cik), headers=headers)
+        if resp.status_code != 200:
+            return empty_fundamentals(NOT_COVERED)
+        try:
+            payload = resp.json()
+        except ValueError:
+            return empty_fundamentals(NOT_COVERED)
+        parsed = parse_companyfacts(payload, cik)
+        if str(parsed.get("status") or "") != "ok" or not parsed.get("years"):
+            return empty_fundamentals(NOT_COVERED)
+        return parsed
+    except httpx.HTTPError:
+        return empty_fundamentals(NOT_COVERED)
     finally:
         if owns:
             http.close()

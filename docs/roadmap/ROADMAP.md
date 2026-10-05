@@ -20,9 +20,9 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 
 | Field | Value |
 |-------|--------|
-| **Build next** | **P6-03** — merchant unnamed (blocked). **P11-13** done this session. |
-| Last done | **P11-13** — Yahoo 1y + 52w close, SEC EDGAR headlines (US), derived T2–T4/U1–U2, system charts, silent repair. No new SQL. |
-| Blocked on you | P6-03 merchant. Step 0 items 3–7 still unnamed (job no longer fails closed for those). P8-02 email **send** needs a provider. |
+| **Build next** | **P11-15** — derived FCF/ROIC pack + system charts. **P6-03** stays queued (merchant unnamed). |
+| Last done | **P11-14** — EDGAR XBRL `fundamentals_annual` (US companyfacts). Desk `/portfolio` labels `ef507b7` on eqveste.com. **P11-13** Yahoo 1y + headlines. |
+| Blocked on you | **P11-16** forward P/E (no vendor; Yahoo chart v8 has no estimates). P6-03 merchant. Step 0 items 3–7 still unnamed. P8-02 email **send**. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
 | DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–028** applied. |
@@ -835,7 +835,7 @@ Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do 
 
 ## Phase 11 — Note layout and desk/admin fixes (named 2026-10-04)
 
-One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30). **Build next** is **P6-03** (merchant unnamed). **P11-13** is done.
+One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30). **Build next** is **P11-15**. **P6-03** stays queued after P11-19 (merchant unnamed). **P11-14** is done.
 
 ### P11-01 — Typeset note + PDF download
 
@@ -1028,6 +1028,93 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
   6. New `reports.charts` has allowlisted line/table only. Pie/html dropped. PDF reuses the same allowlist as bars/tables.
 - **Testing:** three passes (testing.mdc). Unit: 52w/tranche maths; EDGAR mock HTTP; comprehensive no THS-STEP0-001 for 3–7; silent repair no extra `usage_events` insert; chart validator; Yahoo not writing lots. `./tools/test/run_tests.sh`. `npm run build` in `apps/web`.
 
+### P11-14 — EDGAR XBRL `fundamentals_annual`
+
+- **Status:** ✅ 2026-10-06 — no new SQL. Mocked companyfacts. Do not start P11-15 until this session’s ship is on GitHub `dev` (and droplet if worker changed).
+- **Depends on:** P11-13
+- **Direction:** Worker gather (after Yahoo item 1) for **US-listed** tickers GET `data.sec.gov/api/xbrl/companyfacts/CIK….json` with `MARKET_DATA_USER_AGENT` and the existing ≤10 req/s gap. Concept resolver v1 maps aliases for **revenue, gross profit, operating income, net income, OCF, capex, debt, cash, shares** (plus equity only to compute ROIC). Code computes **FCF, margins, ROIC** — the model does not invent FY rows. Store a compact `fundamentals_annual` object on the **user** variable pack. Insert an `analysis_evidence` citation (`step0_number = 2`, query `sec edgar companyfacts {ticker}`, excerpt = resolved years + concept names, **not** the full XBRL dump). No new SQL: reuse the existing 1–7 check. Non-US (NSE/BSE): pack `fundamentals_annual.status = NOT_COVERED`; no that row; job still `ready` if Yahoo close exists. Missing close still fails the job. Never write lots. Never scrape stockanalysis.com. Never commit `prompt_versions.body`. No OpenRouter.
+- **Writes:** worker `analysis_evidence` (extra row when US companyfacts resolve at least one annual year). Variable pack JSON only. Never `holding_lots`. Never `UPDATE` old `reports`.
+- **Reads:** SEC companyfacts JSON; existing CIK map from P11-13; `/analyse` still RPC `thesis_accept_analysis`. `/reports/[id]` does **not** gain new widgets in this id (P11-15 charts).
+- **Who:** owner/member enqueue. Viewer cannot POST. Worker postgres / service_role.
+- **UI today:** `/analyse` **Run analysis** queues the job. New notes get Yahoo + headlines only until this chunk ships. Old notes unchanged (D4).
+- **Success:**
+  1. US ticker with mocked companyfacts: `analysis_evidence` citation row exists; pack has `fundamentals_annual.years` with resolver fields + FCF/margins/ROIC in code. Full filing HTML is not stored.
+  2. NSE/BSE: no companyfacts HTTP; pack status `NOT_COVERED`; job can still `ready` when close exists.
+  3. Missing Yahoo close → `analysis_requests.status = failed`. Facts miss → NOT_COVERED, not a failed job.
+  4. No migration. No stockanalysis.com. Prompt body only via `/admin/prompt`.
+- **Testing:** three passes. Unit: mocked companyfacts (empty, non-US, alias fallback, capex sign → FCF). Gather does not write lots. `./tools/test/run_tests.sh`.
+
+### P11-15 — Derived FCF/ROIC pack + system charts
+
+- **Status:** ⬜
+- **Depends on:** P11-14
+- **Direction:** From `fundamentals_annual` (code, not the model): FCF/NI, OCF/NI, capex/revenue, ROIC YoY, completeness `roic_years_available`. Worker inserts `reports.charts` on **new** rows only: `roic_history` + `cash_conversion` (allowlisted line/bar/table). `/reports/[id]` `parseCharts` / `ReportCharts` and PDF HTML show those charts. No model HTML. No pie unless a **real** segment mix exists on evidence (otherwise omit — P11-18). D4: old notes unchanged.
+- **Writes:** new `reports.charts` keys only. User pack `derived` extras. Never lots. Never old reports.
+- **Reads:** `fundamentals_annual` on the pack / `analysis_evidence` companyfacts excerpt. Screen `/reports/[id]` SELECT `reports.charts`.
+- **Who:** same as P11-14.
+- **UI today:** new notes may show `price_vs_tranches` + `tranche_levels` only (P11-13). No ROIC chart.
+- **Success:**
+  1. New ready note with US facts shows `roic_history` and `cash_conversion` from computed series, not model HTML.
+  2. Incomplete ROIC years → `roic_years_available` in the pack; chart omitted or short — do not invent years.
+  3. NSE note with close and NOT_COVERED facts: no fake ROIC chart. PDF matches the screen allowlist.
+- **Testing:** three passes. Unit: ratio maths; empty years; chart validator. `./tools/test/run_tests.sh`. `npm run build` in `apps/web`. Browser `/reports/[id]` on **3100** if up.
+
+### P11-16 — Valuation / estimates
+
+- **Status:** ⬜ **blocked on you** — forward P/E vendor unnamed.
+- **Depends on:** P11-14
+- **Direction:** Add forward P/E, EPS estimates, or target price **only** if Yahoo chart v8 (already used) or another **already-in-repo** feed supplies the number with no new paid vendor. Today the Yahoo 1y pack stores close, 52w closing high, monthly closes — **not** forward P/E. Do not invent. Do not enable stockanalysis.com. Do not add Finnhub/Alpha Vantage without a named key.
+- **Writes:** none until a vendor is named.
+- **Reads:** none.
+- **Who:** n/a until unblocked.
+- **UI today:** notes do not show a product forward P/E chip from a licensed feed.
+- **Success:** skipped until you name a source. If you name Yahoo quote-summary (still unofficial) or a paid API, rewrite this chunk before build.
+- **Testing:** n/a while blocked.
+
+### P11-17 — Absence status + integrity_warnings + filer_type
+
+- **Status:** ⬜
+- **Depends on:** P11-14
+- **Direction:** Pack carries absence objects (`NOT_COVERED` / missing concept) for Step 0 and `fundamentals_annual`. `/reports/[id]` shows `integrity_warnings` when the worker stored them on **new** `reports.sections` or pack-derived display (D4: new analyses only). KEY DATA shows `filer_type` chips when companyfacts/submissions supply that field (e.g. large accelerated). Do not invent warnings for old notes.
+- **Writes:** new `reports` rows / pack only. Never lots. Never UPDATE old `sections`.
+- **Reads:** `/reports/[id]` SELECT `reports` + `analysis_evidence` for session `family_id`.
+- **Who:** owner/member/viewer read; writers enqueue.
+- **UI today:** KEY DATA chips from ticker/verdict/close. No filer_type. No integrity_warnings strip.
+- **Success:**
+  1. New US note with missing capex shows a warning or NOT_COVERED for that field, not a fake FCF.
+  2. Old notes unchanged. Viewer can read. No prompt body in HTTP.
+- **Testing:** three passes. Display vs DB; empty facts; no prompt leak. `npm run build` in `apps/web`.
+
+### P11-18 — ChartBlock captions, View data, pie only with segments
+
+- **Status:** ⬜
+- **Depends on:** P11-13, P11-15
+- **Direction:** ChartBlock on `/reports/[id]` (existing CSS bars or Recharts if already in the tree — do not add a new chart library unless required). Pie **only** when evidence has a real segment mix; otherwise drop. Captions name source + as_of. **View data** shows the numeric series. PDF HTML parity with the screen allowlist. Model charts must match evidence or drop (P5-04). D4: new notes / existing allowlist; do not rewrite old jsonb.
+- **Writes:** none to lots. New `reports.charts` only if the worker already emits them.
+- **Reads:** `reports.charts` on `/reports/[id]` and PDF renderer.
+- **Who:** same read path as the note.
+- **UI today:** CSS bars + HTML table for `price_vs_tranches` / `tranche_levels`. Pie dropped. No View data control.
+- **Success:**
+  1. Line/bar/table captions show source/as_of. View data lists the same points.
+  2. Pie absent unless segment mix exists on evidence. Model pie/html still dropped.
+  3. PDF matches. Old notes without those keys stay chart-less.
+- **Testing:** three passes. `parseCharts` tests; `npm run build` in `apps/web`. Browser `/reports/[id]`.
+
+### P11-19 — LLM json_schema / silent integrity repair
+
+- **Status:** ⬜
+- **Depends on:** P11-13
+- **Direction:** Same-model silent repair (already one extra `complete_chat`, same `model_catalog` row, UPDATE `usage_events.cost_cents` on the existing `search` row — no extra meter insert) may use provider `json_schema` / capability flags where the native lab supports them. Still no OpenRouter. Optional **draft** prompt notes in `docs/prompts/` — do **not** auto-promote; `/admin/prompt` remains the only write path for `prompt_versions.body`.
+- **Writes:** `usage_events.cost_cents` UPDATE on the search row. Never a second insert. Never git of prompt body.
+- **Reads:** `prompt_versions` promoted row (worker). `/admin/prompt` for humans.
+- **Who:** worker; `platform_admin` for prompt drafts.
+- **UI today:** silent repair exists (P11-13). No json_schema enforcement. Admin prompt is manual.
+- **Success:**
+  1. Repair still one extra lab call, same model, one `search` usage row.
+  2. Draft file in docs is not live until promoted on `/admin/prompt`.
+  3. HTTP/`error_text` never include prompt body.
+- **Testing:** three passes. Unit: no extra usage insert; json parse repair. `./tools/test/run_tests.sh`.
+
 ---
 
 ## Out of scope until you add a chunk
@@ -1121,6 +1208,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | P11-12 | 2026-10-05 | ✅ `/portfolio` and `/desk` split Retail vs ESOP; unrealized P&L % from display Yahoo close. **028** applied DEV + PROD 2026-10-05 (`holding_lots.lot_kind` + view `holdings`). |
 | SQL 027+028 | 2026-10-05 | ✅ Applied on DEV (`cmksomahsfmsjufakryw`) and PROD (`ndgvglcrkbygovlszxze`). Skipped re-run of 027 on DEV (already in `schema_migrations`). |
 | P11-13 | 2026-10-05 | ✅ Worker Yahoo 1y + 52w close, SEC EDGAR headlines for US names, derived T2–T4/U1–U2 in the variable pack, system charts on new `reports`, silent repair updates the same `search` `usage_events` row. No stockanalysis.com. **Build next: P6-03**. |
+| P11-14 | 2026-10-06 | ✅ Worker GET SEC companyfacts for US names; concept resolver v1 + FCF/margins/ROIC in code; `analysis_evidence` citation + pack `fundamentals_annual`. NSE NOT_COVERED. No migration. No stockanalysis.com. **Build next: P11-15**. P6-03 still queued. |
 
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.
