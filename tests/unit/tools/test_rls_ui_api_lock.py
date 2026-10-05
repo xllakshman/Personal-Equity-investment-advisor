@@ -31,10 +31,19 @@ def test_012_assert_and_consume_use_same_meter_kinds() -> None:
 def test_desk_kpi_uses_meter_helper_not_search_only() -> None:
     home = _read("apps/web/lib/desk/load-home.ts")
     meter = _read("apps/web/lib/desk/usage-meter.ts")
-    assert "meterEventCount" in home
+    events = _read("apps/web/lib/desk/load-usage-events.ts")
+    sql = _read("supabase/migrations/027_search_credit_quantity.sql")
+    assert "meterCreditSum" in home
+    assert "selectUsageEventsForMeter" in home
+    assert "quantity" in events
+    assert "kind, cost_cents" in events
+    assert "Never INSERT" in events
     assert '.eq("kind", "search")' not in home
     assert "refine_gate" in meter
     assert "prompt_extract_attempt" not in meter.split("USAGE_METER_KINDS")[1][:400]
+    assert "sum(ue.quantity)" in sql
+    assert "kind in ('search', 'refine', 'refine_gate')" in sql
+    assert "prompt_versions" not in sql
 
 
 def test_007_authenticated_cannot_insert_usage_events() -> None:

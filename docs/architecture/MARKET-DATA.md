@@ -1,10 +1,12 @@
 # Market data (P4-01) — previous close only
 
-**Locked 2026-09-13 (D40).** Desk `/desk` never fetches this. One HTTP call per ticker per calendar day, only when the worker is gathering a billed analysis / confirmed re-check.
+**Locked 2026-09-13 (D40).** Step 0 Analyse price is **previous regular-session close** from Yahoo Finance chart v8 (no key). One HTTP call per ticker per calendar day when the worker is gathering a billed analysis / confirmed re-check. Never estimate. Never write quotes or converted FX into `holding_lots` / view `holdings`.
+
+**P11-11 display exception (named 2026-10-05):** `/desk` server load may GET the same Yahoo chart v8 (`range=1y&interval=1d`) for the family’s current rows in view `holdings` plus NASDAQ Composite (`^IXIC`) and S&P 500 (`^GSPC`). That is display-only. Empty book → no fetch; the widget shows **—**. Unknown exchange → skip that lot (do not guess). In-progress session bar is dropped, same as Step 0.
 
 ## What we store
 
-**Previous regular-session close** (last completed daily bar), not last tick, not pre/post print.
+**Previous regular-session close** (last completed daily bar), not last tick, not pre/post print. Worker may cache in `eod_quotes`. Home trend does **not** insert `eod_quotes` or `holding_lots`.
 
 Worker HTTP (no API key):
 
@@ -12,7 +14,13 @@ Worker HTTP (no API key):
 GET https://query1.finance.yahoo.com/v8/finance/chart/{yahoo_symbol}?range=5d&interval=1d
 ```
 
-Read the last **finished** daily candle `close` (and `meta.currency`). If the last bar is the in-progress session, use the prior bar. If JSON is empty, HTTP ≠ 200, or close is missing → job `failed` with `error_text`; **do not estimate**.
+Home trend HTTP (no API key; Next.js server, not the browser):
+
+```
+GET https://query1.finance.yahoo.com/v8/finance/chart/{yahoo_symbol}?range=1y&interval=1d
+```
+
+Read the last **finished** daily candle `close` (and `meta.currency`). If the last bar is the in-progress session, use the prior bar. If JSON is empty, HTTP ≠ 200, or close is missing → Analyse job `failed` with `error_text`; Home trend shows **—**. **Do not estimate**.
 
 ## Yahoo symbol map
 

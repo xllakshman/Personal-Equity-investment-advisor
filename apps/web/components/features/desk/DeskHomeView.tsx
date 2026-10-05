@@ -1,9 +1,10 @@
 import Link from "next/link";
 
 import type { DeskHome } from "@/lib/desk/load-home";
-import { analysesThisCycleCaption } from "@/lib/desk/usage-meter";
+import { analysesThisCycleCaption, formatCreditAmount } from "@/lib/desk/usage-meter";
 import { RecheckForm } from "@/components/features/desk/RecheckForm";
 import { AllocationTable } from "@/components/features/desk/AllocationTable";
+import { PortfolioTrendCard } from "@/components/features/desk/PortfolioTrendCard";
 import { deskPrivacyView } from "@/lib/desk/privacy-status";
 import { firstName } from "@/lib/desk/identity";
 
@@ -31,8 +32,8 @@ export function DeskHomeView({
 }) {
   const analysesLabel =
     home.analysisLimit != null
-      ? `${home.analysesThisCycle} of ${home.analysisLimit}`
-      : String(home.analysesThisCycle);
+      ? `${formatCreditAmount(home.analysesThisCycle)} of ${home.analysisLimit}`
+      : formatCreditAmount(home.analysesThisCycle);
   const privacy = deskPrivacyView(home.supportGrant);
   const emptyBook = home.positions === 0;
   const portfolioValue = money(home.costBasis, home.costCurrency === "mixed" ? "USD" : home.costCurrency);
@@ -74,6 +75,7 @@ export function DeskHomeView({
           </p>
         </div>
       </div>
+      <PortfolioTrendCard trend={home.trend} />
       <section
         className={privacy.shared ? "desk__privacy desk__privacy--shared" : "desk__privacy"}
         aria-labelledby="desk-privacy-title"

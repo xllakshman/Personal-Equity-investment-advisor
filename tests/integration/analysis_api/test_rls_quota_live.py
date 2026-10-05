@@ -111,15 +111,24 @@ def test_meter_function_matches_search_plus_refine_kinds(settings_from_env) -> N
         family_id = row[0]
         cur.execute("select thesis_billing_period_start()")
         period = cur.fetchone()[0]
+        cur.execute(
+            """
+            select 1 from information_schema.columns
+             where table_schema = 'public' and table_name = 'usage_events'
+               and column_name = 'quantity'
+            """
+        )
+        if not cur.fetchone():
+            pytest.skip("027 not applied — usage_events.quantity missing")
         cur.execute("select thesis_family_meter_count(%s, %s)", (family_id, period))
         meter = cur.fetchone()[0]
         cur.execute(
             """
-            select count(*)::integer
-              from usage_events
-             where family_id = %s
-               and billing_period = %s
-               and kind in ('search', 'refine', 'refine_gate')
+            select coalesce(sum(ue.quantity), 0)
+              from usage_events ue
+             where ue.family_id = %s
+               and ue.billing_period = %s
+               and ue.kind in ('search', 'refine', 'refine_gate')
             """,
             (family_id, period),
         )

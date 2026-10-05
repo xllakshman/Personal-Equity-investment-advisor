@@ -16,7 +16,12 @@ import {
 } from "@/lib/admin/operator-copy";
 import { planCardTitle } from "@/lib/billing/plan-titles";
 import { createClient } from "@/lib/supabase/server";
-import { meterEventCount } from "@/lib/desk/usage-meter";
+import {
+  meterEventsFromUsageRows,
+  selectUsageEventsForMeter,
+  usageCostCents,
+} from "@/lib/desk/load-usage-events";
+import { meterCreditSum } from "@/lib/desk/usage-meter";
 
 function monthStartUtc(now = new Date()): string {
   return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-01`;
@@ -165,13 +170,15 @@ export default async function AdminAccountsPage() {
         pendingTitle =
           plans.find((p) => p.id === pendingPlanId)?.title ?? "Requested";
       }
-      const { data: usage } = await supabase
-        .from("usage_events")
-        .select("kind, cost_cents")
-        .eq("family_id", familyId)
-        .eq("billing_period", period);
-      used = meterEventCount((usage ?? []).map((e) => String(e.kind)));
-      mtd = (usage ?? []).reduce((s, e) => s + Number(e.cost_cents ?? 0), 0);
+      const usage = await selectUsageEventsForMeter((columns) =>
+        supabase
+          .from("usage_events")
+          .select(columns)
+          .eq("family_id", familyId)
+          .eq("billing_period", period),
+      );
+      used = meterCreditSum(meterEventsFromUsageRows(usage));
+      mtd = usageCostCents(usage);
     }
     rows.push({
       id: String(u.id),

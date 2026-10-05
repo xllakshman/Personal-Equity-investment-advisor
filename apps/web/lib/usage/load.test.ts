@@ -22,6 +22,7 @@ function snap(over: Partial<UsageSnapshot> = {}): UsageSnapshot {
 describe("usageCaption", () => {
   it("shows used of limit in plain English", () => {
     assert.equal(usageCaption(snap()), "1 of 20");
+    assert.equal(usageCaption(snap({ used: 1.5, limit: 80 })), "1.5 of 80");
   });
 
   it("handles missing limit", () => {
@@ -66,6 +67,10 @@ describe("planStatusLabel", () => {
     assert.equal(
       analyseUsageChip(snap({ planName: "Trial", used: 0, limit: 3 })),
       "Trial · 0 of 3 analyses used",
+    );
+    assert.equal(
+      analyseUsageChip(snap({ planName: "Ultra", used: 1.5, limit: 80 })),
+      "Ultra · 1.5 of 80 analyses used",
     );
   });
 });

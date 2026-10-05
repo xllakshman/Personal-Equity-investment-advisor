@@ -10,6 +10,7 @@ SQL = (ROOT / "supabase/migrations/027_search_credit_quantity.sql").read_text(
 
 def test_027_adds_quantity_and_sums_meter_kinds() -> None:
     assert "insert into schema_migrations (id, name) values (27," in SQL
+    assert "drop function if exists thesis_family_meter_count(uuid, date)" in SQL
     assert "add column if not exists quantity numeric(8, 2)" in SQL
     assert "create or replace function thesis_family_meter_count" in SQL
     assert "create or replace function thesis_assert_quota" in SQL

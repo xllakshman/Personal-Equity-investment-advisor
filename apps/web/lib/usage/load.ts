@@ -1,5 +1,10 @@
 import { planCardTitle } from "@/lib/billing/plan-titles";
-import { meterEventCount, quotaExhausted } from "@/lib/desk/usage-meter";
+import {
+  meterEventsFromUsageRows,
+  selectUsageEventsForMeter,
+  usageCostCents,
+} from "@/lib/desk/load-usage-events";
+import { meterCreditSum, quotaExhausted } from "@/lib/desk/usage-meter";
 import { createClient } from "@/lib/supabase/server";
 
 import type { UsageSnapshot } from "./types";
@@ -16,11 +21,13 @@ export async function loadUsageSnapshot(familyId: string): Promise<UsageSnapshot
   const period = monthStartUtc();
 
   const [usageRes, familyRes, walletRes] = await Promise.all([
-    supabase
-      .from("usage_events")
-      .select("kind, cost_cents")
-      .eq("family_id", familyId)
-      .eq("billing_period", period),
+    selectUsageEventsForMeter((columns) =>
+      supabase
+        .from("usage_events")
+        .select(columns)
+        .eq("family_id", familyId)
+        .eq("billing_period", period),
+    ),
     supabase.from("families").select("plan_id, billing_status").eq("id", familyId).maybeSingle(),
     supabase.from("wallets").select("balance_cents").eq("family_id", familyId).maybeSingle(),
   ]);
@@ -54,11 +61,8 @@ export async function loadUsageSnapshot(familyId: string): Promise<UsageSnapshot
     }));
   }
 
-  const used = meterEventCount((usageRes.data ?? []).map((row) => String(row.kind ?? "")));
-  const costCents = (usageRes.data ?? []).reduce(
-    (sum, row) => sum + Number(row.cost_cents ?? 0),
-    0,
-  );
+  const used = meterCreditSum(meterEventsFromUsageRows(usageRes));
+  const costCents = usageCostCents(usageRes);
   const exhausted = quotaExhausted(used, limit);
   const pctUsed = limit && limit > 0 ? (used / limit) * 100 : 0;
   const activeNotices = notices.filter((n) => pctUsed >= n.pct);

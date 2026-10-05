@@ -21,12 +21,12 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 | Field | Value |
 |-------|--------|
 | **Build next** | **P6-03** — merchant unnamed (blocked) |
-| Last done | **P11-10** — desk pass: `/portfolio` CSV File + four-column template; `/desk` read-only `holdings`; notes widget + Change Plan; agent credits copy; light desk. **027** written, not applied. |
-| Blocked on you | P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. Apply **027** only when you name DEV + file + `CONFIRM_APPLY=1`. |
+| Last done | **P11-11** — `/desk` portfolio vs NASDAQ/S&P trend (display Yahoo chart). **027** applied on DEV only. |
+| Blocked on you | P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. Apply **027** on **PROD** only when you name prod + file + `CONFIRM_APPLY=1`. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
-| DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–026** applied |
-| PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — **001–026 applied 2026-10-04**. `holdings` = 0. Maya seed not run. |
+| DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–027** applied |
+| PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — **001–026 applied 2026-10-04**. `holdings` = 0. Maya seed not run. **027 not applied.** |
 | PROD web | **`https://eqveste.com`** — Vercel Next.js. FastAPI/worker **`https://api.eqveste.com`** on droplet `157.245.102.243`. |
 
 ---
@@ -835,7 +835,7 @@ Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do 
 
 ## Phase 11 — Note layout and desk/admin fixes (named 2026-10-04)
 
-One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30). **Build next** is **P6-03** (merchant unnamed). **P11-10** is done.
+One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30). **Build next** is **P6-03** (merchant unnamed). **P11-11** is done.
 
 ### P11-01 — Typeset note + PDF download
 
@@ -973,6 +973,22 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
   8–9. Name menu is liquid glass; desk chrome is light with dark ink; `/reports/[id]` typeset stays readable; Download PDF unchanged.
 - **Testing:** three passes (testing.mdc). `npm test` in `apps/web`; `./tools/test/run_tests.sh` if Python/quota SQL is added; `npm run build` in `apps/web`. Browser smoke on port **3100**: `/desk` `/portfolio` `/analyse` `/reports` `/billing`.
 
+### P11-11 — Home: portfolio trend vs NASDAQ and S&P
+
+- **Status:** ✅ 2026-10-05 — user named Home trend this turn (D40 display-only override). **027** applied on DEV. Do not start P6-03.
+- **Depends on:** P11-10
+- **Direction:** `/desk` widget: Daily / Weekly / Monthly / Yearly tabs. Portfolio series = current rows in view `holdings` (qty × Yahoo daily closes, display FX only). Compare to NASDAQ Composite (`^IXIC`) and S&P 500 (`^GSPC`). Fetch on the Next.js server (`lib/market/yahoo-chart.ts`), not the browser. No new paid vendor. Gain/loss KPI stays **—**. Book of record stays `/portfolio` → `holding_lots`; Home SELECT view `holdings` only. Empty book = empty chart / **—**. Unknown exchange skipped (no guess). In-progress session bar dropped. Frontier Analyse search = **1.5** credits after 027; Quick = **1**. Desk “Analyses this month” sums `usage_events.quantity` for kinds `search` / `refine` / `refine_gate` (same as `thesis_family_meter_count` / `thesis_assert_quota`). Ultra `plans.monthly_analysis_limit` = 80. Do not bill `prompt_extract_attempt` as search. `usage_events.quantity` is numeric 1 or 1.5 — not prompt text.
+- **Writes:** none on `/desk` (no `holding_lots` / `holdings` / `eod_quotes` insert). Analyse **Run analysis** still RPC `thesis_accept_analysis`, which inserts `analysis_requests` (`queued`) and `usage_events` (`kind = search`, `quantity` 1 or 1.5).
+- **Reads:** `/desk` SELECT view `holdings` for session `family_id`; `usage_events.kind` + `quantity` (retry without `quantity` if the column is missing; each meter-kind row then counts as 1); Yahoo chart v8 for lot symbols + `^IXIC` + `^GSPC`. `/portfolio` still writes lots.
+- **Who:** owner/member/viewer with `user_can_read_family` see the family book and trend. Viewer cannot upload CSV or call `thesis_accept_analysis`.
+- **UI today:** `/desk` trend card with period tabs; empty book **—**.
+- **Success:**
+  1. Logged-in `/desk` shows the trend widget. Empty `holdings` → **—** / add-on-Review-Portfolio copy; no invented P&L.
+  2. With lots, server fetches Yahoo 1y daily closes; chart indexes portfolio vs NASDAQ vs S&P; % and dates formatted. Home does not INSERT/UPDATE `holding_lots`.
+  3. Desk KPI and `/usage` meter match `sum(quantity)` of search/refine/refine_gate. Frontier search writes `quantity = 1.5` after 027. Extract/pdf not summed.
+  4. CSV on `/portfolio`, one recent note + All Reports, Change Plan, light desk, Download PDF unchanged.
+- **Testing:** three passes (testing.mdc). Pass 1: family_id isolation; viewer read-only; meter kinds + quantity. Pass 2: empty book; unknown exchange skipped; FX display does not write back. Pass 3: formatted % / dates; Gain/loss still **—**; no prompt body in quantity. `npm test` in `apps/web`; `./tools/test/run_tests.sh`; live quota if `.env` has DB password; `npm run build` in `apps/web`. Browser `/desk` on **3100** if already up.
+
 ---
 
 ## Out of scope until you add a chunk
@@ -1062,6 +1078,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | P11-09 | 2026-10-05 | ✅ `/reports/[id]` SELECT `reports` for session `family_id`; machine JSON hidden; KEY DATA / slice / scorecard tables from `sections.machine`. No prompt change. User asked commit + **dev** + **prod**. |
 | P11-09 PDF | 2026-10-05 | ✅ Download PDF on `/reports/[id]` calls `GET /reports/:id/pdf`; analysis-api Playwright re-renders from current `reports.sections` and upserts Storage `report-pdfs` at `pdf_key`. Existing ready notes (stale objects) match the screen without Analyse again. D4: note jsonb unchanged. No prompt change. |
 | P11-10 | 2026-10-05 | ✅ `/portfolio` CSV File + template; `/desk` read-only `holdings` (no Yahoo); notes widget + **Change Plan**; agent 1.5/1 credits copy; light desk. **027** in git, not applied. No commit/push. |
+| P11-11 | 2026-10-05 | ✅ `/desk` portfolio vs NASDAQ/S&P (Yahoo chart display-only). **027** applied on DEV `cmksomahsfmsjufakryw` (not prod). Meter sums `usage_events.quantity`; prod SELECT retries without that column (1 credit per search/refine/refine_gate row). |
 
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.

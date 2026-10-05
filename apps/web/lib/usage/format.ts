@@ -1,8 +1,10 @@
+import { formatCreditAmount } from "@/lib/desk/usage-meter";
+
 import type { UsageSnapshot } from "./types";
 
 export function usageCaption(snap: UsageSnapshot): string {
-  if (snap.limit == null) return `${snap.used} analyses this month`;
-  return `${snap.used} of ${snap.limit}`;
+  if (snap.limit == null) return `${formatCreditAmount(snap.used)} analyses this month`;
+  return `${formatCreditAmount(snap.used)} of ${snap.limit}`;
 }
 
 export function usageHumanHint(snap: UsageSnapshot): string {
@@ -23,7 +25,7 @@ export function headerPlanLine(snap: UsageSnapshot): string {
 export function analyseUsageChip(snap: UsageSnapshot): string {
   const plan = snap.planName ?? "Trial";
   if (snap.limit == null) return `${plan} · analyses this month`;
-  return `${plan} · ${snap.used} of ${snap.limit} analyses used`;
+  return `${plan} · ${formatCreditAmount(snap.used)} of ${snap.limit} analyses used`;
 }
 
 export function planStatusLabel(

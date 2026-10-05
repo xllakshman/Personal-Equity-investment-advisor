@@ -6,7 +6,8 @@
 -- Do not apply without CONFIRM_APPLY=1 and a named target (DEV or PROD).
 -- =============================================================================
 
-insert into schema_migrations (id, name) values (27, '027_search_credit_quantity.sql');
+insert into schema_migrations (id, name) values (27, '027_search_credit_quantity.sql')
+on conflict (id) do nothing;
 
 alter table usage_events
   add column if not exists quantity numeric(8, 2) not null default 1
@@ -14,6 +15,9 @@ alter table usage_events
 
 comment on column usage_events.quantity is
   'Plan credits. Search is 1 (Quick) or 1.5 (Frontier). Refine kinds stay 1. Not counted for prompt_extract_attempt or pdf.';
+
+-- 012 returned integer (row count). DROP first; CREATE OR REPLACE cannot change result type.
+drop function if exists thesis_family_meter_count(uuid, date);
 
 create or replace function thesis_family_meter_count(
   p_family_id uuid,

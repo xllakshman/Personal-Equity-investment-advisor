@@ -11,7 +11,7 @@ function src(rel: string): string {
 }
 
 describe("Home book and notes widget", () => {
-  it("reads view holdings, not a second lots book, and does not fetch Yahoo", () => {
+  it("reads view holdings, not a second lots book; P&L stays dash; trend is display-only", () => {
     const page = src("app/(desk)/desk/page.tsx");
     const home = src("lib/desk/load-home.ts");
     const view = src("components/features/desk/DeskHomeView.tsx");
@@ -19,7 +19,11 @@ describe("Home book and notes widget", () => {
     assert.match(page, /loadDeskHome/);
     assert.equal(page.includes("loadHoldingLots"), false);
     assert.match(home, /from\("holdings"\)/);
+    assert.match(home, /loadPortfolioTrend/);
+    assert.equal(home.includes('from("holding_lots")'), false);
+    assert.equal(home.includes(".insert("), false);
     assert.match(view, /AllocationTable holdings=\{home\.holdings\}/);
+    assert.match(view, /PortfolioTrendCard trend=\{home\.trend\}/);
     assert.equal(view.includes("Add stock"), false);
     assert.equal(view.includes("HomeBook"), false);
     assert.equal(alloc.includes("useQuotes"), false);

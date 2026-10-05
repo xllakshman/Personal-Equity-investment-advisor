@@ -7,7 +7,13 @@ import {
   lastCheckedLabel,
   type HoldingRow,
 } from "@/lib/desk/home-math";
-import { meterEventCount } from "@/lib/desk/usage-meter";
+import { loadPortfolioTrend, type PortfolioTrendPayload } from "@/lib/desk/load-portfolio-trend";
+import {
+  meterEventsFromUsageRows,
+  selectUsageEventsForMeter,
+} from "@/lib/desk/load-usage-events";
+import { meterCreditSum } from "@/lib/desk/usage-meter";
+import { asDisplayCurrency } from "@/lib/portfolio/grid";
 import { createClient } from "@/lib/supabase/server";
 
 export type SupportGrantStatus = {
@@ -34,6 +40,7 @@ export type DeskHome = {
   sampleCount: number;
   supportGrant: SupportGrantStatus;
   flags: DeskFlag[];
+  trend: PortfolioTrendPayload;
 };
 
 function monthStartUtc(now = new Date()): string {
@@ -45,18 +52,20 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
   const period = monthStartUtc();
 
   const nowIso = new Date().toISOString();
-  const [holdingsRes, usageRes, reportsRes, familyRes, grantRes, profileRes] =
+  const [holdingsRes, usageRes, reportsRes, familyRes, grantRes, profileRes, portfolioRes] =
     await Promise.all([
     supabase
       .from("holdings")
       .select("ticker, company_name, qty, cost_per_share, native_currency, exchange")
       .eq("family_id", familyId)
       .order("ticker"),
-    supabase
-      .from("usage_events")
-      .select("kind")
-      .eq("family_id", familyId)
-      .eq("billing_period", period),
+    selectUsageEventsForMeter((columns) =>
+      supabase
+        .from("usage_events")
+        .select(columns)
+        .eq("family_id", familyId)
+        .eq("billing_period", period),
+    ),
     supabase
       .from("reports")
       .select("id, ticker, name, verdict, created_at, is_library_sample")
@@ -75,6 +84,13 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
       .from("investor_profiles")
       .select("cash_reserve_pct_min, concentration_cap_pct, outside_book")
       .eq("family_id", familyId)
+      .maybeSingle(),
+    supabase
+      .from("portfolios")
+      .select("display_currency, fx_usd_inr_override")
+      .eq("family_id", familyId)
+      .order("created_at", { ascending: true })
+      .limit(1)
       .maybeSingle(),
   ]);
 
@@ -130,12 +146,22 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
     profileRes.data?.concentration_cap_pct ?? 15,
   );
   const cash = parseOutsideBook(profileRes.data?.outside_book).cash;
+  const fxRaw = portfolioRes.data?.fx_usd_inr_override;
+  const fx =
+    fxRaw === null || fxRaw === undefined ? null : Number(fxRaw);
+  const trend = await loadPortfolioTrend(
+    mappedHoldings,
+    asDisplayCurrency(
+      portfolioRes.data?.display_currency
+        ? String(portfolioRes.data.display_currency)
+        : null,
+    ),
+    fx !== null && Number.isFinite(fx) && fx > 0 ? fx : null,
+  );
 
   return {
     positions: holdings.length,
-    analysesThisCycle: meterEventCount(
-      (usageRes.data ?? []).map((row) => String(row.kind ?? "")),
-    ),
+    analysesThisCycle: meterCreditSum(meterEventsFromUsageRows(usageRes)),
     analysisLimit,
     planName,
     costBasis,
@@ -160,5 +186,6 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
       concentrationCapPct,
       holdings: mappedHoldings,
     }),
+    trend,
   };
 }
