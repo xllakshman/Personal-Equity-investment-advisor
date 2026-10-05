@@ -35,4 +35,19 @@ describe("parseCharts", () => {
     });
     assert.equal(charts[0].type, "line");
   });
+
+  it("keeps a system price_vs_tranches line and drops pie", () => {
+    const { charts, dropped } = parseCharts({
+      price_vs_tranches: {
+        type: "line",
+        title: "Price vs 52-week",
+        labels: ["2026-01", "2026-02"],
+        values: [90, 80],
+      },
+      pie: { type: "pie", title: "Segments", labels: ["A"], values: [1] },
+    });
+    assert.equal(charts.length, 1);
+    assert.equal(charts[0].type, "line");
+    assert.ok(dropped.includes("pie"));
+  });
 });

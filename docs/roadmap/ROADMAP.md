@@ -20,13 +20,13 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 
 | Field | Value |
 |-------|--------|
-| **Build next** | **P6-03** — merchant unnamed (blocked). **P11-12** done this session. |
-| Last done | **P11-12** — ESOP vs Retail sleeves + unrealized P&L % (display Yahoo). **028** in git, **not applied**. |
-| Blocked on you | Apply **028** on **DEV** (then PROD) only when you name the env + file + `CONFIRM_APPLY=1`. Until then every lot **reads** as Retail. P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. Apply **027** on **PROD** only when you name prod + file + `CONFIRM_APPLY=1`. |
+| **Build next** | **P6-03** — merchant unnamed (blocked). **P11-13** done this session. |
+| Last done | **P11-13** — Yahoo 1y + 52w close, SEC EDGAR headlines (US), derived T2–T4/U1–U2, system charts, silent repair. No new SQL. |
+| Blocked on you | P6-03 merchant. Step 0 items 3–7 still unnamed (job no longer fails closed for those). P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
-| DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–027** applied. **028 not applied.** |
-| PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — **001–026 applied 2026-10-04**. `holdings` = 0. Maya seed not run. **027 not applied. 028 not applied.** |
+| DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–028** applied. |
+| PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — **001–028 applied 2026-10-05**. Maya seed not run. View `holdings` had 18 rows after 028 (27 `holding_lots`, all `lot_kind = retail` until edited). |
 | PROD web | **`https://eqveste.com`** — Vercel Next.js. FastAPI/worker **`https://api.eqveste.com`** on droplet `157.245.102.243`. |
 
 ---
@@ -835,7 +835,7 @@ Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do 
 
 ## Phase 11 — Note layout and desk/admin fixes (named 2026-10-04)
 
-One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30). **Build next** is **P6-03** (merchant unnamed). **P11-11** is done.
+One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30). **Build next** is **P6-03** (merchant unnamed). **P11-13** is done.
 
 ### P11-01 — Typeset note + PDF download
 
@@ -975,7 +975,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 
 ### P11-11 — Home: portfolio trend vs NASDAQ and S&P
 
-- **Status:** ✅ 2026-10-05 — user named Home trend this turn (D40 display-only override). **027** applied on DEV. Do not start P6-03.
+- **Status:** ✅ 2026-10-05 — user named Home trend this turn (D40 display-only override). **027** applied on DEV and PROD. Do not start P6-03.
 - **Depends on:** P11-10
 - **Direction:** `/desk` widget: Daily / Weekly / Monthly / Yearly tabs. Portfolio series = current rows in view `holdings` (qty × Yahoo daily closes, display FX only). Compare to NASDAQ Composite (`^IXIC`) and S&P 500 (`^GSPC`). Fetch on the Next.js server (`lib/market/yahoo-chart.ts`), not the browser. No new paid vendor. Gain/loss KPI stays **—**. Book of record stays `/portfolio` → `holding_lots`; Home SELECT view `holdings` only. Empty book = empty chart / **—**. Unknown exchange skipped (no guess). In-progress session bar dropped. Frontier Analyse search = **1.5** credits after 027; Quick = **1**. Desk “Analyses this month” sums `usage_events.quantity` for kinds `search` / `refine` / `refine_gate` (same as `thesis_family_meter_count` / `thesis_assert_quota`). Ultra `plans.monthly_analysis_limit` = 80. Do not bill `prompt_extract_attempt` as search. `usage_events.quantity` is numeric 1 or 1.5 — not prompt text.
 - **Writes:** none on `/desk` (no `holding_lots` / `holdings` / `eod_quotes` insert). Analyse **Run analysis** still RPC `thesis_accept_analysis`, which inserts `analysis_requests` (`queued`) and `usage_events` (`kind = search`, `quantity` 1 or 1.5).
@@ -991,13 +991,13 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 
 ### P11-12 — ESOP vs Retail + unrealized P&L %
 
-- **Status:** ✅ 2026-10-05 — user named ESOP/Retail + P&L % this turn. **028** in git, **not applied**. Do not start P6-03.
+- **Status:** ✅ 2026-10-05 — user named ESOP/Retail + P&L % this turn. **028** applied on DEV and PROD. Do not start P6-03.
 - **Depends on:** P11-11, P11-04, P2-02
 - **Direction:** `/portfolio` mark each lot **Retail** or **ESOP**. Grid shows **two sections** (not mixed unlabeled rows). Manual add + edit include the control. CSV optional `lot_kind` (missing/blank = `retail`; invalid = reject that row). `/desk` shows Retail and ESOP as two read-only blocks (no Add/CSV on Home); link to Review Portfolio for edits. Unrealized P&L **%** = (display market value − display cost) / display cost from view `holdings` qty × Yahoo previous close (Next.js server, `lib/market/yahoo-chart.ts` + `lib/market/load-quotes.ts`). Display FX only. **Never** INSERT/UPDATE quotes into `holding_lots` / `holdings` / `eod_quotes` (D40). Empty book or failed quote → **—**, never fake 0%. Empty ESOP → empty section / **—**. Viewer cannot write. Migration **028** adds `holding_lots.lot_kind` and exposes it on view `holdings` (group by kind so the same ticker can appear in both sleeves). RLS unchanged.
 - **Writes:** `/portfolio` owner/member INSERT/UPDATE/DELETE `holding_lots` (including `lot_kind` once 028 is applied). CSV still writes `portfolio_import_rows` + accepted `holding_lots`. If `lot_kind` is missing on the DB, skip writing that column; every row **reads** as Retail. `/desk` writes nothing.
 - **Reads:** `/portfolio` and `/desk` SELECT view `holdings` for session `family_id`. P&L % uses Yahoo chart v8 previous close on the Next.js server. Display FX helpers do not write converted amounts.
 - **Who:** owner/member write lots; viewer (`member_role = viewer`) SELECT only (`user_can_read_family`). Viewer cannot CSV, add, edit, delete, or set lot_kind.
-- **UI today:** `/portfolio` CSV File + template + add + edit/delete; `/desk` read-only book + trend. No sleeve split until this chunk. **028 not applied.**
+- **UI today:** `/portfolio` CSV File + template + add + edit/delete with Retail/ESOP; `/desk` read-only book + trend. **028 applied** — `holding_lots.lot_kind` + view `holdings.lot_kind`.
 - **Success:**
   1. Owner/member on `/portfolio` can mark a lot Retail or ESOP (add + edit). Grid shows two labeled sections. Same ticker may appear in both. Viewer has no write controls.
   2. CSV without `lot_kind` still imports as Retail. Optional `lot_kind` column accepted; junk kind rejects that row, not silent drop of the file.
@@ -1009,6 +1009,24 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
   - Pass 2: empty ESOP; missing CSV `lot_kind` → retail; invalid kind rejected; FX display does not write back; quote helper never inserts `holding_lots`.
   - Pass 3: formatted `+12.3%` / **—**; empty book **—**; no prompt body.
   `npm test` in `apps/web`; `./tools/test/run_tests.sh` (028 static); `npm run build` in `apps/web`. Browser `/desk` `/portfolio` on **3100** if already up.
+
+### P11-13 — Yahoo 52w + SEC EDGAR headlines + derived bands + silent repair
+
+- **Status:** ✅ 2026-10-05 — user named P11-13 this turn (SDE = SEC EDGAR, not Google). Do not start P6-03. No new migration.
+- **Depends on:** P4-01, P11-12
+- **Direction:** Worker Step 0 item 1 stays Yahoo chart v8 (`range=1y&interval=1d`): previous close, 52-week *closing* high + date, % below high. Cache today’s close in `eod_quotes`. Never write quotes into `holding_lots`. Missing close still fails the job. Item 2: US-listed names GET `data.sec.gov` submissions (User-Agent `MARKET_DATA_USER_AGENT`, ≤10 req/s) and insert `analysis_evidence.step0_number = 2` with 8-K/10-Q/10-K **headlines only** (title, url, filed date, short description). Never store full filing HTML. NSE/BSE: no EDGAR row; pack `step0_coverage["2"] = NOT_COVERED`; job still `ready`. Items 3–7 omitted / NOT_COVERED — comprehensive no longer fails for those. Derived in code (not XBRL): % below 52w; T2/T3/T4 price bands from 52w high; U1/U2 from T1 cost when present. Enrich the **user** variable pack. Silent repair: one extra `complete_chat` on the **same** `model_catalog` row; `UPDATE usage_events.cost_cents` on the existing `search` row; no second meter insert. Worker writes `reports.charts` jsonb for **new** analyses only (`price_vs_tranches` line + levels table). Frontend `parseCharts` / `ReportCharts` CSS bars; no pie; no `dangerouslySetInnerHTML`. Do not scrape stockanalysis.com. No OpenRouter. No Google/Kimi on `/analyse`.
+- **Writes:** worker `analysis_evidence` (1 always; 2 when US EDGAR headlines exist); `eod_quotes` (today’s close); `reports` insert including `charts` (new rows only); `usage_events.cost_cents` UPDATE on the search row. Never `holding_lots`. Never `UPDATE` old `reports.charts` / `sections`.
+- **Reads:** Yahoo chart v8; SEC company tickers + `data.sec.gov/submissions/CIK….json`; `holdings` / `investor_profiles` for T1 cost and pack; `/reports/[id]` SELECT `reports.charts`.
+- **Who:** owner/member enqueue via `thesis_accept_analysis`. Viewer cannot POST. Worker uses postgres / service_role.
+- **UI today:** `/analyse` Run analysis still queues the job. New ready notes may show a price line and a levels table on `/reports/[id]`. Old notes unchanged (D4).
+- **Success:**
+  1. Item 1 Yahoo 1y pack has previous close, 52w closing high, % below. Missing close → `analysis_requests.status = failed`. Close is not written to lots.
+  2. US ticker: `analysis_evidence` row `step0_number = 2` with headlines JSON, not full text. NSE/BSE: no that row; job can still `ready`.
+  3. Comprehensive lenses do not fail solely because items 3–7 are unnamed.
+  4. Variable pack includes `derived` (T2–T4, U1/U2 when T1 exists) and `step0_coverage`.
+  5. Parse/adherence repair is one extra lab call on the same catalog row; meter is still one `search` row with updated `cost_cents`.
+  6. New `reports.charts` has allowlisted line/table only. Pie/html dropped. PDF reuses the same allowlist as bars/tables.
+- **Testing:** three passes (testing.mdc). Unit: 52w/tranche maths; EDGAR mock HTTP; comprehensive no THS-STEP0-001 for 3–7; silent repair no extra `usage_events` insert; chart validator; Yahoo not writing lots. `./tools/test/run_tests.sh`. `npm run build` in `apps/web`.
 
 ---
 
@@ -1099,8 +1117,10 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | P11-09 | 2026-10-05 | ✅ `/reports/[id]` SELECT `reports` for session `family_id`; machine JSON hidden; KEY DATA / slice / scorecard tables from `sections.machine`. No prompt change. User asked commit + **dev** + **prod**. |
 | P11-09 PDF | 2026-10-05 | ✅ Download PDF on `/reports/[id]` calls `GET /reports/:id/pdf`; analysis-api Playwright re-renders from current `reports.sections` and upserts Storage `report-pdfs` at `pdf_key`. Existing ready notes (stale objects) match the screen without Analyse again. D4: note jsonb unchanged. No prompt change. |
 | P11-10 | 2026-10-05 | ✅ `/portfolio` CSV File + template; `/desk` read-only `holdings` (no Yahoo); notes widget + **Change Plan**; agent 1.5/1 credits copy; light desk. **027** in git, not applied. No commit/push. |
-| P11-11 | 2026-10-05 | ✅ `/desk` portfolio vs NASDAQ/S&P (Yahoo chart display-only). **027** applied on DEV `cmksomahsfmsjufakryw` (not prod). Meter sums `usage_events.quantity`; prod SELECT retries without that column (1 credit per search/refine/refine_gate row). |
-| P11-12 | 2026-10-05 | ✅ `/portfolio` and `/desk` split Retail vs ESOP; unrealized P&L % from display Yahoo close. **028** in git, not applied. SELECT/INSERT skip `lot_kind` when the column is missing. |
+| P11-11 | 2026-10-05 | ✅ `/desk` portfolio vs NASDAQ/S&P (Yahoo chart display-only). **027** applied DEV + PROD 2026-10-05. Meter sums `usage_events.quantity`; Frontier `thesis_accept_analysis` writes 1.5. |
+| P11-12 | 2026-10-05 | ✅ `/portfolio` and `/desk` split Retail vs ESOP; unrealized P&L % from display Yahoo close. **028** applied DEV + PROD 2026-10-05 (`holding_lots.lot_kind` + view `holdings`). |
+| SQL 027+028 | 2026-10-05 | ✅ Applied on DEV (`cmksomahsfmsjufakryw`) and PROD (`ndgvglcrkbygovlszxze`). Skipped re-run of 027 on DEV (already in `schema_migrations`). |
+| P11-13 | 2026-10-05 | ✅ Worker Yahoo 1y + 52w close, SEC EDGAR headlines for US names, derived T2–T4/U1–U2 in the variable pack, system charts on new `reports`, silent repair updates the same `search` `usage_events` row. No stockanalysis.com. **Build next: P6-03**. |
 
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.

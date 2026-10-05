@@ -32,8 +32,22 @@ def yahoo_symbol(ticker: str, exchange: str | None) -> str:
     raise YahooError("unknown exchange")
 
 
-def chart_url(symbol: str) -> str:
-    return YAHOO_CHART.format(symbol=symbol) + "?range=5d&interval=1d"
+def is_us_listed(ticker: str, exchange: str | None) -> bool:
+    """US venues only. NSE/BSE (.NS/.BO) are not EDGAR-covered."""
+    t = (ticker or "").strip().upper()
+    if t.endswith(".NS") or t.endswith(".BO"):
+        return False
+    ex = (exchange or "").strip().upper()
+    if ex in NSE_EXCHANGES or ex in BSE_EXCHANGES:
+        return False
+    if not ex or ex in US_EXCHANGES:
+        return True
+    return False
+
+
+def chart_url(symbol: str, range: str = "1y") -> str:
+    window = (range or "1y").strip() or "1y"
+    return YAHOO_CHART.format(symbol=symbol) + f"?range={window}&interval=1d"
 
 
 @dataclass(frozen=True)
@@ -44,7 +58,21 @@ class PreviousClose:
     quote_date: date
 
 
-def parse_previous_close(payload: dict[str, Any], symbol: str) -> PreviousClose:
+@dataclass(frozen=True)
+class DailyClose:
+    quote_date: date
+    close: float
+
+
+@dataclass(frozen=True)
+class YahooChartPack:
+    previous: PreviousClose
+    high_52w: float
+    high_52w_date: date
+    daily_closes: tuple[DailyClose, ...]
+
+
+def _daily_pairs(payload: dict[str, Any]) -> tuple[str, list[tuple[int, float]]]:
     chart = payload.get("chart") if isinstance(payload, dict) else None
     if not isinstance(chart, dict):
         raise YahooError("empty yahoo chart")
@@ -76,6 +104,11 @@ def parse_previous_close(payload: dict[str, Any], symbol: str) -> PreviousClose:
         pairs.append((ts, price))
     if not pairs:
         raise YahooError("close missing")
+    return currency, pairs
+
+
+def parse_previous_close(payload: dict[str, Any], symbol: str) -> PreviousClose:
+    currency, pairs = _daily_pairs(payload)
     ts, price = pairs[-1]
     quote_date = (
         datetime.fromtimestamp(ts, tz=timezone.utc).date()
@@ -88,3 +121,37 @@ def parse_previous_close(payload: dict[str, Any], symbol: str) -> PreviousClose:
         currency=currency,
         quote_date=quote_date,
     )
+
+
+def parse_yahoo_chart_pack(payload: dict[str, Any], symbol: str) -> YahooChartPack:
+    """Previous close plus 52-week *closing* high (max daily close, not intra-day)."""
+    previous = parse_previous_close(payload, symbol)
+    _currency, pairs = _daily_pairs(payload)
+    daily: list[DailyClose] = []
+    high_price = previous.close
+    high_date = previous.quote_date
+    for ts, price in pairs:
+        day = (
+            datetime.fromtimestamp(ts, tz=timezone.utc).date()
+            if ts
+            else previous.quote_date
+        )
+        daily.append(DailyClose(quote_date=day, close=price))
+        if price > high_price:
+            high_price = price
+            high_date = day
+    return YahooChartPack(
+        previous=previous,
+        high_52w=high_price,
+        high_52w_date=high_date,
+        daily_closes=tuple(daily),
+    )
+
+
+def monthly_closes(daily: tuple[DailyClose, ...] | list[DailyClose]) -> list[DailyClose]:
+    """Last finished close in each calendar month. For charts, not lots."""
+    by_month: dict[str, DailyClose] = {}
+    for point in daily:
+        key = point.quote_date.isoformat()[:7]
+        by_month[key] = point
+    return [by_month[k] for k in sorted(by_month)]

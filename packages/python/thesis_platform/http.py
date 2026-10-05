@@ -1,13 +1,32 @@
-"""HTTP helpers for Yahoo and native lab LLMs. Injected in unit tests."""
+"""HTTP helpers for Yahoo, SEC EDGAR, and native lab LLMs. Injected in unit tests."""
 from __future__ import annotations
 
+import time
 from typing import Any
 
 import httpx
 
 from .config import Settings
+from .edgar import (
+    COMPANY_TICKERS_URL,
+    NOT_COVERED,
+    SUBMISSIONS_URL,
+    cik_from_tickers_map,
+    empty_pack,
+    parse_submissions_headlines,
+)
 from .native_llm import ChatResult, LlmError, parse_response, request_spec, require_api_key
-from .yahoo import YahooError, chart_url, parse_previous_close, PreviousClose
+from .yahoo import (
+    YahooError,
+    YahooChartPack,
+    chart_url,
+    is_us_listed,
+    parse_yahoo_chart_pack,
+    PreviousClose,
+)
+
+_TICKER_MAP_CACHE: dict[str, Any] | None = None
+_EDGAR_GAP_SEC = 0.11
 
 
 def fetch_yahoo_chart(
@@ -16,11 +35,20 @@ def fetch_yahoo_chart(
     *,
     client: httpx.Client | None = None,
 ) -> PreviousClose:
+    return fetch_yahoo_chart_pack(settings, symbol, client=client).previous
+
+
+def fetch_yahoo_chart_pack(
+    settings: Settings,
+    symbol: str,
+    *,
+    client: httpx.Client | None = None,
+) -> YahooChartPack:
     headers = {"User-Agent": settings.market_data_user_agent}
     http = client or httpx.Client(timeout=20.0)
     owns = client is None
     try:
-        resp = http.get(chart_url(symbol), headers=headers)
+        resp = http.get(chart_url(symbol, "1y"), headers=headers)
         if resp.status_code != 200:
             raise YahooError(f"yahoo http {resp.status_code}")
         try:
@@ -29,10 +57,67 @@ def fetch_yahoo_chart(
             raise YahooError("empty yahoo chart") from exc
         if not payload:
             raise YahooError("empty yahoo chart")
-        return parse_previous_close(payload, symbol)
+        return parse_yahoo_chart_pack(payload, symbol)
     finally:
         if owns:
             http.close()
+
+
+def fetch_edgar_headlines(
+    settings: Settings,
+    ticker: str,
+    exchange: str | None,
+    *,
+    client: httpx.Client | None = None,
+) -> dict[str, Any]:
+    """US-listed only. Never raises into a failed Analyse job; NOT_COVERED otherwise."""
+    if not is_us_listed(ticker, exchange):
+        return empty_pack(NOT_COVERED)
+    headers = {
+        "User-Agent": settings.market_data_user_agent,
+        "Accept": "application/json",
+    }
+    http = client or httpx.Client(timeout=20.0)
+    owns = client is None
+    try:
+        mapping = _company_tickers(http, headers)
+        cik = cik_from_tickers_map(mapping, ticker)
+        if not cik:
+            return empty_pack(NOT_COVERED)
+        time.sleep(_EDGAR_GAP_SEC)
+        resp = http.get(SUBMISSIONS_URL.format(cik=cik), headers=headers)
+        if resp.status_code != 200:
+            return empty_pack(NOT_COVERED)
+        try:
+            payload = resp.json()
+        except ValueError:
+            return empty_pack(NOT_COVERED)
+        filings = parse_submissions_headlines(payload, cik)
+        if not filings:
+            return empty_pack(NOT_COVERED)
+        return {"status": "ok", "filings": filings}
+    except httpx.HTTPError:
+        return empty_pack(NOT_COVERED)
+    finally:
+        if owns:
+            http.close()
+
+
+def _company_tickers(http: httpx.Client, headers: dict[str, str]) -> dict[str, Any]:
+    global _TICKER_MAP_CACHE
+    if isinstance(_TICKER_MAP_CACHE, dict) and _TICKER_MAP_CACHE:
+        return _TICKER_MAP_CACHE
+    resp = http.get(COMPANY_TICKERS_URL, headers=headers)
+    if resp.status_code != 200:
+        return {}
+    try:
+        payload = resp.json()
+    except ValueError:
+        return {}
+    if isinstance(payload, dict) and payload:
+        _TICKER_MAP_CACHE = payload
+        return payload
+    return {}
 
 
 def complete_chat(

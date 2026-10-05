@@ -4,7 +4,7 @@
 > **Workspace:** `/Users/lakshmanyeluri/Documents/personalEquity_Advisor`  
 > **Reference layout:** `/Users/lakshmanyeluri/Documents/activePieces-docker/invoice-processing`  
 > **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P6-03** (merchant unnamed)  
-> **Latest session:** [`docs/handoff/SESSION-2026-10-05-p11-12.md`](docs/handoff/SESSION-2026-10-05-p11-12.md)  
+> **Latest session:** [`docs/handoff/SESSION-2026-10-05-p11-13.md`](docs/handoff/SESSION-2026-10-05-p11-13.md)  
 > **Mock UI:** [`docs/mock-ui/`](docs/mock-ui/README.md)  
 > **GitHub (empty):** `xllakshman/Personal-Equity-investment-advisor` · branch `main`
 
@@ -25,11 +25,11 @@
 | SQL 019 native labs | ✅ **applied** 2026-09-15 on DEV and PROD — Gemini/Kimi `is_active = false` |
 | Maya seed | ✅ `maya@thesis.demo` · 5 lots · 2 reports (1 sample) |
 | Storage bucket `report-pdfs` | ✅ private |
-| Analysis API / worker | ✅ 2026-10-04 — prod host droplet `157.245.102.243` `/opt/eqveste`; public **`https://api.eqveste.com`**. Local laptop still `:8091` + DEV `.env`. |
-| Next.js desk | ✅ 2026-10-05 — **P11-12:** `/portfolio` and `/desk` SELECT view `holdings` for session `family_id` and split **Retail** vs **ESOP**. Manual add/edit + optional CSV `lot_kind` (missing = retail) write `holding_lots` on `/portfolio` only (owner/member; viewer read-only). Unrealized P&L % = (display market − display cost) / cost from qty × Yahoo previous close (`lib/market/load-quotes.ts`); never INSERT/UPDATE lots. Empty book or failed quote = **—**. **028** is in git, **not applied**; SELECT retries without `lot_kind` and treats every row as Retail. **P11-11** NASDAQ/S&P trend unchanged. **027** applied on DEV only; prod meter still falls back when `usage_events.quantity` is missing. |
-| Prod schema | ✅ 2026-10-04 — **001–026** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. `thesis_admin_set_family_plan` on `/admin/accounts`. `thesis_admin_remove_prompt` on `/admin/prompt`. |
+| Analysis API / worker | ✅ 2026-10-05 — **P11-13:** worker Step 0 item 1 GET Yahoo chart v8 `range=1y` (previous close + 52w closing high); caches today’s close in `eod_quotes`; never writes lots. Item 2 GET `data.sec.gov` 8-K/10-Q/10-K headlines for US names into `analysis_evidence.step0_number = 2`. NSE skips EDGAR. Silent repair: one extra lab call on the same `model_catalog` row; UPDATE existing `usage_events.cost_cents` (`kind = search`); no second meter insert. New `reports.charts` only (D4). Prod host droplet `157.245.102.243` `/opt/eqveste`; public **`https://api.eqveste.com`**. Local laptop still `:8091` + DEV `.env`. |
+| Next.js desk | ✅ 2026-10-05 — Display currency: `asDisplayCurrency` defaults **USD** (saved INR kept). `/portfolio` labels on add/edit; CSV template lists parser columns (`lot_kind` optional). **P11-12:** `/portfolio` and `/desk` SELECT view `holdings` and split **Retail** vs **ESOP**. Owner/member write `holding_lots`; viewer read-only. Unrealized P&L % from qty × Yahoo previous close; never INSERT/UPDATE lots. Empty book or failed quote = **—**. **027+028 applied DEV and PROD.** `/analyse` **Run analysis** RPC `thesis_accept_analysis`. New ready notes may show `reports.charts` (line + table) on `/reports/[id]`. Old notes unchanged. |
+| Prod schema | ✅ 2026-10-05 — **001–028** on `ndgvglcrkbygovlszxze`. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. `thesis_admin_set_family_plan` on `/admin/accounts`. `thesis_admin_remove_prompt` on `/admin/prompt`. |
 | Prod Vercel | ✅ 2026-10-05 — Production deploy `dpl_BS8Md8FtMipvmrFwixrSeQtzHdhF` aliased to **`https://eqveste.com`**. Anon URL+key + Resend + `ANALYSIS_API_URL`. No service role or lab keys. |
-| Tests | ✅ unit + web tests for 4–9. Live two-JWT CI still skips without a second family JWT. |
+| Tests | ✅ 2026-10-05 — 210 Python unit + 265 web. Live two-JWT CI still skips without a second family JWT. |
 | Weekly holdings email | 🟡 **P8-02** table + opt-in + job; **send** blocked until a provider is named |
 | Analysis CSAT | ✅ **P5-05** `analysis_feedback` + **P7-10** admin tab |
 | Requirements vs mock/brief | ✅ Gap review 2026-09-13 — D27–D42 |
@@ -160,7 +160,7 @@ Taken from `Thesis.dc.html` Architecture & handoff + non-negotiables. Change onl
 | D37 | Job wait is **poll** of `analysis_requests.status` (Next route or `GET /analysis/:id`). Do not add Supabase Realtime until a later chunk you add. |
 | D38 | PDF renderer is **Playwright** (P4-03). Charts/tables in the note must survive the PDF. |
 | D39 | Worker and FastAPI refine call **native lab APIs**. `model_catalog.provider` selects the host: `openai` → `https://api.openai.com/v1/chat/completions` (`OPENAI_API_KEY`); `anthropic` → `https://api.anthropic.com/v1/messages` (`ANTHROPIC_API_KEY`); `xai` → `https://api.x.ai/v1/chat/completions` (`XAI_API_KEY`); `deepseek` → `https://api.deepseek.com/v1/chat/completions` (`DEEPSEEK_API_KEY`). HTTP `model` = `model_catalog.provider_model_id`. Missing key for that provider or a response `model` that does not match → job `failed` / HTTP 503, no `reports` insert. Forbidden: OpenRouter, `openrouter/auto`, Google, Moonshot. `/analyse` still reads `model_catalog.label` / `thesis_class`; Gemini and Kimi are hidden (UI filter + 019 `is_active = false`). |
-| D40 | Step 0 **price** is **previous regular-session close** from Yahoo Finance chart v8 (no key). Spec: [`docs/architecture/MARKET-DATA.md`](docs/architecture/MARKET-DATA.md). Never estimate. **P11-11:** `/desk` server load may fetch Yahoo **1y daily** closes for view `holdings` plus `^IXIC` / `^GSPC` (display only). Never write quotes or FX into `holding_lots`. Empty book = **—**. Items 2–7 of Step 0 are not this vendor. |
+| D40 | Step 0 **price** is **previous regular-session close** from Yahoo Finance chart v8 (no key). Spec: [`docs/architecture/MARKET-DATA.md`](docs/architecture/MARKET-DATA.md). Never estimate. Worker Analyse (**P11-13**) uses `range=1y&interval=1d` and stores 52-week *closing* high (max daily close, not `meta.fiftyTwoWeekHigh`) on `analysis_evidence.step0_number = 1`. **P11-11:** `/desk` server load may fetch Yahoo **1y daily** closes for view `holdings` plus `^IXIC` / `^GSPC` (display only). Never write quotes or FX into `holding_lots`. Empty book = **—**. Item 2 is SEC EDGAR headlines (US only), not Yahoo. Do not scrape stockanalysis.com. |
 | D41 | Weekly holdings email (**P8-02**): opt-in on `/billing`, default off. Quick model only (`gpt56m` / refine-gate row). Not a full Analyse; no `reports` insert; no new tickers. Ticker cap from `plans.weekly_digest_ticker_limit` (3 on trial/basic/professional; 15 on `premium` / `ultra`). Rank by cost basis × qty with display FX. One native-lab completion per family per ISO week when send is implemented. `usage_events.kind = weekly_digest` records cost and **does not** consume monthly Analyse searches. Login / `/desk` load does not send it. Email send waits on a named provider; `/desk` still reads `weekly_digests`. |
 | D42 | After each completed Analyse (`reports` row, not samples, not refine), `/reports/[id]` asks CSAT (**P5-05**). Mandatory Yes/No: “Is the analysis provided helpful?” Five 1–5 dimensions + comment are optional. Table `analysis_feedback`, one row per `reports.id`. Admin reads it only on `/admin/observability` → Customer Feedback. Does not change `reports.verdict`. |
 
@@ -172,7 +172,7 @@ Do not re-ask until the named chunk. Defaults locked 2026-09-13: poll (D37), Pla
 
 | When | What I still need from you |
 |------|----------------------------|
-| P4-01 items 2–7 | News / earnings / bear / competitor / sector **source**. Close is Yahoo (D40). Without these, a comprehensive job must fail rather than invent text. |
+| P4-01 items 3–7 | Earnings transcript / bear / competitor / sector **source** still unnamed. Close is Yahoo (D40). Item 2 is SEC EDGAR 8-K/10-Q/10-K **headlines** for US names (**P11-13**); NSE/BSE skip EDGAR. Comprehensive jobs no longer fail solely because 3–7 are missing. |
 | P6-03 | UPI/card **merchant** when you want real checkout. Placeholder UI only until then. |
 | P8-02 / P7-09 | Email **provider** (Resend / Postmark / SES + from-address) before any Sunday send or red-watch mail. Digest **rows** and `/desk` card do not wait on this. |
 | P4-02 | Paste the lab key for models you will run (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `XAI_API_KEY`, `DEEPSEEK_API_KEY`) in gitignored `.env` for local worker. Catalog **009** and **019** are on DEV and PROD. Prod `.env.prod` already has all four lab keys. |
@@ -231,9 +231,9 @@ Env template: [`.env.example`](.env.example).
 
 ## 6. Database status
 
-**Applied on `cmksomahsfmsjufakryw` (DEV):** migrations **001–027**. **028 not applied.** Seed `supabase/seed/001_maya_desk.sql` was applied earlier. Do not re-run unless §25 fails.
+**Applied on `cmksomahsfmsjufakryw` (DEV):** migrations **001–028**. Seed `supabase/seed/001_maya_desk.sql` was applied earlier. Do not re-run unless §25 fails.
 
-**PROD `ndgvglcrkbygovlszxze`:** **001–026 applied** (`CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`; 026 on 2026-10-04). **027 not applied. 028 not applied.** `select count(*) from holdings` = **0**. Maya seed not run. `report-pdfs` bucket exists. Do not copy Maya (`maya@thesis.demo`) onto prod unless you name `supabase/seed/001_maya_desk.sql`.
+**PROD `ndgvglcrkbygovlszxze`:** **001–028 applied** (`CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`; 027+028 on 2026-10-05). Maya seed not run. `report-pdfs` bucket exists. Do not copy Maya (`maya@thesis.demo`) onto prod unless you name `supabase/seed/001_maya_desk.sql`.
 
 Demo desk: `maya@thesis.demo` / `ThesisMaya!2026` (Auth email+password). Google/Phone flags must still be turned on in the Supabase Auth dashboard.
 
@@ -326,7 +326,7 @@ See `.cursor/rules/web-ui-maintenance.mdc`. Marketing vs desk palettes must not 
 
 ## 18. Next steps
 
-Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P6-03** when a merchant is named. **P10-02** is on the droplet. **027** is on DEV only (not PROD). **028** is in git, not applied on DEV or PROD. Worker LLM is native labs (D39). Never put lab keys on Vercel. Local **3100** stays DEV.
+Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P6-03** when a merchant is named. **P11-13** is done (Yahoo 1y + EDGAR headlines + derived bands + silent repair). **P10-02** is on the droplet. **027+028 applied DEV and PROD.** Worker LLM is native labs (D39). Never put lab keys on Vercel. Local **3100** stays DEV. Do not scrape stockanalysis.com.
 
 ---
 
@@ -364,7 +364,7 @@ Canonical: [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md). You revise that
 
 ```sql
 select id, name from schema_migrations order by id;
--- expect 1..27 on DEV; 1..26 on PROD until 027 is named
+-- expect 1..28 on DEV and PROD after 027+028 (2026-10-05)
 
 select id, provider, provider_model_id, thesis_class, is_active from model_catalog where is_active order by sort_order;
 

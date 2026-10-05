@@ -1,6 +1,7 @@
-"""Step 0 gather — Yahoo previous close only (D40)."""
+"""Step 0 gather — Yahoo 1y chart (D40) + SEC EDGAR headlines for US names."""
 from __future__ import annotations
 
+import json
 from datetime import datetime, timezone
 from typing import Any, Callable
 from uuid import UUID
@@ -8,13 +9,25 @@ from uuid import UUID
 from psycopg2.extensions import connection
 
 from thesis_platform.config import Settings
-from thesis_platform.http import fetch_yahoo_chart
+from thesis_platform.derived import pct_below_52w_high
+from thesis_platform.edgar import NOT_COVERED
+from thesis_platform.http import fetch_edgar_headlines, fetch_yahoo_chart_pack
 from thesis_platform.pack import required_step0
 from thesis_platform.quotes import get_cached_close, put_cached_close
-from thesis_platform.yahoo import PreviousClose, YahooError, yahoo_symbol
+from thesis_platform.yahoo import (
+    DailyClose,
+    PreviousClose,
+    YahooChartPack,
+    YahooError,
+    is_us_listed,
+    monthly_closes,
+    yahoo_symbol,
+)
 
 
 FetchClose = Callable[[Settings, str], PreviousClose]
+FetchChart = Callable[[Settings, str], YahooChartPack]
+FetchEdgar = Callable[[Settings, str, str | None], dict[str, Any]]
 
 
 def gather_step0(
@@ -23,6 +36,8 @@ def gather_step0(
     request: dict[str, Any],
     *,
     fetch_close: FetchClose | None = None,
+    fetch_chart: FetchChart | None = None,
+    fetch_edgar: FetchEdgar | None = None,
 ) -> PreviousClose:
     ticker = str(request["ticker"])
     exchange = request.get("exchange")
@@ -33,21 +48,17 @@ def gather_step0(
 
     today = datetime.now(timezone.utc).date()
     cur = conn.cursor()
-    cached = get_cached_close(cur, symbol, today)
-    if cached is None:
-        fetcher = fetch_close or (lambda s, sy: fetch_yahoo_chart(s, sy))
-        cached = fetcher(settings, symbol)
-        # Reuse for later jobs the same UTC day.
-        stored = PreviousClose(
-            yahoo_symbol=symbol,
-            close=cached.close,
-            currency=cached.currency,
-            quote_date=today,
-        )
-        put_cached_close(cur, stored)
-        cached = stored
+    pack = _load_chart(
+        cur,
+        settings,
+        symbol,
+        today,
+        fetch_chart=fetch_chart,
+        fetch_close=fetch_close,
+    )
+    cached = pack.previous
 
-    excerpt = json_excerpt(cached)
+    excerpt = json_excerpt(pack)
     cur.execute(
         """
         insert into analysis_evidence (
@@ -58,33 +69,128 @@ def gather_step0(
             request["id"],
             request["family_id"],
             f"yahoo previous close {symbol}",
-            f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range=5d&interval=1d",
+            f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range=1y&interval=1d",
             excerpt,
         ),
     )
-    cur.close()
 
-    lenses = _lenses(request.get("lenses"))
+    if not is_us_listed(ticker, str(exchange) if exchange else None):
+        news = {"status": NOT_COVERED, "filings": []}
+    else:
+        if fetch_edgar is not None:
+            edgar_fn = fetch_edgar
+        elif fetch_close is None and fetch_chart is None:
+            edgar_fn = lambda s, t, ex: fetch_edgar_headlines(s, t, ex)
+        else:
+            edgar_fn = lambda _s, _t, _ex: {"status": NOT_COVERED, "filings": []}
+        try:
+            news = edgar_fn(settings, ticker, str(exchange) if exchange else None)
+        except Exception:  # noqa: BLE001 — EDGAR miss must not fail the job
+            news = {"status": NOT_COVERED, "filings": []}
+    if (
+        is_us_listed(ticker, str(exchange) if exchange else None)
+        and isinstance(news, dict)
+        and str(news.get("status") or "") == "ok"
+        and news.get("filings")
+    ):
+        cur.execute(
+            """
+            insert into analysis_evidence (
+              request_id, family_id, step0_number, query, source_url, excerpt
+            ) values (%s, %s, 2, %s, %s, %s)
+            """,
+            (
+                request["id"],
+                request["family_id"],
+                f"sec edgar headlines {ticker}",
+                "https://data.sec.gov/submissions/",
+                json.dumps(
+                    {
+                        "status": "ok",
+                        "filings": news.get("filings"),
+                    },
+                    default=str,
+                ),
+            ),
+        )
+
     have = {1}
-    missing = [n for n in required_step0(lenses) if n not in have]
+    if news and str(news.get("status") or "") == "ok" and news.get("filings"):
+        have.add(2)
+    missing = [n for n in required_step0(_lenses(request.get("lenses"))) if n not in have]
     if missing:
         raise YahooError(
             "THS-STEP0-001 missing Step 0 numbers "
             + ",".join(str(n) for n in missing)
-            + " (no vendor; not invented from the close)"
         )
+    cur.close()
     return cached
 
 
-def json_excerpt(quote: PreviousClose) -> str:
-    import json
+def _load_chart(
+    cur,
+    settings: Settings,
+    symbol: str,
+    today,
+    *,
+    fetch_chart: FetchChart | None,
+    fetch_close: FetchClose | None,
+) -> YahooChartPack:
+    if fetch_chart is not None:
+        pack = fetch_chart(settings, symbol)
+    elif fetch_close is not None:
+        prev = fetch_close(settings, symbol)
+        pack = YahooChartPack(
+            previous=prev,
+            high_52w=prev.close,
+            high_52w_date=prev.quote_date,
+            daily_closes=(DailyClose(quote_date=prev.quote_date, close=prev.close),),
+        )
+    else:
+        try:
+            pack = fetch_yahoo_chart_pack(settings, symbol)
+        except YahooError:
+            cached = get_cached_close(cur, symbol, today)
+            if cached is None:
+                raise
+            pack = YahooChartPack(
+                previous=cached,
+                high_52w=cached.close,
+                high_52w_date=cached.quote_date,
+                daily_closes=(
+                    DailyClose(quote_date=cached.quote_date, close=cached.close),
+                ),
+            )
+    stored = PreviousClose(
+        yahoo_symbol=symbol,
+        close=pack.previous.close,
+        currency=pack.previous.currency,
+        quote_date=today,
+    )
+    put_cached_close(cur, stored)
+    return YahooChartPack(
+        previous=stored,
+        high_52w=pack.high_52w,
+        high_52w_date=pack.high_52w_date,
+        daily_closes=pack.daily_closes,
+    )
 
+
+def json_excerpt(pack: YahooChartPack) -> str:
+    prev = pack.previous
+    monthly = monthly_closes(pack.daily_closes)
     return json.dumps(
         {
-            "close": quote.close,
-            "currency": quote.currency,
-            "yahoo_symbol": quote.yahoo_symbol,
-            "quote_date": str(quote.quote_date),
+            "close": prev.close,
+            "currency": prev.currency,
+            "yahoo_symbol": prev.yahoo_symbol,
+            "quote_date": str(prev.quote_date),
+            "high_52w": pack.high_52w,
+            "high_52w_date": str(pack.high_52w_date),
+            "pct_below_52w_high": pct_below_52w_high(prev.close, pack.high_52w),
+            "monthly_closes": [
+                {"date": str(p.quote_date), "close": p.close} for p in monthly
+            ],
         }
     )
 

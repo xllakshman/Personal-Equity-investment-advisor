@@ -18,6 +18,8 @@ from thesis_platform.native_llm import (
     resolve_provider,
 )
 
+from thesis_platform.charts import system_charts_from_ctx
+from thesis_platform.derived import derived_from_ctx, step0_coverage
 from thesis_platform.pack import INVESTOR_PROFILE_PACK_COLUMNS, build_variable_pack
 from thesis_platform.prompt import load_promoted_body
 from thesis_platform.sections import (
@@ -43,6 +45,33 @@ FINAL_NOTE_SUFFIX = (
     "Do not return stage_status, retrieval_*, PENDING, or IN_PROGRESS. "
     "If you include a machine-readable JSON block, put it at the end."
 )
+
+REPAIR_NOTE = (
+    "The previous output was incomplete or failed adherence. "
+    "Write the finished LAYER 1 note, not retrieval status. "
+    "Do not return stage_status, retrieval_*, PENDING, or IN_PROGRESS."
+)
+
+
+def combine_cost_cents(first: int | None, repair: int | None) -> int | None:
+    if first is None and repair is None:
+        return None
+    return int(first or 0) + int(repair or 0)
+
+
+def needs_note_repair(sections: dict[str, Any] | None, intent: str) -> bool:
+    if sections is None:
+        return True
+    if is_inflight_sections(sections):
+        return True
+    if missing_comprehensive_keys(sections, intent):
+        return True
+    cleaned = strip_progress_keys(sections)
+    try:
+        assert_finished_note(cleaned, intent)
+    except SectionsError:
+        return True
+    return bool(adherence_failures(cleaned))
 
 
 def complete_request(
@@ -82,7 +111,11 @@ def complete_request(
     if existing_id:
         return existing_id
     prompt_id, system = load_promoted_body(cur, "advisor")
-    pack = build_variable_pack(_context(cur, request))
+    ctx = _context(cur, request)
+    ctx["derived"] = derived_from_ctx(ctx)
+    ctx["step0_coverage"] = step0_coverage(ctx.get("evidence") or [])
+    pack = build_variable_pack(ctx)
+    charts = system_charts_from_ctx(ctx, ctx["derived"])
 
     set_status(conn, request["id"], "drafting")
     runner = complete_fn or (
@@ -107,42 +140,30 @@ def complete_request(
         user=user,
     )
     sections = _try_parse(result.content)
-    if (
-        sections is None
-        or is_inflight_sections(sections)
-        or missing_comprehensive_keys(sections, intent)
-    ):
+    if needs_note_repair(sections, intent):
         set_status(conn, request["id"], "checking")
-        result = _run_chat(
+        repair = _run_chat(
             runner,
             provider=provider,
             model=native_id,
             system=system,
-            user=pack
-            + "\n"
-            + FINAL_NOTE_SUFFIX
-            + "\nThe previous output was a progress dump or incomplete. "
-            "Write the finished LAYER 1 note, not retrieval status.",
+            user=pack + "\n" + FINAL_NOTE_SUFFIX + "\n" + REPAIR_NOTE,
         )
-        sections = parse_note_payload(result.content)
+        result = ChatResult(
+            content=repair.content,
+            response_model=repair.response_model,
+            cost_cents=combine_cost_cents(result.cost_cents, repair.cost_cents),
+            raw=repair.raw,
+            stop_reason=repair.stop_reason,
+        )
+        sections = _try_parse(result.content)
+    if sections is None:
+        raise SectionsError("note parse failed after repair")
     sections = strip_progress_keys(sections)
     assert_finished_note(sections, intent)
-
     fails = adherence_failures(sections)
     if fails:
-        set_status(conn, request["id"], "checking")
-        result = _run_chat(
-            runner,
-            provider=provider,
-            model=native_id,
-            system=system,
-            user=pack + "\nREDO sections with adherence NO: " + ",".join(fails),
-        )
-        sections = strip_progress_keys(parse_note_payload(result.content))
-        assert_finished_note(sections, intent)
-        fails = adherence_failures(sections)
-        if fails:
-            raise SectionsError("adherence still NO: " + ",".join(fails))
+        raise SectionsError("adherence still NO: " + ",".join(fails))
 
     profile = _profile(cur, request["family_id"])
     if profile.get("cannot_trade_us_options") and mentions_us_options(sections):
@@ -158,7 +179,7 @@ def complete_request(
           sections, charts, prompt_version_id, model_id, token_cost_cents
         ) values (
           %s, %s, %s, %s, %s, %s,
-          %s, '{}'::jsonb, %s, %s, %s
+          %s, %s, %s, %s, %s
         )
         returning id
         """,
@@ -170,6 +191,7 @@ def complete_request(
             request["ticker"],
             verdict,
             Json(sections),
+            Json(charts),
             prompt_id,
             used_model_id,
             result.cost_cents or 0,

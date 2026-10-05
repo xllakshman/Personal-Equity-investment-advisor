@@ -5,6 +5,8 @@ Point-in-time agent bootstrap docs. **HANDOFF.md** remains canonical for product
 | Session | Date | Focus | Status |
 |---------|------|-------|--------|
 | [**ROADMAP.md**](../roadmap/ROADMAP.md) | 2026-09-13 | Chunked requirements / progress | **Read first for what to build** |
+| [SESSION-2026-10-05-p11-13.md](SESSION-2026-10-05-p11-13.md) | 2026-10-05 | Yahoo 1y + EDGAR headlines + silent repair | **P11-13** |
+| [SESSION-2026-10-05-p11-12.md](SESSION-2026-10-05-p11-12.md) | 2026-10-05 | ESOP vs Retail + P&L % | **P11-12** |
 | [SESSION-2026-09-13-p1-05-profile.md](SESSION-2026-09-13-p1-05-profile.md) | 2026-09-13 | `/settings/profile` + 010 drafted | **P1-05** 🟡 |
 | [SESSION-2026-09-13-p1-02-to-p1-04-desk.md](SESSION-2026-09-13-p1-02-to-p1-04-desk.md) | 2026-09-13 | Login + desk shell + home KPIs | **P1-02…P1-04** |
 | [SESSION-2026-09-13-p1-01-marketing-home.md](SESSION-2026-09-13-p1-01-marketing-home.md) | 2026-09-13 | Marketing `/` on port **3100** | **P1-01** |

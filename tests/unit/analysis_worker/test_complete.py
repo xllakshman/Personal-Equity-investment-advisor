@@ -2,7 +2,13 @@
 from __future__ import annotations
 
 from thesis_platform.native_llm import ChatResult, is_truncated
-from analysis_worker.jobs.complete import _run_chat, _try_parse
+from analysis_worker.jobs.complete import (
+    _run_chat,
+    _try_parse,
+    combine_cost_cents,
+    needs_note_repair,
+)
+from pathlib import Path
 
 
 def _result(content: str, stop: str | None = None) -> ChatResult:
@@ -15,7 +21,37 @@ def _result(content: str, stop: str | None = None) -> ChatResult:
     )
 
 
-def test_try_parse_rejects_empty() -> None:
+def test_silent_repair_helpers_do_not_double_meter() -> None:
+    assert combine_cost_cents(10, 5) == 15
+    assert combine_cost_cents(None, 5) == 5
+    assert combine_cost_cents(None, None) is None
+    dump = {"status": "ANALYSIS_INITIATED", "ticker": "META"}
+    assert needs_note_repair(None, "long_term") is True
+    assert needs_note_repair(dump, "long_term") is True
+    finished = {
+        "plain_language": (
+            "LAYER 1\nTHE BOTTOM LINE\n"
+            + ("Meta capex is the question. " * 40)
+            + "\nWHAT THIS COMPANY DOES\nAds.\nEND OF ANALYSIS"
+        ),
+        "verdict": "Hold",
+        "moat": "see note",
+        "pre_buy": {"bear_case": "capex", "adherence": "YES"},
+        "step0": "ads",
+        "sizing": "",
+        "profit_booking": "",
+        "construction": "",
+    }
+    assert needs_note_repair(finished, "long_term") is False
+    bad = {**finished, "moat": {"adherence": "NO"}}
+    assert needs_note_repair(bad, "long_term") is True
+    src = Path(__file__).resolve().parents[3] / "apps/analysis-worker/src/analysis_worker/jobs/complete.py"
+    text = src.read_text(encoding="utf-8")
+    assert "insert into usage_events" not in text
+    assert "update usage_events" in text
+    assert text.count("_run_chat(") >= 1
+    assert "REPAIR_NOTE" in text
+    assert "openrouter" not in text.lower()
     assert _try_parse("") is None
     assert _try_parse('{"verdict":"Hold"}') == {"verdict": "Hold"}
 

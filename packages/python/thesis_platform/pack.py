@@ -4,6 +4,8 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from thesis_platform.derived import derived_from_ctx, step0_coverage
+
 INVESTOR_PROFILE_PACK_COLUMNS = (
     "cannot_trade_us_options, ltcg_holding_months, concentration_cap_pct, "
     "tranche_t1_pct, tranche_t2_pct, tranche_t3_pct, tranche_t4_pct"
@@ -11,7 +13,8 @@ INVESTOR_PROFILE_PACK_COLUMNS = (
 
 
 def build_variable_pack(ctx: dict[str, Any]) -> str:
-    """Ticker, evidence, lots, clarifications, profile. Never the May 2026 book."""
+    """Ticker, evidence, lots, clarifications, profile, derived Yahoo levels."""
+    evidence = ctx.get("evidence") or []
     payload = {
         "ticker": ctx.get("ticker"),
         "exchange": ctx.get("exchange"),
@@ -31,7 +34,11 @@ def build_variable_pack(ctx: dict[str, Any]) -> str:
         "clarifications": ctx.get("clarifications") or {},
         "enrichment": ctx.get("enrichment") or "",
         "holdings": ctx.get("holdings") or [],
-        "evidence": ctx.get("evidence") or [],
+        "evidence": evidence,
+        "derived": ctx.get("derived") if ctx.get("derived") is not None else derived_from_ctx(ctx),
+        "step0_coverage": ctx.get("step0_coverage")
+        if ctx.get("step0_coverage") is not None
+        else step0_coverage(evidence if isinstance(evidence, list) else []),
         "investor_profiles": ctx.get("investor_profiles") or {},
         "cannot_trade_us_options": bool(ctx.get("cannot_trade_us_options")),
     }
@@ -39,13 +46,6 @@ def build_variable_pack(ctx: dict[str, Any]) -> str:
 
 
 def required_step0(lenses: list[str]) -> list[int]:
-    core = {"fundamental", "technical", "macro", "news"}
-    selected = [x for x in lenses if x in core]
-    if set(selected) >= core:
-        return [1, 2, 3, 4, 5, 6, 7]
-    needed = [1]
-    if "news" in lenses:
-        needed.append(2)
-    if "macro" in lenses:
-        needed.append(7)
-    return needed
+    """Item 1 (Yahoo close) is required. Items 2–7 never fail the job closed."""
+    _ = lenses
+    return [1]

@@ -1,16 +1,8 @@
 from thesis_platform.pack import build_variable_pack, required_step0
 
 
-def test_comprehensive_needs_all_seven() -> None:
-    assert required_step0(["fundamental", "technical", "macro", "news"]) == [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-    ]
+def test_comprehensive_needs_yahoo_close_only() -> None:
+    assert required_step0(["fundamental", "technical", "macro", "news"]) == [1]
 
 
 def test_fundamental_technical_only_needs_close() -> None:
@@ -26,6 +18,8 @@ def test_pack_has_no_maya_book_defaults() -> None:
         }
     )
     assert "MSFT" in raw
+    assert "derived" in raw
+    assert "step0_coverage" in raw
     assert "150000" not in raw
     assert "$150,000" not in raw
     assert "AMZN" not in raw
