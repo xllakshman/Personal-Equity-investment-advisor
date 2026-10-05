@@ -1,14 +1,70 @@
-import { keyFacts, typesetProse } from "@/lib/reports/typeset";
+import {
+  formatNoteDate,
+  keyFacts,
+  looksNumericCell,
+  machineFrom,
+  machineTables,
+  priceComparisonChart,
+  typesetProse,
+} from "@/lib/reports/typeset";
 import { isFinishedNote, noteDocument } from "@/lib/reports/sections";
 import { parseCharts } from "@/lib/reports/charts";
 import type { EvidenceRow } from "@/lib/reports/load";
 import { ReportCharts } from "@/components/features/report/ReportCharts";
 
-function machineFrom(sections: Record<string, unknown>): Record<string, unknown> | null {
-  const raw = sections.machine;
-  return raw && typeof raw === "object" && !Array.isArray(raw)
-    ? (raw as Record<string, unknown>)
-    : null;
+function NoteTable({
+  title,
+  headers,
+  rows,
+  kv = false,
+}: {
+  title: string;
+  headers: string[];
+  rows: string[][];
+  kv?: boolean;
+}) {
+  const shownHeaders = headers.filter((h) => h.trim());
+  return (
+    <section className="note-doc__section" aria-label={title}>
+      <p className="note-doc__caption">{title}</p>
+      <div className="note-doc__table-wrap">
+        <table className={kv ? "note-doc__table note-doc__table--kv" : "note-doc__table"}>
+          {!kv && shownHeaders.length > 0 ? (
+            <thead>
+              <tr>
+                {shownHeaders.map((h, i) => (
+                  <th key={i} className={looksNumericCell(h) ? "note-doc__num" : undefined}>
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+          ) : null}
+          <tbody>
+            {rows.map((row, ri) => (
+              <tr key={ri}>
+                {row.map((cell, ci) => {
+                  const numeric = looksNumericCell(cell);
+                  if (kv && ci === 0) {
+                    return (
+                      <th key={ci} scope="row">
+                        {cell}
+                      </th>
+                    );
+                  }
+                  return (
+                    <td key={ci} className={numeric ? "note-doc__num" : undefined}>
+                      {cell}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
 }
 
 export function ReportDocument({
@@ -36,6 +92,7 @@ export function ReportDocument({
   const prose = noteDocument(sections);
   const blocks = typesetProse(prose);
   const excerpt = evidence?.[0]?.excerpt ?? null;
+  const machine = machineFrom(sections);
   const facts = keyFacts({
     ticker,
     verdict,
@@ -43,9 +100,15 @@ export function ReportDocument({
     createdAt,
     modelLabel,
     evidenceExcerpt: excerpt,
-    machine: machineFrom(sections),
+    machine,
   });
-  const parsed = parseCharts(charts);
+  const tables = machineTables(machine);
+  const stored = parseCharts(charts);
+  const derived = priceComparisonChart(machine, excerpt);
+  const usable = stored.charts.filter((chart) =>
+    chart.type === "table" ? chart.rows.length > 0 : chart.labels.length > 0,
+  );
+  const shown = usable.length > 0 ? usable : derived ? [derived] : [];
 
   if (!finished) {
     return (
@@ -62,57 +125,59 @@ export function ReportDocument({
         <h1 className="note-doc__title">{name || `${ticker} — ${verdict}`}</h1>
         <p className="note-doc__sub">
           {ticker} · {verdict}
-          {createdAt
-            ? ` · ${new Date(createdAt).toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              })}`
-            : ""}
+          {createdAt ? ` · ${formatNoteDate(createdAt)}` : ""}
         </p>
       </header>
       {facts.length > 0 ? (
-        <section className="note-doc__kpis" aria-label="Key data">
-          {facts.map((f) => (
-            <div className="note-doc__kpi" key={f.label}>
-              <p className="note-doc__kpi-k">{f.label}</p>
-              <p className="note-doc__kpi-v">{f.value}</p>
-            </div>
-          ))}
-        </section>
+        <NoteTable
+          title="Key data"
+          headers={[]}
+          rows={facts.map((f) => [f.label, f.value])}
+          kv
+        />
       ) : null}
+      {tables.map((table, i) => (
+        <NoteTable
+          key={`${table.kind}-${table.title}-${i}`}
+          title={table.title}
+          headers={table.headers}
+          rows={table.rows}
+        />
+      ))}
+      <ReportCharts charts={shown} dropped={stored.dropped} />
       <div className="note-doc__body">
         {blocks.map((block, i) => {
           if (block.kind === "rule") return <hr key={i} className="note-doc__rule" />;
           if (block.kind === "h1") return <h2 key={i}>{block.text}</h2>;
-          if (block.kind === "h2") return <h3 key={i}>{block.text}</h3>;
+          if (block.kind === "h2") return <h2 key={i}>{block.text}</h2>;
           return <p key={i}>{block.text}</p>;
         })}
       </div>
       {evidence && evidence.length > 0 ? (
         <section className="note-doc__evidence">
-          <h3>What we checked</h3>
-          <table className="pf__table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Query</th>
-                <th>Excerpt</th>
-              </tr>
-            </thead>
-            <tbody>
-              {evidence.map((row) => (
-                <tr key={row.step0Number}>
-                  <td>{row.step0Number}</td>
-                  <td>{row.query ?? "—"}</td>
-                  <td className="pf__muted">{row.excerpt ?? "—"}</td>
+          <p className="note-doc__caption">What we checked</p>
+          <div className="note-doc__table-wrap">
+            <table className="note-doc__table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Query</th>
+                  <th>Excerpt</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {evidence.map((row) => (
+                  <tr key={row.step0Number}>
+                    <td className="note-doc__num">{row.step0Number}</td>
+                    <td>{row.query ?? "—"}</td>
+                    <td>{row.excerpt ?? "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
       ) : null}
-      <ReportCharts charts={parsed.charts} dropped={parsed.dropped} />
     </article>
   );
 }

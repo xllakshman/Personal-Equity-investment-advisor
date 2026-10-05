@@ -21,7 +21,8 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 | Field | Value |
 |-------|--------|
 | **Build next** | **P6-03** — merchant unnamed (blocked) |
-| Last done | Desk name menu (Profile / Sign out, no LY); Review Portfolio / Elite Investors Holdings; Reports company/month/week dropdowns; favicon stroke-only e with no navy tile. Local → **dev** (`1a55227`) → **prod** `https://eqveste.com` (`dpl_BS8Md8FtMipvmrFwixrSeQtzHdhF`). |
+| Queued after P6-03 | — |
+| Last done | **P11-09** — `/reports/[id]` hides MACHINE-READABLE JSON; KEY DATA / slice / scorecard tables from `reports.sections.machine`; Download PDF HTML matches. No prompt change. |
 | Blocked on you | P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
@@ -835,7 +836,7 @@ Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do 
 
 ## Phase 11 — Note layout and desk/admin fixes (named 2026-10-04)
 
-One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30).
+One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30). **Build next** is **P6-03**.
 
 ### P11-01 — Typeset note + PDF download
 
@@ -929,6 +930,30 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 - **UI today:** button exists on each of those four routes.
 - **Success:** `/desk` `/analyse` `/reports` `/contact` on port **3100** match App.dc.html type, hover (`translateX(3px)` nav, `translateY(-4px)` cards, Analyse pill lift), and copy. `thesis_accept_analysis` is still the Analyse submit.
 
+### P11-09 — Typeset note: hierarchy, KEY DATA tables, hide machine JSON
+
+- **Status:** ✅ 2026-10-05 — `/reports/[id]` and ready `/analyse/[id]` hide MACHINE-READABLE JSON; KEY DATA / slice / scorecard from `sections.machine`; labeled `reports.charts` `type=bar` renders; `type=html` dropped. No prompt change.
+- **Depends on:** P11-01, P5-04
+- **Direction:** Display-only on `/reports/[id]` (`ReportReader` → `ReportDocument`) and on `/analyse/[id]` when `analysis_requests.status = ready` (`ReportNoteBody` → same document). Typeset in **our** React/CSS from `reports.sections` JSON. **Forbidden:** `dangerouslySetInnerHTML` of model HTML, executing `<script>`, or a new `sections.html` column (D30 / P5-04). Do not edit `prompt_versions.body`, `/admin/prompt` upload, or advisor prompt text. Files: `apps/web/components/features/report/ReportDocument.tsx`, `ReportNoteBody.tsx`, `ReportReader.tsx`, `ReportCharts.tsx`; `apps/web/lib/reports/typeset.ts`, `sections.ts`, `charts.ts`; `apps/web/app/(desk)/desk.css` (`.note-doc*` only); Python twin `packages/python/thesis_platform/typeset.py` + `apps/analysis-worker` `render_pdf_html` so Download PDF matches. Clicks: open a ready note on `/reports/[id]`; wait page `/analyse/[id]` when ready; **Download PDF** still `GET /reports/:id/pdf` signed URL. Do not restyle Desk, Analyse builder, or library cards. Do not rewrite `reports.verdict` or `reports.sections` (D4).
+  **Must hide:** the **MACHINE-READABLE BLOCK** string and its JSON from `/reports/[id]`, `/analyse/[id]`, and PDF HTML. Desk never shows the dump. `/admin` already reads `reports_admin_meta` (ticker/name/verdict) — do not dump `reports.sections` there. Keep using parsed `sections.machine` internally.
+  **v1 now (from existing JSON, no prompt change):** KEY DATA as an HTML **table**; **slice** / tranche ladder as a table if `sections.machine.tables` (or known keys) already has those rows; **ROIC / Framework 1 scorecard** as a table if those rows exist; **price chart** only from allowlisted `reports.charts` (`line|bar|table|waterfall`) or a bar of existing scalars (cost vs close, invested vs market value). Never invent FY rows or a price time series. Strip leftover markdown markers (`**`, `*`) from displayed text; do not treat them as HTML.
+  **Must typeset:** section headings visually larger/bolder than body (heading face vs 16px/400 body). KEY DATA from `reports` (`ticker`, `verdict`, `created_at`, `conviction`) plus `sections.machine` fields already stored and `analysis_evidence` step 0 close (`step0_number = 1` excerpt) when used today.
+  **Do not invent** FY tables, price series, or scorecards the JSON does not contain. Worker `complete.py` today inserts `reports.charts = '{}'::jsonb` — empty plus no numeric pair means no graph. Prompt/schema change so the model emits new table arrays is **out of this chunk**.
+- **Writes:** none on Postgres. No new tables. Re-upload PDF only if the worker is redeployed and `attach_pdf` runs; existing `reports.pdf_key` objects stay until a new run or an operator re-render. Never write converted FX into lots. Never store `prompt_versions.body` in HTML, PDF, SSE, or `error_text`.
+- **Reads:** `reports` (`name`, `ticker`, `verdict`, `conviction`, `sections`, `charts`, `created_at`, `is_library_sample`, `pdf_key`) for `family_id` of the session; `analysis_evidence` (`step0_number`, `query`, `excerpt`) for that `request_id`; `refinements` listed below the note (unchanged). Screen is `/reports/[id]` (and wait `/analyse/[id]` when ready).
+- **Who:** desk owner/member. Viewer (`member_role = viewer`) **SELECT**s via `user_can_read_family` and may Download PDF. Viewer cannot POST refine. Platform admin does not read `reports.sections` from `/admin/*` (metadata only). Sample rows (`is_library_sample`) use the same typeset; still no refine / no CSAT form.
+- **UI today:** button exists — open the note, Download PDF, Rename (writers), Follow-up (writers, not samples). One typeset document from `reports.sections.plain_language` (P11-01): escaped headings/paragraphs when a line matches ALL-CAPS markers; **markdown is not stripped**; the **MACHINE-READABLE BLOCK JSON is shown** as body text because `plain_language` is the full model blob and `typesetProse` only labels the heading. KEY DATA is KPI chips (Name / Rating / Price / As of), not a table. Slice / ROIC scorecard exist only if the model wrote them as prose — no table renderer. `ReportCharts` allowlist exists; worker always stores empty `reports.charts`, so **no graphs** on current prod notes (e.g. LLY Hold `942b1abd-96d9-4bcd-8ebf-78f9fa1c4f47`). PDF Playwright HTML typesets the same blob, including the machine JSON.
+- **Success:**
+  1. Open `/reports/[id]` for a ready family note: page source / visible copy has **no** `MACHINE-READABLE BLOCK` and **no** trailing `{ "ticker": … }` dump. `prompt_versions.body` is absent (no 40-char slice).
+  2. Headings (THE BOTTOM LINE and other typeset h2/h3) are larger and bolder than body paragraphs. `**HOLD.**` / `*Tranche 1*` do not show raw asterisks.
+  3. KEY DATA is a table (ticker, verdict, price/close if present, as-of date). Slice / tranche ladder and ROIC / Framework 1 scorecard are tables **only if** those rows already exist on `sections.machine` (typically `tables[]`) or allowlisted `charts`; otherwise omit those tables — do not invent rows. Price figure is allowlisted `reports.charts` or a bar of existing cost/close or invested/market-value numbers only; empty `charts` `{}` plus no pair → no graph.
+  4. Fixture `reports.charts` `type=bar` renders; `type=html` / `<script>` is dropped (P5-04). Empty `charts` `{}` renders no chart section.
+  5. `/analyse/[id]` when `analysis_requests.status = ready` uses the same document. **Download PDF** HTML from `render_pdf_html` matches: no machine dump, heading tags, KEY DATA table, no model `<script>`. Another family’s JWT 404s. Library sample typesets the same way and still cannot refine.
+- **Testing:** three passes (testing.mdc) before Status ✅.
+  - Pass 1: other family 0 rows / 404; viewer reads, cannot refine; FastAPI PDF join still `user_can_read_family`; no prompt body in HTML/PDF/`error_text`.
+  - Pass 2: empty `plain_language`, missing `machine`, `{}` charts, invalid chart type, sample `is_library_sample`, store/retrieve = same `reports.sections` keys the screen reads (no new write).
+  - Pass 3: formatted money/dates; wait copy still tracks `analysis_requests.status`; machine JSON hidden; headings ≠ body weight.
+
 ---
 
 ## Out of scope until you add a chunk
@@ -1015,6 +1040,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | P1-06 | 2026-10-04 | ✅ `/desk` flags from view `holdings` cost×qty vs `investor_profiles.concentration_cap_pct` and cash min. No max-positions banner. |
 | P11-07 | 2026-10-05 | ✅ IBM Plex Sans on desk tabs, account menu, `/settings/profile`, `/analyse`, `/portfolio`. No Calibri/Carlito. `/login` and marketing `/` stay Helvetica/SF Pro. |
 | P11-08 | 2026-10-05 | ✅ Desk chrome + `/desk` `/analyse` `/reports` `/contact` match App.dc.html (SF Pro stack, stroke-only e, no Earth). User named **dev** + **prod**. SHA `217f7cb` on GitHub `dev`; Vercel Production aliased to eqveste.com. |
+| P11-09 | 2026-10-05 | ✅ `/reports/[id]` SELECT `reports` for session `family_id`; machine JSON hidden; KEY DATA / slice / scorecard tables from `sections.machine`. No prompt change. User asked commit + **dev** + **prod**. |
 
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.

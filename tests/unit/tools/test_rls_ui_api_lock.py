@@ -64,3 +64,34 @@ def test_refine_route_does_not_update_reports() -> None:
     assert "update reports" not in src.lower()
     assert "insert into refinements" in src.lower()
     assert "kind = refine" in src.lower() or '"refine"' in src
+
+
+def test_pdf_read_join_is_family_read_not_write_only() -> None:
+    src = _read("apps/analysis-api/src/analysis_api/api/routes/reports.py")
+    assert "write=False" in src
+    assert "def get_report_pdf" in src
+    assert "fm.user_id = %s" in src
+    assert "WRITE_ROLES" in src
+
+
+def test_report_document_never_executes_model_html_or_dumps_json() -> None:
+    doc = _read("apps/web/components/features/report/ReportDocument.tsx")
+    charts = _read("apps/web/components/features/report/ReportCharts.tsx")
+    typeset = _read("apps/web/lib/reports/typeset.ts")
+    assert "dangerouslySetInnerHTML" not in doc
+    assert "dangerouslySetInnerHTML" not in charts
+    assert "JSON.stringify" not in doc
+    assert "stripMachineReadable" in typeset
+    assert "Allowlisted types only" not in charts
+
+
+def test_sample_notes_typeset_and_cannot_refine() -> None:
+    refine = _read("apps/web/components/features/report/RefinePanel.tsx")
+    reader = _read("apps/web/components/features/report/ReportReader.tsx")
+    wait = _read("apps/web/components/features/builder/WaitPanel.tsx")
+    assert "Library sample — refine is off." in refine
+    assert "isLibrarySample" in reader
+    assert "ReportDocument" in reader
+    assert "PdfDownloadButton" in reader
+    assert "FeedbackForm" in reader
+    assert "ReportNoteBody" in wait

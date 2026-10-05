@@ -22,11 +22,11 @@ Sources:
 | 2.4 | LTCG/STCG India **or** US; non-residents; slabs | Residency-conditional copy | P1-05 months/rates; builder copy | Covered once 009 exists |
 | 5 | Model picker; charge by model | Model rail | P3-00 Frontier/Quick; P4-00a + **009 applied**; worker **native labs** D39 | `/analyse` reads `model_catalog` labels |
 | 6 | Clarify then run | Clarify screen | P3-02 | Covered |
-| 7 | Arrange **tables + graphs**; **support dynamic HTML the model returns** | Fixed report tabs + SVG | P5-02 no innerHTML; **P5-04 allowlist (locked)** | Brief HTML rejected; charts jsonb only |
+| 7 | Arrange **tables + graphs**; **support dynamic HTML the model returns** | Fixed report tabs + SVG | P5-02 no innerHTML; **P5-04 allowlist (locked)**; **P11-09** (hierarchy, KEY DATA table, hide machine JSON — React typeset, not model HTML) | Brief HTML rejected; charts jsonb only. Worker still inserts `reports.charts = {}`. Desk and PDF HTML hide MACHINE-READABLE JSON; tables from existing `sections.machine`. |
 | Sub | Trial, Basic, Professional, **Professional +**; X searches **configurable in admin**; wallet USD; 60/80/90; trial sample PDFs | Plans + wallet + samples; mock also Ultra | P6 dual meter; P7-01; five rows including **Ultra** | Covered — Ultra kept as fifth tier |
 | 8 | Refine / double-down | Refine thread | P4-04, P5-02 | Covered |
 | 9 | Save to DB; retrieve; **PDF in storage**; **rename** | Library + rename | P5-00/01/03 | Covered |
-| 10 | Download PDF **preserving charts/tables** | PDF buttons | P4-03, P5-03 | Renderer still blocked |
+| 10 | Download PDF **preserving charts/tables** | PDF buttons | P4-03, P5-03, P11-09 `render_pdf_html` | KEY DATA / slice / scorecard tables when `sections.machine` has them; allowlisted charts only. Existing `reports.pdf_key` objects stay until worker re-render. |
 | 11 | USD ↔ INR changes displayed values | Header chip | P2-03 | Covered (display-only) |
 | Admin | “Admin view with access to all customer accounts” | Admin **inside the desk** if email matches | **P7-00 `/admin/login`** (mock weaker) | Separate login locked; observability P7-05…P7-08; email skipped |
 | R1 | Never hardcode; defaults + override | Mostly | P1-05 `investor_profiles` | Covered once 009 exists |
