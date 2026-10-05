@@ -61,8 +61,8 @@ export function CsvImportCard({ canWrite }: { canWrite: boolean }) {
     <div className="pf__card pf__card--dash">
       <p className="pf__card-title">Upload a spreadsheet</p>
       <p className="pf__lede">
-        Columns: ticker, company_name, cost_per_share, total_purchased.
-        Optional lot_kind (retail or esop; missing means retail).
+        Required: ticker, company_name, cost_per_share, total_purchased.
+        Optional: lot_kind (retail or esop; blank or missing means retail).
       </p>
       <button className="pf__ghost" type="button" onClick={downloadTemplate}>
         Download CSV template

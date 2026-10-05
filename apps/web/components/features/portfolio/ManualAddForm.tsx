@@ -34,40 +34,74 @@ export function ManualAddForm({
           ) : null}
           <form className="pf__stack" action={action}>
             <input type="hidden" name="returnTo" value={returnTo} />
-            <input
-              className="pf__input"
-              name="ticker"
-              placeholder="Ticker"
-              defaultValue={presetTicker}
-              autoCapitalize="characters"
-              required
-            />
-            <input
-              className="pf__input"
-              name="company_name"
-              placeholder="Company name"
-            />
-            <div className="pf__row">
+            <div className="pf__field">
+              <label className="pf__label" htmlFor="manual-ticker">
+                Ticker
+              </label>
               <input
+                id="manual-ticker"
                 className="pf__input"
-                name="cost_per_share"
-                placeholder="Cost / share"
-                inputMode="decimal"
-                required
-              />
-              <input
-                className="pf__input"
-                name="total_purchased"
-                placeholder="Total purchased"
-                inputMode="decimal"
+                name="ticker"
+                placeholder="e.g. MSFT"
+                defaultValue={presetTicker}
+                autoCapitalize="characters"
                 required
               />
             </div>
-            <select className="pf__input" name="currency" defaultValue="auto">
-              <option value="auto">Auto currency from exchange</option>
-              <option value="USD">USD</option>
-              <option value="INR">INR</option>
-            </select>
+            <div className="pf__field">
+              <label className="pf__label" htmlFor="manual-company">
+                Company name
+              </label>
+              <input
+                id="manual-company"
+                className="pf__input"
+                name="company_name"
+                placeholder="e.g. Microsoft"
+              />
+            </div>
+            <div className="pf__row">
+              <div className="pf__field">
+                <label className="pf__label" htmlFor="manual-cost">
+                  Cost / share
+                </label>
+                <input
+                  id="manual-cost"
+                  className="pf__input"
+                  name="cost_per_share"
+                  placeholder="e.g. 400"
+                  inputMode="decimal"
+                  required
+                />
+              </div>
+              <div className="pf__field">
+                <label className="pf__label" htmlFor="manual-total">
+                  Total purchased
+                </label>
+                <input
+                  id="manual-total"
+                  className="pf__input"
+                  name="total_purchased"
+                  placeholder="e.g. 4000"
+                  inputMode="decimal"
+                  required
+                />
+              </div>
+            </div>
+            <div className="pf__field">
+              <label className="pf__label" htmlFor="manual-currency">
+                Currency
+              </label>
+              <select
+                id="manual-currency"
+                className="pf__input"
+                name="currency"
+                defaultValue="auto"
+              >
+                <option value="auto">Auto currency from exchange</option>
+                <option value="USD">USD</option>
+                <option value="INR">INR</option>
+              </select>
+            </div>
             <LotKindFields />
             <button className="pf__ghost" type="submit" disabled={pending}>
               {pending ? "Adding…" : "Add position"}

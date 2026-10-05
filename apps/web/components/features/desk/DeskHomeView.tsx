@@ -38,7 +38,10 @@ export function DeskHomeView({
       : formatCreditAmount(home.analysesThisCycle);
   const privacy = deskPrivacyView(home.supportGrant);
   const emptyBook = home.positions === 0;
-  const portfolioValue = money(home.costBasis, home.costCurrency === "mixed" ? "USD" : home.costCurrency);
+  const portfolioValue = money(
+    emptyBook ? 0 : home.displayCostBasis,
+    home.displayCurrency,
+  );
   const { retail, esop } = splitByLotKind(home.holdings);
 
   return (
@@ -55,7 +58,7 @@ export function DeskHomeView({
       <div className="desk__kpis">
         <div className="desk__card">
           <p className="desk__kpi-k">Portfolio value</p>
-          <p className="desk__kpi-v">{emptyBook ? "$0" : portfolioValue}</p>
+          <p className="desk__kpi-v">{portfolioValue}</p>
           <p className="desk__kpi-s">
             {home.positions} holding{home.positions === 1 ? "" : "s"}
           </p>

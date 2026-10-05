@@ -16,7 +16,7 @@ import { meterCreditSum } from "@/lib/desk/usage-meter";
 import type { QuotePoint } from "@/lib/market/book-rows";
 import { loadHoldingQuotes } from "@/lib/market/load-quotes";
 import { asDisplayCurrency } from "@/lib/portfolio/grid";
-import { displayFxRate } from "@/lib/portfolio/fx";
+import { displayFxRate, sumDisplayCost } from "@/lib/portfolio/fx";
 import type { NativeCurrency } from "@/lib/portfolio/exchange";
 import { splitByLotKind } from "@/lib/portfolio/lot-kind";
 import { selectHoldingsRows } from "@/lib/portfolio/load";
@@ -42,6 +42,7 @@ export type DeskHome = {
   analysisLimit: number | null;
   planName: string | null;
   costBasis: number;
+  displayCostBasis: number;
   costCurrency: string;
   holdings: DeskHomeHolding[];
   quotes: Record<string, QuotePoint | null>;
@@ -210,6 +211,7 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
   const currencies = new Set(holdings.map((h) => h.native_currency));
   const costCurrency = currencies.size === 1 ? [...currencies][0] : "mixed";
   const costBasis = costBasisNative(holdings);
+  const displayCostBasis = sumDisplayCost(holdings, displayCurrency, fxUsdInr);
 
   return {
     positions: holdings.length,
@@ -217,6 +219,7 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
     analysisLimit,
     planName,
     costBasis,
+    displayCostBasis,
     costCurrency,
     holdings: mappedHoldings,
     quotes,

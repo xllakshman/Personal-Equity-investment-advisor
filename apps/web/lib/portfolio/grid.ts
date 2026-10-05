@@ -46,6 +46,12 @@ export function holdingsForDisplay(
   }));
 }
 
+/** Account display when portfolios.display_currency is missing or invalid. Saved INR stays INR. */
+export const DEFAULT_DISPLAY_CURRENCY: NativeCurrency = "USD";
+
 export function asDisplayCurrency(raw: string | null | undefined): NativeCurrency {
-  return raw === "INR" ? "INR" : "USD";
+  const code = String(raw ?? "")
+    .trim()
+    .toUpperCase();
+  return code === "INR" ? "INR" : DEFAULT_DISPLAY_CURRENCY;
 }

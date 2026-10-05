@@ -23,6 +23,8 @@ describe("Home book and notes widget", () => {
     assert.match(home, /loadHoldingQuotes/);
     assert.equal(home.includes('from("holding_lots")'), false);
     assert.equal(home.includes(".insert("), false);
+    assert.match(home, /sumDisplayCost\(holdings, displayCurrency, fxUsdInr\)/);
+    assert.match(home, /asDisplayCurrency/);
     assert.match(view, /title="Retail"/);
     assert.match(view, /title="ESOP"/);
     assert.match(view, /PortfolioTrendCard trend=\{home\.trend\}/);
@@ -31,6 +33,9 @@ describe("Home book and notes widget", () => {
     assert.equal(view.includes("HomeBook"), false);
     assert.equal(alloc.includes("useQuotes"), false);
     assert.equal(view.includes("useQuotes"), false);
+    assert.match(view, /home\.displayCostBasis/);
+    assert.match(view, /home\.displayCurrency/);
+    assert.equal(view.includes("home.costCurrency"), false);
   });
 
   it("shows only the latest own report and links All Reports to /reports", () => {

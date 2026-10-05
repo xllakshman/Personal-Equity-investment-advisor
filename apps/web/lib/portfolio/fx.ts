@@ -31,6 +31,32 @@ export function toDisplayAmount(
   return nativeAmount;
 }
 
+/** Display-only sum of qty × cost. Never write this back to holding_lots. */
+export function sumDisplayCost(
+  lots: ReadonlyArray<{
+    qty: number;
+    cost_per_share: number;
+    native_currency: string;
+  }>,
+  displayCurrency: NativeCurrency,
+  fxUsdInr: number,
+): number {
+  return lots.reduce((sum, lot) => {
+    const qty = Number(lot.qty);
+    const cost = Number(lot.cost_per_share);
+    if (!Number.isFinite(qty) || !Number.isFinite(cost)) return sum;
+    return (
+      sum +
+      toDisplayAmount(
+        qty * cost,
+        lot.native_currency,
+        displayCurrency,
+        fxUsdInr,
+      )
+    );
+  }, 0);
+}
+
 export function formatMoney(amount: number, currency: string): string {
   const n = Number.isFinite(amount) ? amount : 0;
   const abs = Math.abs(n);

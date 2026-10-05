@@ -1077,6 +1077,15 @@ button.pf__ghost[type="submit"]:hover {
   gap: 9px;
 }
 
+.pf__field {
+  flex: 1;
+  min-width: 0;
+}
+
+.pf__row .pf__label {
+  margin-top: 0;
+}
+
 .pf__row .pf__input {
   flex: 1;
   min-width: 0;

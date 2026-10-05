@@ -3,6 +3,8 @@ import { describe, it } from "node:test";
 
 import {
   PORTFOLIO_CSV_COLUMNS,
+  PORTFOLIO_CSV_OPTIONAL_COLUMNS,
+  csvTemplateHeader,
   csvTemplateText,
   csvTextFromFormData,
   detectCsvDelimiter,
@@ -100,17 +102,21 @@ AAA;Alpha;10;100
 
   it("template header includes the four required columns plus optional lot_kind", () => {
     const text = csvTemplateText();
-    assert.equal(
-      text.split("\n")[0],
-      `${PORTFOLIO_CSV_COLUMNS.join(",")},lot_kind`,
-    );
+    assert.equal(csvTemplateHeader(), `${PORTFOLIO_CSV_COLUMNS.join(",")},lot_kind`);
+    assert.deepEqual([...PORTFOLIO_CSV_OPTIONAL_COLUMNS], ["lot_kind"]);
+    assert.match(text, /# Optional columns: lot_kind \(lot_kind blank = retail\)/);
+    assert.match(text, new RegExp(`^${csvTemplateHeader()}$`, "m"));
     const parsed = parsePortfolioCsv(text, "auto");
     assert.equal(parsed.ok, true);
     if (!parsed.ok) return;
-    assert.equal(parsed.rows.length, 1);
+    assert.equal(parsed.rows.length, 2);
     assert.equal(parsed.rows[0].accepted, true);
     assert.equal(parsed.rows[0].ticker, "MSFT");
     assert.equal(parsed.rows[0].lot_kind, "retail");
+    assert.equal(parsed.rows[1].accepted, true);
+    assert.equal(parsed.rows[1].ticker, "INFY");
+    assert.equal(parsed.rows[1].lot_kind, "retail");
+    assert.equal(parsed.rows[1].native_currency, "INR");
   });
 
   it("defaults missing or blank lot_kind to retail and rejects invalid kinds", () => {

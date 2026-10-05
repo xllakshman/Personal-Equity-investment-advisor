@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { holdingsForDisplay, type HoldingGridRow } from "./grid";
+import { holdingsForDisplay, asDisplayCurrency, DEFAULT_DISPLAY_CURRENCY, type HoldingGridRow } from "./grid";
 
 describe("holdingsForDisplay", () => {
   it("weights from converted cost×qty and keeps native cost on the row", () => {
@@ -39,5 +39,19 @@ describe("holdingsForDisplay", () => {
 
   it("empty book has zero weights", () => {
     assert.deepEqual(holdingsForDisplay([], "USD", 88.4), []);
+  });
+});
+
+describe("asDisplayCurrency", () => {
+  it("defaults unset, blank, and unknown values to USD and keeps a saved INR", () => {
+    assert.equal(DEFAULT_DISPLAY_CURRENCY, "USD");
+    assert.equal(asDisplayCurrency(null), "USD");
+    assert.equal(asDisplayCurrency(undefined), "USD");
+    assert.equal(asDisplayCurrency(""), "USD");
+    assert.equal(asDisplayCurrency("usd"), "USD");
+    assert.equal(asDisplayCurrency("USD "), "USD");
+    assert.equal(asDisplayCurrency("EUR"), "USD");
+    assert.equal(asDisplayCurrency("INR"), "INR");
+    assert.equal(asDisplayCurrency(" inr "), "INR");
   });
 });

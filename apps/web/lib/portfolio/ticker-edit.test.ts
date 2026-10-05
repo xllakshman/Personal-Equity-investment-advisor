@@ -53,6 +53,14 @@ describe("ticker edit write gate", () => {
     assert.match(grid, /ESOP/);
     assert.match(grid, /orig_lot_kind/);
     assert.match(grid, /LotKindFields/);
+    assert.match(grid, /htmlFor="edit-ticker"[\s\S]*?>\s*Ticker\s*</);
+    assert.match(grid, /htmlFor="edit-company"[\s\S]*?>\s*Company name\s*</);
+    assert.match(grid, /htmlFor="edit-cost"[\s\S]*?>\s*Cost \/ share\s*</);
+    assert.match(grid, /htmlFor="edit-currency"[\s\S]*?>\s*Currency\s*</);
+    assert.match(grid, /defaultValue=\{editing\.ticker\}/);
+    assert.match(grid, /defaultValue=\{String\(editing\.qty\)\}/);
+    assert.match(grid, /defaultValue=\{String\(editing\.cost_per_share\)\}/);
+    assert.match(grid, /defaultValue=\{editing\.native_currency\}/);
 
     assert.equal(deskGrid.includes("updateHoldingTicker"), false);
     assert.equal(deskGrid.includes("deleteHoldingTicker"), false);

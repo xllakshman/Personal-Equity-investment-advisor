@@ -27,8 +27,17 @@ describe("CSV import UI", () => {
     assert.match(actions, /writeWithOptionalLotKind/);
     assert.match(actions, /missingLotKindColumn/);
     assert.equal(actions.includes("toDisplayAmount"), false);
+    assert.match(actions, /display_currency: "USD"/);
     const add = src("components/features/portfolio/ManualAddForm.tsx");
     assert.match(add, /LotKindFields/);
     assert.match(add, /Viewers can read this book but cannot add lots/);
+    assert.match(add, /htmlFor="manual-ticker"[\s\S]*?>\s*Ticker\s*</);
+    assert.match(add, /htmlFor="manual-company"[\s\S]*?>\s*Company name\s*</);
+    assert.match(add, /htmlFor="manual-cost"[\s\S]*?>\s*Cost \/ share\s*</);
+    assert.match(add, /htmlFor="manual-total"[\s\S]*?>\s*Total purchased\s*</);
+    assert.match(add, /htmlFor="manual-currency"[\s\S]*?>\s*Currency\s*</);
+    assert.equal(add.includes('placeholder="Ticker"'), false);
+    assert.match(card, /Required: ticker, company_name, cost_per_share, total_purchased/);
+    assert.match(card, /Optional: lot_kind/);
   });
 });

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { DEFAULT_USD_INR, displayFxRate, roundUsdInr, toDisplayAmount } from "./fx";
+import { DEFAULT_USD_INR, displayFxRate, roundUsdInr, sumDisplayCost, toDisplayAmount } from "./fx";
 
 describe("toDisplayAmount", () => {
   it("converts USD to INR only in the renderer", () => {
@@ -34,5 +34,16 @@ describe("toDisplayAmount", () => {
     assert.equal(native, 12090);
     assert.equal(toDisplayAmount(Number.NaN, "USD", "INR", 88.4), 0);
     assert.equal(toDisplayAmount(10, "EUR", "USD", 88.4), 10);
+  });
+
+  it("sums qty × cost into the account display currency without mutating lots", () => {
+    const lots = [
+      { qty: 2, cost_per_share: 10, native_currency: "USD" },
+      { qty: 1, cost_per_share: 800, native_currency: "INR" },
+    ];
+    assert.equal(sumDisplayCost(lots, "USD", 80), 30);
+    assert.equal(sumDisplayCost(lots, "INR", 80), 2400);
+    assert.equal(lots[0]?.cost_per_share, 10);
+    assert.equal(sumDisplayCost([], "USD", 80), 0);
   });
 });

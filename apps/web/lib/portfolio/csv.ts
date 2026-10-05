@@ -15,10 +15,23 @@ export const PORTFOLIO_CSV_COLUMNS = [
   "total_purchased",
 ] as const;
 
+/** Parsed when present; missing or blank lot_kind = retail. */
+export const PORTFOLIO_CSV_OPTIONAL_COLUMNS = ["lot_kind"] as const;
+
 export const PORTFOLIO_CSV_TEMPLATE_FILENAME = "eqveste-holdings-template.csv";
 
+export function csvTemplateHeader(): string {
+  return [...PORTFOLIO_CSV_COLUMNS, ...PORTFOLIO_CSV_OPTIONAL_COLUMNS].join(",");
+}
+
 export function csvTemplateText(): string {
-  return `${PORTFOLIO_CSV_COLUMNS.join(",")},lot_kind\nMSFT,Microsoft,400,4000,retail\n`;
+  return [
+    `# Optional columns: ${PORTFOLIO_CSV_OPTIONAL_COLUMNS.join(", ")} (lot_kind blank = retail)`,
+    csvTemplateHeader(),
+    "MSFT,Microsoft,400,4000,retail",
+    "INFY.NS,Infosys,1500,150000,",
+    "",
+  ].join("\n");
 }
 
 export type ParsedImportRow = {
@@ -119,7 +132,10 @@ export function parsePortfolioCsv(
     return { ok: false, error: "CSV is empty." };
   }
 
-  const lines = trimmed.split(/\r?\n/).filter((ln) => ln.trim().length > 0);
+  const lines = trimmed.split(/\r?\n/).filter((ln) => {
+    const t = ln.trim();
+    return t.length > 0 && !t.startsWith("#");
+  });
   if (lines.length < 2) {
     return { ok: false, error: "CSV needs a header row and at least one data row." };
   }
