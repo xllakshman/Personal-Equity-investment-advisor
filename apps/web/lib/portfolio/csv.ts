@@ -5,6 +5,7 @@ import {
   type CurrencyOverride,
   type NativeCurrency,
 } from "./exchange";
+import { parseLotKindField, type LotKind } from "./lot-kind";
 import { parseMoney, qtyFromTotals } from "./qty";
 
 export const PORTFOLIO_CSV_COLUMNS = [
@@ -17,7 +18,7 @@ export const PORTFOLIO_CSV_COLUMNS = [
 export const PORTFOLIO_CSV_TEMPLATE_FILENAME = "eqveste-holdings-template.csv";
 
 export function csvTemplateText(): string {
-  return `${PORTFOLIO_CSV_COLUMNS.join(",")}\nMSFT,Microsoft,400,4000\n`;
+  return `${PORTFOLIO_CSV_COLUMNS.join(",")},lot_kind\nMSFT,Microsoft,400,4000,retail\n`;
 }
 
 export type ParsedImportRow = {
@@ -30,6 +31,7 @@ export type ParsedImportRow = {
   qty: number | null;
   exchange: string | null;
   native_currency: NativeCurrency | null;
+  lot_kind: LotKind;
   accepted: boolean;
   reject_reason: string | null;
 };
@@ -145,6 +147,9 @@ export function parsePortfolioCsv(
     const companyCell = raw.company_name.trim();
     const cost = parseMoney(raw.cost_per_share);
     const total = parseMoney(raw.total_purchased);
+    const kindCell = idx.has("lot_kind") ? (cells[idx.get("lot_kind")!] ?? "").trim() : "";
+    raw.lot_kind = kindCell;
+    const kindParsed = parseLotKindField(kindCell);
 
     let reject: string | null = null;
     if (!tickerCell) reject = "Blank ticker";
@@ -152,6 +157,7 @@ export function parsePortfolioCsv(
     else if (cost <= 0) reject = "Cost per share must be greater than 0";
     else if (total === null) reject = "Total purchased must be a number";
     else if (total <= 0) reject = "Total purchased must be greater than 0";
+    else if (!kindParsed.ok) reject = "lot_kind must be retail or esop";
 
     const qty = reject ? null : qtyFromTotals(total!, cost!);
     if (!reject && (qty === null || qty <= 0)) {
@@ -173,6 +179,7 @@ export function parsePortfolioCsv(
       qty,
       exchange,
       native_currency: native,
+      lot_kind: kindParsed.ok ? kindParsed.value : "retail",
       accepted: reject === null,
       reject_reason: reject,
     });

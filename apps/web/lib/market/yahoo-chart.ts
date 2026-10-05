@@ -1,3 +1,4 @@
+import type { QuotePoint } from "./book-rows";
 import { parseMonthlyCloses, type ClosePoint } from "../research/cagr";
 
 /** Yahoo chart v8. No API key. Display quotes only. Do not write lots. */
@@ -56,11 +57,13 @@ export async function fetchYahooChartCloses(
   symbol: string,
   fetchImpl: typeof fetch = fetch,
   now = new Date(),
+  range = "1y",
+  interval = "1d",
 ): Promise<ChartClose[]> {
   const trimmed = symbol.trim();
   if (!trimmed) return [];
   try {
-    const res = await fetchImpl(yahooChartUrl(trimmed, "1y", "1d"), {
+    const res = await fetchImpl(yahooChartUrl(trimmed, range, interval), {
       headers: { "User-Agent": UA, Accept: "application/json" },
       signal: AbortSignal.timeout(12000),
       next: { revalidate: 300 },
@@ -70,4 +73,22 @@ export async function fetchYahooChartCloses(
   } catch {
     return [];
   }
+}
+
+export function lastChartClose(points: ChartClose[]): QuotePoint | null {
+  if (points.length === 0) return null;
+  const last = points[points.length - 1]!;
+  if (!Number.isFinite(last.close) || last.close <= 0) return null;
+  return { close: last.close, currency: last.currency };
+}
+
+/** Display previous close only. Do not write lots. */
+export async function fetchYahooLastClose(
+  symbol: string,
+  fetchImpl: typeof fetch = fetch,
+  now = new Date(),
+): Promise<QuotePoint | null> {
+  return lastChartClose(
+    await fetchYahooChartCloses(symbol, fetchImpl, now, "5d", "1d"),
+  );
 }

@@ -35,6 +35,7 @@ def test_desk_kpi_uses_meter_helper_not_search_only() -> None:
     sql = _read("supabase/migrations/027_search_credit_quantity.sql")
     assert "meterCreditSum" in home
     assert "selectUsageEventsForMeter" in home
+    assert "selectHoldingsRows" in home
     assert "quantity" in events
     assert "kind, cost_cents" in events
     assert "Never INSERT" in events

@@ -4,6 +4,8 @@
 
 **P11-11 display exception (named 2026-10-05):** `/desk` server load may GET the same Yahoo chart v8 (`range=1y&interval=1d`) for the family’s current rows in view `holdings` plus NASDAQ Composite (`^IXIC`) and S&P 500 (`^GSPC`). That is display-only. Empty book → no fetch; the widget shows **—**. Unknown exchange → skip that lot (do not guess). In-progress session bar is dropped, same as Step 0.
 
+**P11-12 display (named 2026-10-05):** `/desk` and `/portfolio` may GET Yahoo chart v8 (`range=5d&interval=1d`) for previous close to show **unrealized P&L %** (display market value − display cost) / cost. Same D40 rule: never write the close into `holding_lots` / `holdings` / `eod_quotes`. Failed quote or empty book → **—**.
+
 ## What we store
 
 **Previous regular-session close** (last completed daily bar), not last tick, not pre/post print. Worker may cache in `eod_quotes`. Home trend does **not** insert `eod_quotes` or `holding_lots`.

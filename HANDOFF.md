@@ -4,7 +4,7 @@
 > **Workspace:** `/Users/lakshmanyeluri/Documents/personalEquity_Advisor`  
 > **Reference layout:** `/Users/lakshmanyeluri/Documents/activePieces-docker/invoice-processing`  
 > **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P6-03** (merchant unnamed)  
-> **Latest session:** [`docs/handoff/SESSION-2026-10-05-p11-11.md`](docs/handoff/SESSION-2026-10-05-p11-11.md)  
+> **Latest session:** [`docs/handoff/SESSION-2026-10-05-p11-12.md`](docs/handoff/SESSION-2026-10-05-p11-12.md)  
 > **Mock UI:** [`docs/mock-ui/`](docs/mock-ui/README.md)  
 > **GitHub (empty):** `xllakshman/Personal-Equity-investment-advisor` · branch `main`
 
@@ -26,7 +26,7 @@
 | Maya seed | ✅ `maya@thesis.demo` · 5 lots · 2 reports (1 sample) |
 | Storage bucket `report-pdfs` | ✅ private |
 | Analysis API / worker | ✅ 2026-10-04 — prod host droplet `157.245.102.243` `/opt/eqveste`; public **`https://api.eqveste.com`**. Local laptop still `:8091` + DEV `.env`. |
-| Next.js desk | ✅ 2026-10-05 — **P11-11:** `/desk` SELECT view `holdings` for `family_id` and shows a Daily/Weekly/Monthly/Yearly trend vs NASDAQ Composite (`^IXIC`) and S&P 500 (`^GSPC`). Yahoo chart v8 is fetched on the Next.js server (`lib/market/yahoo-chart.ts`); Home does not INSERT/UPDATE `holding_lots`. Empty book = **—**. Gain/loss KPI stays **—**. Notes widget + **All Reports**, **Change Plan**, CSV on `/portfolio`, **Download PDF** unchanged. `/analyse` **Run analysis** still `thesis_accept_analysis`. **027** applied on DEV: Frontier search writes `usage_events.quantity = 1.5`, Quick `1`. Desk “Analyses this month” sums quantity for kinds `search` / `refine` / `refine_gate` (same as `thesis_family_meter_count`). Ultra limit 80. **027 not on PROD.** Prod `/desk` and `/usage` SELECT `usage_events.quantity` then retry without that column if PostgREST says it is missing; missing/null quantity counts as **1** per meter-kind row. Next.js never INSERT/UPDATE `quantity`. |
+| Next.js desk | ✅ 2026-10-05 — **P11-12:** `/portfolio` and `/desk` SELECT view `holdings` for session `family_id` and split **Retail** vs **ESOP**. Manual add/edit + optional CSV `lot_kind` (missing = retail) write `holding_lots` on `/portfolio` only (owner/member; viewer read-only). Unrealized P&L % = (display market − display cost) / cost from qty × Yahoo previous close (`lib/market/load-quotes.ts`); never INSERT/UPDATE lots. Empty book or failed quote = **—**. **028** is in git, **not applied**; SELECT retries without `lot_kind` and treats every row as Retail. **P11-11** NASDAQ/S&P trend unchanged. **027** applied on DEV only; prod meter still falls back when `usage_events.quantity` is missing. |
 | Prod schema | ✅ 2026-10-04 — **001–026** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. `thesis_admin_set_family_plan` on `/admin/accounts`. `thesis_admin_remove_prompt` on `/admin/prompt`. |
 | Prod Vercel | ✅ 2026-10-05 — Production deploy `dpl_BS8Md8FtMipvmrFwixrSeQtzHdhF` aliased to **`https://eqveste.com`**. Anon URL+key + Resend + `ANALYSIS_API_URL`. No service role or lab keys. |
 | Tests | ✅ unit + web tests for 4–9. Live two-JWT CI still skips without a second family JWT. |
@@ -231,9 +231,9 @@ Env template: [`.env.example`](.env.example).
 
 ## 6. Database status
 
-**Applied on `cmksomahsfmsjufakryw` (DEV):** migrations **001–027**. Seed `supabase/seed/001_maya_desk.sql` was applied earlier. Do not re-run unless §25 fails.
+**Applied on `cmksomahsfmsjufakryw` (DEV):** migrations **001–027**. **028 not applied.** Seed `supabase/seed/001_maya_desk.sql` was applied earlier. Do not re-run unless §25 fails.
 
-**PROD `ndgvglcrkbygovlszxze`:** **001–026 applied** (`CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`; 026 on 2026-10-04). **027 not applied.** `select count(*) from holdings` = **0**. Maya seed not run. `report-pdfs` bucket exists. Do not copy Maya (`maya@thesis.demo`) onto prod unless you name `supabase/seed/001_maya_desk.sql`.
+**PROD `ndgvglcrkbygovlszxze`:** **001–026 applied** (`CONFIRM_APPLY=1 ./tools/db/apply_prod.sh --apply`; 026 on 2026-10-04). **027 not applied. 028 not applied.** `select count(*) from holdings` = **0**. Maya seed not run. `report-pdfs` bucket exists. Do not copy Maya (`maya@thesis.demo`) onto prod unless you name `supabase/seed/001_maya_desk.sql`.
 
 Demo desk: `maya@thesis.demo` / `ThesisMaya!2026` (Auth email+password). Google/Phone flags must still be turned on in the Supabase Auth dashboard.
 
@@ -326,7 +326,7 @@ See `.cursor/rules/web-ui-maintenance.mdc`. Marketing vs desk palettes must not 
 
 ## 18. Next steps
 
-Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P6-03** when a merchant is named. **P10-02** is on the droplet. **027** is on DEV only (not PROD). Worker LLM is native labs (D39). Never put lab keys on Vercel. Local **3100** stays DEV.
+Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P6-03** when a merchant is named. **P10-02** is on the droplet. **027** is on DEV only (not PROD). **028** is in git, not applied on DEV or PROD. Worker LLM is native labs (D39). Never put lab keys on Vercel. Local **3100** stays DEV.
 
 ---
 

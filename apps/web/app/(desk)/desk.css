@@ -1221,6 +1221,36 @@ button.pf__ghost[type="submit"]:hover {
   white-space: nowrap;
 }
 
+.pf__kind {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  align-items: center;
+}
+
+.pf__kind .pf__label {
+  width: 100%;
+  margin: 0;
+}
+
+.pf__sleeve {
+  margin-top: 18px;
+}
+
+.pf__sleeve-h {
+  margin: 0 0 8px;
+  font: 650 16px/1.3 inherit;
+}
+
+.pf__sleeve-totals {
+  margin: 8px 0 0;
+  font: 400 13px/1.45 inherit;
+  color: rgba(29, 29, 31, 0.72);
+}
+
 .pf__table--book {
   table-layout: fixed;
   min-width: 1240px;

@@ -1,5 +1,6 @@
 import type { NativeCurrency } from "./exchange";
 import { toDisplayAmount } from "./fx";
+import type { LotKind } from "./lot-kind";
 
 export type HoldingGridRow = {
   ticker: string;
@@ -9,6 +10,7 @@ export type HoldingGridRow = {
   cost_per_share: number;
   native_currency: string;
   lot_count: number;
+  lot_kind: LotKind;
 };
 
 export type DisplayHoldingRow = HoldingGridRow & {

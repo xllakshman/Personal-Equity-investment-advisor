@@ -25,7 +25,32 @@ describe("parseLotWrite", () => {
       assert.equal(got.value.ticker, "MSFT");
       assert.equal(got.value.qty, 28);
       assert.equal(got.value.native, "USD");
+      assert.equal(got.value.lotKind, "retail");
     }
+  });
+
+  it("accepts ESOP and rejects an invalid lot type", () => {
+    const esop = parseLotWrite(
+      form({
+        ticker: "AAPL",
+        company_name: "Apple",
+        cost_per_share: "100",
+        total_purchased: "1000",
+        lot_kind: "esop",
+      }),
+    );
+    assert.equal(esop.ok, true);
+    if (esop.ok) assert.equal(esop.value.lotKind, "esop");
+    const junk = parseLotWrite(
+      form({
+        ticker: "AAPL",
+        company_name: "Apple",
+        cost_per_share: "100",
+        total_purchased: "1000",
+        lot_kind: "pension",
+      }),
+    );
+    assert.equal(junk.ok, false);
   });
 
   it("rejects empty ticker, zero cost, and empty total", () => {
@@ -62,6 +87,7 @@ describe("parseLotEdit", () => {
       assert.equal(got.value.qty, 30);
       assert.equal(got.value.cost, 403);
       assert.equal(got.value.company, "Microsoft");
+      assert.equal(got.value.lotKind, "retail");
     }
   });
 
@@ -104,7 +130,7 @@ describe("parseLotKey", () => {
           orig_native: "usd",
         }),
       ),
-      { ticker: "MSFT", exchange: "NASDAQ", native: "USD" },
+      { ticker: "MSFT", exchange: "NASDAQ", native: "USD", lotKind: "retail" },
     );
     assert.equal(parseLotKey(form({ orig_ticker: "MSFT" })), null);
     assert.equal(parseLotKey(form({})), null);

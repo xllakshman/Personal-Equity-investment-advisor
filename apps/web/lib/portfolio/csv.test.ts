@@ -27,6 +27,7 @@ describe("parsePortfolioCsv", () => {
     assert.equal(parsed.rows[0].qty, 10);
     assert.equal(parsed.rows[0].cost_per_share, 10);
     assert.equal(parsed.rows[0].native_currency, "USD");
+    assert.equal(parsed.rows[0].lot_kind, "retail");
   });
 
   it("rejects a blank ticker and still lists the row", () => {
@@ -97,15 +98,65 @@ AAA;Alpha;10;100
     assert.match(parsed.error, /Missing: ticker, company_name, cost_per_share, total_purchased/);
   });
 
-  it("template header matches the parser columns", () => {
+  it("template header includes the four required columns plus optional lot_kind", () => {
     const text = csvTemplateText();
-    assert.equal(text.split("\n")[0], PORTFOLIO_CSV_COLUMNS.join(","));
+    assert.equal(
+      text.split("\n")[0],
+      `${PORTFOLIO_CSV_COLUMNS.join(",")},lot_kind`,
+    );
     const parsed = parsePortfolioCsv(text, "auto");
     assert.equal(parsed.ok, true);
     if (!parsed.ok) return;
     assert.equal(parsed.rows.length, 1);
     assert.equal(parsed.rows[0].accepted, true);
     assert.equal(parsed.rows[0].ticker, "MSFT");
+    assert.equal(parsed.rows[0].lot_kind, "retail");
+  });
+
+  it("defaults missing or blank lot_kind to retail and rejects invalid kinds", () => {
+    const missing = parsePortfolioCsv(
+      `ticker,company_name,cost_per_share,total_purchased
+MSFT,Microsoft,400,4000
+`,
+      "auto",
+    );
+    assert.equal(missing.ok, true);
+    if (!missing.ok) return;
+    assert.equal(missing.rows[0].accepted, true);
+    assert.equal(missing.rows[0].lot_kind, "retail");
+
+    const blank = parsePortfolioCsv(
+      `ticker,company_name,cost_per_share,total_purchased,lot_kind
+AAPL,Apple,100,1000,
+`,
+      "auto",
+    );
+    assert.equal(blank.ok, true);
+    if (!blank.ok) return;
+    assert.equal(blank.rows[0].accepted, true);
+    assert.equal(blank.rows[0].lot_kind, "retail");
+
+    const esop = parsePortfolioCsv(
+      `ticker,company_name,cost_per_share,total_purchased,lot_kind
+GOOG,Alphabet,150,1500,ESOP
+`,
+      "auto",
+    );
+    assert.equal(esop.ok, true);
+    if (!esop.ok) return;
+    assert.equal(esop.rows[0].accepted, true);
+    assert.equal(esop.rows[0].lot_kind, "esop");
+
+    const junk = parsePortfolioCsv(
+      `ticker,company_name,cost_per_share,total_purchased,lot_kind
+TSLA,Tesla,200,2000,pension
+`,
+      "auto",
+    );
+    assert.equal(junk.ok, true);
+    if (!junk.ok) return;
+    assert.equal(junk.rows[0].accepted, false);
+    assert.match(junk.rows[0].reject_reason ?? "", /lot_kind/);
   });
 
   it("reads the File blob from the form, not a one-line hidden field", async () => {

@@ -56,3 +56,7 @@ def test_quote_helper_does_not_write_holding_lots() -> None:
     assert 'from("holding_lots")' not in home
     for marker in WRITE_MARKERS:
         assert marker not in home
+    quotes = (ROOT / "apps/web/lib/market/load-quotes.ts").read_text(encoding="utf-8")
+    assert 'from("holding_lots")' not in quotes
+    for marker in WRITE_MARKERS:
+        assert marker not in quotes

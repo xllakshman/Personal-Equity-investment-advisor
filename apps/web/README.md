@@ -13,7 +13,7 @@ npm run build
 npm test
 ```
 
-Port **3100** (not 3000). Anon `/` is the marketing home. Logged-in `/` redirects to `/desk`. `/desk` reads view `holdings` and may fetch Yahoo chart v8 on the server for the NASDAQ/S&P trend widget (display only; does not write lots).
+Port **3100** (not 3000). Anon `/` is the marketing home. Logged-in `/` redirects to `/desk`. `/desk` reads view `holdings` (Retail and ESOP sections) and may fetch Yahoo chart v8 on the server for the NASDAQ/S&P trend and unrealized P&L % (display only; does not write lots). `/portfolio` writes `holding_lots`.
 
 ## Layout
 

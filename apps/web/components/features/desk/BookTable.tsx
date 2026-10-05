@@ -3,7 +3,9 @@
 import type { ReactNode } from "react";
 
 import { bookMoney, type QuotePoint } from "@/lib/market/book-rows";
+import type { NativeCurrency } from "@/lib/portfolio/exchange";
 import { formatMoney } from "@/lib/portfolio/fx";
+import { aggregateUnrealizedPct, formatPnlPct } from "@/lib/portfolio/unrealized-pnl";
 
 export type BookTableRow = {
   key: string;
@@ -25,42 +27,48 @@ export function BookTable({
   rows,
   showActions = false,
   caption,
+  emptyCopy = "No stocks yet. Add a name or upload a CSV on Review Portfolio.",
+  displayCurrency,
+  fxUsdInr,
 }: {
   rows: BookTableRow[];
   showActions?: boolean;
   caption?: string;
+  emptyCopy?: string;
+  displayCurrency: NativeCurrency;
+  fxUsdInr: number;
 }) {
-  const investedTotal = rows.reduce((s, r) => s + r.qty * r.costPerShare, 0);
-  const values = rows.map((r) => {
-    const m = bookMoney({
+  const money = rows.map((r) =>
+    bookMoney({
       qty: r.qty,
       costPerShare: r.costPerShare,
       nativeCurrency: r.currency,
       quote: r.quote,
-      investedTotal,
+      investedTotal: 0,
       valueTotal: null,
-    });
-    return m.value;
-  });
-  const pricedCount = values.filter((v) => v != null).length;
-  const valueSum = values.reduce<number>((s, v) => s + (v ?? 0), 0);
+      displayCurrency,
+      fxUsdInr,
+    }),
+  );
+  const investedTotal = money.reduce((s, m) => s + m.invested, 0);
+  const pricedCount = money.filter((m) => m.value != null).length;
+  const valueSum = money.reduce((s, m) => s + (m.value ?? 0), 0);
   const allPriced = rows.length > 0 && pricedCount === rows.length;
   const valueForWeights = allPriced ? valueSum : null;
   const valueTotal = pricedCount > 0 ? valueSum : null;
-
-  const cols = showActions ? 9 : 8;
-  const currencies = new Set(rows.map((r) => r.currency.toUpperCase()));
-  const oneCcy = currencies.size === 1 ? (rows[0]?.currency ?? "USD") : null;
-  const realizedTotal = null as number | null;
   const unrealizedTotal =
-    oneCcy && pricedCount > 0
-      ? values.reduce<number>((s, v, i) => {
-          if (v == null) return s;
-          const row = rows[i];
-          if (!row) return s;
-          return s + (v - row.qty * row.costPerShare);
-        }, 0)
+    allPriced && rows.length > 0
+      ? money.reduce((s, m) => s + (m.unrealized ?? 0), 0)
       : null;
+  const unrealizedPctTotal = aggregateUnrealizedPct(
+    money.map((m) => ({
+      displayCost: m.invested,
+      displayMarket: m.value,
+    })),
+  );
+
+  const cols = showActions ? 10 : 9;
+  const realizedTotal = null as number | null;
 
   return (
     <div className="pf__table-wrap">
@@ -76,6 +84,7 @@ export function BookTable({
             <col className="pf__col-num" />
             <col className="pf__col-num" />
             <col className="pf__col-pct" />
+            <col className="pf__col-pct" />
             {showActions ? <col className="pf__col-act" /> : null}
           </colgroup>
           <thead>
@@ -87,6 +96,7 @@ export function BookTable({
               <th className="pf__num">Current value</th>
               <th className="pf__num">Realized P&amp;L</th>
               <th className="pf__num">Unrealized P&amp;L</th>
+              <th className="pf__num">Unrealized P&amp;L %</th>
               <th className="pf__num">% portfolio</th>
               {showActions ? <th>Actions</th> : null}
             </tr>
@@ -95,7 +105,7 @@ export function BookTable({
             {rows.length === 0 ? (
               <tr>
                 <td colSpan={cols} className="pf__empty">
-                  No stocks yet. Add a name or upload a CSV on Review Portfolio.
+                  {emptyCopy}
                 </td>
               </tr>
             ) : (
@@ -107,6 +117,8 @@ export function BookTable({
                   quote: r.quote,
                   investedTotal,
                   valueTotal: valueForWeights,
+                  displayCurrency,
+                  fxUsdInr,
                 });
                 const plClass =
                   m.unrealized == null
@@ -118,12 +130,15 @@ export function BookTable({
                   <tr key={r.key}>
                     <td className="pf__stock">{r.stock}</td>
                     <td className="pf__ticker">{r.ticker}</td>
-                    <td className="pf__num">{cell(m.invested, r.currency)}</td>
-                    <td className="pf__num">{cell(m.price, r.currency)}</td>
-                    <td className="pf__num">{cell(m.value, r.currency)}</td>
-                    <td className="pf__num">{cell(m.realized, r.currency)}</td>
+                    <td className="pf__num">{cell(m.invested, displayCurrency)}</td>
+                    <td className="pf__num">{cell(m.price, displayCurrency)}</td>
+                    <td className="pf__num">{cell(m.value, displayCurrency)}</td>
+                    <td className="pf__num">{cell(m.realized, displayCurrency)}</td>
                     <td className={`pf__num ${plClass}`}>
-                      {cell(m.unrealized, r.currency)}
+                      {cell(m.unrealized, displayCurrency)}
+                    </td>
+                    <td className={`pf__num ${plClass}`}>
+                      {formatPnlPct(m.unrealizedPct)}
                     </td>
                     <td className="pf__num">
                       {Number.isFinite(m.weightPct) ? `${m.weightPct.toFixed(1)}%` : "—"}
@@ -142,16 +157,12 @@ export function BookTable({
             <tfoot>
               <tr>
                 <td colSpan={2}>Total</td>
-                <td className="pf__num">
-                  {oneCcy ? cell(investedTotal, oneCcy) : "—"}
-                </td>
+                <td className="pf__num">{cell(investedTotal, displayCurrency)}</td>
                 <td className="pf__num">—</td>
                 <td className="pf__num">
-                  {oneCcy ? cell(valueTotal, oneCcy) : "—"}
+                  {valueTotal != null ? cell(valueTotal, displayCurrency) : "—"}
                 </td>
-                <td className="pf__num">
-                  {oneCcy ? cell(realizedTotal, oneCcy) : "—"}
-                </td>
+                <td className="pf__num">{cell(realizedTotal, displayCurrency)}</td>
                 <td
                   className={`pf__num ${
                     unrealizedTotal == null
@@ -161,9 +172,22 @@ export function BookTable({
                         : "pf__pl--down"
                   }`}
                 >
-                  {oneCcy ? cell(unrealizedTotal, oneCcy) : "—"}
+                  {unrealizedTotal != null
+                    ? cell(unrealizedTotal, displayCurrency)
+                    : "—"}
                 </td>
-                <td className="pf__num">{oneCcy ? "100%" : "—"}</td>
+                <td
+                  className={`pf__num ${
+                    unrealizedPctTotal == null
+                      ? ""
+                      : unrealizedPctTotal >= 0
+                        ? "pf__pl--up"
+                        : "pf__pl--down"
+                  }`}
+                >
+                  {formatPnlPct(unrealizedPctTotal)}
+                </td>
+                <td className="pf__num">100%</td>
                 {showActions ? <td /> : null}
               </tr>
             </tfoot>

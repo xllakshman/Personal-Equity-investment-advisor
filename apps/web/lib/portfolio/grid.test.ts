@@ -14,6 +14,7 @@ describe("holdingsForDisplay", () => {
         cost_per_share: 10,
         native_currency: "USD",
         lot_count: 2,
+        lot_kind: "retail",
       },
       {
         ticker: "TSM",
@@ -23,6 +24,7 @@ describe("holdingsForDisplay", () => {
         cost_per_share: 5,
         native_currency: "USD",
         lot_count: 1,
+        lot_kind: "esop",
       },
     ];
     const shown = holdingsForDisplay(rows, "INR", 80);

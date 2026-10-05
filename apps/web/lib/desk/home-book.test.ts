@@ -11,23 +11,26 @@ function src(rel: string): string {
 }
 
 describe("Home book and notes widget", () => {
-  it("reads view holdings, not a second lots book; P&L stays dash; trend is display-only", () => {
+  it("reads view holdings, not a second lots book; sleeves and P&L are display-only", () => {
     const page = src("app/(desk)/desk/page.tsx");
     const home = src("lib/desk/load-home.ts");
     const view = src("components/features/desk/DeskHomeView.tsx");
     const alloc = src("components/features/desk/AllocationTable.tsx");
     assert.match(page, /loadDeskHome/);
     assert.equal(page.includes("loadHoldingLots"), false);
-    assert.match(home, /from\("holdings"\)/);
+    assert.match(home, /selectHoldingsRows/);
     assert.match(home, /loadPortfolioTrend/);
+    assert.match(home, /loadHoldingQuotes/);
     assert.equal(home.includes('from("holding_lots")'), false);
     assert.equal(home.includes(".insert("), false);
-    assert.match(view, /AllocationTable holdings=\{home\.holdings\}/);
+    assert.match(view, /title="Retail"/);
+    assert.match(view, /title="ESOP"/);
     assert.match(view, /PortfolioTrendCard trend=\{home\.trend\}/);
+    assert.match(view, /formatPnlPct\(home\.unrealizedPnlPct\)/);
     assert.equal(view.includes("Add stock"), false);
     assert.equal(view.includes("HomeBook"), false);
     assert.equal(alloc.includes("useQuotes"), false);
-    assert.match(alloc, /quote: null/);
+    assert.equal(view.includes("useQuotes"), false);
   });
 
   it("shows only the latest own report and links All Reports to /reports", () => {

@@ -17,6 +17,7 @@ describe("bookMoney", () => {
     assert.equal(row.price, 120);
     assert.equal(row.value, 1200);
     assert.equal(row.unrealized, 200);
+    assert.equal(row.unrealizedPct, 20);
     assert.equal(row.realized, null);
     assert.equal(row.weightPct, 100);
   });
@@ -33,6 +34,7 @@ describe("bookMoney", () => {
     assert.equal(row.price, null);
     assert.equal(row.value, null);
     assert.equal(row.unrealized, null);
+    assert.equal(row.unrealizedPct, null);
     assert.equal(Math.round(row.weightPct), 100);
   });
 

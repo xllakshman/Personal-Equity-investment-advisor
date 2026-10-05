@@ -9,6 +9,10 @@ import { parseCurrencyOverride } from "@/lib/portfolio/exchange";
 import { asDisplayCurrency } from "@/lib/portfolio/grid";
 import { roundUsdInr } from "@/lib/portfolio/fx";
 import { loadPortfolioSettings } from "@/lib/portfolio/load";
+import {
+  missingLotKindColumn,
+  writeWithOptionalLotKind,
+} from "@/lib/portfolio/lot-kind";
 import { loadInvestorProfile } from "@/lib/profile/load";
 import { parseLotId, parseLotEdit, parseLotKey, parseLotWrite } from "@/lib/portfolio/lot-write";
 import { parseEntryTranches } from "@/lib/profile/tranches";
@@ -58,6 +62,62 @@ function revalidateDesk() {
   revalidatePath("/desk");
   revalidatePath("/portfolio");
   revalidatePath("/analyse");
+}
+
+type LotRow = {
+  family_id: string;
+  portfolio_id: string;
+  ticker: string;
+  exchange: string;
+  company_name: string;
+  qty: number;
+  cost_per_share: number;
+  native_currency: string;
+  source: "csv" | "manual";
+  created_by: string;
+  lot_kind: "retail" | "esop";
+};
+
+async function insertLots(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  lots: LotRow[],
+): Promise<{ error: string | null }> {
+  const result = await writeWithOptionalLotKind(lots, (payload) =>
+    supabase.from("holding_lots").insert(payload),
+  );
+  if (result.error) return { error: "Could not insert lots." };
+  return { error: null };
+}
+
+async function updateLotById(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  familyId: string,
+  lotId: string,
+  patch: Record<string, unknown> & { lot_kind: "retail" | "esop" },
+): Promise<{ id: string | null; error: string | null }> {
+  const withKind = await supabase
+    .from("holding_lots")
+    .update(patch)
+    .eq("id", lotId)
+    .eq("family_id", familyId)
+    .select("id")
+    .maybeSingle();
+  if (!withKind.error) {
+    return { id: withKind.data?.id ? String(withKind.data.id) : null, error: null };
+  }
+  if (!missingLotKindColumn(withKind.error)) {
+    return { id: null, error: "Could not save that position." };
+  }
+  const { lot_kind: _ignored, ...rest } = patch;
+  const without = await supabase
+    .from("holding_lots")
+    .update(rest)
+    .eq("id", lotId)
+    .eq("family_id", familyId)
+    .select("id")
+    .maybeSingle();
+  if (without.error) return { id: null, error: "Could not save that position." };
+  return { id: without.data?.id ? String(without.data.id) : null, error: null };
 }
 
 export async function commitCsvImport(
@@ -129,12 +189,13 @@ export async function commitCsvImport(
       native_currency: r.native_currency ?? "USD",
       source: "csv" as const,
       created_by: session.userId,
+      lot_kind: r.lot_kind,
     }));
 
   if (lots.length > 0) {
-    const { error: lotErr } = await supabase.from("holding_lots").insert(lots);
-    if (lotErr) {
-      return { error: "Could not insert lots.", notice: null };
+    const inserted = await insertLots(supabase, lots);
+    if (inserted.error) {
+      return { error: inserted.error, notice: null };
     }
   }
 
@@ -164,20 +225,23 @@ export async function addManualLot(
     return { error: "Could not open a portfolio for this family.", notice: null };
   }
 
-  const { error } = await supabase.from("holding_lots").insert({
-    family_id: session.familyId,
-    portfolio_id: portfolioId,
-    ticker: parsed.value.ticker,
-    exchange: parsed.value.exchange,
-    company_name: parsed.value.company,
-    qty: parsed.value.qty,
-    cost_per_share: parsed.value.cost,
-    native_currency: parsed.value.native,
-    source: "manual",
-    created_by: session.userId,
-  });
+  const inserted = await insertLots(supabase, [
+    {
+      family_id: session.familyId,
+      portfolio_id: portfolioId,
+      ticker: parsed.value.ticker,
+      exchange: parsed.value.exchange,
+      company_name: parsed.value.company,
+      qty: parsed.value.qty,
+      cost_per_share: parsed.value.cost,
+      native_currency: parsed.value.native,
+      source: "manual",
+      created_by: session.userId,
+      lot_kind: parsed.value.lotKind,
+    },
+  ]);
 
-  if (error) {
+  if (inserted.error) {
     return { error: "Could not add that position.", notice: null };
   }
 
@@ -204,25 +268,20 @@ export async function updateHoldingLot(
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("holding_lots")
-    .update({
-      ticker: parsed.value.ticker,
-      exchange: parsed.value.exchange,
-      company_name: parsed.value.company,
-      qty: parsed.value.qty,
-      cost_per_share: parsed.value.cost,
-      native_currency: parsed.value.native,
-    })
-    .eq("id", lotId)
-    .eq("family_id", session.familyId)
-    .select("id")
-    .maybeSingle();
+  const saved = await updateLotById(supabase, session.familyId, lotId, {
+    ticker: parsed.value.ticker,
+    exchange: parsed.value.exchange,
+    company_name: parsed.value.company,
+    qty: parsed.value.qty,
+    cost_per_share: parsed.value.cost,
+    native_currency: parsed.value.native,
+    lot_kind: parsed.value.lotKind,
+  });
 
-  if (error) {
-    return { error: "Could not save that position.", notice: null };
+  if (saved.error) {
+    return { error: saved.error, notice: null };
   }
-  if (!data?.id) {
+  if (!saved.id) {
     return { error: "That position could not be found.", notice: null };
   }
 
@@ -269,14 +328,29 @@ export async function updateHoldingTicker(
   }
 
   const supabase = await createClient();
-  const { data: lots, error: readErr } = await supabase
+  const withKind = await supabase
     .from("holding_lots")
     .select("id, portfolio_id")
     .eq("family_id", session.familyId)
     .eq("ticker", key.ticker)
     .eq("exchange", key.exchange)
     .eq("native_currency", key.native)
+    .eq("lot_kind", key.lotKind)
     .order("created_at", { ascending: true });
+  let lots = withKind.data;
+  let readErr = withKind.error;
+  if (readErr && missingLotKindColumn(readErr)) {
+    const without = await supabase
+      .from("holding_lots")
+      .select("id, portfolio_id")
+      .eq("family_id", session.familyId)
+      .eq("ticker", key.ticker)
+      .eq("exchange", key.exchange)
+      .eq("native_currency", key.native)
+      .order("created_at", { ascending: true });
+    lots = without.data;
+    readErr = without.error;
+  }
   if (readErr || !lots?.length) {
     return { error: "That name could not be found.", notice: null };
   }
@@ -286,21 +360,16 @@ export async function updateHoldingTicker(
   const exchange =
     parsed.value.ticker === key.ticker ? key.exchange : parsed.value.exchange;
 
-  const { data, error } = await supabase
-    .from("holding_lots")
-    .update({
-      ticker: parsed.value.ticker,
-      exchange,
-      company_name: parsed.value.company,
-      qty: parsed.value.qty,
-      cost_per_share: parsed.value.cost,
-      native_currency: parsed.value.native,
-    })
-    .eq("id", keepId)
-    .eq("family_id", session.familyId)
-    .select("id")
-    .maybeSingle();
-  if (error || !data?.id) {
+  const saved = await updateLotById(supabase, session.familyId, keepId, {
+    ticker: parsed.value.ticker,
+    exchange,
+    company_name: parsed.value.company,
+    qty: parsed.value.qty,
+    cost_per_share: parsed.value.cost,
+    native_currency: parsed.value.native,
+    lot_kind: parsed.value.lotKind,
+  });
+  if (saved.error || !saved.id) {
     return { error: "Could not save that position.", notice: null };
   }
   if (extraIds.length > 0) {
@@ -330,13 +399,23 @@ export async function deleteHoldingTicker(formData: FormData) {
     redirect(`${back}?ok=missing`);
   }
   const supabase = await createClient();
-  await supabase
+  const withKind = await supabase
     .from("holding_lots")
     .delete()
     .eq("family_id", session.familyId)
     .eq("ticker", key.ticker)
     .eq("exchange", key.exchange)
-    .eq("native_currency", key.native);
+    .eq("native_currency", key.native)
+    .eq("lot_kind", key.lotKind);
+  if (withKind.error && missingLotKindColumn(withKind.error)) {
+    await supabase
+      .from("holding_lots")
+      .delete()
+      .eq("family_id", session.familyId)
+      .eq("ticker", key.ticker)
+      .eq("exchange", key.exchange)
+      .eq("native_currency", key.native);
+  }
   revalidateDesk();
   redirect(`${back}?ok=deleted`);
 }

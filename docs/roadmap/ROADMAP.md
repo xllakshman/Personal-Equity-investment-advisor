@@ -20,13 +20,13 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 
 | Field | Value |
 |-------|--------|
-| **Build next** | **P6-03** — merchant unnamed (blocked) |
-| Last done | **P11-11** — `/desk` portfolio vs NASDAQ/S&P trend (display Yahoo chart). **027** applied on DEV only. |
-| Blocked on you | P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. Apply **027** on **PROD** only when you name prod + file + `CONFIRM_APPLY=1`. |
+| **Build next** | **P6-03** — merchant unnamed (blocked). **P11-12** done this session. |
+| Last done | **P11-12** — ESOP vs Retail sleeves + unrealized P&L % (display Yahoo). **028** in git, **not applied**. |
+| Blocked on you | Apply **028** on **DEV** (then PROD) only when you name the env + file + `CONFIRM_APPLY=1`. Until then every lot **reads** as Retail. P6-03 merchant. Step 0 items 2–7 unnamed. P8-02 email **send** needs a provider. Apply **027** on **PROD** only when you name prod + file + `CONFIRM_APPLY=1`. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
-| DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–027** applied |
-| PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — **001–026 applied 2026-10-04**. `holdings` = 0. Maya seed not run. **027 not applied.** |
+| DEV DB | `https://cmksomahsfmsjufakryw.supabase.co` — migrations **001–027** applied. **028 not applied.** |
+| PROD DB | `https://ndgvglcrkbygovlszxze.supabase.co` — **001–026 applied 2026-10-04**. `holdings` = 0. Maya seed not run. **027 not applied. 028 not applied.** |
 | PROD web | **`https://eqveste.com`** — Vercel Next.js. FastAPI/worker **`https://api.eqveste.com`** on droplet `157.245.102.243`. |
 
 ---
@@ -989,6 +989,27 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
   4. CSV on `/portfolio`, one recent note + All Reports, Change Plan, light desk, Download PDF unchanged.
 - **Testing:** three passes (testing.mdc). Pass 1: family_id isolation; viewer read-only; meter kinds + quantity. Pass 2: empty book; unknown exchange skipped; FX display does not write back. Pass 3: formatted % / dates; Gain/loss still **—**; no prompt body in quantity. `npm test` in `apps/web`; `./tools/test/run_tests.sh`; live quota if `.env` has DB password; `npm run build` in `apps/web`. Browser `/desk` on **3100** if already up.
 
+### P11-12 — ESOP vs Retail + unrealized P&L %
+
+- **Status:** ✅ 2026-10-05 — user named ESOP/Retail + P&L % this turn. **028** in git, **not applied**. Do not start P6-03.
+- **Depends on:** P11-11, P11-04, P2-02
+- **Direction:** `/portfolio` mark each lot **Retail** or **ESOP**. Grid shows **two sections** (not mixed unlabeled rows). Manual add + edit include the control. CSV optional `lot_kind` (missing/blank = `retail`; invalid = reject that row). `/desk` shows Retail and ESOP as two read-only blocks (no Add/CSV on Home); link to Review Portfolio for edits. Unrealized P&L **%** = (display market value − display cost) / display cost from view `holdings` qty × Yahoo previous close (Next.js server, `lib/market/yahoo-chart.ts` + `lib/market/load-quotes.ts`). Display FX only. **Never** INSERT/UPDATE quotes into `holding_lots` / `holdings` / `eod_quotes` (D40). Empty book or failed quote → **—**, never fake 0%. Empty ESOP → empty section / **—**. Viewer cannot write. Migration **028** adds `holding_lots.lot_kind` and exposes it on view `holdings` (group by kind so the same ticker can appear in both sleeves). RLS unchanged.
+- **Writes:** `/portfolio` owner/member INSERT/UPDATE/DELETE `holding_lots` (including `lot_kind` once 028 is applied). CSV still writes `portfolio_import_rows` + accepted `holding_lots`. If `lot_kind` is missing on the DB, skip writing that column; every row **reads** as Retail. `/desk` writes nothing.
+- **Reads:** `/portfolio` and `/desk` SELECT view `holdings` for session `family_id`. P&L % uses Yahoo chart v8 previous close on the Next.js server. Display FX helpers do not write converted amounts.
+- **Who:** owner/member write lots; viewer (`member_role = viewer`) SELECT only (`user_can_read_family`). Viewer cannot CSV, add, edit, delete, or set lot_kind.
+- **UI today:** `/portfolio` CSV File + template + add + edit/delete; `/desk` read-only book + trend. No sleeve split until this chunk. **028 not applied.**
+- **Success:**
+  1. Owner/member on `/portfolio` can mark a lot Retail or ESOP (add + edit). Grid shows two labeled sections. Same ticker may appear in both. Viewer has no write controls.
+  2. CSV without `lot_kind` still imports as Retail. Optional `lot_kind` column accepted; junk kind rejects that row, not silent drop of the file.
+  3. `/desk` shows Retail and ESOP separately, read-only, no Add/CSV. Empty ESOP is empty / **—**. Link to `/portfolio` still the write path.
+  4. Unrealized P&L % on `/desk` (overall + per sleeve) and `/portfolio` (section totals + overall; per-row in the grid). Formula uses display close × qty vs display cost. Failed quote or empty book → **—**. Home/Portfolio do not write the close into lots.
+  5. Notes widget + All Reports, Change Plan, CSV template download, light desk, Download PDF, Analyse credits copy, index trend widget unchanged.
+- **Testing:** three passes (testing.mdc) before Status ✅.
+  - Pass 1: viewer cannot write `lot_kind`; family_id isolation; FastAPI still `user_can_read_family` for holdings context.
+  - Pass 2: empty ESOP; missing CSV `lot_kind` → retail; invalid kind rejected; FX display does not write back; quote helper never inserts `holding_lots`.
+  - Pass 3: formatted `+12.3%` / **—**; empty book **—**; no prompt body.
+  `npm test` in `apps/web`; `./tools/test/run_tests.sh` (028 static); `npm run build` in `apps/web`. Browser `/desk` `/portfolio` on **3100** if already up.
+
 ---
 
 ## Out of scope until you add a chunk
@@ -1079,6 +1100,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | P11-09 PDF | 2026-10-05 | ✅ Download PDF on `/reports/[id]` calls `GET /reports/:id/pdf`; analysis-api Playwright re-renders from current `reports.sections` and upserts Storage `report-pdfs` at `pdf_key`. Existing ready notes (stale objects) match the screen without Analyse again. D4: note jsonb unchanged. No prompt change. |
 | P11-10 | 2026-10-05 | ✅ `/portfolio` CSV File + template; `/desk` read-only `holdings` (no Yahoo); notes widget + **Change Plan**; agent 1.5/1 credits copy; light desk. **027** in git, not applied. No commit/push. |
 | P11-11 | 2026-10-05 | ✅ `/desk` portfolio vs NASDAQ/S&P (Yahoo chart display-only). **027** applied on DEV `cmksomahsfmsjufakryw` (not prod). Meter sums `usage_events.quantity`; prod SELECT retries without that column (1 credit per search/refine/refine_gate row). |
+| P11-12 | 2026-10-05 | ✅ `/portfolio` and `/desk` split Retail vs ESOP; unrealized P&L % from display Yahoo close. **028** in git, not applied. SELECT/INSERT skip `lot_kind` when the column is missing. |
 
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.

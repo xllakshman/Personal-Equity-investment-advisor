@@ -7,6 +7,8 @@ import { AllocationTable } from "@/components/features/desk/AllocationTable";
 import { PortfolioTrendCard } from "@/components/features/desk/PortfolioTrendCard";
 import { deskPrivacyView } from "@/lib/desk/privacy-status";
 import { firstName } from "@/lib/desk/identity";
+import { splitByLotKind } from "@/lib/portfolio/lot-kind";
+import { formatPnlPct } from "@/lib/portfolio/unrealized-pnl";
 
 function money(amount: number, ccy: string): string {
   if (ccy === "mixed") return amount.toFixed(0);
@@ -37,6 +39,7 @@ export function DeskHomeView({
   const privacy = deskPrivacyView(home.supportGrant);
   const emptyBook = home.positions === 0;
   const portfolioValue = money(home.costBasis, home.costCurrency === "mixed" ? "USD" : home.costCurrency);
+  const { retail, esop } = splitByLotKind(home.holdings);
 
   return (
     <div className="desk__screen">
@@ -59,8 +62,10 @@ export function DeskHomeView({
         </div>
         <div className="desk__card">
           <p className="desk__kpi-k">Gain or loss</p>
-          <p className="desk__kpi-v">{emptyBook ? "+$0" : "—"}</p>
-          <p className="desk__kpi-s">{emptyBook ? "—" : "Not a live price"}</p>
+          <p className="desk__kpi-v">{formatPnlPct(home.unrealizedPnlPct)}</p>
+          <p className="desk__kpi-s">
+            {emptyBook ? "—" : "Unrealized vs cost (previous close)"}
+          </p>
         </div>
         <div className="desk__card">
           <p className="desk__kpi-k">Analyses this month</p>
@@ -147,7 +152,29 @@ export function DeskHomeView({
         </section>
       ) : null}
       <div className="desk__book-block">
-        <AllocationTable holdings={home.holdings} />
+        <p className="pf__sleeve-totals">
+          Overall unrealized P&amp;L % {formatPnlPct(home.unrealizedPnlPct)}
+          {" · "}
+          Retail {formatPnlPct(home.retailPnlPct)}
+          {" · "}
+          ESOP {formatPnlPct(home.esopPnlPct)}
+        </p>
+        <AllocationTable
+          title="Retail"
+          holdings={retail}
+          quotes={home.quotes}
+          displayCurrency={home.displayCurrency}
+          fxUsdInr={home.fxUsdInr}
+          emptyCopy="No retail lots yet."
+        />
+        <AllocationTable
+          title="ESOP"
+          holdings={esop}
+          quotes={home.quotes}
+          displayCurrency={home.displayCurrency}
+          fxUsdInr={home.fxUsdInr}
+          emptyCopy="No ESOP lots yet."
+        />
         <p className="desk__lede" style={{ marginTop: 10 }}>
           <Link href="/portfolio">Review Portfolio</Link>
           {" — add, edit, delete, or upload a CSV. Home only shows this book."}
@@ -190,7 +217,7 @@ export function DeskHomeView({
         </div>
       </div>
       {notice ? <p className="pf__banner" style={{ marginTop: 16 }}>{notice}</p> : null}
-      <RecheckForm tickers={home.holdings.map((h) => h.ticker)} />
+      <RecheckForm tickers={[...new Set(home.holdings.map((h) => h.ticker))]} />
       <p className="desk__lede" style={{ marginTop: 18 }}>
         <Link href="/settings/family">Family</Link>
         {" · "}

@@ -18,6 +18,7 @@ describe("costBasisNative", () => {
         native_currency: "USD",
         exchange: "NASDAQ",
         last_checked_at: null,
+        lot_kind: "retail" as const,
       },
       {
         ticker: "TSM",
@@ -27,6 +28,7 @@ describe("costBasisNative", () => {
         native_currency: "USD",
         exchange: "NASDAQ",
         last_checked_at: null,
+        lot_kind: "esop" as const,
       },
     ];
     assert.equal(costBasisNative(rows), 25);
@@ -48,6 +50,7 @@ describe("costBasisNative", () => {
           native_currency: "USD",
           exchange: "NASDAQ",
           last_checked_at: null,
+          lot_kind: "retail" as const,
         },
       ]),
       0,
@@ -62,6 +65,7 @@ describe("costBasisNative", () => {
           native_currency: "USD",
           exchange: "NASDAQ",
           last_checked_at: null,
+          lot_kind: "retail" as const,
         },
       ]),
       [{ ticker: "CASH", pct: 0 }],

@@ -5,6 +5,7 @@ import {
   resolveNativeCurrency,
   type CurrencyOverride,
 } from "./exchange";
+import { parseLotKindField, type LotKind } from "./lot-kind";
 import { parseMoney, qtyFromTotals } from "./qty";
 
 export type LotWriteFields = {
@@ -16,7 +17,19 @@ export type LotWriteFields = {
   total: number;
   qty: number;
   currencyOverride: CurrencyOverride;
+  lotKind: LotKind;
 };
+
+function withKind(
+  form: FormData,
+  base: Omit<LotWriteFields, "lotKind">,
+):
+  | { ok: true; value: LotWriteFields }
+  | { ok: false; error: string } {
+  const kind = parseLotKindField(form.get("lot_kind"));
+  if (!kind.ok) return kind;
+  return { ok: true, value: { ...base, lotKind: kind.value } };
+}
 
 export function parseLotWrite(form: FormData):
   | { ok: true; value: LotWriteFields }
@@ -44,19 +57,16 @@ export function parseLotWrite(form: FormData):
 
   const exchange = guessExchange(rawTicker);
   const native = resolveNativeCurrency(exchange, override);
-  return {
-    ok: true,
-    value: {
-      ticker,
-      company: company || ticker,
-      exchange,
-      native,
-      cost,
-      total,
-      qty,
-      currencyOverride: override,
-    },
-  };
+  return withKind(form, {
+    ticker,
+    company: company || ticker,
+    exchange,
+    native,
+    cost,
+    total,
+    qty,
+    currencyOverride: override,
+  });
 }
 
 export function parseLotId(raw: string): string | null {
@@ -71,6 +81,7 @@ export type LotKey = {
   ticker: string;
   exchange: string;
   native: "USD" | "INR";
+  lotKind: LotKind;
 };
 
 export function parseLotKey(form: FormData): LotKey | null {
@@ -81,7 +92,9 @@ export function parseLotKey(form: FormData): LotKey | null {
     .toUpperCase();
   if (!ticker || !exchange) return null;
   if (nativeRaw !== "USD" && nativeRaw !== "INR") return null;
-  return { ticker, exchange, native: nativeRaw };
+  const kind = parseLotKindField(form.get("orig_lot_kind"));
+  if (!kind.ok) return null;
+  return { ticker, exchange, native: nativeRaw, lotKind: kind.value };
 }
 
 /** Grid Edit: qty + cost per share + company. Does not apply FX. */
@@ -107,17 +120,14 @@ export function parseLotEdit(form: FormData):
 
   const exchange = guessExchange(rawTicker);
   const native = resolveNativeCurrency(exchange, override);
-  return {
-    ok: true,
-    value: {
-      ticker,
-      company: company || ticker,
-      exchange,
-      native,
-      cost,
-      total: qty * cost,
-      qty,
-      currencyOverride: override,
-    },
-  };
+  return withKind(form, {
+    ticker,
+    company: company || ticker,
+    exchange,
+    native,
+    cost,
+    total: qty * cost,
+    qty,
+    currencyOverride: override,
+  });
 }

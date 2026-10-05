@@ -2,6 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 
 import { asDisplayCurrency, type HoldingGridRow } from "./grid";
 import type { NativeCurrency } from "./exchange";
+import {
+  asLotKind,
+  missingLotKindColumn,
+  type LotKind,
+} from "./lot-kind";
 
 export type PortfolioSettings = {
   portfolioId: string | null;
@@ -24,6 +29,82 @@ export type HoldingLotRow = {
   cost_per_share: number;
   native_currency: string;
 };
+
+export type HoldingsSelectError = {
+  code?: string;
+  message?: string;
+} | null;
+
+export type HoldingsSelectRow = {
+  ticker?: unknown;
+  company_name?: unknown;
+  exchange?: unknown;
+  qty?: unknown;
+  cost_per_share?: unknown;
+  native_currency?: unknown;
+  lot_count?: unknown;
+  lot_kind?: unknown;
+};
+
+type HoldingsSelectResult = {
+  data: unknown;
+  error: HoldingsSelectError;
+};
+
+type HoldingsSelectFn = (
+  columns: string,
+) => PromiseLike<HoldingsSelectResult>;
+
+export const HOLDINGS_COLS_WITH_KIND =
+  "ticker, company_name, exchange, qty, cost_per_share, native_currency, lot_count, lot_kind";
+export const HOLDINGS_COLS =
+  "ticker, company_name, exchange, qty, cost_per_share, native_currency, lot_count";
+
+export type HoldingsGridLoad = {
+  rows: HoldingGridRow[];
+  lotKindColumnPresent: boolean;
+};
+
+function mapHoldingRows(
+  data: HoldingsSelectRow[],
+  forceKind?: LotKind,
+): HoldingGridRow[] {
+  return data.map((h) => ({
+    ticker: String(h.ticker),
+    company_name: h.company_name ? String(h.company_name) : null,
+    exchange: String(h.exchange ?? ""),
+    qty: Number(h.qty ?? 0),
+    cost_per_share: Number(h.cost_per_share ?? 0),
+    native_currency: String(h.native_currency ?? "USD"),
+    lot_count: Number(h.lot_count ?? 1),
+    lot_kind: forceKind ?? asLotKind(h.lot_kind),
+  }));
+}
+
+/**
+ * SELECT view holdings. Tries lot_kind (028); if the column is missing, retries
+ * without it and treats every row as Retail. Never 500s on pre-028 databases.
+ */
+export async function selectHoldingsRows(
+  runSelect: HoldingsSelectFn,
+): Promise<HoldingsGridLoad> {
+  const withKind = await runSelect(HOLDINGS_COLS_WITH_KIND);
+  if (!withKind.error || !missingLotKindColumn(withKind.error)) {
+    return {
+      lotKindColumnPresent: !withKind.error,
+      rows: mapHoldingRows(asHoldingRows(withKind.data)),
+    };
+  }
+  const without = await runSelect(HOLDINGS_COLS);
+  return {
+    lotKindColumnPresent: false,
+    rows: mapHoldingRows(asHoldingRows(without.data), "retail"),
+  };
+}
+
+function asHoldingRows(data: unknown): HoldingsSelectRow[] {
+  return Array.isArray(data) ? (data as HoldingsSelectRow[]) : [];
+}
 
 export async function loadPortfolioSettings(
   familyId: string,
@@ -52,25 +133,11 @@ export async function loadPortfolioSettings(
 
 export async function loadHoldingsGrid(
   familyId: string,
-): Promise<HoldingGridRow[]> {
+): Promise<HoldingsGridLoad> {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("holdings")
-    .select(
-      "ticker, company_name, exchange, qty, cost_per_share, native_currency, lot_count",
-    )
-    .eq("family_id", familyId)
-    .order("ticker");
-
-  return (data ?? []).map((h) => ({
-    ticker: String(h.ticker),
-    company_name: h.company_name ? String(h.company_name) : null,
-    exchange: String(h.exchange ?? ""),
-    qty: Number(h.qty ?? 0),
-    cost_per_share: Number(h.cost_per_share ?? 0),
-    native_currency: String(h.native_currency ?? "USD"),
-    lot_count: Number(h.lot_count ?? 1),
-  }));
+  return selectHoldingsRows((columns) =>
+    supabase.from("holdings").select(columns).eq("family_id", familyId).order("ticker"),
+  );
 }
 
 export async function loadRecentRejected(

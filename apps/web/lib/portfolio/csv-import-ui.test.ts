@@ -24,6 +24,11 @@ describe("CSV import UI", () => {
     assert.equal(card.includes('name="csv"'), false);
     assert.match(actions, /csvTextFromFormData/);
     assert.match(actions, /from\("holding_lots"\)\.insert/);
+    assert.match(actions, /writeWithOptionalLotKind/);
+    assert.match(actions, /missingLotKindColumn/);
     assert.equal(actions.includes("toDisplayAmount"), false);
+    const add = src("components/features/portfolio/ManualAddForm.tsx");
+    assert.match(add, /LotKindFields/);
+    assert.match(add, /Viewers can read this book but cannot add lots/);
   });
 });

@@ -4,6 +4,7 @@ import { EntryTranchesForm } from "@/components/features/portfolio/EntryTranches
 import { ManualAddForm } from "@/components/features/portfolio/ManualAddForm";
 import { PortfolioHoldingsGrid } from "@/components/features/portfolio/PortfolioHoldingsGrid";
 import { normalizeTicker } from "@/lib/desk/ticker";
+import { loadHoldingQuotes } from "@/lib/market/load-quotes";
 import { canWriteFamily, requireDeskSession } from "@/lib/desk/session";
 import {
   loadHoldingsGrid,
@@ -64,7 +65,10 @@ export default async function PortfolioPage({
   const sp = await searchParams;
   const add = sp.add ? normalizeTicker(sp.add) : "";
   const settings = await loadPortfolioSettings(session.familyId);
-  const holdings = await loadHoldingsGrid(session.familyId);
+  const { rows: holdings, lotKindColumnPresent } = await loadHoldingsGrid(
+    session.familyId,
+  );
+  const quotes = await loadHoldingQuotes(holdings);
   const rejected = await loadRecentRejected(session.familyId);
   const liveFx = await fetchUsdInrRate();
   const fxThisLoad = displayRateThisLoad(liveFx, settings.fxUsdInrOverride);
@@ -95,7 +99,10 @@ export default async function PortfolioPage({
           rateSource={fxThisLoad.source}
         />
         <CsvImportCard canWrite={canWriteFamily(session)} />
-        <ManualAddForm presetTicker={add} />
+        <ManualAddForm
+          presetTicker={add}
+          canWrite={canWriteFamily(session)}
+        />
       </div>
 
       {profileLoad.ok ? (
@@ -132,6 +139,10 @@ export default async function PortfolioPage({
       <PortfolioHoldingsGrid
         holdings={holdings}
         canWrite={canWriteFamily(session)}
+        quotes={quotes}
+        displayCurrency={settings.displayCurrency}
+        fxUsdInr={fxThisLoad.rate}
+        lotKindColumnPresent={lotKindColumnPresent}
       />
       {session.memberRole === "owner" ? <SupportGrantForm /> : null}
     </div>

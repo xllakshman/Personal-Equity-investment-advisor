@@ -1,3 +1,5 @@
+import type { LotKind } from "@/lib/portfolio/lot-kind";
+
 export type HoldingRow = {
   ticker: string;
   company_name: string | null;
@@ -6,6 +8,7 @@ export type HoldingRow = {
   native_currency: string;
   exchange: string;
   last_checked_at: string | null;
+  lot_kind: LotKind;
 };
 
 export function costBasisNative(rows: HoldingRow[]): number {

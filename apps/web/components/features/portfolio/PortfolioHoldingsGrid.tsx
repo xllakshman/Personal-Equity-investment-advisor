@@ -7,8 +7,21 @@ import {
   updateHoldingTicker,
 } from "@/app/(desk)/portfolio/actions";
 import { BookTable } from "@/components/features/desk/BookTable";
+import { LotKindFields } from "@/components/features/portfolio/LotKindFields";
+import type { QuotePoint } from "@/lib/market/book-rows";
 import { EMPTY_PORTFOLIO_STATE } from "@/lib/portfolio/action-state";
-import { useQuotes } from "@/lib/market/use-quotes";
+import type { NativeCurrency } from "@/lib/portfolio/exchange";
+import { displayFxRate } from "@/lib/portfolio/fx";
+import {
+  LOT_KIND_LABEL,
+  splitByLotKind,
+  type LotKind,
+} from "@/lib/portfolio/lot-kind";
+import {
+  aggregateUnrealizedPct,
+  formatPnlPct,
+  holdingDisplayPnl,
+} from "@/lib/portfolio/unrealized-pnl";
 
 export type PortfolioHolding = {
   ticker: string;
@@ -17,18 +30,47 @@ export type PortfolioHolding = {
   cost_per_share: number;
   native_currency: string;
   exchange: string;
+  lot_kind: LotKind;
 };
 
 function rowKey(h: PortfolioHolding): string {
-  return `${h.ticker}|${h.exchange}|${h.native_currency}`;
+  return `${h.ticker}|${h.exchange}|${h.native_currency}|${h.lot_kind}`;
+}
+
+function sleevePct(
+  rows: PortfolioHolding[],
+  quotes: Record<string, QuotePoint | null>,
+  displayCurrency: NativeCurrency,
+  fx: number,
+): number | null {
+  return aggregateUnrealizedPct(
+    rows.map((h) =>
+      holdingDisplayPnl({
+        qty: h.qty,
+        costPerShare: h.cost_per_share,
+        nativeCurrency: h.native_currency,
+        quote: quotes[h.ticker],
+        displayCurrency,
+        fxUsdInr: fx,
+      }),
+    ),
+  );
 }
 
 export function PortfolioHoldingsGrid({
   holdings,
   canWrite,
+  quotes,
+  displayCurrency,
+  fxUsdInr,
+  lotKindColumnPresent,
 }: {
   holdings: PortfolioHolding[];
   canWrite: boolean;
+  quotes: Record<string, QuotePoint | null>;
+  displayCurrency: NativeCurrency;
+  fxUsdInr: number;
+  lotKindColumnPresent: boolean;
 }) {
   const [editState, editAction, editPending] = useActionState(
     updateHoldingTicker,
@@ -36,20 +78,102 @@ export function PortfolioHoldingsGrid({
   );
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const editing = holdings.find((h) => rowKey(h) === editingKey) ?? null;
-  const { quotes, status } = useQuotes(
-    holdings.map((h) => ({ ticker: h.ticker, exchange: h.exchange })),
-  );
+  const fx = displayFxRate(fxUsdInr);
+  const { retail, esop } = splitByLotKind(holdings);
+  const overallPct = sleevePct(holdings, quotes, displayCurrency, fx);
+  const retailPct = sleevePct(retail, quotes, displayCurrency, fx);
+  const esopPct = sleevePct(esop, quotes, displayCurrency, fx);
+
+  function tableFor(kind: LotKind, rows: PortfolioHolding[]) {
+    return (
+      <div className="pf__sleeve" key={kind}>
+        <h3 className="pf__sleeve-h">{LOT_KIND_LABEL[kind]}</h3>
+        <BookTable
+          showActions={canWrite}
+          displayCurrency={displayCurrency}
+          fxUsdInr={fx}
+          emptyCopy={
+            kind === "esop"
+              ? "No ESOP lots yet."
+              : "No retail lots yet. Add a name or upload a CSV."
+          }
+          caption={
+            kind === "esop"
+              ? "ESOP lots only. Unrealized P&L % uses previous close (not written to lots)."
+              : "Retail lots only. Unrealized P&L % uses previous close (not written to lots)."
+          }
+          rows={rows.map((h) => ({
+            key: rowKey(h),
+            stock: h.company_name ?? h.ticker,
+            ticker: h.ticker,
+            qty: h.qty,
+            costPerShare: h.cost_per_share,
+            currency: h.native_currency,
+            quote: quotes[h.ticker] ?? null,
+            actions: canWrite ? (
+              <>
+                <button
+                  className="pf__ghost"
+                  type="button"
+                  onClick={() => setEditingKey(rowKey(h))}
+                >
+                  Edit
+                </button>
+                <form
+                  action={deleteHoldingTicker}
+                  onSubmit={(event) => {
+                    if (
+                      !window.confirm(
+                        `Remove ${h.ticker} (${LOT_KIND_LABEL[h.lot_kind]}) from your book? Saved notes stay.`,
+                      )
+                    ) {
+                      event.preventDefault();
+                    }
+                  }}
+                >
+                  <input type="hidden" name="returnTo" value="/portfolio" />
+                  <input type="hidden" name="orig_ticker" value={h.ticker} />
+                  <input type="hidden" name="orig_exchange" value={h.exchange} />
+                  <input type="hidden" name="orig_native" value={h.native_currency} />
+                  <input type="hidden" name="orig_lot_kind" value={h.lot_kind} />
+                  <button className="pf__ghost" type="submit">
+                    Delete
+                  </button>
+                </form>
+              </>
+            ) : undefined,
+          }))}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="desk__card">
       <h2>Your book</h2>
+      {!lotKindColumnPresent ? (
+        <p className="pf__lede">
+          Retail vs ESOP is not stored yet. Every name shows under Retail until
+          an operator applies migration 028. Forms still accept the control.
+        </p>
+      ) : null}
+      <p className="pf__sleeve-totals">
+        Overall unrealized P&amp;L % {formatPnlPct(overallPct)}
+        {" · "}
+        Retail {formatPnlPct(retailPct)}
+        {" · "}
+        ESOP {formatPnlPct(esopPct)}
+      </p>
       {canWrite && editing ? (
         <form className="pf__stack" action={editAction} style={{ marginTop: 14 }}>
           <input type="hidden" name="returnTo" value="/portfolio" />
           <input type="hidden" name="orig_ticker" value={editing.ticker} />
           <input type="hidden" name="orig_exchange" value={editing.exchange} />
           <input type="hidden" name="orig_native" value={editing.native_currency} />
-          <p className="pf__card-title">Edit {editing.ticker}</p>
+          <input type="hidden" name="orig_lot_kind" value={editing.lot_kind} />
+          <p className="pf__card-title">
+            Edit {editing.ticker} ({LOT_KIND_LABEL[editing.lot_kind]})
+          </p>
           <div className="pf__row">
             <input
               className="pf__input"
@@ -90,6 +214,9 @@ export function PortfolioHoldingsGrid({
               <option value="USD">USD</option>
               <option value="INR">INR</option>
             </select>
+          </div>
+          <LotKindFields defaultValue={editing.lot_kind} />
+          <div className="pf__row">
             <button className="desk__btn" type="submit" disabled={editPending}>
               {editPending ? "Saving…" : "Save"}
             </button>
@@ -104,54 +231,8 @@ export function PortfolioHoldingsGrid({
           {editState.error ? <p className="pf__error">{editState.error}</p> : null}
         </form>
       ) : null}
-      <BookTable
-        showActions={canWrite}
-        caption={
-          status === "loading"
-            ? "Loading previous close…"
-            : "% of portfolio uses current value when every name has a close, otherwise last cost."
-        }
-        rows={holdings.map((h) => ({
-          key: rowKey(h),
-          stock: h.company_name ?? h.ticker,
-          ticker: h.ticker,
-          qty: h.qty,
-          costPerShare: h.cost_per_share,
-          currency: h.native_currency,
-          quote: quotes[h.ticker],
-          actions: canWrite ? (
-            <>
-              <button
-                className="pf__ghost"
-                type="button"
-                onClick={() => setEditingKey(rowKey(h))}
-              >
-                Edit
-              </button>
-              <form
-                action={deleteHoldingTicker}
-                onSubmit={(event) => {
-                  if (
-                    !window.confirm(
-                      `Remove ${h.ticker} from your book? Saved notes stay.`,
-                    )
-                  ) {
-                    event.preventDefault();
-                  }
-                }}
-              >
-                <input type="hidden" name="returnTo" value="/portfolio" />
-                <input type="hidden" name="orig_ticker" value={h.ticker} />
-                <input type="hidden" name="orig_exchange" value={h.exchange} />
-                <input type="hidden" name="orig_native" value={h.native_currency} />
-                <button className="pf__ghost" type="submit">
-                  Delete
-                </button>
-              </form>
-            </>
-          ) : undefined,
-        }))}
-      />
+      {tableFor("retail", retail)}
+      {tableFor("esop", esop)}
     </div>
   );
 }

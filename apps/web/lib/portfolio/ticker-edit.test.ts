@@ -36,6 +36,8 @@ describe("ticker edit write gate", () => {
     assert.match(actions, /export async function updateHoldingTicker/);
     assert.match(actions, /export async function deleteHoldingTicker/);
     assert.equal(actions.includes("toDisplayAmount"), false);
+    assert.match(actions, /missingLotKindColumn/);
+    assert.match(actions, /writeWithOptionalLotKind/);
     const tickerFns = actions.slice(
       actions.indexOf("export async function updateHoldingTicker"),
     );
@@ -47,11 +49,17 @@ describe("ticker edit write gate", () => {
     assert.match(grid, /deleteHoldingTicker/);
     assert.match(grid, /Edit/);
     assert.match(grid, /Delete/);
+    assert.match(grid, /Retail/);
+    assert.match(grid, /ESOP/);
+    assert.match(grid, /orig_lot_kind/);
+    assert.match(grid, /LotKindFields/);
 
     assert.equal(deskGrid.includes("updateHoldingTicker"), false);
     assert.equal(deskGrid.includes("deleteHoldingTicker"), false);
     assert.equal(deskGrid.includes("Edit"), false);
     assert.match(deskHome, /AllocationTable/);
+    assert.match(deskHome, /title="Retail"/);
+    assert.match(deskHome, /title="ESOP"/);
     assert.equal(deskHome.includes("HomeBook"), false);
     assert.equal(deskHome.includes("Add stock"), false);
     assert.equal(deskHome.includes("Upload CSV"), false);

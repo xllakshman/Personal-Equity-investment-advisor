@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   dropInProgressSession,
+  lastChartClose,
   parseChartCloses,
   yahooChartUrl,
 } from "./yahoo-chart";
@@ -51,6 +52,11 @@ describe("yahoo chart display helper", () => {
     assert.equal(dropped.length, 1);
     assert.equal(dropped[0]?.close, 10);
     assert.deepEqual(parseChartCloses({}, "MSFT"), []);
+    assert.equal(lastChartClose([]), null);
+    assert.deepEqual(lastChartClose([{ ts: 1, close: 12, currency: "USD" }]), {
+      close: 12,
+      currency: "USD",
+    });
   });
 
   it("does not insert or update holding_lots", () => {
@@ -62,5 +68,6 @@ describe("yahoo chart display helper", () => {
     assert.equal(text.includes(".insert("), false);
     assert.equal(text.includes(".update("), false);
     assert.equal(text.includes("from(\"holdings\")"), false);
+    assert.equal(text.includes("eod_quotes"), false);
   });
 });
