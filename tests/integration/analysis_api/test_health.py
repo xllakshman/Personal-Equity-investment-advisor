@@ -29,3 +29,13 @@ def test_analysis_without_bearer_is_401_if_running() -> None:
     except httpx.RequestError:
         pytest.skip(f"analysis-api not reachable at {BASE}")
     assert res.status_code == 401
+
+
+@pytest.mark.integration
+def test_pdf_without_bearer_is_401_if_running() -> None:
+    try:
+        res = httpx.get(f"{BASE}/reports/00000000-0000-4000-8000-000000000000/pdf", timeout=2.0)
+    except httpx.RequestError:
+        pytest.skip(f"analysis-api not reachable at {BASE}")
+    assert res.status_code == 401
+    assert "prompt" not in str(res.json()).lower()

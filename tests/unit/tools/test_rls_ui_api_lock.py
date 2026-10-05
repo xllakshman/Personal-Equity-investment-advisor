@@ -72,6 +72,8 @@ def test_pdf_read_join_is_family_read_not_write_only() -> None:
     assert "def get_report_pdf" in src
     assert "fm.user_id = %s" in src
     assert "WRITE_ROLES" in src
+    assert "refresh_stored_pdf" in src
+    assert "update reports" not in src.lower()
 
 
 def test_report_document_never_executes_model_html_or_dumps_json() -> None:

@@ -17,9 +17,10 @@ from thesis_platform.extract import REFUSAL
 from thesis_platform.http import complete_chat
 from thesis_platform.native_llm import LlmError, NATIVE_PROVIDERS, resolve_provider
 from thesis_platform.pack import INVESTOR_PROFILE_PACK_COLUMNS, build_variable_pack
+from thesis_platform.pdf import refresh_stored_pdf
 from thesis_platform.prompt import load_promoted_body
 from thesis_platform.sections import parse_sections_json
-from thesis_platform.storage import signed_pdf_url
+from thesis_platform.storage import StorageError, signed_pdf_url
 
 router = APIRouter()
 
@@ -31,6 +32,7 @@ def _load_report(cur, report_id: str, user_id: str, *, write: bool) -> dict[str,
     cur.execute(
         f"""
         select r.id::text, r.family_id::text, r.created_by::text, r.ticker, r.verdict,
+               r.name, r.conviction, r.charts, r.created_at,
                r.sections, r.pdf_key, r.model_id, r.is_library_sample, r.request_id::text
           from reports r
           join family_members fm
@@ -48,11 +50,31 @@ def _load_report(cur, report_id: str, user_id: str, *, write: bool) -> dict[str,
     return dict(row)
 
 
+def _evidence_rows(cur, request_id: str | None) -> list[dict[str, Any]]:
+    if not request_id:
+        return []
+    cur.execute(
+        """
+        select step0_number, query, excerpt
+          from analysis_evidence
+         where request_id = %s
+         order by step0_number
+        """,
+        (request_id,),
+    )
+    return [dict(r) for r in (cur.fetchall() or [])]
+
+
 @router.get("/reports/{report_id}/pdf")
 def get_report_pdf(
     report_id: str,
     authorization: str | None = Header(default=None),
 ) -> dict[str, str]:
+    """Re-render the current note into report-pdfs, then return a signed URL.
+
+    Overwrites the Storage object at pdf_key. D4: note jsonb is insert-only.
+    Viewer (user_can_read_family) may download.
+    """
     settings = Settings.from_env()
     user = bearer_user(settings, authorization)
     conn = connect(settings)
@@ -62,10 +84,24 @@ def get_report_pdf(
         key = report.get("pdf_key")
         if not key:
             raise HTTPException(status_code=404, detail="pdf not ready")
-        url = signed_pdf_url(settings, str(key))
-        return {"url": url}
+        evidence = _evidence_rows(cur, report.get("request_id"))
     finally:
         conn.close()
+    report["evidence"] = evidence
+    report["evidence_excerpt"] = (
+        str(evidence[0].get("excerpt") or "") if evidence else None
+    ) or None
+    try:
+        refresh_stored_pdf(settings, report, object_key=str(key))
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="pdf render failed") from exc
+    try:
+        url = signed_pdf_url(settings, str(key))
+    except StorageError as exc:
+        raise HTTPException(status_code=503, detail="pdf render failed") from exc
+    return {"url": url}
 
 
 @router.post("/reports/{report_id}/refine-gate")

@@ -1,7 +1,7 @@
 """PDF HTML uses allowlisted chart types only; no prompt body."""
 from __future__ import annotations
 
-from analysis_worker.jobs.pdf import render_pdf_html
+from analysis_worker.jobs.pdf import attach_pdf, render_pdf_html
 
 
 def test_pdf_html_drops_raw_html_chart_and_omits_prompt() -> None:
@@ -60,7 +60,7 @@ def test_pdf_html_prints_plain_language_note() -> None:
     )
     assert "THE BOTTOM LINE" in html
     assert "Meta at $728" in html
-    assert "<h3>" in html
+    assert "<h2>" in html
     assert "<pre>" not in html
     assert "<script>" not in html
     assert "MACHINE-READABLE" not in html
@@ -122,7 +122,7 @@ def test_pdf_html_hides_machine_json_and_typesets_tables() -> None:
     assert "$8,520" in html
     assert "**HOLD.**" not in html
     assert "HOLD." in html
-    assert "<h3>" in html
+    assert "<h2>" in html
 
 
 def test_pdf_html_empty_charts_without_pair_has_no_figure() -> None:
@@ -138,3 +138,100 @@ def test_pdf_html_empty_charts_without_pair_has_no_figure() -> None:
     assert "Invested vs market value" not in html
     assert "Cost vs close" not in html
     assert "MACHINE-READABLE" not in html
+
+
+def test_pdf_html_escapes_script_in_prose() -> None:
+    html = render_pdf_html(
+        {
+            "ticker": "MSFT",
+            "verdict": "Hold",
+            "sections": {
+                "plain_language": "LAYER 1\nTHE BOTTOM LINE\n<script>alert(1)</script>\nHold the name.\n"
+            },
+            "charts": {},
+        }
+    )
+    assert "<script>" not in html
+    assert "alert(1)" in html
+
+
+def test_pdf_html_includes_evidence_and_cover_date() -> None:
+    html = render_pdf_html(
+        {
+            "ticker": "LLY",
+            "verdict": "Hold",
+            "name": "LLY — Hold",
+            "created_at": "2026-10-04T06:15:00Z",
+            "sections": {"plain_language": "LAYER 1\nTHE BOTTOM LINE\nHold.\n"},
+            "charts": {},
+            "evidence": [
+                {"step0_number": 1, "query": "previous close", "excerpt": '{"close": 825.4}'},
+            ],
+        }
+    )
+    assert "What we checked" in html
+    assert "previous close" in html
+    assert "4 Oct 2026" in html
+    assert "Key data" in html
+    assert "<script>" not in html
+
+
+def test_attach_pdf_uploads_and_sets_key() -> None:
+    class Cur:
+        def __init__(self) -> None:
+            self.sql = ""
+            self.updated = None
+
+        def execute(self, sql, params=None):
+            self.sql = sql
+            if "update reports set pdf_key" in sql.lower():
+                self.updated = params
+
+        def fetchone(self):
+            if "from reports" in self.sql.lower():
+                return {
+                    "id": "rep1",
+                    "family_id": "fam1",
+                    "request_id": "req1",
+                    "ticker": "LLY",
+                    "name": "LLY — Hold",
+                    "verdict": "Hold",
+                    "conviction": None,
+                    "sections": {"plain_language": "LAYER 1\nTHE BOTTOM LINE\nHold.\n"},
+                    "charts": {},
+                    "created_at": "2026-10-04T06:15:00Z",
+                }
+            return None
+
+        def fetchall(self):
+            return [{"step0_number": 1, "query": "previous close", "excerpt": "$825.40"}]
+
+        def close(self):
+            return None
+
+    class Conn:
+        def __init__(self, cur: Cur):
+            self._cur = cur
+
+        def cursor(self, **kwargs):
+            return self._cur
+
+    cur = Cur()
+    captured: dict[str, object] = {}
+
+    def fake_render(page_html: str) -> bytes:
+        captured["html"] = page_html
+        return b"%PDF-fake"
+
+    def fake_upload(settings, path, data):
+        captured["path"] = path
+        captured["data"] = data
+
+    path = attach_pdf(Conn(cur), object(), "rep1", render=fake_render, uploader=fake_upload)  # type: ignore[arg-type]
+    assert path == "fam1/rep1.pdf"
+    assert cur.updated == ("fam1/rep1.pdf", "rep1")
+    assert captured["data"] == b"%PDF-fake"
+    html = str(captured["html"])
+    assert "MACHINE-READABLE" not in html
+    assert "What we checked" in html
+    assert "$825.40" in html

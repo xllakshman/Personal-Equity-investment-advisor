@@ -81,6 +81,12 @@ def test_dockerfiles_do_not_copy_env_files() -> None:
     assert "COPY .env.prod" not in DOCKERFILE_WORKER
 
 
+def test_api_image_installs_playwright_for_pdf_rerender() -> None:
+    assert "playwright" in DOCKERFILE_API
+    assert "chromium" in DOCKERFILE_API
+    assert "playwright" in DOCKERFILE_WORKER
+
+
 def test_processes_load_dotenv_without_override() -> None:
     """Docker env_file must win over a missing laptop .env."""
     assert 'load_dotenv(ROOT / ".env")' in API_MAIN

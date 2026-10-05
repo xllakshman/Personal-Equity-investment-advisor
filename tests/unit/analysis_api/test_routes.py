@@ -16,6 +16,10 @@ REPORT = {
     "created_by": "user1",
     "ticker": "MSFT",
     "verdict": "Accumulate",
+    "name": "MSFT — Accumulate",
+    "conviction": None,
+    "charts": {},
+    "created_at": "2026-10-04T06:15:00Z",
     "sections": {"verdict": "Accumulate", "moat": {"note": "cash"}},
     "pdf_key": "fam1/rep1.pdf",
     "model_id": "opus5",
@@ -187,6 +191,7 @@ def test_viewer_can_read_pdf_when_key_exists() -> None:
         patch("analysis_api.api.routes.reports.Settings.from_env"),
         patch("analysis_api.api.routes.reports.bearer_user", return_value={"id": "viewer1"}),
         patch("analysis_api.api.routes.reports.connect", return_value=FakeConn(cur)),
+        patch("analysis_api.api.routes.reports.refresh_stored_pdf") as refresh,
         patch(
             "analysis_api.api.routes.reports.signed_pdf_url",
             return_value="https://signed.example/rep1.pdf",
@@ -195,6 +200,119 @@ def test_viewer_can_read_pdf_when_key_exists() -> None:
         res = client.get("/reports/rep1/pdf", headers={"Authorization": "Bearer fake"})
     assert res.status_code == 200
     assert res.json()["url"].endswith("rep1.pdf")
+    refresh.assert_called_once()
+    assert refresh.call_args.kwargs["object_key"] == "fam1/rep1.pdf"
+    assert "prompt_versions" not in res.json()["url"]
+    assert list(res.json().keys()) == ["url"]
+
+
+def test_sample_report_can_download_pdf() -> None:
+    cur = FakeCur(report=dict(REPORT, is_library_sample=True))
+    with (
+        patch("analysis_api.api.routes.reports.Settings.from_env"),
+        patch("analysis_api.api.routes.reports.bearer_user", return_value={"id": "user1"}),
+        patch("analysis_api.api.routes.reports.connect", return_value=FakeConn(cur)),
+        patch("analysis_api.api.routes.reports.refresh_stored_pdf") as refresh,
+        patch(
+            "analysis_api.api.routes.reports.signed_pdf_url",
+            return_value="https://signed.example/sample.pdf",
+        ),
+    ):
+        res = client.get("/reports/rep1/pdf", headers={"Authorization": "Bearer fake"})
+    assert res.status_code == 200
+    refresh.assert_called_once()
+
+
+def test_pdf_missing_key_is_404() -> None:
+    cur = FakeCur(report=dict(REPORT, pdf_key=None))
+    with (
+        patch("analysis_api.api.routes.reports.Settings.from_env"),
+        patch("analysis_api.api.routes.reports.bearer_user", return_value={"id": "user1"}),
+        patch("analysis_api.api.routes.reports.connect", return_value=FakeConn(cur)),
+        patch("analysis_api.api.routes.reports.refresh_stored_pdf") as refresh,
+        patch("analysis_api.api.routes.reports.signed_pdf_url") as sign,
+    ):
+        res = client.get("/reports/rep1/pdf", headers={"Authorization": "Bearer fake"})
+    assert res.status_code == 404
+    refresh.assert_not_called()
+    sign.assert_not_called()
+
+
+def test_pdf_other_family_is_404() -> None:
+    class EmptyCur:
+        def execute(self, sql, params=None):
+            return None
+
+        def fetchone(self):
+            return None
+
+        def fetchall(self):
+            return []
+
+        def close(self):
+            return None
+
+    with (
+        patch("analysis_api.api.routes.reports.Settings.from_env"),
+        patch("analysis_api.api.routes.reports.bearer_user", return_value={"id": "other"}),
+        patch("analysis_api.api.routes.reports.connect", return_value=FakeConn(EmptyCur())),
+        patch("analysis_api.api.routes.reports.refresh_stored_pdf") as refresh,
+        patch("analysis_api.api.routes.reports.signed_pdf_url") as sign,
+    ):
+        res = client.get("/reports/rep1/pdf", headers={"Authorization": "Bearer fake"})
+    assert res.status_code == 404
+    assert "prompt" not in str(res.json()).lower()
+    refresh.assert_not_called()
+    sign.assert_not_called()
+
+
+def test_pdf_rerender_passes_current_sections_and_evidence() -> None:
+    captured: dict[str, object] = {}
+
+    def fake_refresh(settings, report, *, object_key, render=None, uploader=None):
+        captured["report"] = report
+        captured["object_key"] = object_key
+        return object_key
+
+    with (
+        patch("analysis_api.api.routes.reports.Settings.from_env"),
+        patch("analysis_api.api.routes.reports.bearer_user", return_value={"id": "user1"}),
+        patch("analysis_api.api.routes.reports.connect", return_value=FakeConn(FakeCur())),
+        patch("analysis_api.api.routes.reports.refresh_stored_pdf", side_effect=fake_refresh),
+        patch(
+            "analysis_api.api.routes.reports.signed_pdf_url",
+            return_value="https://signed.example/rep1.pdf",
+        ),
+    ):
+        res = client.get("/reports/rep1/pdf", headers={"Authorization": "Bearer fake"})
+    assert res.status_code == 200
+    report = captured["report"]
+    assert isinstance(report, dict)
+    assert report["sections"] == REPORT["sections"]
+    assert captured["object_key"] == "fam1/rep1.pdf"
+    evidence = report.get("evidence") or []
+    assert evidence
+    assert evidence[0]["excerpt"]
+    assert "SYSTEM PROMPT" not in str(report)
+    assert "prompt_versions" not in str(report)
+
+
+def test_pdf_render_failure_is_503_without_prompt() -> None:
+    with (
+        patch("analysis_api.api.routes.reports.Settings.from_env"),
+        patch("analysis_api.api.routes.reports.bearer_user", return_value={"id": "user1"}),
+        patch("analysis_api.api.routes.reports.connect", return_value=FakeConn(FakeCur())),
+        patch(
+            "analysis_api.api.routes.reports.refresh_stored_pdf",
+            side_effect=RuntimeError("SYSTEM PROMPT leaked here"),
+        ),
+        patch("analysis_api.api.routes.reports.signed_pdf_url") as sign,
+    ):
+        res = client.get("/reports/rep1/pdf", headers={"Authorization": "Bearer fake"})
+    assert res.status_code == 503
+    assert res.json()["detail"] == "pdf render failed"
+    assert "SYSTEM PROMPT" not in str(res.json())
+    sign.assert_not_called()
 
 
 def test_sample_report_cannot_refine() -> None:

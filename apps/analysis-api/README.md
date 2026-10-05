@@ -10,7 +10,7 @@ uv run uvicorn analysis_api.main:app --app-dir apps/analysis-api/src --port 8091
 |--------|------|--------|
 | GET | `/health` | none |
 | GET | `/analysis/{id}` | none — `analysis_requests.status` |
-| GET | `/reports/{id}/pdf` | none — signed URL for `reports.pdf_key` |
+| GET | `/reports/{id}/pdf` | Storage upsert of `report-pdfs/{pdf_key}` from current `reports.sections` (Playwright). Does not rewrite note jsonb. Returns signed URL. |
 | POST | `/reports/{id}/refine-gate` | `usage_events.kind = refine_gate` (after confirm) |
 | POST | `/reports/{id}/refine` | `refinements` + `usage_events.kind = refine` or `prompt_extract_attempt` |
 

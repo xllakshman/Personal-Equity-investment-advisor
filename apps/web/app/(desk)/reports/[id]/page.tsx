@@ -2,6 +2,9 @@ import { ReportReader } from "@/components/features/report/ReportReader";
 import { canWriteFamily, requireDeskSession } from "@/lib/desk/session";
 import { requireReportDetail } from "@/lib/reports/load";
 
+/** Download PDF waits on GET /reports/:id/pdf Playwright re-render. */
+export const maxDuration = 60;
+
 export default async function ReportReaderPage({
   params,
 }: {

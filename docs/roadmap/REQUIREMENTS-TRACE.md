@@ -26,7 +26,7 @@ Sources:
 | Sub | Trial, Basic, Professional, **Professional +**; X searches **configurable in admin**; wallet USD; 60/80/90; trial sample PDFs | Plans + wallet + samples; mock also Ultra | P6 dual meter; P7-01; five rows including **Ultra** | Covered — Ultra kept as fifth tier |
 | 8 | Refine / double-down | Refine thread | P4-04, P5-02 | Covered |
 | 9 | Save to DB; retrieve; **PDF in storage**; **rename** | Library + rename | P5-00/01/03 | Covered |
-| 10 | Download PDF **preserving charts/tables** | PDF buttons | P4-03, P5-03, P11-09 `render_pdf_html` | KEY DATA / slice / scorecard tables when `sections.machine` has them; allowlisted charts only. Existing `reports.pdf_key` objects stay until worker re-render. |
+| 10 | Download PDF **preserving charts/tables** | PDF buttons | P4-03, P5-03, P11-09 `render_pdf_html`; GET `/reports/:id/pdf` re-renders | KEY DATA / slice / scorecard tables when `sections.machine` has them; allowlisted charts only. Download upserts the `report-pdfs` object from current `reports.sections`. |
 | 11 | USD ↔ INR changes displayed values | Header chip | P2-03 | Covered (display-only) |
 | Admin | “Admin view with access to all customer accounts” | Admin **inside the desk** if email matches | **P7-00 `/admin/login`** (mock weaker) | Separate login locked; observability P7-05…P7-08; email skipped |
 | R1 | Never hardcode; defaults + override | Mostly | P1-05 `investor_profiles` | Covered once 009 exists |

@@ -26,7 +26,7 @@
 | Maya seed | ✅ `maya@thesis.demo` · 5 lots · 2 reports (1 sample) |
 | Storage bucket `report-pdfs` | ✅ private |
 | Analysis API / worker | ✅ 2026-10-04 — prod host droplet `157.245.102.243` `/opt/eqveste`; public **`https://api.eqveste.com`**. Local laptop still `:8091` + DEV `.env`. |
-| Next.js desk | ✅ 2026-10-05 — **P11-09:** `/reports/[id]` SELECT `reports` for the session `family_id`; hides MACHINE-READABLE JSON; KEY DATA / slice / scorecard tables from `sections.machine`. Ready `/analyse/[id]` uses the same `ReportDocument`. **Download PDF** is still signed `GET /reports/:id/pdf` on `https://api.eqveste.com`. Header name still opens **Profile** / **Sign out**. `/analyse` **Run analysis** still `thesis_accept_analysis`. |
+| Next.js desk | ✅ 2026-10-05 — **P11-09:** `/reports/[id]` SELECT `reports` for the session `family_id`; hides MACHINE-READABLE JSON; KEY DATA / slice / scorecard tables from `sections.machine`. Ready `/analyse/[id]` uses the same `ReportDocument`. **Download PDF** on `/reports/[id]` still `redirect`s to the signed URL from `GET /reports/:id/pdf` on `https://api.eqveste.com`; that GET re-renders Playwright HTML from current `reports.sections` and upserts Storage `report-pdfs` at `pdf_key` (note jsonb unchanged). Header name still opens **Profile** / **Sign out**. `/analyse` **Run analysis** still `thesis_accept_analysis`. |
 | Prod schema | ✅ 2026-10-04 — **001–026** on `ndgvglcrkbygovlszxze`. `holdings` = 0. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. `thesis_admin_set_family_plan` on `/admin/accounts`. `thesis_admin_remove_prompt` on `/admin/prompt`. |
 | Prod Vercel | ✅ 2026-10-05 — Production deploy `dpl_BS8Md8FtMipvmrFwixrSeQtzHdhF` aliased to **`https://eqveste.com`**. Anon URL+key + Resend + `ANALYSIS_API_URL`. No service role or lab keys. |
 | Tests | ✅ unit + web tests for 4–9. Live two-JWT CI still skips without a second family JWT. |
@@ -108,7 +108,7 @@ Browser (apps/web, JWT)
     │                              ▼
     │                         reports (immutable) + Storage PDF
     │
-    └─ GET /reports/:id/pdf  ── signed URL
+    └─ GET /reports/:id/pdf  ── re-render Storage PDF + signed URL
 ```
 
 **Proposed vs mock:** the mock says Vite + Fastify/Hono. This repo **proposes** Next.js + FastAPI to match invoice-processing (tests, RLS session, Vercel). That is **not locked** — see §3b.
