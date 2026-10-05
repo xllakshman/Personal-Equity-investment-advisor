@@ -70,15 +70,16 @@ export function DeskHomeView({
           <p className="desk__kpi-s">
             {home.positions} holding{home.positions === 1 ? "" : "s"}
           </p>
-          <Link
-            href="/settings/profile"
-            className="desk__plan-chip desk__cash-chip"
-            title="Edit cash on Profile"
-          >
-            <span className="desk__plan-chip-k">Cash</span>
-            <span className="desk__plan-chip-v">{cashLabel}</span>
-          </Link>
         </div>
+        <Link
+          href="/settings/profile"
+          className="desk__card desk__kpi-link"
+          title="Edit cash on Profile"
+        >
+          <p className="desk__kpi-k">Cash</p>
+          <p className="desk__kpi-v">{cashLabel}</p>
+          <p className="desk__kpi-s">From Profile</p>
+        </Link>
         <div className="desk__card">
           <p className="desk__kpi-k">Total Portfolio</p>
           <p className="desk__kpi-v">{totalLabel}</p>

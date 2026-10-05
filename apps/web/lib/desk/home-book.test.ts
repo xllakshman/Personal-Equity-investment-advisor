@@ -38,9 +38,11 @@ describe("Home book and notes widget", () => {
     assert.equal(view.includes("home.costCurrency"), false);
     assert.match(view, /Equity portfolio value/);
     assert.equal(view.includes("Portfolio value"), false);
-    assert.match(view, /Total Portfolio/);
+    assert.match(
+      view,
+      /desk__kpi-k">Equity portfolio value[\s\S]*?<\/div>\s*<Link[\s\S]*desk__kpi-k">Cash[\s\S]*desk__kpi-k">Total Portfolio/,
+    );
     assert.match(view, /href="\/settings\/profile"/);
-    assert.match(view, /Cash/);
     assert.match(view, /home\.cashUsd === null \? "—" /);
     assert.match(view, /totalPortfolioUsd/);
     assert.match(home, /cashUsd: cash/);
