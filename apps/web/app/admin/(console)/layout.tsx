@@ -14,7 +14,7 @@ export default async function AdminSectionLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const session = await requirePlatformAdmin();
   return (
-    <div className="desk">
+    <div className="desk admin">
       <div className="desk__blobs" aria-hidden>
         <span className="desk__blob desk__blob--a" />
         <span className="desk__blob desk__blob--b" />

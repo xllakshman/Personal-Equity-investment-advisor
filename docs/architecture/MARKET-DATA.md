@@ -14,11 +14,11 @@ GET https://query1.finance.yahoo.com/v8/finance/chart/{yahoo_symbol}?range=1y&in
 
 Parse daily closes. Previous close = last **finished** daily candle. 52-week closing high = **max of those daily closes** (not `meta.fiftyTwoWeekHigh`). Missing close → `analysis_requests.status = failed`. Cache today’s close in `eod_quotes` (UTC date). Insert `analysis_evidence.step0_number = 1` (JSON excerpt: close, currency, high, % below high, monthly closes). Never INSERT/UPDATE `holding_lots`.
 
-**Item 2 (US-listed only):** GET `https://www.sec.gov/files/company_tickers.json` then `https://data.sec.gov/submissions/CIK{cik}.json` with `MARKET_DATA_USER_AGENT`, ≤10 req/s. Store 8-K / 10-Q / 10-K **headlines** (title, url, filed date, short description) on `analysis_evidence.step0_number = 2`. Never store full filing HTML. HTTP miss or no matching forms → no row; pack `step0_coverage["2"] = NOT_COVERED`; job can still `ready`. NSE/BSE (`.NS` / `.BO`) skip EDGAR entirely.
+**Item 2 (US-listed only):** GET `https://www.sec.gov/files/company_tickers.json` then `https://data.sec.gov/submissions/CIK{cik}.json` with `MARKET_DATA_USER_AGENT`, ≤10 req/s. Store 8-K / 10-Q / 10-K **headlines** (title, url, filed date, short description) on `analysis_evidence.step0_number = 2`. Never store full filing HTML. HTTP timeout / non-200 → excerpt `status = SOURCE_ERROR` (not “no news”). Successful 200 with no matching 8-K/10-Q/10-K → `status = FOUND` and empty filings (that is the only honest “no news”). NSE/BSE (`.NS` / `.BO`) skip EDGAR entirely; pack `NOT_COVERED` — never `NOT_DISCLOSED`.
 
 Items 3–7 unnamed: omitted / `NOT_COVERED`. Comprehensive no longer fails for those. Item 1 is still required.
 
-SEC fair-access wants a User-Agent with a company name and contact email. Override `MARKET_DATA_USER_AGENT` in `.env` / `.env.prod`. The code default has no email; a 403 becomes NOT_COVERED, not a failed job.
+SEC fair-access wants a User-Agent with a company name and contact email. Override `MARKET_DATA_USER_AGENT` in `.env` / `.env.prod`. The code default has no email; a 403 is `SOURCE_ERROR`, not a failed job and not absence.
 
 ## Desk display (not the worker)
 
@@ -49,7 +49,13 @@ Key: `yahoo_symbol` + UTC date. Worker reuses `eod_quotes` for later jobs the sa
 
 **Derived bands (code, not XBRL)** — P11-13: % below 52w; T2/T3/T4; U1/U2 from T1.
 
-**Annual fundamentals (P11-14):** US-listed only. GET `https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json` (same User-Agent + 0.11s gap). Concept resolver v1 maps revenue, GP, operating income, NI, OCF, capex, debt, cash, shares (equity only for ROIC). Code computes FCF (`OCF − |capex|`), margins, ROIC (`NOPAT / (equity + debt − cash)` with 21% US statutory tax). Compact JSON on `analysis_evidence` (`step0_number = 2`, query `sec edgar companyfacts {ticker}`) and the user pack `fundamentals_annual`. Never store the full XBRL dump or filing HTML. NSE/BSE: `NOT_COVERED`; job can still `ready` if Yahoo close exists. Missing close still fails the job.
+**Annual fundamentals (P11-14):** US-listed only. GET `https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json` (same User-Agent + 0.11s gap). Concept resolver v1 maps revenue, GP, operating income, NI, OCF, capex, debt, cash, shares (equity only for ROIC). Code computes FCF (`OCF − |capex|`), margins, ROIC (`NOPAT / (equity + debt − cash)` with 21% US statutory tax). Compact JSON on `analysis_evidence` (`step0_number = 2`, query `sec edgar companyfacts {ticker}`) and the user pack `fundamentals_annual`. Never store the full XBRL dump or filing HTML. NSE/BSE: `NOT_COVERED`; job can still `ready` if Yahoo close exists. Missing close still fails the job. HTTP miss: `SOURCE_ERROR`. Missing capex: `field_status.capex = INPUTS_MISSING`; FCF is omitted, not invented.
+
+**Absence + integrity (P11-17 / P11-19):** Pack `step0_coverage` / `item2_news` / `fundamentals_annual.status` use FOUND, NOT_COVERED, INPUTS_MISSING, SOURCE_ERROR. Worker `INSERT`s `filer_type`, `coverage`, and `integrity_warnings` on **new** `reports.sections` only (D4). `/reports/[id]` KEY DATA shows Filer / Coverage when present; a collapsible panel lists integrity_warnings above charts. Do not invent warnings for old notes. If parsed note JSON price/ROIC disagree with the pack beyond rounding, the worker makes one extra native-lab call on the same `model_catalog` row and `UPDATE`s `usage_events.cost_cents` on the existing `search` row (no second insert).
+
+**Derived FCF/ROIC + charts (P11-15):** From that `fundamentals_annual` object (code, not the model): FCF/NI, OCF/NI, capex/revenue by year, ROIC YoY only for consecutive fiscal years, `roic_years_available`. Worker `INSERT`s those series onto the user pack `derived` extras and, on **new** `reports` rows only, `reports.charts` keys `roic_history` (bar, 15% reference) and `cash_conversion` (bar, FCF/NI + OCF/NI, 80% reference) when those years exist. `/reports/[id]` and PDF HTML render the allowlist. No pie unless a real segment mix exists (omit). NSE/BSE: no fake ROIC chart. Never `UPDATE` old `reports.sections` / `charts`. Never write lots.
+
+**ChartBlock (P11-18):** `/reports/[id]` reads `reports.charts` and shows title plus `source` / `as_of` when present, CSS bars (line spark from the numeric series, not model SVG), and a **View data** table of the same points. PDF `render_pdf_html` uses the same allowlist as bars/tables. Type html / pie / svg still dropped. Old `{labels, values}` still parses. No segment mix on evidence today, so no pie. D4: never `UPDATE` old `reports.charts`.
 
 ## Why not Finnhub / Alpha Vantage / stockanalysis.com
 

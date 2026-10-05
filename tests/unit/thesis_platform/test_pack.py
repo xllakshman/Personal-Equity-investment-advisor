@@ -21,7 +21,9 @@ def test_pack_has_no_maya_book_defaults() -> None:
     assert "derived" in raw
     assert "step0_coverage" in raw
     assert "fundamentals_annual" in raw
+    assert "item2_news" in raw
     assert '"status": "NOT_COVERED"' in raw
+    assert '"news_absent": false' in raw
     assert "150000" not in raw
     assert "$150,000" not in raw
     assert "AMZN" not in raw
@@ -88,7 +90,15 @@ def test_pack_includes_companyfacts_from_evidence() -> None:
                     "query": "sec edgar companyfacts MSFT",
                     "excerpt": {
                         "status": "ok",
-                        "years": [{"fy": 2024, "revenue": 245.1, "fcf": 70}],
+                        "years": [
+                            {
+                                "fy": 2024,
+                                "revenue": 245.1,
+                                "fcf": 70,
+                                "net_income": 50,
+                                "roic": 0.2,
+                            }
+                        ],
                     },
                 }
             ],
@@ -97,3 +107,13 @@ def test_pack_includes_companyfacts_from_evidence() -> None:
     assert "245.1" in raw
     assert "fundamentals_annual" in raw
     assert "companyfacts" in raw
+    assert '"roic_years_available": 1' in raw
+    assert '"fcf_ni"' in raw
+
+
+def test_pack_derived_extras_from_empty_facts() -> None:
+    raw = build_variable_pack({"ticker": "HDFCBANK", "exchange": "NSE"})
+    assert '"roic_years_available": 0' in raw
+    assert '"fcf_ni": []' in raw
+    assert '"status": "NOT_COVERED"' in raw
+    assert "NOT_DISCLOSED" not in raw

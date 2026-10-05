@@ -4,6 +4,8 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from thesis_platform.status import FOUND, INPUTS_MISSING, NOT_COVERED, SOURCE_ERROR, normalize_status
+
 # Framework 3: T2 10–15% below high, T3 20–25%, T4 35–40%.
 T2_DROP = (0.10, 0.15)
 T3_DROP = (0.20, 0.25)
@@ -106,21 +108,35 @@ def derived_from_ctx(ctx: dict[str, Any]) -> dict[str, Any]:
 
 
 def step0_coverage(evidence: list[Any] | None) -> dict[str, str]:
-    have: set[int] = set()
+    item1 = NOT_COVERED
+    item2: list[str] = []
     for row in evidence or []:
-        if isinstance(row, dict) and row.get("step0_number") is not None:
-            try:
-                have.add(int(row["step0_number"]))
-            except (TypeError, ValueError):
-                continue
-    out: dict[str, str] = {}
-    for n in range(1, 8):
-        if n == 1 and 1 in have:
-            out["1"] = "yahoo_close"
-        elif n == 2 and 2 in have:
-            out["2"] = "edgar"
-        else:
-            out[str(n)] = "NOT_COVERED"
+        if not isinstance(row, dict) or row.get("step0_number") is None:
+            continue
+        try:
+            n = int(row["step0_number"])
+        except (TypeError, ValueError):
+            continue
+        excerpt = excerpt_payload(row.get("excerpt"))
+        status = normalize_status(excerpt.get("status"))
+        if n == 1:
+            item1 = FOUND
+        elif n == 2:
+            if status:
+                item2.append(status)
+            else:
+                item2.append(FOUND)
+    out: dict[str, str] = {"1": item1}
+    if FOUND in item2:
+        out["2"] = FOUND
+    elif SOURCE_ERROR in item2:
+        out["2"] = SOURCE_ERROR
+    elif INPUTS_MISSING in item2:
+        out["2"] = INPUTS_MISSING
+    else:
+        out["2"] = NOT_COVERED
+    for n in range(3, 8):
+        out[str(n)] = NOT_COVERED
     return out
 
 

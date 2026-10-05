@@ -88,9 +88,29 @@ def assert_model_allowed(model: str) -> None:
         raise LlmError("forbidden model slug")
 
 
-def openai_compat_payload(*, model: str, system: str, user: str) -> dict[str, Any]:
-    assert_model_allowed(model)
+def openai_json_schema_response_format(
+    name: str, schema: dict[str, Any]
+) -> dict[str, Any]:
+    """OpenAI Chat Completions documented `response_format`. Not used unless requested."""
     return {
+        "type": "json_schema",
+        "json_schema": {
+            "name": name,
+            "schema": schema,
+        },
+    }
+
+
+def openai_compat_payload(
+    *,
+    model: str,
+    system: str,
+    user: str,
+    json_schema: dict[str, Any] | None = None,
+    json_schema_name: str = "investor_note",
+) -> dict[str, Any]:
+    assert_model_allowed(model)
+    payload: dict[str, Any] = {
         "model": model,
         "messages": [
             {"role": "system", "content": system},
@@ -98,6 +118,11 @@ def openai_compat_payload(*, model: str, system: str, user: str) -> dict[str, An
         ],
         "max_tokens": 16384,
     }
+    if json_schema:
+        payload["response_format"] = openai_json_schema_response_format(
+            json_schema_name, json_schema
+        )
+    return payload
 
 
 def anthropic_payload(*, model: str, system: str, user: str) -> dict[str, Any]:
@@ -118,8 +143,19 @@ def anthropic_payload(*, model: str, system: str, user: str) -> dict[str, Any]:
     }
 
 
-def request_spec(provider: str, *, model: str, system: str, user: str) -> tuple[str, dict[str, str], dict[str, Any]]:
-    """URL, headers (without auth), JSON body."""
+def request_spec(
+    provider: str,
+    *,
+    model: str,
+    system: str,
+    user: str,
+    json_schema: dict[str, Any] | None = None,
+) -> tuple[str, dict[str, str], dict[str, Any]]:
+    """URL, headers (without auth), JSON body.
+
+    `json_schema` is OpenAI Chat Completions `response_format` only. Anthropic,
+    xAI, and DeepSeek keep text payloads — their schema fields are not wired.
+    """
     if provider not in NATIVE_PROVIDERS:
         raise LlmError(f"unsupported provider {provider}")
     if provider == "anthropic":
@@ -132,10 +168,11 @@ def request_spec(provider: str, *, model: str, system: str, user: str) -> tuple[
             anthropic_payload(model=model, system=system, user=user),
         )
     url = {"openai": OPENAI_URL, "xai": XAI_URL, "deepseek": DEEPSEEK_URL}[provider]
+    schema = json_schema if provider == "openai" else None
     return (
         url,
         {"Content-Type": "application/json"},
-        openai_compat_payload(model=model, system=system, user=user),
+        openai_compat_payload(model=model, system=system, user=user, json_schema=schema),
     )
 
 

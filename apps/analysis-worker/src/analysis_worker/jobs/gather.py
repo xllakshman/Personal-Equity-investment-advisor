@@ -11,6 +11,7 @@ from psycopg2.extensions import connection
 from thesis_platform.config import Settings
 from thesis_platform.derived import pct_below_52w_high
 from thesis_platform.edgar import NOT_COVERED
+from thesis_platform.status import FOUND, INPUTS_MISSING, SOURCE_ERROR, normalize_status
 from thesis_platform.http import fetch_edgar_companyfacts, fetch_edgar_headlines, fetch_yahoo_chart_pack
 from thesis_platform.xbrl import COMPANYFACTS_URL, empty_fundamentals
 from thesis_platform.pack import required_step0
@@ -89,33 +90,15 @@ def gather_step0(
         try:
             news = edgar_fn(settings, ticker, str(exchange) if exchange else None)
         except Exception:  # noqa: BLE001 — EDGAR miss must not fail the job
-            news = {"status": NOT_COVERED, "filings": []}
-    if (
-        is_us_listed(ticker, str(exchange) if exchange else None)
-        and isinstance(news, dict)
-        and str(news.get("status") or "") == "ok"
-        and news.get("filings")
-    ):
-        cur.execute(
-            """
-            insert into analysis_evidence (
-              request_id, family_id, step0_number, query, source_url, excerpt
-            ) values (%s, %s, 2, %s, %s, %s)
-            """,
-            (
-                request["id"],
-                request["family_id"],
-                f"sec edgar headlines {ticker}",
-                "https://data.sec.gov/submissions/",
-                json.dumps(
-                    {
-                        "status": "ok",
-                        "filings": news.get("filings"),
-                    },
-                    default=str,
-                ),
-            ),
-        )
+            news = {"status": SOURCE_ERROR, "filings": []}
+    _store_item2(
+        cur,
+        request,
+        query=f"sec edgar headlines {ticker}",
+        source_url="https://data.sec.gov/submissions/",
+        payload=_headlines_excerpt(news),
+        store=_should_store_news(news),
+    )
 
     facts: dict[str, Any]
     if not is_us_listed(ticker, str(exchange) if exchange else None):
@@ -130,31 +113,18 @@ def gather_step0(
         try:
             facts = facts_fn(settings, ticker, str(exchange) if exchange else None)
         except Exception:  # noqa: BLE001 — XBRL miss must not fail the job
-            facts = empty_fundamentals()
-    if (
-        is_us_listed(ticker, str(exchange) if exchange else None)
-        and isinstance(facts, dict)
-        and str(facts.get("status") or "") == "ok"
-        and facts.get("years")
-    ):
-        cik = str(facts.get("cik") or "")
-        cur.execute(
-            """
-            insert into analysis_evidence (
-              request_id, family_id, step0_number, query, source_url, excerpt
-            ) values (%s, %s, 2, %s, %s, %s)
-            """,
-            (
-                request["id"],
-                request["family_id"],
-                f"sec edgar companyfacts {ticker}",
-                COMPANYFACTS_URL.format(cik=cik) if cik else COMPANYFACTS_URL.format(cik=""),
-                json.dumps(facts, default=str),
-            ),
-        )
+            facts = empty_fundamentals(SOURCE_ERROR)
+    _store_item2(
+        cur,
+        request,
+        query=f"sec edgar companyfacts {ticker}",
+        source_url=_facts_url(facts),
+        payload=_facts_excerpt(facts),
+        store=_should_store_facts(facts),
+    )
 
     have = {1}
-    if news and str(news.get("status") or "") == "ok" and news.get("filings"):
+    if _should_store_news(news) and normalize_status(news.get("status")) == FOUND and news.get("filings"):
         have.add(2)
     missing = [n for n in required_step0(_lenses(request.get("lenses"))) if n not in have]
     if missing:
@@ -231,6 +201,70 @@ def json_excerpt(pack: YahooChartPack) -> str:
                 {"date": str(p.quote_date), "close": p.close} for p in monthly
             ],
         }
+    )
+
+
+def _should_store_news(news: Any) -> bool:
+    if not isinstance(news, dict):
+        return False
+    return normalize_status(news.get("status")) in (FOUND, SOURCE_ERROR)
+
+
+def _should_store_facts(facts: Any) -> bool:
+    if not isinstance(facts, dict):
+        return False
+    return normalize_status(facts.get("status")) in (FOUND, INPUTS_MISSING, SOURCE_ERROR)
+
+
+def _headlines_excerpt(news: Any) -> dict[str, Any]:
+    if not isinstance(news, dict):
+        return {"status": SOURCE_ERROR, "filings": []}
+    status = normalize_status(news.get("status")) or SOURCE_ERROR
+    filings = news.get("filings") if status == FOUND and isinstance(news.get("filings"), list) else []
+    out: dict[str, Any] = {"status": status, "filings": filings}
+    filer = str(news.get("filer_type") or "").strip()
+    if filer:
+        out["filer_type"] = filer[:80]
+    return out
+
+
+def _facts_excerpt(facts: Any) -> dict[str, Any]:
+    if not isinstance(facts, dict):
+        return empty_fundamentals(SOURCE_ERROR)
+    return facts
+
+
+def _facts_url(facts: Any) -> str:
+    cik = ""
+    if isinstance(facts, dict):
+        cik = str(facts.get("cik") or "")
+    return COMPANYFACTS_URL.format(cik=cik)
+
+
+def _store_item2(
+    cur,
+    request: dict[str, Any],
+    *,
+    query: str,
+    source_url: str,
+    payload: dict[str, Any],
+    store: bool,
+) -> None:
+    if not store:
+        return
+    cur.execute(
+        """
+        insert into analysis_evidence (
+          request_id, family_id, step0_number, query, source_url, excerpt
+        ) values (%s, %s, 2, %s, %s, %s)
+        """,
+        (
+            request["id"],
+            request["family_id"],
+            query,
+            source_url,
+            json.dumps(payload, default=str),
+        ),
     )
 
 

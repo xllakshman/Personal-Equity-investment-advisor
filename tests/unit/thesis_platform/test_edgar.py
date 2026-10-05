@@ -4,6 +4,7 @@ from thesis_platform.edgar import (
     parse_submissions_headlines,
 )
 from thesis_platform.http import fetch_edgar_headlines
+from thesis_platform.integrity import news_is_absent
 from thesis_platform.config import Settings
 
 import httpx
@@ -62,6 +63,7 @@ def test_fetch_edgar_mock_http_and_non_us() -> None:
             return httpx.Response(
                 200,
                 json={
+                    "category": "Large accelerated filer",
                     "filings": {
                         "recent": {
                             "form": ["8-K"],
@@ -70,18 +72,20 @@ def test_fetch_edgar_mock_http_and_non_us() -> None:
                             "primaryDocument": ["msft-8k.htm"],
                             "primaryDocDescription": ["Results"],
                         }
-                    }
+                    },
                 },
             )
         return httpx.Response(404)
 
     client = httpx.Client(transport=httpx.MockTransport(handler))
     got = fetch_edgar_headlines(SETTINGS, "MSFT", "NASDAQ", client=client)
-    assert got["status"] == "ok"
+    assert got["status"] == "FOUND"
     assert got["filings"][0]["form"] == "8-K"
+    assert got["filer_type"] == "Large accelerated filer"
     skipped = fetch_edgar_headlines(SETTINGS, "HDFCBANK", "NSE", client=client)
     assert skipped["status"] == "NOT_COVERED"
     assert skipped["filings"] == []
+    assert "NOT_DISCLOSED" not in str(skipped)
 
 
 def test_fetch_companyfacts_mock_http_computes_fcf_and_skips_nse() -> None:
@@ -153,8 +157,68 @@ def test_fetch_companyfacts_mock_http_computes_fcf_and_skips_nse() -> None:
 
     client = httpx.Client(transport=httpx.MockTransport(handler))
     got = fetch_edgar_companyfacts(SETTINGS, "MSFT", "NASDAQ", client=client)
-    assert got["status"] == "ok"
+    assert got["status"] == "FOUND"
     assert got["years"][0]["fcf"] == 30
     skipped = fetch_edgar_companyfacts(SETTINGS, "HDFCBANK", "NSE", client=client)
     assert skipped["status"] == "NOT_COVERED"
     assert skipped["years"] == []
+    assert "NOT_DISCLOSED" not in str(skipped)
+
+
+def test_edgar_timeout_is_source_error_not_no_news() -> None:
+    import thesis_platform.http as http_mod
+
+    http_mod._TICKER_MAP_CACHE = None
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        url = str(request.url)
+        if "company_tickers" in url:
+            return httpx.Response(
+                200,
+                json={"0": {"cik_str": 789019, "ticker": "MSFT", "title": "Microsoft"}},
+            )
+        raise httpx.ReadTimeout("timed out")
+
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    got = fetch_edgar_headlines(SETTINGS, "MSFT", "NASDAQ", client=client)
+    assert got["status"] == "SOURCE_ERROR"
+    assert got["filings"] == []
+    assert news_is_absent(got) is False
+
+
+def test_successful_empty_headlines_is_found_absence() -> None:
+    import thesis_platform.http as http_mod
+
+    http_mod._TICKER_MAP_CACHE = None
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        url = str(request.url)
+        if "company_tickers" in url:
+            return httpx.Response(
+                200,
+                json={"0": {"cik_str": 789019, "ticker": "MSFT", "title": "Microsoft"}},
+            )
+        if "data.sec.gov/submissions" in url:
+            return httpx.Response(
+                200,
+                json={
+                    "category": "Accelerated filer",
+                    "filings": {
+                        "recent": {
+                            "form": ["4"],
+                            "filingDate": ["2026-09-01"],
+                            "accessionNumber": ["000-1"],
+                            "primaryDocument": ["form4.htm"],
+                            "primaryDocDescription": ["insider"],
+                        }
+                    },
+                },
+            )
+        return httpx.Response(404)
+
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    got = fetch_edgar_headlines(SETTINGS, "MSFT", "NASDAQ", client=client)
+    assert got["status"] == "FOUND"
+    assert got["filings"] == []
+    assert got["filer_type"] == "Accelerated filer"
+    assert news_is_absent(got) is True

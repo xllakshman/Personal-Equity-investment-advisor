@@ -1,31 +1,98 @@
-"""System charts from Yahoo-derived numbers. Never model HTML. No pie."""
+"""System charts from Yahoo-derived numbers and fundamentals. Never model HTML. No pie."""
 from __future__ import annotations
 
 from datetime import date
 from typing import Any
 
 from thesis_platform.derived import excerpt_payload
+from thesis_platform.xbrl import derived_from_fundamentals, fundamentals_from_evidence
 from thesis_platform.yahoo import DailyClose, monthly_closes
+
+ROIC_REFERENCE_PCT = 15.0
+CASH_CONVERSION_REFERENCE_PCT = 80.0
+YAHOO_SOURCE = "Yahoo Finance chart v8"
+YAHOO_COST_SOURCE = "Yahoo Finance chart v8 + book cost"
+SEC_SOURCE = "SEC companyfacts"
 
 
 def system_charts_from_ctx(
     ctx: dict[str, Any],
     derived: dict[str, Any] | None,
 ) -> dict[str, Any]:
-    """Allowlisted line + table for new reports only. Never UPDATE old rows."""
+    """Allowlisted line + table + ROIC/cash bars for new reports only. Never UPDATE old rows."""
     item1: dict[str, Any] = {}
     for row in ctx.get("evidence") or []:
         if isinstance(row, dict) and int(row.get("step0_number") or 0) == 1:
             item1 = excerpt_payload(row.get("excerpt"))
             break
     charts: dict[str, Any] = {}
+    as_of = _quote_as_of(item1)
     line = price_vs_tranches_chart(item1)
     if line:
         charts["price_vs_tranches"] = line
-    table = levels_table(derived or {})
+    table = levels_table(derived or {}, as_of=as_of)
     if table:
         charts["tranche_levels"] = table
+    extras = dict(derived or {})
+    if extras.get("roic_years_available") is None:
+        facts = ctx.get("fundamentals_annual")
+        if not isinstance(facts, dict):
+            facts = fundamentals_from_evidence(ctx.get("evidence") or [])
+        extras.update(derived_from_fundamentals(facts))
+    roic = roic_history_chart(extras)
+    if roic:
+        charts["roic_history"] = roic
+    cash = cash_conversion_chart(extras)
+    if cash:
+        charts["cash_conversion"] = cash
     return charts
+
+
+def roic_history_chart(derived: dict[str, Any]) -> dict[str, Any] | None:
+    points = _pct_points(derived.get("roic_by_year"))
+    if not points:
+        return None
+    return {
+        "type": "bar",
+        "title": "ROIC vs 15%",
+        "labels": [label for label, _ in points],
+        "values": [value for _, value in points],
+        "rows": [],
+        "reference": ROIC_REFERENCE_PCT,
+        "unit": "%",
+        "source": SEC_SOURCE,
+        "as_of": f"FY {points[-1][0]}",
+    }
+
+
+def cash_conversion_chart(derived: dict[str, Any]) -> dict[str, Any] | None:
+    fcf = _ratio_by_fy(derived.get("fcf_ni"))
+    ocf = _ratio_by_fy(derived.get("ocf_ni"))
+    fys = sorted(set(fcf) | set(ocf))
+    if not fys:
+        return None
+    labels: list[str] = []
+    values: list[float] = []
+    for fy in fys:
+        if fy in fcf:
+            labels.append(f"{fy} FCF/NI")
+            values.append(round(fcf[fy] * 100, 2))
+        if fy in ocf:
+            labels.append(f"{fy} OCF/NI")
+            values.append(round(ocf[fy] * 100, 2))
+    if not labels:
+        return None
+    return {
+        "type": "bar",
+        "title": "Cash conversion vs 80%",
+        "labels": labels,
+        "values": values,
+        "rows": [],
+        "reference": CASH_CONVERSION_REFERENCE_PCT,
+        "unit": "%",
+        "source": SEC_SOURCE,
+        "as_of": f"FY {fys[-1]}",
+    }
 
 
 def price_vs_tranches_chart(item1: dict[str, Any]) -> dict[str, Any] | None:
@@ -48,16 +115,19 @@ def price_vs_tranches_chart(item1: dict[str, Any]) -> dict[str, Any] | None:
             points.append(DailyClose(quote_date=date.fromisoformat(day), close=close))
     if len(points) < 2:
         return None
+    as_of = _quote_as_of(item1) or points[-1].quote_date.isoformat()
     return {
         "type": "line",
         "title": "Price vs 52-week",
         "labels": [p.quote_date.isoformat() for p in points],
         "values": [p.close for p in points],
         "rows": [],
+        "source": YAHOO_SOURCE,
+        "as_of": as_of,
     }
 
 
-def levels_table(derived: dict[str, Any]) -> dict[str, Any] | None:
+def levels_table(derived: dict[str, Any], *, as_of: str | None = None) -> dict[str, Any] | None:
     rows: list[list[str]] = []
     close = derived.get("close")
     high = derived.get("high_52w")
@@ -84,13 +154,61 @@ def levels_table(derived: dict[str, Any]) -> dict[str, Any] | None:
             )
     if not rows:
         return None
-    return {
+    source = YAHOO_COST_SOURCE if derived.get("t1") is not None else YAHOO_SOURCE
+    out: dict[str, Any] = {
         "type": "table",
         "title": "Derived levels (Yahoo + cost)",
         "labels": [],
         "values": [],
         "rows": [["Level", "Value"], *rows],
+        "source": source,
     }
+    if as_of:
+        out["as_of"] = as_of
+    return out
+
+
+def _quote_as_of(item1: dict[str, Any]) -> str | None:
+    raw = str(item1.get("quote_date") or "").strip()[:10]
+    if len(raw) >= 10:
+        return raw
+    return None
+
+
+def _pct_points(series: Any) -> list[tuple[str, float]]:
+    if not isinstance(series, list):
+        return []
+    out: list[tuple[str, float]] = []
+    for row in series:
+        if not isinstance(row, dict):
+            continue
+        try:
+            fy = int(row.get("fy"))
+            value = float(row.get("value"))
+        except (TypeError, ValueError):
+            continue
+        if value != value:
+            continue
+        out.append((str(fy), round(value * 100, 2)))
+    return out
+
+
+def _ratio_by_fy(series: Any) -> dict[int, float]:
+    if not isinstance(series, list):
+        return {}
+    out: dict[int, float] = {}
+    for row in series:
+        if not isinstance(row, dict):
+            continue
+        try:
+            fy = int(row.get("fy"))
+            value = float(row.get("value"))
+        except (TypeError, ValueError):
+            continue
+        if value != value:
+            continue
+        out[fy] = value
+    return out
 
 
 def _daily_from_excerpt(item1: dict[str, Any]) -> list[DailyClose]:

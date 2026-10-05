@@ -40,6 +40,11 @@ const SKIP_META_KEYS = new Set([
   "data_source",
   "quote_date",
   "currency",
+  "filer_type",
+  "coverage",
+  "integrity_warnings",
+  "field_status",
+  "step0_coverage",
 ]);
 
 export function isProgressKey(key: string): boolean {

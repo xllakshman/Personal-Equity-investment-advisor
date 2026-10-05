@@ -116,6 +116,30 @@ def test_us_edgar_inserts_step2_headlines_only() -> None:
     assert "<html" not in excerpt.lower()
 
 
+def test_us_edgar_timeout_stores_source_error_not_absence() -> None:
+    conn = _conn()
+    quote = PreviousClose("MSFT", 412.5, "USD", date(2026, 9, 13))
+    gather_step0(
+        conn,
+        SETTINGS,
+        {
+            "id": "r1",
+            "family_id": "f1",
+            "ticker": "MSFT",
+            "exchange": "NASDAQ",
+            "lenses": ["fundamental"],
+        },
+        fetch_close=lambda *_: quote,
+        fetch_edgar=lambda *_: {"status": "SOURCE_ERROR", "filings": []},
+    )
+    calls = _evidence_calls(conn)
+    assert len(calls) == 2
+    excerpt = calls[1][0][1][4]
+    assert "SOURCE_ERROR" in excerpt
+    assert "NOT_COVERED" not in excerpt
+    assert "no news" not in excerpt.lower()
+
+
 def test_nse_skips_edgar_row() -> None:
     conn = _conn()
     quote = PreviousClose("HDFCBANK.NS", 1500.0, "INR", date(2026, 9, 13))
@@ -143,6 +167,7 @@ def test_nse_skips_edgar_row() -> None:
     )
     assert called["edgar"] is False
     assert len(_evidence_calls(conn)) == 1
+    assert "NOT_DISCLOSED" not in str(conn.cursor.return_value.execute.call_args_list)
 
 
 def test_us_companyfacts_inserts_citation_without_lots() -> None:

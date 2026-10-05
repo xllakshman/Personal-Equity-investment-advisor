@@ -25,7 +25,42 @@ def test_pdf_html_drops_raw_html_chart_and_omits_prompt() -> None:
     assert "<div class='bar'>" not in html
 
 
-def test_pdf_html_renders_labeled_bar_chart() -> None:
+def test_pdf_html_renders_roic_percent_and_drops_html() -> None:
+    html = render_pdf_html(
+        {
+            "ticker": "MSFT",
+            "verdict": "Hold",
+            "name": "MSFT — Hold",
+            "sections": {"plain_language": "LAYER 1\nTHE BOTTOM LINE\nHold the name.\n"},
+            "charts": {
+                "roic_history": {
+                    "type": "bar",
+                    "title": "ROIC vs 15%",
+                    "labels": ["2024"],
+                    "values": [18.25],
+                    "reference": 15,
+                    "unit": "%",
+                },
+                "cash_conversion": {
+                    "type": "bar",
+                    "title": "Cash conversion vs 80%",
+                    "labels": ["2024 FCF/NI", "2024 OCF/NI"],
+                    "values": [137.5, 187.5],
+                    "reference": 80,
+                    "unit": "%",
+                },
+                "evil": {"type": "html", "html": "<script>alert(1)</script>"},
+            },
+        }
+    )
+    assert "ROIC vs 15%" in html
+    assert "18.25%" in html
+    assert "$18.25" not in html
+    assert "Cash conversion vs 80%" in html
+    assert "137.5%" in html
+    assert "class='ref'" in html
+    assert "<script>" not in html
+    assert "prompt_versions" not in html
     html = render_pdf_html(
         {
             "ticker": "MSFT",
@@ -42,6 +77,38 @@ def test_pdf_html_renders_labeled_bar_chart() -> None:
     assert "Close" in html
     assert "<script>" not in html
     assert "prompt_versions" not in html
+
+
+def test_pdf_html_shows_source_as_of_and_view_data() -> None:
+    html = render_pdf_html(
+        {
+            "ticker": "MSFT",
+            "verdict": "Hold",
+            "name": "MSFT — Hold",
+            "sections": {"plain_language": "LAYER 1\nTHE BOTTOM LINE\nHold the name.\n"},
+            "charts": {
+                "price_vs_tranches": {
+                    "type": "line",
+                    "title": "Price vs 52-week",
+                    "labels": ["2026-01-31", "2026-02-28"],
+                    "values": [90, 80],
+                    "source": "Yahoo Finance chart v8",
+                    "as_of": "2026-02-28",
+                },
+                "pie": {"type": "pie", "title": "Segments", "labels": ["A"], "values": [1]},
+                "evil": {"type": "html", "html": "<script>alert(1)</script>"},
+            },
+        }
+    )
+    assert "Price vs 52-week" in html
+    assert "Yahoo Finance chart v8" in html
+    assert "as of 2026-02-28" in html
+    assert "View data" in html
+    assert "2026-01-31" in html
+    assert "Segments" not in html
+    assert "<script>" not in html
+    assert "prompt_versions" not in html
+    assert "<svg" not in html.lower()
 
 
 def test_pdf_html_prints_plain_language_note() -> None:
@@ -235,3 +302,30 @@ def test_attach_pdf_uploads_and_sets_key() -> None:
     assert "MACHINE-READABLE" not in html
     assert "What we checked" in html
     assert "$825.40" in html
+
+
+def test_pdf_html_integrity_warnings_strip_html_and_show_filer() -> None:
+    html = render_pdf_html(
+        {
+            "ticker": "MSFT",
+            "verdict": "Hold",
+            "name": "MSFT — Hold",
+            "sections": {
+                "plain_language": "LAYER 1\nTHE BOTTOM LINE\nHold the name.\n",
+                "filer_type": "Large accelerated filer",
+                "integrity_warnings": [
+                    {
+                        "code": "price_mismatch",
+                        "message": "Note price <b>$400</b> does not match pack close $412.50.",
+                    }
+                ],
+            },
+            "charts": {},
+        }
+    )
+    assert "Large accelerated filer" in html
+    assert "Numbers to double-check" in html
+    assert "$412.50" in html
+    assert "<b>" not in html
+    assert "<script>" not in html
+    assert "prompt_versions" not in html

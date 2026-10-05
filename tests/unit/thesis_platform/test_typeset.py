@@ -1,6 +1,8 @@
 import json
 
 from thesis_platform.typeset import (
+    chart_caption_meta,
+    chart_view_rows,
     extract_machine_json,
     key_facts,
     machine_from_sections,
@@ -122,6 +124,22 @@ def test_key_facts_lly_aliases() -> None:
     assert facts["Market value"] == "$9,904.80"
 
 
+def test_key_facts_filer_and_coverage() -> None:
+    facts = dict(
+        key_facts(
+            ticker="MSFT",
+            verdict="Hold",
+            filer_type="Large accelerated filer",
+            coverage="Capex missing",
+        )
+    )
+    assert facts["Filer"] == "Large accelerated filer"
+    assert facts["Coverage"] == "Capex missing"
+    old = dict(key_facts(ticker="MSFT", verdict="Hold"))
+    assert "Filer" not in old
+    assert "Coverage" not in old
+
+
 def test_machine_tables_slice_and_scorecard() -> None:
     tables = machine_tables(LLY_MACHINE)
     assert len(tables) == 2
@@ -157,6 +175,71 @@ def test_parse_charts_empty_and_html_dropped() -> None:
     charts, dropped = parse_charts({"evil": {"type": "html", "html": "<script>alert(1)</script>"}})
     assert charts == []
     assert "html" in dropped
+    kept, dropped_ok = parse_charts(
+        {
+            "roic_history": {
+                "type": "bar",
+                "title": "ROIC vs 15%",
+                "labels": ["2024"],
+                "values": [18.25],
+                "reference": 15,
+                "unit": "%",
+            }
+        }
+    )
+    assert dropped_ok == []
+    assert kept[0]["reference"] == 15.0
+    assert kept[0]["unit"] == "%"
+    assert kept[0]["values"] == [18.25]
+    old_shape, old_dropped = parse_charts(
+        [{"type": "bar", "title": "Peers", "labels": ["A", "B"], "values": [1, 2]}]
+    )
+    assert old_dropped == []
+    assert old_shape[0]["labels"] == ["A", "B"]
+    assert old_shape[0]["values"] == [1.0, 2.0]
+    assert "source" not in old_shape[0]
+    with_meta, meta_dropped = parse_charts(
+        {
+            "price_vs_tranches": {
+                "type": "line",
+                "title": "Price vs 52-week",
+                "labels": ["2026-01", "2026-02"],
+                "values": [90, 80],
+                "source": "Yahoo Finance chart v8",
+                "as_of": "2026-02-28",
+            },
+            "pie": {"type": "pie", "title": "Segments", "labels": ["A"], "values": [1]},
+        }
+    )
+    assert meta_dropped == ["pie"]
+    assert with_meta[0]["source"] == "Yahoo Finance chart v8"
+    assert with_meta[0]["as_of"] == "2026-02-28"
+    dirty, _ = parse_charts(
+        [
+            {
+                "type": "bar",
+                "title": "Peers",
+                "labels": ["A"],
+                "values": [1],
+                "source": "prompt_versions.body",
+            }
+        ]
+    )
+    assert "source" not in dirty[0]
+
+
+def test_chart_caption_and_view_rows() -> None:
+    assert chart_caption_meta({"title": "x"}) == ""
+    assert (
+        chart_caption_meta({"source": "Yahoo Finance chart v8", "as_of": "2026-02-28"})
+        == "Yahoo Finance chart v8 · as of 2026-02-28"
+    )
+    rows = chart_view_rows(
+        {"type": "bar", "labels": ["2024"], "values": [18.25], "reference": 15}
+    )
+    assert rows[0] == ["Period", "Value"]
+    assert rows[1] == ["2024", "18.25"]
+    assert rows[2] == ["Reference", "15"]
 
 
 def test_machine_from_sections_parses_prose_when_machine_empty() -> None:

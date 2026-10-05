@@ -10,6 +10,11 @@ import {
 import { isFinishedNote, noteDocument } from "@/lib/reports/sections";
 import { parseCharts } from "@/lib/reports/charts";
 import type { EvidenceRow } from "@/lib/reports/load";
+import {
+  coverageFromSections,
+  filerTypeFromSections,
+  parseIntegrityWarnings,
+} from "@/lib/reports/integrity";
 import { ReportCharts } from "@/components/features/report/ReportCharts";
 
 function NoteTable({
@@ -101,6 +106,8 @@ export function ReportDocument({
     modelLabel,
     evidenceExcerpt: excerpt,
     machine,
+    filerType: filerTypeFromSections(sections),
+    coverage: coverageFromSections(sections),
   });
   const tables = machineTables(machine);
   const stored = parseCharts(charts);
@@ -109,6 +116,7 @@ export function ReportDocument({
     chart.type === "table" ? chart.rows.length > 0 : chart.labels.length > 0,
   );
   const shown = usable.length > 0 ? usable : derived ? [derived] : [];
+  const warnings = parseIntegrityWarnings(sections);
 
   if (!finished) {
     return (
@@ -144,6 +152,16 @@ export function ReportDocument({
           rows={table.rows}
         />
       ))}
+      {warnings.length > 0 ? (
+        <details className="note-doc__integrity">
+          <summary>Numbers to double-check</summary>
+          <ul>
+            {warnings.map((msg, i) => (
+              <li key={i}>{msg}</li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
       <ReportCharts charts={shown} dropped={stored.dropped} />
       <div className="note-doc__body">
         {blocks.map((block, i) => {

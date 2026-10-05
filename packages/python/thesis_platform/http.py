@@ -14,12 +14,13 @@ from .xbrl import (
 )
 from .edgar import (
     COMPANY_TICKERS_URL,
-    NOT_COVERED,
     SUBMISSIONS_URL,
     cik_from_tickers_map,
     empty_pack,
+    filer_type_from_submissions,
     parse_submissions_headlines,
 )
+from .status import FOUND, INPUTS_MISSING, NOT_COVERED, SOURCE_ERROR, is_found, normalize_status
 from .native_llm import ChatResult, LlmError, parse_response, request_spec, require_api_key
 from .yahoo import (
     YahooError,
@@ -75,7 +76,7 @@ def fetch_edgar_headlines(
     *,
     client: httpx.Client | None = None,
 ) -> dict[str, Any]:
-    """US-listed only. Never raises into a failed Analyse job; NOT_COVERED otherwise."""
+    """US-listed only. NSE/BSE → NOT_COVERED. HTTP miss → SOURCE_ERROR. Empty 8-K/10-Q/10-K after 200 → FOUND."""
     if not is_us_listed(ticker, exchange):
         return empty_pack(NOT_COVERED)
     headers = {
@@ -86,23 +87,27 @@ def fetch_edgar_headlines(
     owns = client is None
     try:
         mapping = _company_tickers(http, headers)
+        if not mapping:
+            return empty_pack(SOURCE_ERROR)
         cik = cik_from_tickers_map(mapping, ticker)
         if not cik:
             return empty_pack(NOT_COVERED)
         time.sleep(_EDGAR_GAP_SEC)
         resp = http.get(SUBMISSIONS_URL.format(cik=cik), headers=headers)
         if resp.status_code != 200:
-            return empty_pack(NOT_COVERED)
+            return empty_pack(SOURCE_ERROR)
         try:
             payload = resp.json()
         except ValueError:
-            return empty_pack(NOT_COVERED)
+            return empty_pack(SOURCE_ERROR)
         filings = parse_submissions_headlines(payload, cik)
-        if not filings:
-            return empty_pack(NOT_COVERED)
-        return {"status": "ok", "filings": filings}
+        pack: dict[str, Any] = {"status": FOUND, "filings": filings}
+        filer = filer_type_from_submissions(payload)
+        if filer:
+            pack["filer_type"] = filer
+        return pack
     except httpx.HTTPError:
-        return empty_pack(NOT_COVERED)
+        return empty_pack(SOURCE_ERROR)
     finally:
         if owns:
             http.close()
@@ -115,7 +120,7 @@ def fetch_edgar_companyfacts(
     *,
     client: httpx.Client | None = None,
 ) -> dict[str, Any]:
-    """US-listed annual XBRL. Miss → NOT_COVERED; never fails the Analyse job."""
+    """US-listed annual XBRL. NSE → NOT_COVERED. HTTP miss → SOURCE_ERROR. Never fails the Analyse job."""
     if not is_us_listed(ticker, exchange):
         return empty_fundamentals(NOT_COVERED)
     headers = {
@@ -126,23 +131,30 @@ def fetch_edgar_companyfacts(
     owns = client is None
     try:
         mapping = _company_tickers(http, headers)
+        if not mapping:
+            return empty_fundamentals(SOURCE_ERROR)
         cik = cik_from_tickers_map(mapping, ticker)
         if not cik:
             return empty_fundamentals(NOT_COVERED)
         time.sleep(_EDGAR_GAP_SEC)
         resp = http.get(COMPANYFACTS_URL.format(cik=cik), headers=headers)
         if resp.status_code != 200:
-            return empty_fundamentals(NOT_COVERED)
+            return empty_fundamentals(SOURCE_ERROR)
         try:
             payload = resp.json()
         except ValueError:
-            return empty_fundamentals(NOT_COVERED)
+            return empty_fundamentals(SOURCE_ERROR)
         parsed = parse_companyfacts(payload, cik)
-        if str(parsed.get("status") or "") != "ok" or not parsed.get("years"):
-            return empty_fundamentals(NOT_COVERED)
-        return parsed
+        status = parsed.get("status")
+        if is_found(status) and parsed.get("years"):
+            return parsed
+        if normalize_status(status) == INPUTS_MISSING:
+            return parsed
+        if parsed.get("years"):
+            return parsed
+        return empty_fundamentals(INPUTS_MISSING)
     except httpx.HTTPError:
-        return empty_fundamentals(NOT_COVERED)
+        return empty_fundamentals(SOURCE_ERROR)
     finally:
         if owns:
             http.close()

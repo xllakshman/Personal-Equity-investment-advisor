@@ -12,6 +12,7 @@ from thesis_platform.native_llm import (
     XAI_URL,
     available_providers,
     openai_compat_payload,
+    openai_json_schema_response_format,
     parse_response,
     request_spec,
     require_api_key,
@@ -62,6 +63,57 @@ def test_openai_xai_deepseek_use_compat_urls() -> None:
     assert grok_body["model"] == "grok-4.6"
     assert ds_body["model"] == "deepseek-flash"
     assert "provider" not in openai_body
+
+
+def test_default_payloads_skip_json_schema() -> None:
+    _, _, openai_body = request_spec("openai", model="gpt-5.6-sol", system="s", user="u")
+    _, _, anth_body = request_spec(
+        "anthropic", model="claude-opus-5", system="s", user="u"
+    )
+    _, _, xai_body = request_spec("xai", model="grok-4.6", system="s", user="u")
+    _, _, ds_body = request_spec("deepseek", model="deepseek-flash", system="s", user="u")
+    for body in (openai_body, anth_body, xai_body, ds_body):
+        assert "response_format" not in body
+        assert "json_schema" not in body
+        assert "output_format" not in body
+        assert "output_config" not in body
+
+
+def test_openai_json_schema_is_documented_response_format_only() -> None:
+    schema = {
+        "type": "object",
+        "properties": {"verdict": {"type": "string"}},
+    }
+    fmt = openai_json_schema_response_format("investor_note", schema)
+    assert fmt == {
+        "type": "json_schema",
+        "json_schema": {"name": "investor_note", "schema": schema},
+    }
+    _, _, openai_body = request_spec(
+        "openai",
+        model="gpt-5.6-sol",
+        system="s",
+        user="u",
+        json_schema=schema,
+    )
+    assert openai_body["response_format"] == fmt
+    _, _, anth_body = request_spec(
+        "anthropic",
+        model="claude-opus-5",
+        system="s",
+        user="u",
+        json_schema=schema,
+    )
+    assert "response_format" not in anth_body
+    assert "output_format" not in anth_body
+    _, _, xai_body = request_spec(
+        "xai", model="grok-4.6", system="s", user="u", json_schema=schema
+    )
+    _, _, ds_body = request_spec(
+        "deepseek", model="deepseek-flash", system="s", user="u", json_schema=schema
+    )
+    assert "response_format" not in xai_body
+    assert "response_format" not in ds_body
 
 
 def test_forbids_openrouter_slugs() -> None:

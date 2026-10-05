@@ -20,8 +20,8 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 
 | Field | Value |
 |-------|--------|
-| **Build next** | **P11-15** — derived FCF/ROIC pack + system charts. **P6-03** stays queued (merchant unnamed). |
-| Last done | **P11-14** — EDGAR XBRL `fundamentals_annual` (US companyfacts). Desk `/portfolio` labels `ef507b7` on eqveste.com. **P11-13** Yahoo 1y + headlines. |
+| **Build next** | **P6-03** — UPI/card merchant (queued; unnamed). **P11-16** blocked (forward P/E vendor unnamed). |
+| Last done | **P11-19** — same-model silent integrity repair (price/ROIC); no extra `usage_events` insert. **P11-18** ChartBlock. **P11-17** absence + integrity. **P11-15** derived FCF/ROIC charts. |
 | Blocked on you | **P11-16** forward P/E (no vendor; Yahoo chart v8 has no estimates). P6-03 merchant. Step 0 items 3–7 still unnamed. P8-02 email **send**. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
@@ -835,7 +835,7 @@ Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do 
 
 ## Phase 11 — Note layout and desk/admin fixes (named 2026-10-04)
 
-One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30). **Build next** is **P11-15**. **P6-03** stays queued after P11-19 (merchant unnamed). **P11-14** is done.
+One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30). **Build next** is **P6-03** (queued; merchant unnamed). **P11-16** is blocked (forward P/E vendor unnamed). **P11-19** is done.
 
 ### P11-01 — Typeset note + PDF download
 
@@ -1046,7 +1046,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 
 ### P11-15 — Derived FCF/ROIC pack + system charts
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-10-06 — no new SQL. Derived ratios + `roic_history` / `cash_conversion` on new reports only. Do not start P11-16 (blocked) or P11-17 until this session’s ship is on GitHub `dev` (and droplet if worker changed).
 - **Depends on:** P11-14
 - **Direction:** From `fundamentals_annual` (code, not the model): FCF/NI, OCF/NI, capex/revenue, ROIC YoY, completeness `roic_years_available`. Worker inserts `reports.charts` on **new** rows only: `roic_history` + `cash_conversion` (allowlisted line/bar/table). `/reports/[id]` `parseCharts` / `ReportCharts` and PDF HTML show those charts. No model HTML. No pie unless a **real** segment mix exists on evidence (otherwise omit — P11-18). D4: old notes unchanged.
 - **Writes:** new `reports.charts` keys only. User pack `derived` extras. Never lots. Never old reports.
@@ -1073,7 +1073,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 
 ### P11-17 — Absence status + integrity_warnings + filer_type
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-10-06 — typed FOUND / NOT_COVERED / INPUTS_MISSING / SOURCE_ERROR on new packs; KEY DATA filer/coverage + integrity panel on new notes only. No SQL. Do not start P11-16 (blocked).
 - **Depends on:** P11-14
 - **Direction:** Pack carries absence objects (`NOT_COVERED` / missing concept) for Step 0 and `fundamentals_annual`. `/reports/[id]` shows `integrity_warnings` when the worker stored them on **new** `reports.sections` or pack-derived display (D4: new analyses only). KEY DATA shows `filer_type` chips when companyfacts/submissions supply that field (e.g. large accelerated). Do not invent warnings for old notes.
 - **Writes:** new `reports` rows / pack only. Never lots. Never UPDATE old `sections`.
@@ -1087,7 +1087,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 
 ### P11-18 — ChartBlock captions, View data, pie only with segments
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-10-06 — captions source/as_of; View data table; pie/html/svg dropped; PDF bars+table parity; old `{labels, values}` still parses. No Recharts. No SQL. Do not start P11-16 (blocked).
 - **Depends on:** P11-13, P11-15
 - **Direction:** ChartBlock on `/reports/[id]` (existing CSS bars or Recharts if already in the tree — do not add a new chart library unless required). Pie **only** when evidence has a real segment mix; otherwise drop. Captions name source + as_of. **View data** shows the numeric series. PDF HTML parity with the screen allowlist. Model charts must match evidence or drop (P5-04). D4: new notes / existing allowlist; do not rewrite old jsonb.
 - **Writes:** none to lots. New `reports.charts` only if the worker already emits them.
@@ -1102,13 +1102,13 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 
 ### P11-19 — LLM json_schema / silent integrity repair
 
-- **Status:** ⬜
+- **Status:** ✅ 2026-10-06 — one extra `complete_chat` on the same `model_catalog` row when parsed JSON price/ROIC disagree with the pack; `UPDATE usage_events.cost_cents` on the existing `search` row. json_schema not sent on Analyse (text + parse/repair). Draft in `docs/prompts/p11-19-integrity-repair.md` is not live. Do not start P11-16 (blocked).
 - **Depends on:** P11-13
 - **Direction:** Same-model silent repair (already one extra `complete_chat`, same `model_catalog` row, UPDATE `usage_events.cost_cents` on the existing `search` row — no extra meter insert) may use provider `json_schema` / capability flags where the native lab supports them. Still no OpenRouter. Optional **draft** prompt notes in `docs/prompts/` — do **not** auto-promote; `/admin/prompt` remains the only write path for `prompt_versions.body`.
 - **Writes:** `usage_events.cost_cents` UPDATE on the search row. Never a second insert. Never git of prompt body.
 - **Reads:** `prompt_versions` promoted row (worker). `/admin/prompt` for humans.
 - **Who:** worker; `platform_admin` for prompt drafts.
-- **UI today:** silent repair exists (P11-13). No json_schema enforcement. Admin prompt is manual.
+- **UI today:** silent structure repair (P11-13) plus price/ROIC integrity repair (this chunk). json_schema is not sent on Analyse. Admin prompt is manual.
 - **Success:**
   1. Repair still one extra lab call, same model, one `search` usage row.
   2. Draft file in docs is not live until promoted on `/admin/prompt`.
@@ -1209,6 +1209,10 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | SQL 027+028 | 2026-10-05 | ✅ Applied on DEV (`cmksomahsfmsjufakryw`) and PROD (`ndgvglcrkbygovlszxze`). Skipped re-run of 027 on DEV (already in `schema_migrations`). |
 | P11-13 | 2026-10-05 | ✅ Worker Yahoo 1y + 52w close, SEC EDGAR headlines for US names, derived T2–T4/U1–U2 in the variable pack, system charts on new `reports`, silent repair updates the same `search` `usage_events` row. No stockanalysis.com. **Build next: P6-03**. |
 | P11-14 | 2026-10-06 | ✅ Worker GET SEC companyfacts for US names; concept resolver v1 + FCF/margins/ROIC in code; `analysis_evidence` citation + pack `fundamentals_annual`. NSE NOT_COVERED. No migration. No stockanalysis.com. **Build next: P11-15**. P6-03 still queued. |
+| P11-15 | 2026-10-06 | ✅ Derived FCF/NI, OCF/NI, capex/revenue, ROIC YoY, `roic_years_available` on the user pack. New `reports.charts` keys `roic_history` (bar, 15%) and `cash_conversion` (bar, FCF/NI + OCF/NI, 80%). `/reports/[id]` + PDF allowlist. NSE omits those charts. No UPDATE of old notes. No stockanalysis.com. **Build next: P11-17**. P11-16 blocked. P6-03 queued. |
+| P11-17 | 2026-10-06 | ✅ Typed Step 0 / fundamentals status; EDGAR timeout is SOURCE_ERROR (not “no news”); NSE NOT_COVERED not NOT_DISCLOSED; missing capex INPUTS_MISSING with no fake FCF; new `reports.sections` filer_type / coverage / integrity_warnings; `/reports/[id]` KEY DATA + collapsible panel. Silent repair still one `search` row. No SQL. **Build next: P11-18**. P11-16 blocked. P6-03 queued. |
+| P11-18 | 2026-10-06 | ✅ `/reports/[id]` ChartBlock captions (source/as_of), View data, line spark from allowlisted numbers, CSS bars; pie/html/svg dropped (no segment mix on evidence). PDF `render_pdf_html` same series as bars/tables. Old `{labels, values}` still parses. No UPDATE of old `reports.charts`. No SQL. **Build next: P11-19**. P11-16 blocked. P6-03 queued. |
+| P11-19 | 2026-10-06 | ✅ Same-model silent repair when note JSON price/ROIC disagree with the pack; one extra lab call; `UPDATE usage_events.cost_cents` on the existing `search` row; no second meter insert; no provider swap. json_schema helper is OpenAI-only and not sent on Analyse. Draft `docs/prompts/p11-19-integrity-repair.md` not promoted. No SQL. **Build next: P6-03**. P11-16 blocked. |
 
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.

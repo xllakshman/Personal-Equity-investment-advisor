@@ -3,13 +3,15 @@ from __future__ import annotations
 
 from typing import Any
 
+from thesis_platform.derived import excerpt_payload
+from thesis_platform.status import FOUND, NOT_COVERED, normalize_status
+
 EDGAR_FORMS = frozenset({"8-K", "10-Q", "10-K"})
 COMPANY_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
 SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik}.json"
 ARCHIVE_URL = "https://www.sec.gov/Archives/edgar/data/{cik_int}/{acc_nodash}/{doc}"
 MAX_HEADLINES = 8
 SUMMARY_CHARS = 180
-NOT_COVERED = "NOT_COVERED"
 
 
 class EdgarError(ValueError):
@@ -96,3 +98,40 @@ def parse_submissions_headlines(
 
 def empty_pack(status: str = NOT_COVERED) -> dict[str, Any]:
     return {"status": status, "filings": []}
+
+
+def filer_type_from_submissions(payload: Any) -> str | None:
+    if not isinstance(payload, dict):
+        return None
+    cat = str(payload.get("category") or "").strip()
+    if cat:
+        return cat[:80]
+    return None
+
+
+def headlines_from_evidence(evidence: list[Any] | None) -> dict[str, Any]:
+    for row in evidence or []:
+        if not isinstance(row, dict):
+            continue
+        query = str(row.get("query") or "").lower()
+        if "companyfacts" in query:
+            continue
+        try:
+            step = int(row.get("step0_number") or 0)
+        except (TypeError, ValueError):
+            step = 0
+        if step != 2 and "edgar" not in query and "headlines" not in query:
+            continue
+        payload = excerpt_payload(row.get("excerpt"))
+        if payload.get("status") or payload.get("filings") is not None:
+            status = normalize_status(payload.get("status"))
+            filings = payload.get("filings") if isinstance(payload.get("filings"), list) else []
+            out: dict[str, Any] = {
+                "status": status or FOUND,
+                "filings": filings,
+            }
+            filer = str(payload.get("filer_type") or "").strip()
+            if filer:
+                out["filer_type"] = filer[:80]
+            return out
+    return empty_pack(NOT_COVERED)

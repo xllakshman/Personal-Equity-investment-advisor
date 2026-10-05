@@ -58,6 +58,9 @@ META_TABLE_KEYS = {
 _TAG = re.compile(r"<[^>]*>")
 _ALLOWED_CHARTS = {"line", "bar", "table", "waterfall"}
 _MARKUP = re.compile(r"<\s*(script|iframe|object|embed|html|svg|img)\b", re.I)
+_PROMPTISH = re.compile(r"prompt_versions|you are an? |system prompt|advisor prompt", re.I)
+_SOURCE_LIMIT = 80
+_AS_OF_LIMIT = 32
 
 
 def _clean(raw: str) -> str:
@@ -345,6 +348,8 @@ def key_facts(
     evidence_excerpt: str | None = None,
     machine: dict[str, Any] | None = None,
     model_label: str | None = None,
+    filer_type: str | None = None,
+    coverage: str | None = None,
 ) -> list[tuple[str, str]]:
     machine = machine if isinstance(machine, dict) else {}
     facts: list[tuple[str, str]] = []
@@ -363,6 +368,12 @@ def key_facts(
     )
     if price:
         facts.append(("Price", price if price.startswith("$") else format_note_money(price) or price))
+    filer = _clean(str(filer_type or "")) or _first_string(machine, ("filer_type",))
+    if filer:
+        facts.append(("Filer", filer))
+    cover = _clean(str(coverage or "")) or _first_string(machine, ("coverage",))
+    if cover:
+        facts.append(("Coverage", cover))
     if created_at:
         label = format_note_date(str(created_at))
         if label:
@@ -390,7 +401,7 @@ def key_facts(
         facts.append(("Market value", format_note_money(mv)))
     if model_label:
         facts.append(("Agent", str(model_label)))
-    return facts[:10]
+    return facts[:12]
 
 
 def _classify_title(title: str) -> str:
@@ -645,6 +656,68 @@ def parse_charts(raw: Any) -> tuple[list[dict[str, Any]], list[str]]:
                 "labels": [str(x) for x in labels],
                 "values": values,
                 "rows": rows,
+                **_chart_extras(item),
             }
         )
     return charts, dropped
+
+
+def _chart_extras(item: dict[str, Any]) -> dict[str, Any]:
+    extras: dict[str, Any] = {}
+    raw_ref = item.get("reference")
+    if isinstance(raw_ref, bool):
+        raw_ref = None
+    if isinstance(raw_ref, (int, float)) and raw_ref == raw_ref:
+        extras["reference"] = float(raw_ref)
+    raw_unit = item.get("unit")
+    if raw_unit is not None:
+        unit = str(raw_unit)
+        if unit and len(unit) <= 8 and not _MARKUP.search(unit):
+            extras["unit"] = unit
+    source = _caption_field(item.get("source", item.get("data_source")), _SOURCE_LIMIT)
+    if source:
+        extras["source"] = source
+    as_of = _caption_field(item.get("as_of", item.get("asOf")), _AS_OF_LIMIT)
+    if as_of:
+        extras["as_of"] = as_of
+    return extras
+
+
+def _caption_field(raw: Any, limit: int) -> str:
+    if raw is None:
+        return ""
+    original = str(raw)
+    if _MARKUP.search(original):
+        return ""
+    text = " ".join(_clean(original).split()).strip()
+    if not text or _PROMPTISH.search(text):
+        return ""
+    return text[:limit]
+
+
+def chart_caption_meta(chart: dict[str, Any]) -> str:
+    bits: list[str] = []
+    source = str(chart.get("source") or "").strip()
+    as_of = str(chart.get("as_of") or "").strip()
+    if source:
+        bits.append(source)
+    if as_of:
+        bits.append(f"as of {as_of}")
+    return " · ".join(bits)
+
+
+def chart_view_rows(chart: dict[str, Any]) -> list[list[str]]:
+    if str(chart.get("type") or "") == "table":
+        rows = chart.get("rows") or []
+        if isinstance(rows, list) and rows:
+            return [list(row) if isinstance(row, list) else [str(row)] for row in rows]
+    labels = chart.get("labels") if isinstance(chart.get("labels"), list) else []
+    values = chart.get("values") if isinstance(chart.get("values"), list) else []
+    out: list[list[str]] = [["Period", "Value"]]
+    for i, label in enumerate(labels):
+        value = values[i] if i < len(values) else ""
+        out.append([str(label), "" if value == "" else str(value)])
+    ref = chart.get("reference")
+    if isinstance(ref, (int, float)) and not isinstance(ref, bool) and ref == ref:
+        out.append(["Reference", str(ref)])
+    return out

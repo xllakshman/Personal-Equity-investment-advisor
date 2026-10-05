@@ -95,6 +95,39 @@ def test_report_document_never_executes_model_html_or_dumps_json() -> None:
     assert "JSON.stringify" not in doc
     assert "stripMachineReadable" in typeset
     assert "Allowlisted types only" not in charts
+    assert "View data" in charts
+    assert "chartCaptionMeta" in charts
+    assert "innerHTML" not in charts
+
+
+def test_admin_console_ink_on_paper_not_white_on_white() -> None:
+    css = _read("apps/web/app/admin/(console)/admin.css")
+    layout = _read("apps/web/app/admin/(console)/layout.tsx")
+    desk = _read("apps/web/app/(desk)/desk.css")
+    login = _read("apps/web/app/admin/login/page.tsx")
+    login_layout = _read("apps/web/app/admin/login/layout.tsx")
+    assert 'className="desk admin"' in layout
+    assert ".admin__h1" in css
+    assert "color: #1d1d1f" in css
+    assert "color: #f5f5f7" not in css
+    assert "--desk-paper: #fafafa" in desk
+    assert "--desk-ink: #1d1d1f" in desk
+    assert "AuthShell" in login
+    assert 'import "../../(auth)/auth.css"' in login_layout
+
+
+def test_desk_portfolio_display_usd_does_not_write_lots() -> None:
+    grid = _read("apps/web/lib/portfolio/grid.ts")
+    fx = _read("apps/web/lib/portfolio/fx.ts")
+    home = _read("apps/web/lib/desk/load-home.ts")
+    actions = _read("apps/web/app/(desk)/portfolio/actions.ts")
+    assert 'DEFAULT_DISPLAY_CURRENCY: NativeCurrency = "USD"' in grid
+    assert "Never written to holding_lots.cost_per_share" in fx
+    assert "asDisplayCurrency" in home
+    assert "sumDisplayCost" in home
+    assert '.from("holding_lots").update' not in home.replace(" ", "")
+    assert "display_currency: display" in actions
+    assert "cost_per_share" in actions
 
 
 def test_sample_notes_typeset_and_cannot_refine() -> None:

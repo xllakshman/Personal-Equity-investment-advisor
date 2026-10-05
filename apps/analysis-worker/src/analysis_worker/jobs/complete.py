@@ -20,7 +20,12 @@ from thesis_platform.native_llm import (
 
 from thesis_platform.charts import system_charts_from_ctx
 from thesis_platform.derived import derived_from_ctx, step0_coverage
-from thesis_platform.xbrl import fundamentals_from_evidence
+from thesis_platform.integrity import (
+    attach_report_meta,
+    item2_news_pack,
+    needs_integrity_repair,
+)
+from thesis_platform.xbrl import derived_from_fundamentals, fundamentals_from_evidence
 from thesis_platform.pack import INVESTOR_PROFILE_PACK_COLUMNS, build_variable_pack
 from thesis_platform.prompt import load_promoted_body
 from thesis_platform.sections import (
@@ -53,6 +58,13 @@ REPAIR_NOTE = (
     "Do not return stage_status, retrieval_*, PENDING, or IN_PROGRESS."
 )
 
+INTEGRITY_REPAIR_NOTE = (
+    "The previous machine JSON current_price or roic disagreed with the evidence "
+    "pack beyond rounding. Rewrite the finished LAYER 1 note. "
+    "current_price must match pack derived.close. roic must match pack latest ROIC. "
+    "Do not invent a different close. Do not return HTML or script."
+)
+
 
 def combine_cost_cents(first: int | None, repair: int | None) -> int | None:
     if first is None and repair is None:
@@ -60,7 +72,11 @@ def combine_cost_cents(first: int | None, repair: int | None) -> int | None:
     return int(first or 0) + int(repair or 0)
 
 
-def needs_note_repair(sections: dict[str, Any] | None, intent: str) -> bool:
+def needs_note_repair(
+    sections: dict[str, Any] | None,
+    intent: str,
+    ctx: dict[str, Any] | None = None,
+) -> bool:
     if sections is None:
         return True
     if is_inflight_sections(sections):
@@ -72,7 +88,27 @@ def needs_note_repair(sections: dict[str, Any] | None, intent: str) -> bool:
         assert_finished_note(cleaned, intent)
     except SectionsError:
         return True
-    return bool(adherence_failures(cleaned))
+    if adherence_failures(cleaned):
+        return True
+    return bool(ctx is not None and needs_integrity_repair(sections, ctx))
+
+
+def repair_user_message(
+    pack: str,
+    sections: dict[str, Any] | None,
+    intent: str,
+    ctx: dict[str, Any],
+) -> str:
+    parts = [pack, FINAL_NOTE_SUFFIX]
+    structure = sections is None or needs_note_repair(sections, intent)
+    integrity = needs_integrity_repair(sections, ctx)
+    if structure:
+        parts.append(REPAIR_NOTE)
+    if integrity:
+        parts.append(INTEGRITY_REPAIR_NOTE)
+    if not structure and not integrity:
+        parts.append(REPAIR_NOTE)
+    return "\n".join(parts)
 
 
 def complete_request(
@@ -116,6 +152,11 @@ def complete_request(
     ctx["derived"] = derived_from_ctx(ctx)
     ctx["step0_coverage"] = step0_coverage(ctx.get("evidence") or [])
     ctx["fundamentals_annual"] = fundamentals_from_evidence(ctx.get("evidence") or [])
+    ctx["derived"] = {
+        **ctx["derived"],
+        **derived_from_fundamentals(ctx["fundamentals_annual"]),
+    }
+    ctx["item2_news"] = item2_news_pack(ctx)
     pack = build_variable_pack(ctx)
     charts = system_charts_from_ctx(ctx, ctx["derived"])
 
@@ -142,14 +183,14 @@ def complete_request(
         user=user,
     )
     sections = _try_parse(result.content)
-    if needs_note_repair(sections, intent):
+    if needs_note_repair(sections, intent, ctx):
         set_status(conn, request["id"], "checking")
         repair = _run_chat(
             runner,
             provider=provider,
             model=native_id,
             system=system,
-            user=pack + "\n" + FINAL_NOTE_SUFFIX + "\n" + REPAIR_NOTE,
+            user=repair_user_message(pack, sections, intent, ctx),
         )
         result = ChatResult(
             content=repair.content,
@@ -171,6 +212,7 @@ def complete_request(
     if profile.get("cannot_trade_us_options") and mentions_us_options(sections):
         raise SectionsError("US options advice forbidden for this profile")
 
+    sections = attach_report_meta(sections, ctx)
     verdict = _verdict(sections)
     name = f"{request['ticker']} — {verdict}"[:200]
     set_status(conn, request["id"], "checking")

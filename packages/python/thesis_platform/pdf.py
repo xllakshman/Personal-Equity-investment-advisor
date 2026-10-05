@@ -13,6 +13,8 @@ from thesis_platform.config import Settings
 from thesis_platform.sections import note_document
 from thesis_platform.storage import upload_pdf
 from thesis_platform.typeset import (
+    chart_caption_meta,
+    chart_view_rows,
     format_note_date,
     format_note_money,
     key_facts,
@@ -23,6 +25,7 @@ from thesis_platform.typeset import (
     price_comparison_chart,
     typeset_blocks,
 )
+from thesis_platform.integrity import sanitize_display_text
 
 _FACE = "-apple-system,'SF Pro Text','Helvetica Neue',Helvetica,'IBM Plex Sans',Calibri,sans-serif"
 
@@ -96,18 +99,45 @@ def _table_html(title: str, headers: list[str], rows: list[list[str]], *, kv: bo
     )
 
 
+def _chart_head(chart: dict[str, Any]) -> str:
+    title = html.escape(str(chart.get("title") or "Figure"))
+    bits = [f"<p class='caption'>{title}</p>"]
+    meta = chart_caption_meta(chart)
+    if meta:
+        bits.append(f"<p class='chart-meta'>{html.escape(meta)}</p>")
+    return "".join(bits)
+
+
 def _chart_html(chart: dict[str, Any]) -> str:
     title = html.escape(str(chart.get("title") or "Figure"))
     kind = str(chart.get("type") or "")
+    head = _chart_head(chart)
     if kind == "table":
         rows = chart.get("rows") or []
-        return _table_html(title, [], rows if isinstance(rows, list) else [])
+        table = _table_html(title, [], rows if isinstance(rows, list) else [])
+        # _table_html repeats the title caption; keep source/as_of above the table.
+        if table.startswith("<p class='caption'>"):
+            rest = table.split("</p>", 1)[-1] if "</p>" in table else table
+            return head + rest
+        return head + table
     labels = chart.get("labels") or []
     values = chart.get("values") or []
     if not isinstance(labels, list) or not isinstance(values, list) or not labels:
-        return f"<p class='caption'>{title}</p>"
-    nums = [float(v) for v in values if isinstance(v, (int, float))]
+        return head
+    nums = [float(v) for v in values if isinstance(v, (int, float)) and not isinstance(v, bool)]
+    ref = chart.get("reference")
+    if isinstance(ref, bool):
+        ref = None
+    if isinstance(ref, (int, float)) and ref == ref:
+        nums.append(float(ref))
+    else:
+        ref = None
     max_v = max([abs(v) for v in nums] or [1])
+    unit = str(chart.get("unit") or "")
+    ref_html = ""
+    if ref is not None and max_v:
+        left = min(100.0, (abs(float(ref)) / max_v) * 100)
+        ref_html = f"<div class='ref' style='left:{left:.1f}%'></div>"
     bars = []
     for i, label in enumerate(labels):
         value = values[i] if i < len(values) else 0
@@ -116,14 +146,80 @@ def _chart_html(chart: dict[str, Any]) -> str:
         except (TypeError, ValueError):
             n = 0.0
         width = min(100, (abs(n) / max_v) * 100) if max_v else 0
-        shown = format_note_money(n) if isinstance(value, (int, float)) else html.escape(str(value))
+        if unit == "%":
+            shown = html.escape(f"{_pct_text(n)}%")
+        else:
+            shown = format_note_money(n) if isinstance(value, (int, float)) else html.escape(str(value))
         bars.append(
             "<div class='bar'><b>"
             + html.escape(str(label))
-            + f"</b><div class='track'><div class='fill' style='width:{width:.1f}%'></div></div>"
+            + f"</b><div class='track'>{ref_html}<div class='fill' style='width:{width:.1f}%'></div></div>"
             f"<span>{shown}</span></div>"
         )
-    return f"<p class='caption'>{title}</p>" + "".join(bars)
+    return head + "".join(bars) + _view_data_html(chart)
+
+
+def _view_data_html(chart: dict[str, Any]) -> str:
+    rows = chart_view_rows(chart)
+    if len(rows) <= 1:
+        return ""
+    unit = str(chart.get("unit") or "")
+    body: list[str] = []
+    for i, row in enumerate(rows):
+        cells: list[str] = []
+        for j, cell in enumerate(row):
+            text = str(cell)
+            if i > 0 and j > 0:
+                try:
+                    n = float(text)
+                except (TypeError, ValueError):
+                    n = None
+                if n is not None and n == n:
+                    if unit == "%":
+                        text = f"{_pct_text(n)}%"
+                    elif str(row[0]).lower() != "reference":
+                        text = format_note_money(n) or text
+            escaped = html.escape(text)
+            if i == 0:
+                cells.append(f"<th>{escaped}</th>")
+            elif j > 0 and looks_numeric_cell(text):
+                cells.append(f"<td class='num'>{escaped}</td>")
+            else:
+                cells.append(f"<td>{escaped}</td>")
+        body.append(f"<tr>{''.join(cells)}</tr>")
+    head_row = body[0]
+    rest = "".join(body[1:])
+    return (
+        "<p class='caption'>View data</p>"
+        f"<table><thead>{head_row}</thead><tbody>{rest}</tbody></table>"
+    )
+
+
+def _pct_text(n: float) -> str:
+    text = f"{n:.2f}".rstrip("0").rstrip(".")
+    return text or "0"
+
+
+def _warnings_html(sections: dict[str, Any]) -> str:
+    raw = sections.get("integrity_warnings")
+    if not isinstance(raw, list) or not raw:
+        return ""
+    items: list[str] = []
+    for row in raw:
+        if isinstance(row, str):
+            msg = sanitize_display_text(row)
+        elif isinstance(row, dict):
+            msg = sanitize_display_text(row.get("message"))
+        else:
+            continue
+        if msg:
+            items.append(f"<li>{html.escape(msg)}</li>")
+    if not items:
+        return ""
+    return (
+        "<p class='caption'>Numbers to double-check</p>"
+        f"<ul>{''.join(items)}</ul>"
+    )
 
 
 def _evidence_table(evidence: list[dict[str, Any]]) -> str:
@@ -162,6 +258,8 @@ def render_pdf_html(report: dict[str, Any]) -> str:
         conviction=str(report.get("conviction") or "") or None,
         evidence_excerpt=excerpt,
         machine=machine,
+        filer_type=str(sections.get("filer_type") or "") or None,
+        coverage=str(sections.get("coverage") or "") or None,
     )
     kpi = (
         _table_html("Key data", [], [[k, v] for k, v in facts], kv=True)
@@ -201,6 +299,8 @@ def render_pdf_html(report: dict[str, Any]) -> str:
         "p{margin:0 0 11px;font-weight:400;font-size:11.5pt}"
         f"p.caption{{font:700 9pt/1.3 {_FACE};letter-spacing:.08em;"
         "text-transform:uppercase;color:#555;margin:18px 0 8px}}"
+        f"p.chart-meta{{font:400 9pt/1.4 {_FACE};color:#555;margin:0 0 10px;"
+        "letter-spacing:0;text-transform:none}}"
         "hr{border:none;border-top:1px solid #ccc;margin:14px 0}"
         "table{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:10.5pt}"
         "th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #ddd;vertical-align:top}"
@@ -208,15 +308,17 @@ def render_pdf_html(report: dict[str, Any]) -> str:
         "td.num{text-align:right;font-variant-numeric:tabular-nums}"
         "table.kv th{width:34%;font-weight:600}"
         ".bar{display:flex;align-items:center;gap:8px;margin:0 0 8px}"
-        ".bar b{width:110px;flex:none;font-size:9.5pt;font-weight:500}"
-        ".track{flex:1;height:7px;background:#eee;border-radius:3px;overflow:hidden}"
+        ".bar b{width:130px;flex:none;font-size:9.5pt;font-weight:500}"
+        ".track{flex:1;height:7px;background:#eee;border-radius:3px;overflow:hidden;position:relative}"
         ".fill{height:100%;background:#333}"
+        ".ref{position:absolute;top:0;bottom:0;border-left:1px dashed #666}"
         "</style></head><body>"
         + "<p class='meta'>Equity note</p>"
         + f"<h1>{name}</h1>"
         + f"<p class='sub'>{sub}</p>"
         + kpi
         + "".join(extra_tables)
+        + _warnings_html(sections)
         + "".join(chart_bits)
         + f"<div class='body'>{body}</div>"
         + _evidence_table(evidence)

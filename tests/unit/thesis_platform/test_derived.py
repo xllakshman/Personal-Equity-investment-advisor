@@ -42,7 +42,21 @@ def test_derived_from_ctx_uses_holding_cost() -> None:
 
 def test_step0_coverage_marks_missing_3_to_7() -> None:
     cov = step0_coverage([{"step0_number": 1}, {"step0_number": 2}])
-    assert cov["1"] == "yahoo_close"
-    assert cov["2"] == "edgar"
+    assert cov["1"] == "FOUND"
+    assert cov["2"] == "FOUND"
     assert cov["3"] == "NOT_COVERED"
     assert cov["7"] == "NOT_COVERED"
+
+
+def test_step0_coverage_source_error_is_not_found() -> None:
+    cov = step0_coverage(
+        [
+            {"step0_number": 1, "excerpt": '{"close": 1}'},
+            {
+                "step0_number": 2,
+                "query": "sec edgar headlines MSFT",
+                "excerpt": '{"status": "SOURCE_ERROR", "filings": []}',
+            },
+        ]
+    )
+    assert cov["2"] == "SOURCE_ERROR"

@@ -330,6 +330,8 @@ export function keyFacts(input: {
   modelLabel?: string | null;
   evidenceExcerpt?: string | null;
   machine?: Record<string, unknown> | null;
+  filerType?: string | null;
+  coverage?: string | null;
 }): KeyFact[] {
   const facts: KeyFact[] = [];
   const machine = input.machine && typeof input.machine === "object" ? input.machine : {};
@@ -345,6 +347,14 @@ export function keyFacts(input: {
       : firstString(machine, ["current_price", "price", "close"]) ||
         priceFromExcerpt(input.evidenceExcerpt);
   if (price) facts.push({ label: "Price", value: price.startsWith("$") ? price : formatNoteMoney(price) || price });
+  const filer =
+    stripMarkdown(stripTags(String(input.filerType ?? "").trim())) ||
+    firstString(machine, ["filer_type"]);
+  if (filer) facts.push({ label: "Filer", value: filer });
+  const coverage =
+    stripMarkdown(stripTags(String(input.coverage ?? "").trim())) ||
+    firstString(machine, ["coverage"]);
+  if (coverage) facts.push({ label: "Coverage", value: coverage });
   if (input.createdAt) {
     const label = formatNoteDate(input.createdAt);
     if (label) facts.push({ label: "As of", value: label });
@@ -367,7 +377,7 @@ export function keyFacts(input: {
   const mv = firstNumber(machine, ["market_value", "position_value"]);
   if (mv != null) facts.push({ label: "Market value", value: formatNoteMoney(mv) });
   if (input.modelLabel) facts.push({ label: "Agent", value: String(input.modelLabel) });
-  return facts.slice(0, 10);
+  return facts.slice(0, 12);
 }
 
 function classifyTitle(title: string): NoteTableKind {

@@ -2182,6 +2182,58 @@ button.pf__ghost[type="submit"]:hover {
   color: rgba(29, 29, 31, 0.55);
 }
 
+.note-doc__chart-meta {
+  margin: -4px 0 10px;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgba(29, 29, 31, 0.55);
+}
+
+.note-doc__spark {
+  display: block;
+  width: 100%;
+  height: auto;
+  padding: 12px 14px 8px;
+}
+
+.note-doc__spark-line {
+  stroke: #0a84ff;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.note-doc__spark-ref {
+  stroke: rgba(29, 29, 31, 0.45);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+
+.note-doc__view-data {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.55);
+  font: 400 13px/1.45 inherit;
+  color: #1b1a17;
+}
+
+.note-doc__view-data summary {
+  cursor: pointer;
+  font: 600 12px/1.4 inherit;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #444;
+}
+
+.note-doc__view-data .note-doc__table-wrap {
+  margin-top: 8px;
+}
+
 .note-doc__table-wrap {
   overflow-x: auto;
   border: 1px solid rgba(15, 23, 42, 0.12);
@@ -2251,7 +2303,7 @@ button.pf__ghost[type="submit"]:hover {
 }
 
 .note-doc__bar b {
-  width: 8.75rem;
+  width: 10.5rem;
   flex: none;
   font-weight: 500;
   font-size: 13px;
@@ -2260,6 +2312,7 @@ button.pf__ghost[type="submit"]:hover {
 }
 
 .note-doc__track {
+  position: relative;
   flex: 1;
   height: 8px;
   border-radius: 4px;
@@ -2273,6 +2326,15 @@ button.pf__ghost[type="submit"]:hover {
   border-radius: 4px;
 }
 
+.note-doc__ref {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 1px dashed rgba(29, 29, 31, 0.45);
+  pointer-events: none;
+}
+
 .note-doc__rule {
   border: none;
   border-top: 1px solid rgba(15, 23, 42, 0.12);
@@ -2281,6 +2343,33 @@ button.pf__ghost[type="submit"]:hover {
 
 .note-doc__evidence {
   margin-top: 28px;
+}
+
+.note-doc__integrity {
+  margin: 18px 0 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.55);
+  font: 400 13px/1.45 inherit;
+  color: #1b1a17;
+}
+
+.note-doc__integrity summary {
+  cursor: pointer;
+  font: 600 12px/1.4 inherit;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #444;
+}
+
+.note-doc__integrity ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.note-doc__integrity li {
+  margin: 0 0 6px;
 }
 
 .note-doc__follow {

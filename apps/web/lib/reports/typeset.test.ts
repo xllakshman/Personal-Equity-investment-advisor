@@ -150,6 +150,20 @@ describe("keyFacts", () => {
     assert.equal(byLabel.Invested, "$8,520");
     assert.equal(byLabel["Market value"], "$9,904.80");
   });
+
+  it("adds filer and coverage only when stored", () => {
+    const facts = keyFacts({
+      ticker: "MSFT",
+      verdict: "Hold",
+      filerType: "Large accelerated filer",
+      coverage: "Capex missing",
+    });
+    const byLabel = Object.fromEntries(facts.map((f) => [f.label, f.value]));
+    assert.equal(byLabel.Filer, "Large accelerated filer");
+    assert.equal(byLabel.Coverage, "Capex missing");
+    const old = keyFacts({ ticker: "MSFT", verdict: "Hold" });
+    assert.equal(old.some((f) => f.label === "Filer"), false);
+  });
 });
 
 describe("machineTables", () => {
