@@ -43,6 +43,7 @@ export type DeskHome = {
   planName: string | null;
   costBasis: number;
   displayCostBasis: number;
+  cashUsd: number | null;
   costCurrency: string;
   holdings: DeskHomeHolding[];
   quotes: Record<string, QuotePoint | null>;
@@ -220,6 +221,7 @@ export async function loadDeskHome(familyId: string): Promise<DeskHome> {
     planName,
     costBasis,
     displayCostBasis,
+    cashUsd: cash,
     costCurrency,
     holdings: mappedHoldings,
     quotes,

@@ -4,6 +4,7 @@ import { describe, it } from "node:test";
 import {
   defaultLtcgHoldingMonths,
   parseBlackoutWindows,
+  parseOutsideBook,
   profileDefaults,
   showLrsFields,
 } from "./defaults";
@@ -31,6 +32,14 @@ describe("profileDefaults", () => {
     assert.equal(india.lrs_annual_cap_usd, null);
     assert.equal(showLrsFields("india"), true);
     assert.equal(showLrsFields("us"), false);
+  });
+
+  it("parses outside_book.cash as null when unset and 0 when stored", () => {
+    assert.equal(parseOutsideBook(undefined).cash, null);
+    assert.equal(parseOutsideBook({}).cash, null);
+    assert.equal(parseOutsideBook({ cash: "" }).cash, null);
+    assert.equal(parseOutsideBook({ cash: 0 }).cash, 0);
+    assert.equal(parseOutsideBook({ cash: 25000 }).cash, 25000);
   });
 
   it("keeps a typed blackout window", () => {

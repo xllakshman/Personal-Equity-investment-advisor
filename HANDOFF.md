@@ -4,7 +4,7 @@
 > **Workspace:** `/Users/lakshmanyeluri/Documents/personalEquity_Advisor`  
 > **Reference layout:** `/Users/lakshmanyeluri/Documents/activePieces-docker/invoice-processing`  
 > **Roadmap (progress):** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) — **Build next: P6-03** (queued; merchant unnamed). P11-16 blocked (forward P/E unnamed).  
-> **Latest session:** [`docs/handoff/SESSION-2026-10-06-p11-19.md`](docs/handoff/SESSION-2026-10-06-p11-19.md)  
+> **Latest session:** [`docs/handoff/SESSION-2026-10-06-p11-20.md`](docs/handoff/SESSION-2026-10-06-p11-20.md)  
 > **Mock UI:** [`docs/mock-ui/`](docs/mock-ui/README.md)  
 > **GitHub (empty):** `xllakshman/Personal-Equity-investment-advisor` · branch `main`
 
@@ -26,7 +26,7 @@
 | Maya seed | ✅ `maya@thesis.demo` · 5 lots · 2 reports (1 sample) |
 | Storage bucket `report-pdfs` | ✅ private |
 | Analysis API / worker | ✅ 2026-10-06 — **P11-19:** after the first native-lab completion, a price/ROIC mismatch vs the pack triggers **one** extra `complete_chat` on the same `model_catalog` row; `UPDATE usage_events.cost_cents` on the existing `search` row (no second insert, no lab swap). json_schema not sent on Analyse. **P11-18** charts `source`/`as_of` unchanged. **P11-17** filer/coverage/integrity_warnings unchanged. **P11-15** ROIC/cash series unchanged. Never `UPDATE` old `reports`. Prod host droplet `157.245.102.243` `/opt/eqveste`; public **`https://api.eqveste.com`**. Local laptop still `:8091` + DEV `.env`. |
-| Next.js desk | ✅ 2026-10-06 — `/desk` and `/portfolio` money display default **USD** (`asDisplayCurrency`; saved INR stays INR; FX display only, never writes `holding_lots`). `/reports/[id]` SELECT `reports` for session `family_id` (ChartBlock + KEY DATA + integrity panel). `/admin/*` console is ink on desk paper. SHA `f7ab34c` on Vercel **eqveste.com**. |
+| Next.js desk | ✅ 2026-10-06 — **P11-20:** `/desk` KPI **Equity portfolio value** (view `holdings` `displayCostBasis`) + Cash chip from `investor_profiles.outside_book.cash` + **Total Portfolio** (USD add; unset cash → —). Money display default **USD**. `/reports/[id]` SELECT `reports` for session `family_id`. `/admin/*` console is ink on desk paper. SHA `f7ab34c` on Vercel **eqveste.com**. |
 | Tests | ✅ 2026-10-06 — 255 Python unit after P11-19 (mismatch → one extra `complete_chat` mock; no second `usage_events` insert) plus admin ink-on-paper and USD display locks. Live two-JWT CI still skips without a second family JWT. |
 | Prod Vercel | ✅ 2026-10-06 — Production deploy `dpl_72MUyDn5v5gqV66UrgMcQmh4FDVa` aliased to **`https://eqveste.com`**. Anon URL+key + Resend + `ANALYSIS_API_URL`. No service role or lab keys. |
 | Prod schema | ✅ 2026-10-05 — **001–028** on `ndgvglcrkbygovlszxze`. No Maya seed. `report-pdfs` bucket. Gemini/Kimi inactive. `thesis_admin_set_family_plan` on `/admin/accounts`. `thesis_admin_remove_prompt` on `/admin/prompt`. |
@@ -34,7 +34,7 @@
 | Analysis CSAT | ✅ **P5-05** `analysis_feedback` + **P7-10** admin tab |
 | Requirements vs mock/brief | ✅ Gap review 2026-09-13 — D27–D42 |
 
-**Build next:** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P6-03** (queued; merchant unnamed). **P11-16** stays blocked (forward P/E vendor unnamed). **P11-19** is done. **P10-02** is on the droplet (`https://api.eqveste.com`). Local **3100** stays DEV.
+**Build next:** [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P6-03** (queued; merchant unnamed). **P11-16** stays blocked (forward P/E vendor unnamed). **P11-20** is done locally. **P10-02** is on the droplet (`https://api.eqveste.com`). Local **3100** stays DEV.
 
 ---
 
@@ -326,7 +326,7 @@ See `.cursor/rules/web-ui-maintenance.mdc`. Marketing vs desk palettes must not 
 
 ## 18. Next steps
 
-Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P6-03** when a merchant is named. **P11-19** is done (same-model integrity repair; one `search` `usage_events` row). **P11-16** is blocked until a forward P/E vendor is named. **P10-02** is on the droplet. **027+028 applied DEV and PROD.** Worker LLM is native labs (D39). Never put lab keys on Vercel. Local **3100** stays DEV. Do not scrape stockanalysis.com.
+Execute [`docs/roadmap/ROADMAP.md`](docs/roadmap/ROADMAP.md) **P6-03** when a merchant is named. **P11-20** is done locally (`/desk` equity + cash + total). **P11-16** is blocked until a forward P/E vendor is named. **P10-02** is on the droplet. **027+028 applied DEV and PROD.** Worker LLM is native labs (D39). Never put lab keys on Vercel. Local **3100** stays DEV. Do not scrape stockanalysis.com.
 
 ---
 

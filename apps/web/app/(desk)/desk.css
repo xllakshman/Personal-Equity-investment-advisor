@@ -753,6 +753,13 @@ body:has(.desk) {
   color: rgba(29, 29, 31, 0.62);
 }
 
+.desk__cash-chip {
+  display: inline-flex;
+  margin-top: 12px;
+  gap: 8px;
+  width: fit-content;
+}
+
 .desk__split {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));

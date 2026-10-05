@@ -5,6 +5,7 @@ import {
   allocationWeights,
   costBasisNative,
   lastCheckedLabel,
+  totalPortfolioUsd,
 } from "./home-math";
 
 describe("costBasisNative", () => {
@@ -77,5 +78,70 @@ describe("costBasisNative", () => {
 describe("lastCheckedLabel", () => {
   it("says never when there is no report", () => {
     assert.equal(lastCheckedLabel(null), "never");
+  });
+});
+
+describe("totalPortfolioUsd", () => {
+  it("adds equity display and stored cash in USD", () => {
+    assert.equal(
+      totalPortfolioUsd({
+        equityDisplay: 10000,
+        cashUsd: 2500,
+        displayCurrency: "USD",
+      }),
+      12500,
+    );
+  });
+
+  it("shows null when cash was never stored, including empty book", () => {
+    assert.equal(
+      totalPortfolioUsd({
+        equityDisplay: 10000,
+        cashUsd: null,
+        displayCurrency: "USD",
+      }),
+      null,
+    );
+    assert.equal(
+      totalPortfolioUsd({
+        equityDisplay: 0,
+        cashUsd: null,
+        displayCurrency: "USD",
+      }),
+      null,
+    );
+  });
+
+  it("treats stored 0 as cash, so total equals equity", () => {
+    assert.equal(
+      totalPortfolioUsd({
+        equityDisplay: 10000,
+        cashUsd: 0,
+        displayCurrency: "USD",
+      }),
+      10000,
+    );
+  });
+
+  it("does not FX-convert cash when the desk shows INR", () => {
+    assert.equal(
+      totalPortfolioUsd({
+        equityDisplay: 884000,
+        cashUsd: 2500,
+        displayCurrency: "INR",
+      }),
+      null,
+    );
+  });
+
+  it("does not invent a total from NaN equity", () => {
+    assert.equal(
+      totalPortfolioUsd({
+        equityDisplay: Number.NaN,
+        cashUsd: 100,
+        displayCurrency: "USD",
+      }),
+      null,
+    );
   });
 });

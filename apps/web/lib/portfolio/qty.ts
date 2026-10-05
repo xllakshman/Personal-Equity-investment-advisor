@@ -21,8 +21,23 @@ export function totalPurchasedDisplay(qty: number, costPerShare: number): string
 }
 
 export function parseMoney(raw: string): number | null {
-  const cleaned = raw.replace(/[$,\s]/g, "").trim();
+  let cleaned = raw.trim();
   if (!cleaned) return null;
+  if (
+    (cleaned.startsWith('"') && cleaned.endsWith('"') && cleaned.length >= 2) ||
+    (cleaned.startsWith("'") && cleaned.endsWith("'") && cleaned.length >= 2)
+  ) {
+    cleaned = cleaned.slice(1, -1).trim();
+  }
+  if (cleaned.startsWith("=")) cleaned = cleaned.slice(1).trim();
+  cleaned = cleaned
+    .replace(/US\$/gi, "")
+    .replace(/\b(?:USD|INR|EUR|GBP)\b/gi, "")
+    .replace(/[$₹€£¥]/g, "")
+    .replace(/,/g, "")
+    .replace(/\s+/g, "")
+    .trim();
+  if (!cleaned || /[a-z]/i.test(cleaned)) return null;
   const n = Number(cleaned);
   if (!Number.isFinite(n)) return null;
   return n;

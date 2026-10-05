@@ -64,6 +64,28 @@ function revalidateDesk() {
   revalidatePath("/analyse");
 }
 
+async function deleteRejectedImportRows(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  familyId: string,
+) {
+  await supabase
+    .from("portfolio_import_rows")
+    .delete()
+    .eq("family_id", familyId)
+    .eq("accepted", false);
+}
+
+/** Owner/member DELETE `portfolio_import_rows` where accepted = false, then `/portfolio` with no query. */
+export async function dismissRejectedImports() {
+  const session = await requireDeskSession();
+  if (canWriteFamily(session)) {
+    const supabase = await createClient();
+    await deleteRejectedImportRows(supabase, session.familyId);
+  }
+  revalidatePath("/portfolio");
+  redirect("/portfolio");
+}
+
 type LotRow = {
   family_id: string;
   portfolio_id: string;
@@ -156,6 +178,8 @@ export async function commitCsvImport(
       return { error: "Could not replace existing lots.", notice: null };
     }
   }
+
+  await deleteRejectedImportRows(supabase, session.familyId);
 
   const importPayload = parsed.rows.map((row) => ({
     family_id: session.familyId,

@@ -208,4 +208,36 @@ MSFT,Microsoft,0,100
     if (!parsed.ok) return;
     assert.equal(parsed.rows[0].accepted, false);
   });
+
+  it("parses $ commas and USD-prefixed costs as numbers without inventing lots", () => {
+    const csv = `ticker,company_name,cost_per_share,total_purchased
+AMZN,Amazon,$188.50,1885
+MSFT,Microsoft,"1,234.56",12345.60
+AAPL,Apple,USD 188.50,1885
+GOOG,Alphabet,188.50,1885
+BAD,Broken,not-a-price,1000
+EMPTY,EmptyCost,,1000
+`;
+    const parsed = parsePortfolioCsv(csv, "auto");
+    assert.equal(parsed.ok, true);
+    if (!parsed.ok) return;
+    assert.equal(parsed.rows.length, 6);
+    assert.equal(parsed.rows[0].accepted, true);
+    assert.equal(parsed.rows[0].ticker, "AMZN");
+    assert.equal(parsed.rows[0].cost_per_share, 188.5);
+    assert.equal(parsed.rows[0].qty, 10);
+    assert.equal(parsed.rows[1].accepted, true);
+    assert.equal(parsed.rows[1].cost_per_share, 1234.56);
+    assert.equal(parsed.rows[2].accepted, true);
+    assert.equal(parsed.rows[2].cost_per_share, 188.5);
+    assert.equal(parsed.rows[3].accepted, true);
+    assert.equal(parsed.rows[3].cost_per_share, 188.5);
+    assert.equal(parsed.rows[4].accepted, false);
+    assert.equal(parsed.rows[4].qty, null);
+    assert.equal(parsed.rows[4].reject_reason, "Cost per share must be a number");
+    assert.equal(parsed.rows[5].accepted, false);
+    assert.equal(parsed.rows[5].qty, null);
+    assert.equal(parsed.rows[5].reject_reason, "Cost per share must be a number");
+    assert.equal(parsed.rows.filter((r) => r.accepted).length, 4);
+  });
 });

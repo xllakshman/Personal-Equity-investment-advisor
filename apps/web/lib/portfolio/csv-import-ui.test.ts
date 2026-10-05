@@ -15,7 +15,13 @@ describe("CSV import UI", () => {
     const card = src("components/features/portfolio/CsvImportCard.tsx");
     const page = src("app/(desk)/portfolio/page.tsx");
     const actions = src("app/(desk)/portfolio/actions.ts");
-    assert.match(page, /CsvImportCard canWrite=\{canWriteFamily\(session\)\}/);
+    assert.match(page, /const canWrite = canWriteFamily\(session\)/);
+    assert.match(page, /CsvImportCard canWrite=\{canWrite\}/);
+    assert.match(page, /visibleRejectedImports/);
+    assert.match(page, />\s*Dismiss\s*</);
+    assert.match(actions, /dismissRejectedImports/);
+    assert.match(actions, /deleteRejectedImportRows/);
+    assert.match(actions, /\.eq\("accepted", false\)/);
     assert.match(card, /name="file"/);
     assert.match(card, /Download CSV template/);
     assert.match(card, /csvTemplateText/);

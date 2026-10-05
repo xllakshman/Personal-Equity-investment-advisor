@@ -13,6 +13,12 @@ describe("qtyFromTotals", () => {
     assert.equal(qtyFromTotals(100, Number.NaN), null);
     assert.equal(parseMoney(""), null);
     assert.equal(parseMoney("$1,200.50"), 1200.5);
+    assert.equal(parseMoney("$188.50"), 188.5);
+    assert.equal(parseMoney("1,234.56"), 1234.56);
+    assert.equal(parseMoney("USD 188.50"), 188.5);
+    assert.equal(parseMoney("188.50"), 188.5);
+    assert.equal(parseMoney("not-a-price"), null);
+    assert.equal(parseMoney("   "), null);
   });
 });
 

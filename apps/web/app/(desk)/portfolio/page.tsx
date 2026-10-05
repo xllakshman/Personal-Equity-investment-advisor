@@ -6,10 +6,12 @@ import { PortfolioHoldingsGrid } from "@/components/features/portfolio/Portfolio
 import { normalizeTicker } from "@/lib/desk/ticker";
 import { loadHoldingQuotes } from "@/lib/market/load-quotes";
 import { canWriteFamily, requireDeskSession } from "@/lib/desk/session";
+import { dismissRejectedImports } from "@/app/(desk)/portfolio/actions";
 import {
   loadHoldingsGrid,
   loadPortfolioSettings,
   loadRecentRejected,
+  visibleRejectedImports,
 } from "@/lib/portfolio/load";
 import { displayRateThisLoad, fetchUsdInrRate } from "@/lib/portfolio/fx-live";
 import { SupportGrantForm } from "@/components/features/portfolio/SupportGrantForm";
@@ -69,7 +71,13 @@ export default async function PortfolioPage({
     session.familyId,
   );
   const quotes = await loadHoldingQuotes(holdings);
-  const rejected = await loadRecentRejected(session.familyId);
+  const canWrite = canWriteFamily(session);
+  const rejected = visibleRejectedImports(
+    sp,
+    sp.ok === "csv" && Number.parseInt(String(sp.rejected ?? "0"), 10) > 0
+      ? await loadRecentRejected(session.familyId)
+      : [],
+  );
   const liveFx = await fetchUsdInrRate();
   const fxThisLoad = displayRateThisLoad(liveFx, settings.fxUsdInrOverride);
   const notice = banner(sp);
@@ -98,10 +106,10 @@ export default async function PortfolioPage({
           liveRate={fxThisLoad.rate}
           rateSource={fxThisLoad.source}
         />
-        <CsvImportCard canWrite={canWriteFamily(session)} />
+        <CsvImportCard canWrite={canWrite} />
         <ManualAddForm
           presetTicker={add}
-          canWrite={canWriteFamily(session)}
+          canWrite={canWrite}
         />
       </div>
 
@@ -133,12 +141,17 @@ export default async function PortfolioPage({
               </li>
             ))}
           </ul>
+          <form action={dismissRejectedImports} style={{ marginTop: 10 }}>
+            <button className="pf__ghost" type="submit">
+              Dismiss
+            </button>
+          </form>
         </div>
       ) : null}
 
       <PortfolioHoldingsGrid
         holdings={holdings}
-        canWrite={canWriteFamily(session)}
+        canWrite={canWrite}
         quotes={quotes}
         displayCurrency={settings.displayCurrency}
         fxUsdInr={fxThisLoad.rate}

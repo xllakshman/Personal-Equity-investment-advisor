@@ -36,6 +36,18 @@ describe("Home book and notes widget", () => {
     assert.match(view, /home\.displayCostBasis/);
     assert.match(view, /home\.displayCurrency/);
     assert.equal(view.includes("home.costCurrency"), false);
+    assert.match(view, /Equity portfolio value/);
+    assert.equal(view.includes("Portfolio value"), false);
+    assert.match(view, /Total Portfolio/);
+    assert.match(view, /href="\/settings\/profile"/);
+    assert.match(view, /Cash/);
+    assert.match(view, /home\.cashUsd === null \? "—" /);
+    assert.match(view, /totalPortfolioUsd/);
+    assert.match(home, /cashUsd: cash/);
+    assert.match(home, /parseOutsideBook\(profileRes\.data\?\.outside_book\)\.cash/);
+    assert.equal(home.includes(".update("), false);
+    assert.equal(view.includes("holding_lots"), false);
+    assert.equal(view.includes("toggleDisplayCurrency"), false);
   });
 
   it("shows only the latest own report and links All Reports to /reports", () => {

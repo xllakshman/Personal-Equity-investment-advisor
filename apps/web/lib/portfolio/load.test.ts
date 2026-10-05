@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { selectHoldingsRows } from "./load";
+import { selectHoldingsRows, visibleRejectedImports } from "./load";
 
 describe("selectHoldingsRows", () => {
   it("reads lot_kind when the column exists", async () => {
@@ -58,5 +58,30 @@ describe("selectHoldingsRows", () => {
     assert.equal(got.rows[0]?.lot_kind, "retail");
     assert.equal(columns[0]?.includes("lot_kind"), true);
     assert.equal(columns[1]?.includes("lot_kind"), false);
+  });
+});
+
+describe("visibleRejectedImports", () => {
+  const amzn = {
+    ticker: "AMZN",
+    reject_reason: "Cost per share must be a number",
+    created_at: "2026-10-01T00:00:00.000Z",
+  };
+
+  it("hides historical rejects when this visit has no current CSV rejects", () => {
+    assert.deepEqual(visibleRejectedImports({}, [amzn]), []);
+    assert.deepEqual(visibleRejectedImports({ ok: "csv", rejected: "0" }, [amzn]), []);
+    assert.deepEqual(visibleRejectedImports({ ok: "manual", rejected: "1" }, [amzn]), []);
+    assert.deepEqual(visibleRejectedImports({ ok: "csv" }, [amzn]), []);
+  });
+
+  it("shows only this CSV save's rejects", () => {
+    const shown = visibleRejectedImports({ ok: "csv", rejected: "1" }, [amzn]);
+    assert.equal(shown.length, 1);
+    assert.equal(shown[0]?.ticker, "AMZN");
+    assert.deepEqual(
+      visibleRejectedImports({ ok: "csv", rejected: "1" }, []),
+      [],
+    );
   });
 });

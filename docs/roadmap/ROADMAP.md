@@ -21,7 +21,7 @@ Status: ⬜ not started · 🟡 in progress · ✅ done · ❌ skipped
 | Field | Value |
 |-------|--------|
 | **Build next** | **P6-03** — UPI/card merchant (queued; unnamed). **P11-16** blocked (forward P/E vendor unnamed). |
-| Last done | **P11-19** — same-model silent integrity repair (price/ROIC); no extra `usage_events` insert. **P11-18** ChartBlock. **P11-17** absence + integrity. **P11-15** derived FCF/ROIC charts. |
+| Last done | **P11-20** — `/desk` Equity portfolio value + Profile cash chip + Total Portfolio (local; no SQL). **P11-19** same-model silent integrity repair. **P11-18** ChartBlock. **P11-17** absence + integrity. |
 | Blocked on you | **P11-16** forward P/E (no vendor; Yahoo chart v8 has no estimates). P6-03 merchant. Step 0 items 3–7 still unnamed. P8-02 email **send**. |
 | Mock | `docs/mock-ui/App.dc.html` (desk), `Thesis.dc.html` (login), `Home.dc.html` (marketing) |
 | Trace | [`REQUIREMENTS-TRACE.md`](REQUIREMENTS-TRACE.md) — design prompt × framework × mock vs this file |
@@ -835,7 +835,7 @@ Local `.env` stays DEV. Prod secrets live in gitignored `.env.prod` (P0-04). Do 
 
 ## Phase 11 — Note layout and desk/admin fixes (named 2026-10-04)
 
-One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30). **Build next** is **P6-03** (queued; merchant unnamed). **P11-16** is blocked (forward P/E vendor unnamed). **P11-19** is done.
+One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’s own LAYER 1 note (cover, KEY DATA, headings). Do not invent FY tables. Do not `innerHTML` the model (D30). **Build next** is **P6-03** (queued; merchant unnamed). **P11-16** is blocked (forward P/E vendor unnamed). **P11-20** and **P11-19** are done locally.
 
 ### P11-01 — Typeset note + PDF download
 
@@ -1115,6 +1115,21 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
   3. HTTP/`error_text` never include prompt body.
 - **Testing:** three passes. Unit: no extra usage insert; json parse repair. `./tools/test/run_tests.sh`.
 
+### P11-20 — Home: Equity portfolio value + cash chip + Total Portfolio
+
+- **Status:** ✅ 2026-10-06 — local desk KPI copy only. No SQL. Did not start P6-03. Did not reorder merchant queue.
+- **Depends on:** P1-04, P1-05
+- **Direction:** `/desk` (`DeskHomeView` / `loadDeskHome`). Rename **Portfolio value** → **Equity portfolio value** (same `displayCostBasis` from view `holdings` for session `family_id`). Read-only **Cash** chip from `investor_profiles.outside_book.cash` (Profile field `outside_cash`; edit stays on `/settings/profile`). **Total Portfolio** = equity + cash when both are numeric and desk display is **USD**. Unset cash → cash and Total **—**. Stored `0` adds. No `holding_lots` write. No FX write-back.
+- **Writes:** none.
+- **Reads:** view `holdings`; `investor_profiles.outside_book`; `portfolios.display_currency` (existing).
+- **Who:** family member (`user_can_read_family` / viewer can see `/desk`). Owner saves cash on Profile.
+- **UI today:** `/desk` KPI **Equity portfolio value** + cash chip + **Total Portfolio**. Profile **Save profile** still upserts `investor_profiles`.
+- **Success:**
+  1. Home label is **Equity portfolio value**; figure is the same cost display as before.
+  2. Cash chip shows Profile cash or **—**; links to `/settings/profile`.
+  3. Total = equity + cash in USD; missing cash → **—**; INR display → Total **—** (cash is USD, not FX-converted into lots).
+- **Testing:** three passes. `npm test` in `apps/web`; `npm run build`. Browser `/desk` on **3100** if the server is up.
+
 ---
 
 ## Out of scope until you add a chunk
@@ -1213,6 +1228,7 @@ One chunk at a time. Do not start N+1 while N is ⬜ or 🟡. Typeset Eqveste’
 | P11-17 | 2026-10-06 | ✅ Typed Step 0 / fundamentals status; EDGAR timeout is SOURCE_ERROR (not “no news”); NSE NOT_COVERED not NOT_DISCLOSED; missing capex INPUTS_MISSING with no fake FCF; new `reports.sections` filer_type / coverage / integrity_warnings; `/reports/[id]` KEY DATA + collapsible panel. Silent repair still one `search` row. No SQL. **Build next: P11-18**. P11-16 blocked. P6-03 queued. |
 | P11-18 | 2026-10-06 | ✅ `/reports/[id]` ChartBlock captions (source/as_of), View data, line spark from allowlisted numbers, CSS bars; pie/html/svg dropped (no segment mix on evidence). PDF `render_pdf_html` same series as bars/tables. Old `{labels, values}` still parses. No UPDATE of old `reports.charts`. No SQL. **Build next: P11-19**. P11-16 blocked. P6-03 queued. |
 | P11-19 | 2026-10-06 | ✅ Same-model silent repair when note JSON price/ROIC disagree with the pack; one extra lab call; `UPDATE usage_events.cost_cents` on the existing `search` row; no second meter insert; no provider swap. json_schema helper is OpenAI-only and not sent on Analyse. Draft `docs/prompts/p11-19-integrity-repair.md` not promoted. No SQL. **Build next: P6-03**. P11-16 blocked. |
+| P11-20 | 2026-10-06 | ✅ `/desk` Equity portfolio value + Profile cash chip + Total Portfolio (USD add; unset cash → —). No SQL. No `holding_lots` write. **Build next: P6-03**. P11-16 blocked. |
 
 
 When you skip or split a chunk, add a row and a one-line reason. When you insert a chunk, give it an id (`P1-00a` or next free) and point **Build next** at it.

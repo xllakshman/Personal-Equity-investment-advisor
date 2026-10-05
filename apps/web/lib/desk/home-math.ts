@@ -1,3 +1,4 @@
+import type { NativeCurrency } from "@/lib/portfolio/exchange";
 import type { LotKind } from "@/lib/portfolio/lot-kind";
 
 export type HoldingRow = {
@@ -32,6 +33,23 @@ export function allocationWeights(rows: HoldingRow[]): {
     ticker: r.ticker,
     pct: (100 * r.qty * r.cost_per_share) / total,
   }));
+}
+
+/**
+ * Profile cash is `investor_profiles.outside_book.cash` (no currency column).
+ * Home treats that number as USD and adds it to the USD equity display only.
+ * Unset cash → null (show —). Stored 0 is numeric and adds. INR display → null
+ * (do not FX-convert cash into lots or into a fake INR total).
+ */
+export function totalPortfolioUsd(input: {
+  equityDisplay: number;
+  cashUsd: number | null;
+  displayCurrency: NativeCurrency;
+}): number | null {
+  if (input.displayCurrency !== "USD") return null;
+  if (input.cashUsd === null || !Number.isFinite(input.cashUsd)) return null;
+  if (!Number.isFinite(input.equityDisplay)) return null;
+  return input.equityDisplay + input.cashUsd;
 }
 
 export function lastCheckedLabel(iso: string | null, now = new Date()): string {

@@ -140,6 +140,21 @@ export async function loadHoldingsGrid(
   );
 }
 
+/**
+ * The reject box is only for this CSV save. Historical
+ * `portfolio_import_rows.accepted = false` rows must not stay on `/portfolio`
+ * after a later visit, a clean upload (`rejected=0`), or Dismiss.
+ */
+export function visibleRejectedImports(
+  search: { ok?: string; rejected?: string },
+  rows: RejectedImport[],
+): RejectedImport[] {
+  if (search.ok !== "csv") return [];
+  const n = Number.parseInt(String(search.rejected ?? "0"), 10);
+  if (!Number.isFinite(n) || n <= 0) return [];
+  return rows.slice(0, n);
+}
+
 export async function loadRecentRejected(
   familyId: string,
 ): Promise<RejectedImport[]> {

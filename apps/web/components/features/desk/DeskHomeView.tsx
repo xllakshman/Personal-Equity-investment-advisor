@@ -7,6 +7,7 @@ import { AllocationTable } from "@/components/features/desk/AllocationTable";
 import { PortfolioTrendCard } from "@/components/features/desk/PortfolioTrendCard";
 import { deskPrivacyView } from "@/lib/desk/privacy-status";
 import { firstName } from "@/lib/desk/identity";
+import { totalPortfolioUsd } from "@/lib/desk/home-math";
 import { splitByLotKind } from "@/lib/portfolio/lot-kind";
 import { formatPnlPct } from "@/lib/portfolio/unrealized-pnl";
 
@@ -38,10 +39,17 @@ export function DeskHomeView({
       : formatCreditAmount(home.analysesThisCycle);
   const privacy = deskPrivacyView(home.supportGrant);
   const emptyBook = home.positions === 0;
-  const portfolioValue = money(
-    emptyBook ? 0 : home.displayCostBasis,
-    home.displayCurrency,
-  );
+  const equityAmount = emptyBook ? 0 : home.displayCostBasis;
+  const portfolioValue = money(equityAmount, home.displayCurrency);
+  const cashLabel =
+    home.cashUsd === null ? "—" : money(home.cashUsd, "USD");
+  const totalAmount = totalPortfolioUsd({
+    equityDisplay: equityAmount,
+    cashUsd: home.cashUsd,
+    displayCurrency: home.displayCurrency,
+  });
+  const totalLabel =
+    totalAmount === null ? "—" : money(totalAmount, home.displayCurrency);
   const { retail, esop } = splitByLotKind(home.holdings);
 
   return (
@@ -57,10 +65,29 @@ export function DeskHomeView({
       </div>
       <div className="desk__kpis">
         <div className="desk__card">
-          <p className="desk__kpi-k">Portfolio value</p>
+          <p className="desk__kpi-k">Equity portfolio value</p>
           <p className="desk__kpi-v">{portfolioValue}</p>
           <p className="desk__kpi-s">
             {home.positions} holding{home.positions === 1 ? "" : "s"}
+          </p>
+          <Link
+            href="/settings/profile"
+            className="desk__plan-chip desk__cash-chip"
+            title="Edit cash on Profile"
+          >
+            <span className="desk__plan-chip-k">Cash</span>
+            <span className="desk__plan-chip-v">{cashLabel}</span>
+          </Link>
+        </div>
+        <div className="desk__card">
+          <p className="desk__kpi-k">Total Portfolio</p>
+          <p className="desk__kpi-v">{totalLabel}</p>
+          <p className="desk__kpi-s">
+            {totalAmount === null
+              ? home.cashUsd === null
+                ? "Cash not set on Profile"
+                : "Add when desk is USD"
+              : "Equity + cash"}
           </p>
         </div>
         <div className="desk__card">
