@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 import random
+import re
 from typing import Any
 
 from thesis_platform.config import Settings
@@ -19,6 +20,14 @@ XAI_URL = "https://api.x.ai/v1/chat/completions"
 DEEPSEEK_URL = "https://api.deepseek.com/v1/chat/completions"
 ANTHROPIC_VERSION = "2023-06-01"
 ANTHROPIC_MAX_TOKENS = 32768
+OPENAI_MAX_OUTPUT_TOKENS = 16384
+
+# OpenAI Chat Completions (2026 docs): `max_tokens` is deprecated in favor of
+# `max_completion_tokens` and is rejected on o-series / gpt-5+ / gpt-4.1 / gpt-4.5.
+# Older gpt-4o / gpt-4-turbo still accept `max_tokens`. xAI and DeepSeek keep
+# `max_tokens` even when they share this JSON shape.
+_O_SERIES_MODEL = re.compile(r"^o[1-9]")
+_GPT_MAJOR_MODEL = re.compile(r"^gpt-(\d+)")
 
 
 class LlmError(RuntimeError):
@@ -101,6 +110,25 @@ def openai_json_schema_response_format(
     }
 
 
+def openai_uses_max_completion_tokens(model: str) -> bool:
+    """True when OpenAI Chat Completions rejects `max_tokens` for this model id."""
+    slug = (model or "").strip().lower()
+    if not slug:
+        return False
+    if _O_SERIES_MODEL.match(slug):
+        return True
+    if slug.startswith(("gpt-4.1", "gpt-4.5")):
+        return True
+    found = _GPT_MAJOR_MODEL.match(slug)
+    return bool(found and int(found.group(1)) >= 5)
+
+
+def _openai_compat_token_limit_key(provider: str, model: str) -> str:
+    if provider == "openai" and openai_uses_max_completion_tokens(model):
+        return "max_completion_tokens"
+    return "max_tokens"
+
+
 def openai_compat_payload(
     *,
     model: str,
@@ -108,6 +136,8 @@ def openai_compat_payload(
     user: str,
     json_schema: dict[str, Any] | None = None,
     json_schema_name: str = "investor_note",
+    provider: str = "openai",
+    max_output_tokens: int | None = OPENAI_MAX_OUTPUT_TOKENS,
 ) -> dict[str, Any]:
     assert_model_allowed(model)
     payload: dict[str, Any] = {
@@ -116,8 +146,9 @@ def openai_compat_payload(
             {"role": "system", "content": system},
             {"role": "user", "content": user},
         ],
-        "max_tokens": 16384,
     }
+    if max_output_tokens is not None and max_output_tokens > 0:
+        payload[_openai_compat_token_limit_key(provider, model)] = max_output_tokens
     if json_schema:
         payload["response_format"] = openai_json_schema_response_format(
             json_schema_name, json_schema
@@ -172,7 +203,13 @@ def request_spec(
     return (
         url,
         {"Content-Type": "application/json"},
-        openai_compat_payload(model=model, system=system, user=user, json_schema=schema),
+        openai_compat_payload(
+            model=model,
+            system=system,
+            user=user,
+            json_schema=schema,
+            provider=provider,
+        ),
     )
 
 

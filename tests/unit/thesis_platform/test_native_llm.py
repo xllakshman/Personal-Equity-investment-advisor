@@ -13,6 +13,7 @@ from thesis_platform.native_llm import (
     available_providers,
     openai_compat_payload,
     openai_json_schema_response_format,
+    openai_uses_max_completion_tokens,
     parse_response,
     request_spec,
     require_api_key,
@@ -46,6 +47,7 @@ def test_opus5_posts_anthropic_native_id() -> None:
     assert payload["messages"][0]["role"] == "user"
     assert len(payload["messages"]) == 1
     assert payload["max_tokens"] >= 16384
+    assert "max_completion_tokens" not in payload
 
 
 def test_openai_xai_deepseek_use_compat_urls() -> None:
@@ -63,6 +65,57 @@ def test_openai_xai_deepseek_use_compat_urls() -> None:
     assert grok_body["model"] == "grok-4.6"
     assert ds_body["model"] == "deepseek-flash"
     assert "provider" not in openai_body
+    assert openai_body["max_completion_tokens"] >= 16384
+    assert "max_tokens" not in openai_body
+    assert grok_body["max_tokens"] >= 16384
+    assert "max_completion_tokens" not in grok_body
+    assert ds_body["max_tokens"] >= 16384
+    assert "max_completion_tokens" not in ds_body
+
+
+@pytest.mark.parametrize(
+    "model",
+    ["gpt-5.6-sol", "gpt-5.6", "gpt-5", "gpt-4.1", "gpt-4.5-preview", "o1", "o3-mini", "o4-mini"],
+)
+def test_openai_new_models_use_max_completion_tokens(model: str) -> None:
+    assert openai_uses_max_completion_tokens(model) is True
+    body = openai_compat_payload(model=model, system="static prefix", user="pack")
+    assert body["max_completion_tokens"] >= 16384
+    assert "max_tokens" not in body
+    assert "static prefix" not in str(body.get("max_completion_tokens"))
+
+
+@pytest.mark.parametrize("model", ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gpt-4"])
+def test_openai_legacy_models_keep_max_tokens(model: str) -> None:
+    assert openai_uses_max_completion_tokens(model) is False
+    body = openai_compat_payload(model=model, system="s", user="u")
+    assert body["max_tokens"] >= 16384
+    assert "max_completion_tokens" not in body
+
+
+def test_openai_token_limit_omitted_when_null_or_nonpositive() -> None:
+    for limit in (None, 0, -1):
+        body = openai_compat_payload(
+            model="gpt-5.6-sol", system="s", user="u", max_output_tokens=limit
+        )
+        assert "max_tokens" not in body
+        assert "max_completion_tokens" not in body
+    assert openai_uses_max_completion_tokens("") is False
+    assert openai_uses_max_completion_tokens("   ") is False
+
+
+def test_llm_error_message_never_embeds_prompt_body() -> None:
+    """Lab 400 detail is lab message only; prompt body must not appear in LlmError text."""
+    secret = "NEVER_SELL_THIS_STATIC_PROMPT_BODY_SLICE_ABCDEFGH"
+    err = LlmError(
+        "openai http 400: Unsupported parameter: 'max_tokens' is not supported "
+        "with this model. Use 'max_completion_tokens' instead."
+    )
+    text = str(err)
+    assert "max_completion_tokens" in text
+    assert secret not in text
+    assert "prompt_versions" not in text
+    assert len(secret) >= 40
 
 
 def test_default_payloads_skip_json_schema() -> None:
